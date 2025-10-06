@@ -1,3 +1,20 @@
+# .gitignore для WaterTransport — только артефакты сборки, IDE и секреты
+
+# Защита: явно не игнорировать ключевые исходники и проектные файлы
+!/*.sln
+!/**/*.sln
+!/**/*.csproj
+!/**/*.fsproj
+!/**/*.vbproj
+!/**/*.xaml
+!/**/*.cs
+!/**/*.cshtml
+!/**/*.razor
+!/**/*.resx
+!/.gitignore
+!/README.md
+!/LICENSE
+
 # Visual Studio
 .vs/
 *.suo
@@ -5,15 +22,13 @@
 *.userosscache
 *.sln.docstates
 
-# Visual Studio Code / Rider
+# Редакторы / IDE
 .vscode/
 .idea/
 
-# Build output
-[Bb]in/
-[Oo]bj/
-[Bb]uild/
-out/
+# Выходные директории сборки (в любом уровне вложенности)
+**/bin/
+**/obj/
 TestResults/
 
 # NuGet
@@ -21,48 +36,38 @@ packages/
 *.nupkg
 *.snupkg
 *.nuspec
-.project.lock.json
 .nuget/
 
-# Publish / deployment
+# Публикация / деплой
 *.Publish.xml
 *.pubxml
 *.publishsettings
 
-# User secrets and local settings
+# Локальные настройки и секреты
 secrets.json
 appsettings.*.Local.json
 
-# Temporary, cache, logs
+# Временные, кэш и логи
 *.tmp
 *.temp
 *.log
 *.cache
 *.dbmdl
-[Tt]humbs.db
+*.psmdcp
+*.userprefs
+
+# ОС и служебные файлы
+Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-
-# OS files
 .DS_Store
 ehthumbs.db
 
-# Editors/IDE specific
-*.pidb
-*.svd
+# Отладочные / профилирования
 *.pdb
-*.userprefs
-*.psmdcp
-
-# Test results / coverage
 *.coverage
 *.coveragexml
-TestResults/
 
-# Docker
-docker-compose*.yml
-Dockerfile*
-
-# Misc
+# Прочее
 *.swp
 *.swo
