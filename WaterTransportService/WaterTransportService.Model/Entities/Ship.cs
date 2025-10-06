@@ -1,20 +1,24 @@
-﻿namespace WaterTransportService.WaterTransportService.Model.Entities;
+﻿namespace WaterTransportService.Model.Entities;
+
 public class Ship
 {
-    public int ShipId { get; set; }
-    public string Name { get; set; }
-    public string Type { get; set; }
-    public int Capacity { get; set; }
-    public string Description { get; set; }
-    public int Year { get; set; }
-    public string Engine { get; set; }
-    public double Speed { get; set; }
-    public double Length { get; set; }
-    public double Width { get; set; }
+    public required uint Id { get; set; }
+    public required string Name { get; set; }
+    public required ushort TypeId { get; set; }
+    public required ushort Capacity { get; set; }
+    public DateTime? YearOfManufacture { get; set; } 
+    public required string RegistrationNumber { get; set; } //добавить в бд!!! уникальное поле
+    public ushort? Power { get; set; }
+    public string? Engine { get; set; }
+    public ushort? MaxSpeed { get; set; }
+    public ushort? Width { get; set; }
+    public ushort? Length { get; set; }
+    public string? Description { get; set; }
+    public uint? CostPerHour { get; set; }
+    public required Guid Portid { get; set; }
+    public required Port Port { get; set; }
+    public required Guid OwnerUuid { get; set; }
+    public required User Owner { get; set; }
 
-    public Guid OwnerId { get; set; }
-    public User Owner { get; set; }
-
-    public ICollection<ShipPhoto> Photos { get; set; }
-    public ICollection<CalendarEntry> Calendar { get; set; }
+    //public ICollection<ShipImage> Images { get; set; }
 }

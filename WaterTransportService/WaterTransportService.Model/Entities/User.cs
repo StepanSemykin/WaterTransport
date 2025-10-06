@@ -1,19 +1,22 @@
-﻿namespace WaterTransportService.WaterTransportService.Model.Entities;
+﻿namespace WaterTransportService.Model.Entities;
 
 public class User
 {
-    public Guid UserId { get; set; }
-    public string FullName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
-    public string PasswordHash { get; set; }
-    public DateTime RegisteredAt { get; set; }
-    public double Rating { get; set; }
-    public bool EmailNotifications { get; set; }
-    public bool PushNotifications { get; set; }
+    public Guid Uuid { get; set; }
+    public string? Name { get; set; }
+    public string? Surname { get; set; }
+    public string? Patronymic { get; set; }
+    public required ushort RoleId { get; set; }
+    public required string Phone { get; set; }
+    public string? Email { get; set; }
+    public required string Nickname { get; set; }
+    public DateTime? Birthday { get; set; }
+    public required DateTime RegisteredAt { get; set; }
+    public string? Description { get; set; }
 
-    public ICollection<Ship> Ships { get; set; }
-    public ICollection<Booking> Bookings { get; set; }
-    public ICollection<Review> Reviews { get; set; }
-    public ICollection<UserPhoto> Photos { get; set; }
+    public required ICollection<UserImage> Images { get; set; }
+    public required ICollection<Password> Passwords { get; set; } //???
+    public required ICollection<Booking> Bookings { get; set; }
+    public required ICollection<Review> Reviews { get; set; }
+    public ICollection<Ship>? Ships { get; set; }
 }

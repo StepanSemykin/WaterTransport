@@ -1,17 +1,13 @@
-﻿namespace WaterTransportService.WaterTransportService.Model.Entities;
+﻿namespace WaterTransportService.Model.Entities;
 
 public class Route
 {
-    public int RouteId { get; set; }
-
-    public int FromPortId { get; set; }
-    public Port FromPort { get; set; }
-
-    public int ToPortId { get; set; }
-    public Port ToPort { get; set; }
-
-    public TimeSpan? Duration { get; set; }
-    public decimal BasePrice { get; set; }
-
-    public ICollection<Booking> Bookings { get; set; }
+    public required uint Id { get; set; }
+    public required uint FromPortId { get; set; }
+    public uint? ToPortId { get; set; }
+    public required double Cost { get; set; }
+    public required uint ShipId { get; set; }
+    public TimeSpan? DurationMinutes { get; set; }
+    public required ushort TypeId { get; set; }
+    public required RouteType Type { get; set; }
 }
