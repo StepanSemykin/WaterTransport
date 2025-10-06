@@ -1,0 +1,68 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code / Rider
+.vscode/
+.idea/
+
+# Build output
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+out/
+TestResults/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+*.nuspec
+.project.lock.json
+.nuget/
+
+# Publish / deployment
+*.Publish.xml
+*.pubxml
+*.publishsettings
+
+# User secrets and local settings
+secrets.json
+appsettings.*.Local.json
+
+# Temporary, cache, logs
+*.tmp
+*.temp
+*.log
+*.cache
+*.dbmdl
+[Tt]humbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# OS files
+.DS_Store
+ehthumbs.db
+
+# Editors/IDE specific
+*.pidb
+*.svd
+*.pdb
+*.userprefs
+*.psmdcp
+
+# Test results / coverage
+*.coverage
+*.coveragexml
+TestResults/
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+
+# Misc
+*.swp
+*.swo
