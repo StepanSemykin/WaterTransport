@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 html, body {
   margin: 0;
   font-family: var(--font-ui, Inter, sans-serif);
@@ -6,4 +7,8 @@ html, body {
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+=======
+body {
+  margin: 0;
+>>>>>>> 1724cd0d76d6c185df29096f799b283048f07944
 }
