@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import HomePage from './pages/HomePage.jsx'
 import User from './pages/User'
 import { Routes, Route, Navigate } from 'react-router-dom'
@@ -15,17 +14,3 @@ export default function App() {
     </div>
   )
 }
-=======
-import HomePage from './pages/Home'
-import './App.css'
-
-function App() {
-  return (
-    <div className="App">
-      <HomePage />
-    </div>
-  )
-}
-
-export default App;
->>>>>>> 1724cd0d76d6c185df29096f799b283048f07944

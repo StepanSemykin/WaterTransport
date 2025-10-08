@@ -1,9 +1,5 @@
 {
-<<<<<<< HEAD
-  "name": "my-react-app",
-=======
   "name": "packege.json",
->>>>>>> 1724cd0d76d6c185df29096f799b283048f07944
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,19 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@chakra-ui/tabs": "3.0.0",
-    "bootstrap": "^5.3.8",
-    "lucide-react": "^0.544.0",
-    "react": "^19.1.1",
-    "react-bootstrap": "^2.10.10",
-    "react-dom": "^19.1.1",
-    "react-router-dom": "^6.30.1"
-=======
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
->>>>>>> 1724cd0d76d6c185df29096f799b283048f07944
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
