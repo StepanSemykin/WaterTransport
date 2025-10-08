@@ -1,0 +1,39 @@
+.menu {
+  margin-top: 20px;
+  border: none;
+}
+
+.menu-item {
+  margin-bottom: 8px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.menu-item:first-of-type,
+.menu-item:last-of-type {
+  border-radius: 20px;
+}
+
+.menu-item-title {
+  font-size: 18px;
+  font-weight: 500;
+  background-color: #f8f9fa;
+}
+
+.menu-item-body {
+  background-color: #ffffff;
+  font-size: 16px;
+  color: #333;
+  padding: 16px;
+}
+
+:global(.accordion-button:not(.collapsed)) {
+  background-color: #f2f3f8;
+}
+
+:global(.accordion-button) {
+  background-color: #f2f3f8;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
