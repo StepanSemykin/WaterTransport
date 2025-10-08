@@ -1,22 +1,87 @@
 ﻿namespace WaterTransportService.Model.Entities;
 
-public class User
+/// <summary>
+/// Основная сущность пользователя.
+/// </summary>
+public class User : BaseEntity
 {
-    public Guid Uuid { get; set; }
-    public string? Name { get; set; }
-    public string? Surname { get; set; }
-    public string? Patronymic { get; set; }
-    public required ushort RoleId { get; set; }
+    /// <summary>
+    /// Первичный GUID-идентификатор пользователя.
+    /// </summary>
+    public required Guid Uuid { get; set; }
+
+    /// <summary>
+    /// Профиль пользователя (1:1 связь).
+    /// </summary>
+    public required virtual UserProfile Profile { get; set; }
+
+    /// <summary>
+    /// Номер телефона пользователя.
+    /// </summary>
     public required string Phone { get; set; }
-    public string? Email { get; set; }
+
+    /// <summary>
+    /// Никнейм пользователя.
+    /// </summary>
     public required string Nickname { get; set; }
-    public DateTime? Birthday { get; set; }
-    public required DateTime RegisteredAt { get; set; }
+
+    /// <summary>
+    /// Описание/биография пользователя.
+    /// </summary>
     public string? Description { get; set; }
 
-    public required ICollection<UserImage> Images { get; set; }
-    public required ICollection<Password> Passwords { get; set; } //???
-    public required ICollection<Booking> Bookings { get; set; }
-    public required ICollection<Review> Reviews { get; set; }
-    public ICollection<Ship>? Ships { get; set; }
+    /// <summary>
+    /// Время создания аккаунта в UTC (переопределяет BaseEntity.CreatedAt при необходимости).
+    /// </summary>
+    public new DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Время последнего входа пользователя в UTC.
+    /// </summary>
+    public DateTime? LastLoginAt { get; set; }
+
+    /// <summary>
+    /// Флаг активности аккаунта.
+    /// </summary>
+    public new bool IsActive { get; set; }
+
+    /// <summary>
+    /// Счётчик неудачных попыток входа.
+    /// </summary>
+    public int FailedLoginAttempts { get; set; }
+
+    /// <summary>
+    /// Время до которого аккаунт заблокирован (если есть).
+    /// </summary>
+    public DateTime? LockedUntil { get; set; }
+
+    /// <summary>
+    /// Роли пользователя.
+    /// </summary>
+    public required ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+    /// <summary>
+    /// Записи паролей пользователя (история хешей и версий алгоритма).
+    /// </summary>
+    public virtual ICollection<Password> Passwords { get; set; } = new List<Password>();
+
+    /// <summary>
+    /// Бронирования, созданные пользователем.
+    /// </summary>
+    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
+    /// <summary>
+    /// Отзывы, оставленные пользователем.
+    /// </summary>
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+    /// <summary>
+    /// Судна, принадлежащие пользователю.
+    /// </summary>
+    public virtual ICollection<Ship> Ships { get; set; } = new List<Ship>();
+
+    /// <summary>
+    /// Календарные записи/рейсы, связанные с пользователем.
+    /// </summary>
+    public virtual ICollection<Calendar> Calendars { get; set; } = new List<Calendar>();
 }
