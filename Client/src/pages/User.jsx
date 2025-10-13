@@ -3,6 +3,7 @@ import { Container, Nav, Navbar } from "react-bootstrap";
 
 import { StatsCard } from "../components/dashboards/StatsCard.jsx";
 import { AccountHeader } from "../components/account/AccountHeader.jsx";
+import { Navigation } from "../components/navigation/Navigation.jsx"
 
 import UserOrders from "../components/user/UserOrders.jsx";
 import UserSettings from "../components/user/UserSettings.jsx";
@@ -23,8 +24,13 @@ const USER = {
   registred: "На сайте с 01.01.2025",
 };
 
+const USER_NAVIGATION = {
+  orders: { label: "Заказы", component: <UserOrders /> },
+  settings: { label: "Настройки", component: <UserSettings /> },
+  support: { label: "Поддержка", component: <UserSupport /> },
+};
+
 export default function User() {
-  const [activeTab, setActiveTab] = useState("orders");
 
   return (
     <div className={styles["user-page"]}>
@@ -39,31 +45,7 @@ export default function User() {
           ))}
         </div>
 
-        <Navbar bg="light" bg-body-tertiary expand="md" className={styles["user-navbar"]}>
-          <Container>
-            <Nav
-              activeKey={activeTab}
-              onSelect={(k) => setActiveTab(k)}
-              className={styles["user-nav"]}
-            >
-              <Nav.Item>
-                <Nav.Link eventKey="orders">Заказы</Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link eventKey="settings">Настройки</Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
-                <Nav.Link eventKey="support">Поддержка</Nav.Link>
-              </Nav.Item>
-            </Nav>
-          </Container>
-        </Navbar>
-
-        <div className={styles["user-content"]}>
-          {activeTab === "orders" && <UserOrders />}
-          {activeTab === "settings" && <UserSettings />}
-          {activeTab === "support" && <UserSupport />}
-        </div>
+        <Navigation params={USER_NAVIGATION} />;    
       </Container>
       
     </div>

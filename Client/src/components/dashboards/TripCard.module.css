@@ -1,6 +1,8 @@
 .card {
-  background-color: #f2f3f8;
-  border-radius: 16px;
+  background-color: #f3fdff;
+  border-radius: 0.375rem;
+  border: 1px solid #e4f9fd;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); 
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -19,7 +21,6 @@
   aspect-ratio: 25 / 14;
   height: auto;
   max-height: 140px;
-  border-radius: 16px;
   object-fit: cover;
 }
 
