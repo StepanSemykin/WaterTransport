@@ -1,29 +1,33 @@
-﻿namespace WaterTransportService.Model.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace WaterTransportService.Model.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 /// <summary>
 /// Судно.
 /// </summary>
+[Table("ships")]
 public class Ship
 {
     /// <summary>
     /// Идентификатор судна.
     /// </summary>
+    [Key]
+    [Column("id", TypeName = "uuid")]
     public required Guid Id { get; set; }
 
     /// <summary>
     /// Название судна.
     /// </summary>
+    [Required]
+    [MaxLength(256)]
     public required string Name { get; set; }
 
     /// <summary>
     /// Тип судна (внешний ключ на справочник типов).
     /// </summary>
     public required ushort TypeId { get; set; }
-
-    /// <summary>
-    /// Навигационное свойство на тип судна.
-    /// </summary>
-    public required ShipType Type { get; set; }
 
     /// <summary>
     /// Вместимость (количество пассажиров).
@@ -38,6 +42,8 @@ public class Ship
     /// <summary>
     /// Регистрационный номер судна (уникальное поле).
     /// </summary>
+    [Required]
+    [MaxLength(128)]
     public required string RegistrationNumber { get; set; } 
 
     /// <summary>
@@ -48,6 +54,7 @@ public class Ship
     /// <summary>
     /// Описание двигателя.
     /// </summary>
+    [MaxLength(256)]
     public string? Engine { get; set; }
 
     /// <summary>
@@ -68,6 +75,7 @@ public class Ship
     /// <summary>
     /// Описание судна.
     /// </summary>
+    [MaxLength(2000)]
     public string? Description { get; set; }
 
     /// <summary>
@@ -78,25 +86,32 @@ public class Ship
     /// <summary>
     /// GUID порта, в котором судно зарегистрировано.
     /// </summary>
+    [Column("port_id", TypeName = "uuid")]
+    [Required]
     public required Guid Portid { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство на порт.
-    /// </summary>
+    [ForeignKey(nameof(Portid))]
+    [InverseProperty(nameof(Port.Ships))]
     public required virtual Port Port { get; set; }
 
     /// <summary>
     /// GUID владельца судна (пользователь).
     /// </summary>
+    [Column("owner_uuid", TypeName = "uuid")]
+    [Required]
     public required Guid OwnerUuid { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство на владельца судна.
-    /// </summary>
+    [ForeignKey(nameof(OwnerUuid))]
+    [InverseProperty(nameof(User.Ships))]
     public required virtual User Owner { get; set; }
 
     /// <summary>
     /// Коллекция изображений судна.
     ///</summary>
     public ICollection<ShipImage> Images { get; set; } = new List<ShipImage>();
+
+    /// <summary>
+    /// Отзывы, оставленные про судно.
+    /// </summary>
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

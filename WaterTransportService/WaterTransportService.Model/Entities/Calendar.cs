@@ -1,28 +1,38 @@
-﻿namespace WaterTransportService.Model.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace WaterTransportService.Model.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 /// <summary>
-/// Запись календаря.
+/// Запись календаря (конкретный рейс/отправление судна по маршруту).
 /// </summary>
+[Table("calendars")]
 public class Calendar
 {
     /// <summary>
     /// Идентификатор записи календаря.
     /// </summary>
-    public required Guid Id { get; set; }
+    [Key]
+    [Column("id")]
+    public required uint Id { get; set; }
 
     /// <summary>
     /// Идентификатор маршрута.
     /// </summary>
-    public required Guid RouteId { get; set; }
+    [Column("route_id")]
+    [Required]
+    public required uint RouteId { get; set; }
 
     /// <summary>
     /// Навигационное свойство на маршрут.
     /// </summary>
-    public required virtual Route Route { get; set; }
+    public required Route Route { get; set; }
 
     /// <summary>
     /// Время отправления (UTC).
     /// </summary>
+    [Required]
     public required DateTime DepartureAt { get; set; }
 
     /// <summary>
@@ -33,20 +43,25 @@ public class Calendar
     /// <summary>
     /// Идентификатор статуса календаря.
     /// </summary>
+    [Column("status_id")]
+    [Required]
     public required ushort StatusId { get; set; } 
 
     /// <summary>
     /// Навигационное свойство на статус календаря.
     /// </summary>
-    public required virtual CalendarStatus Status { get; set; }
+    [ForeignKey(nameof(StatusId))]
+    [InverseProperty(nameof(CalendarStatus.Calendars))]
+    public required CalendarStatus Status { get; set; }
 
     /// <summary>
     /// GUID владельца записи (внешний ключ на User.Uuid).
     /// </summary>
+    [Column("owner_uuid", TypeName = "uuid")]
+    [Required]
     public required Guid OwnerUuid { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство на владельца записи.
-    /// </summary>
-    public required virtual User Owner { get; set; }
+    [ForeignKey(nameof(OwnerUuid))]
+    [InverseProperty(nameof(User.Calendars))]
+    public required User Owner { get; set; }
 }

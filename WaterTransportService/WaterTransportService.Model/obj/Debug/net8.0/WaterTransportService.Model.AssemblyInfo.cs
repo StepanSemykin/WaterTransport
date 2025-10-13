@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WaterTransportService.Model")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a26b9bab745e0c38cf9c2258ae6a9691b40e29ee")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b3e92d6120953b8d002ac1fe88d4cd90d208c7dc")]
 [assembly: System.Reflection.AssemblyProductAttribute("WaterTransportService.Model")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WaterTransportService.Model")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

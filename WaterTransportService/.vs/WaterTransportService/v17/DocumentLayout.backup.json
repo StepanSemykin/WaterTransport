@@ -3,32 +3,36 @@
   "WorkspaceRootPath": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\calendarstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\calendarstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\userprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\userprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\calendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\calendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\routetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\routetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\watertransportservice.model.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\watertransportservice.model.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\userimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\userimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\portimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\portimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\port.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\port.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\password.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\password.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\ship.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\ship.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\shiptype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\shiptype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\shipimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -39,24 +43,20 @@
       "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\userrole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\userprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\userprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\userimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\userimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\role.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\booking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\baseentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\baseentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\watertransportservice.model.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\watertransportservice.model.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\portimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\portimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\route.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -67,12 +67,16 @@
       "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\review.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\password.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\password.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\port.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\port.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\routetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\routetype.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\calendarstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\calendarstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|c:\\users\\user\\source\\repos\\dmgorshenin\\watertransport\\watertransportservice\\watertransportservice.model\\entities\\calendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{44134951-DEC6-4DFF-9910-76DFED3E5021}|WaterTransportService.Model\\WaterTransportService.Model.csproj|solutionrelative:watertransportservice.model\\entities\\calendar.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -82,7 +86,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 10,
+          "SelectedChildIndex": 19,
           "Children": [
             {
               "$type": "Bookmark",
@@ -98,104 +102,114 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "WaterTransportService.Model",
+              "DocumentIndex": 12,
+              "Title": "WaterTransportService.Model.csproj",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\WaterTransportService.Model.csproj",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\WaterTransportService.Model.csproj",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\WaterTransportService.Model.csproj*",
-              "RelativeToolTip": "WaterTransportService.Model\\WaterTransportService.Model.csproj*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAKAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\WaterTransportService.Model.csproj",
+              "RelativeToolTip": "WaterTransportService.Model\\WaterTransportService.Model.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-10-08T07:58:32.321Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-12T11:49:24.879Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 7,
+              "Title": "ShipType.cs",
+              "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\ShipType.cs",
+              "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\ShipType.cs",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\ShipType.cs",
+              "RelativeToolTip": "WaterTransportService.Model\\Entities\\ShipType.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABsAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-10-08T08:39:40.51Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "BaseEntity.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\BaseEntity.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\BaseEntity.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\BaseEntity.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\BaseEntity.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-07T16:56:22.968Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-10-07T16:56:22.968Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "ShipImage.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\ShipImage.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\ShipImage.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\ShipImage.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\ShipImage.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAwwD4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAABQwCEAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:44:36.319Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 13,
               "Title": "PortImage.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\PortImage.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\PortImage.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\PortImage.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\PortImage.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAABQwB0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:44:03.7Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 2,
               "Title": "RouteType.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\RouteType.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\RouteType.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\RouteType.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\RouteType.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAEBUwBEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:41:20.956Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 17,
               "Title": "CalendarStatus.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\CalendarStatus.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\CalendarStatus.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\CalendarStatus.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\CalendarStatus.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABkAAAAAAAAAAABQwBsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:39:46.726Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 18,
               "Title": "Calendar.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Calendar.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Calendar.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Calendar.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\Calendar.cs",
-              "ViewState": "AgIAACMAAAAAAAAAAAAuwDQAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAABQwBkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:25:42.526Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 10,
               "Title": "Booking.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Booking.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Booking.cs",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Booking.cs*",
-              "RelativeToolTip": "WaterTransportService.Model\\Entities\\Booking.cs*",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAIwBIAAAAeAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Booking.cs",
+              "RelativeToolTip": "WaterTransportService.Model\\Entities\\Booking.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAABQwFMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:17:22.42Z",
               "EditorCaption": ""
@@ -208,7 +222,7 @@
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Review.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Review.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\Review.cs",
-              "ViewState": "AgIAADQAAAAAAAAAAMBcwDkAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACgAAAAAAAAAAABQwE0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:02:20.392Z",
               "EditorCaption": ""
@@ -219,9 +233,9 @@
               "Title": "Ship.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Ship.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Ship.cs",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Ship.cs*",
-              "RelativeToolTip": "WaterTransportService.Model\\Entities\\Ship.cs*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAA8AAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Ship.cs",
+              "RelativeToolTip": "WaterTransportService.Model\\Entities\\Ship.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAABQwE8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T16:41:21.027Z",
               "EditorCaption": ""
@@ -234,98 +248,98 @@
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Route.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Route.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\Route.cs",
-              "ViewState": "AgIAACoAAAAAAAAAAMBcwC8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAABQwEAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T16:24:10.152Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 16,
               "Title": "Port.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Port.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Port.cs",
-              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Port.cs*",
-              "RelativeToolTip": "WaterTransportService.Model\\Entities\\Port.cs*",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAQwCsAAAAkAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Port.cs",
+              "RelativeToolTip": "WaterTransportService.Model\\Entities\\Port.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAABQwEMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T16:17:32.282Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 5,
               "Title": "Password.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Password.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Password.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Password.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\Password.cs",
-              "ViewState": "AgIAABgAAAAAAAAAAEBUwBsAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAEwBQAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T16:10:53.855Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 4,
               "Title": "Role.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Role.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\Role.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\Role.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\Role.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAB4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-26T16:04:13.619Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "UserRole.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\UserRole.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\UserRole.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\UserRole.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\UserRole.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAIBJwCQAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-08T08:02:57.189Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 0,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\User.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\User.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\User.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\User.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAYwBEAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-26T15:55:24.776Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 1,
               "Title": "UserProfile.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\UserProfile.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\UserProfile.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\UserProfile.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\UserProfile.cs",
-              "ViewState": "AgIAADkAAAAAAAAAAAA3wDMAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABcAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-07T17:07:19.575Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 3,
               "Title": "UserImage.cs",
               "DocumentMoniker": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\UserImage.cs",
               "RelativeDocumentMoniker": "WaterTransportService.Model\\Entities\\UserImage.cs",
               "ToolTip": "C:\\Users\\User\\source\\repos\\dmgorshenin\\WaterTransport\\WaterTransportService\\WaterTransportService.Model\\Entities\\UserImage.cs",
               "RelativeToolTip": "WaterTransportService.Model\\Entities\\UserImage.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAAwD4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-10-06T17:44:56.398Z",
               "EditorCaption": ""

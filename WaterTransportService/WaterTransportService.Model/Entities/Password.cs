@@ -1,37 +1,44 @@
-﻿namespace WaterTransportService.Model.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace WaterTransportService.Model.Entities;
 
 /// <summary>
-/// Сущность, представляющая хеш пароля пользователя.
+/// Сущность, представляющая хеш пароля пользователя и версию алгоритма.
 /// </summary>
+[Table("passwords")]
 public class Password
 {
     /// <summary>
     /// Идентификатор записи пароля.
     /// </summary>
-    public required uint Id { get; set; }
+    [Key]
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
 
     /// <summary>
     /// GUID пользователя-владельца пароля.
     /// </summary>
+    [Column("user_uuid", TypeName = "uuid")]
+    [Required]
     public required Guid UserUuid { get; set; }
-
+    
     /// <summary>
-    /// Навигационное свойство на пользователя-владельца пароля.
+    
     /// </summary>
-    public required virtual User User { get; set; }
-
-    /// <summary>
-    /// Соль, используемая при хешировании пароля.
-    /// </summary>
+    [Column("salt")]
     public required string Salt { get; set; }
 
     /// <summary>
     /// Хеш пароля.
     /// </summary>
+    [Column("hash")]
+    [Required]
     public required string Hash { get; set; }
 
     /// <summary>
-    /// Версия пароля.
+    /// Версия/флаг алгоритма хеширования. Используется для миграции хешей при смене алгоритма.
     /// </summary>
+    [Column("version")]
     public required bool Version { get; set; }
 }
