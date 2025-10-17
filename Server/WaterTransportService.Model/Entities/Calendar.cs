@@ -41,18 +41,6 @@ public class Calendar
     public DateTime? ArrivedAt { get; set; }
 
     /// <summary>
-    /// Идентификатор статуса записи календаря (внешний ключ на справочник статусов).
-    /// </summary>
-    [Column("status_id")]
-    [Required]
-    public required ushort CalendarStatusId { get; set; }
-
-    /// <summary>
-    /// Навигационное свойство на статус записи календаря.
-    /// </summary>
-    public required CalendarStatus CalendarStatus { get; set; }
-
-    /// <summary>
     /// Владелец записи.
     /// </summary>
     [Column("user_id", TypeName = "uuid")]
@@ -63,4 +51,12 @@ public class Calendar
     /// Навигационное свойство на владельца записи.
     /// </summary>
     public required User User { get; set; }
+
+    /// <summary>
+    /// Название статуса.
+    /// </summary>
+    [Required]
+    [Column("name")]
+    [MaxLength(20)]
+    public required string StatusName { get; set; } // 1 - запланирован, 2 - в пути, 3 - завершен, 4 - отменен
 }

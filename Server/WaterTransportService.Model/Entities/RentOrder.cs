@@ -1,13 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterTransportService.Model.Entities;
 
-/// <summary>
-/// Бронирование рейса/мест пользователем.
-/// </summary>
-[Table("bookings")]
-public class Booking
+public class RentOrder
 {
     /// <summary>
     /// Идентификатор бронирования.
@@ -45,21 +42,33 @@ public class Booking
     /// <summary>
     /// Идентификатор записи календаря (рейса), на который сделано бронирование.
     /// </summary>
-    [Column("calendar_id", TypeName="uuid")]
+    [Column("rent_calendar_id", TypeName = "uuid")]
     [Required]
-    public required Guid CalendarId { get; set; }
+    public required Guid RentCalendarId { get; set; }
 
     /// <summary>
     /// Навигационное свойство на запись календаря (рейс).
     /// </summary>
-    public required Calendar Calendar { get; set; }
+    public required RentCalendar RentCalendar { get; set; }
 
     /// <summary>
-    /// Дата заказа/бронирования в UTC.
+    /// Время отправления (UTC).
     /// </summary>
-    [Column("order_date", TypeName ="timestamp")]
+    [Column("rental_start_time", TypeName = "timestamp")]
     [Required]
-    public required DateTime OrderDate { get; set; }
+    public required DateTime RentalStartTime { get; set; }
+
+    /// <summary>
+    /// Время прибытия (UTC), если известно.
+    /// </summary>
+    [Column("rental_end_time", TypeName = "timestamp")]
+    public DateTime? RentalEndTime { get; set; }
+
+    /// <summary>
+    /// Дата оплаты в UTC.
+    /// </summary>
+    [Column("order_date", TypeName = "timestamp")]
+    public DateTime? OrderDate { get; set; }
 
     /// <summary>
     /// Название статуса бронирования.
@@ -81,4 +90,5 @@ public class Booking
     /// </summary>
     [Column("cancelled_at", TypeName = "timestamp")]
     public DateTime? CancelledAt { get; set; }
+
 }

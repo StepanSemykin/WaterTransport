@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Model
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Api", "WaterTransportService.Api\WaterTransportService.Api.csproj", "{D2956EC1-7879-40B3-BAE9-2D3F68E64135}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Tests", "WaterTransportService.Tests\WaterTransportService.Tests.csproj", "{EBB6293F-626F-48B2-A825-3CB0BABACA9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D2956EC1-7879-40B3-BAE9-2D3F68E64135}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2956EC1-7879-40B3-BAE9-2D3F68E64135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2956EC1-7879-40B3-BAE9-2D3F68E64135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBB6293F-626F-48B2-A825-3CB0BABACA9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBB6293F-626F-48B2-A825-3CB0BABACA9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBB6293F-626F-48B2-A825-3CB0BABACA9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBB6293F-626F-48B2-A825-3CB0BABACA9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,8 +6,8 @@ namespace WaterTransportService.Model.Entities;
 /// <summary>
 /// Сущность, представляющая хеш пароля пользователя и версию алгоритма.
 /// </summary>
-[Table("passwords")]
-public class Password
+[Table("old_passwords")]
+public class OldPassword
 {
     /// <summary>
     /// Идентификатор записи пароля.
@@ -42,10 +42,4 @@ public class Password
     [Required]
     public required string Hash { get; set; }
 
-    /// <summary>
-    /// Версия/флаг алгоритма хеширования.
-    /// </summary>
-    [Column("version")]
-    [Required]
-    public required bool Version { get; set; }
 }
