@@ -13,7 +13,7 @@ public class Review : BaseEntity
     /// Идентификатор отзыва.
     /// </summary>
     [Key]
-    [Column("id", TypeName ="uuid")]
+    [Column("id", TypeName = "uuid")]
     public required Guid Id { get; set; }
 
     /// <summary>
@@ -33,7 +33,7 @@ public class Review : BaseEntity
     /// <summary>
     /// Идентификатор пользователя, к которому относится отзыв (если отзыв о пользователе).
     /// </summary>
-    [Column("user_id", TypeName ="uuid")]
+    [Column("user_id", TypeName = "uuid")]
     public Guid? UserId { get; set; }
 
     /// <summary>
@@ -69,12 +69,17 @@ public class Review : BaseEntity
     [Column("rating")]
     [Required]
     [Range(0, 5)]
-    public required uint Rating { get; set; }
+    public required byte Rating { get; set; }
 
     /// <summary>
     /// Время создания отзыва в UTC.
     /// </summary>
-    [Column("created_at", TypeName="timestamp")]
+    [Column("created_at", TypeName = "timestamp")]
     [Required]
     public new required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Флаг активности записи. Если false — запись считается удалённой/неактивной.
+    /// </summary>
+    public bool IsActive { get; set; } = true;
 }

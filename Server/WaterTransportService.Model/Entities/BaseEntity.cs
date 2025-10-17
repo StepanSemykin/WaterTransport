@@ -14,9 +14,4 @@ public abstract class BaseEntity
     /// Время последнего обновления записи в UTC.
     /// </summary>
     public DateTime? UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Флаг активности записи. Если false — запись считается удалённой/неактивной.
-    /// </summary>
-    public bool IsActive { get; set; } = true;
 }
