@@ -29,13 +29,13 @@ public class RentCalendar
     /// <summary>
     /// Время отправления (UTC).
     /// </summary>
-    [Column("lower_time_limit", TypeName = "timestamp")]
+    [Column("lower_time_limit", TypeName = "timestamptz")]
     [Required]
     public required DateTime LowerTimeLimit { get; set; }
 
     /// <summary>
     /// Время прибытия (UTC), если известно.
     /// </summary>
-    [Column("high_time_limit", TypeName = "timestamp")]
+    [Column("high_time_limit", TypeName = "timestamptz")]
     public DateTime? HighTimeLimit { get; set; }
 }

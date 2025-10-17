@@ -74,7 +74,7 @@ public class Review : BaseEntity
     /// <summary>
     /// Время создания отзыва в UTC.
     /// </summary>
-    [Column("created_at", TypeName = "timestamp")]
+    [Column("created_at", TypeName = "timestamptz")]
     [Required]
     public new required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

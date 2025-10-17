@@ -33,6 +33,6 @@ public class UserImage : BaseEntity
     /// Время загрузки изображения в UTC.
     /// </summary>
     [Required]
-    [Column("uploaded_at", TypeName="timestamp")]
+    [Column("uploaded_at", TypeName= "timestamptz")]
     public required DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 }

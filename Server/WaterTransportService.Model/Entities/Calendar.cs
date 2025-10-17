@@ -30,14 +30,14 @@ public class Calendar
     /// <summary>
     /// Время отправления (UTC).
     /// </summary>
-    [Column("departure_at", TypeName = "timestamp")]
+    [Column("departure_at", TypeName = "timestamptz")]
     [Required]
     public required DateTime DepartureAt { get; set; }
 
     /// <summary>
     /// Время прибытия (UTC), если известно.
     /// </summary>
-    [Column("arrived_at", TypeName = "timestamp")]
+    [Column("arrived_at", TypeName = "timestamptz")]
     public DateTime? ArrivedAt { get; set; }
 
     /// <summary>
