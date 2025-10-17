@@ -13,14 +13,27 @@ public class ShipImage : BaseEntity
     /// Идентификатор изображения судна.
     /// </summary>
     [Key]
-    [Column("id")]
-    public required uint Id { get; set; }
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
+
+    /// <summary>
+    /// Идентификатор судна.
+    /// </summary>
+    [Required]
+    [Column("ship_id", TypeName = "uuid")]
+    public required Guid ShipId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на судно.
+    /// </summary>
+    public required Ship Ship { get; set; }
 
     /// <summary>
     /// Путь к файлу изображения (локально или URL).
     /// </summary>
     [Required]
-    [MaxLength(1000)]
+    [MaxLength(3000)]
+    [Column("image_path")]
     public required string ImagePath { get; set; }
 
     /// <summary>

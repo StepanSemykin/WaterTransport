@@ -12,6 +12,7 @@ public class Role
     /// <summary>
     /// Идентификатор роли.
     /// </summary>
+    [Key]
     [Column("id")]
     public required uint Id { get; set; }
 
@@ -20,10 +21,11 @@ public class Role
     /// </summary>
     [Required]
     [MaxLength(128)]
+    [Column("name")]
     public required string Name { get; set; }
 
     /// <summary>
-    /// Связи с пользователями через таблицу UserRole (many-to-many).
+    /// Список пользователей, имеющих данную роль.
     /// </summary>
-    public required ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<User> Users { get; set; } = [];
 }

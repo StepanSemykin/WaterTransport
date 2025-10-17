@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterTransportService.Model.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,26 +13,37 @@ public class Route
     /// Идентификатор маршрута.
     /// </summary>
     [Key]
-    [Column("id")]
-    public required uint Id { get; set; }
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
 
     /// <summary>
     /// Идентификатор порта отправления.
     /// </summary>
-    [Column("from_port_id", TypeName = "uuid")]
+    [Column("from_port_id", TypeName ="uuid")]
     [Required]
     public required Guid FromPortId { get; set; }
 
     /// <summary>
+    /// Навигационное свойство на порт отправления.
+    /// </summary>
+    public required Port FromPort { get; set; }
+
+    /// <summary>
     /// Идентификатор порта назначения (опционально для аренды).
     /// </summary>
-    [Column("to_port_id", TypeName = "uuid")]
+    [Column("to_port_id", TypeName ="uuid")]
     public Guid? ToPortId { get; set; }
 
     /// <summary>
-    /// Стоимость маршрута (в минимальных единицах, напр. копейки).
+    /// Навигационное свойство на порт назначения.
+    /// </summary>
+    public Port? ToPort { get; set; }
+
+    /// <summary>
+    /// Стоимость маршрута.
     /// </summary>
     [Required]
+    [Column("cost", TypeName = "numeric(10,2)")]
     public required double Cost { get; set; }
 
     /// <summary>
@@ -44,21 +54,25 @@ public class Route
     public required Guid ShipId { get; set; }
 
     /// <summary>
+    /// Навигационное свойство на судно.
+    /// </summary>
+    public required Ship Ship { get; set; }
+
+    /// <summary>
     /// Продолжительность маршрута (в минутах) — опционально.
     /// </summary>
+    [Column("duration_minutes", TypeName = "interval")]
     public TimeSpan? DurationMinutes { get; set; }
 
     /// <summary>
     /// Идентификатор типа маршрута.
     /// </summary>
-    [Column("type_id")]
+    [Column("route_type_id")]
     [Required]
-    public required ushort TypeId { get; set; }
+    public required ushort RouteTypeId { get; set; }
 
     /// <summary>
     /// Навигационное свойство на тип маршрута.
     /// </summary>
-    [ForeignKey(nameof(TypeId))]
-    [InverseProperty(nameof(RouteType.Routes))]
-    public required virtual RouteType Type { get; set; }
+    public required RouteType RouteType { get; set; }
 }

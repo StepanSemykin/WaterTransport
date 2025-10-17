@@ -20,5 +20,11 @@ public class CalendarStatus
     /// </summary>
     [Required]
     [Column("name")]
+    [MaxLength(20)]
     public required string Name { get; set; } // 1 - запланирован, 2 - в пути, 3 - завершен, 4 - отменен
+
+    /// <summary>
+    /// Список календарей, имеющих данный статус.
+    /// </summary>
+    public ICollection<Calendar> Calendars { get; set; } = [];
 }

@@ -21,7 +21,12 @@ public class RouteType
     /// Название типа маршрута.
     /// </summary>
     [Required]
-    [MaxLength(256)]
+    [MaxLength(32)]
     [Column("name")]
     public required string Name { get; set; } // 1 - аренда, 2 - фиксированный маршрут
+
+    /// <summary>
+    /// Список маршрутов данного типа.
+    /// </summary>
+    public ICollection<Route> Routes { get; set; } = [];
 }

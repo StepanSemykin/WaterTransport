@@ -17,16 +17,22 @@ public class Password
     public required Guid Id { get; set; }
 
     /// <summary>
-    /// GUID пользователя-владельца пароля.
+    /// Идентификатор пользователя, которому принадлежит пароль.
     /// </summary>
-    [Column("user_uuid", TypeName = "uuid")]
+    [Column("user_id", TypeName = "uuid")]
     [Required]
-    public required Guid UserUuid { get; set; }
-    
+    public required Guid UserId { get; set; }
+
     /// <summary>
-    
+    /// Навигационное свойство на пользователя.
+    /// </summary>
+    public required User User { get; set; }
+
+    /// <summary>
+    /// Соль, используемая при хешировании пароля.
     /// </summary>
     [Column("salt")]
+    [Required]
     public required string Salt { get; set; }
 
     /// <summary>
@@ -37,8 +43,9 @@ public class Password
     public required string Hash { get; set; }
 
     /// <summary>
-    /// Версия/флаг алгоритма хеширования. Используется для миграции хешей при смене алгоритма.
+    /// Версия/флаг алгоритма хеширования.
     /// </summary>
     [Column("version")]
+    [Required]
     public required bool Version { get; set; }
 }
