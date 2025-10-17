@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterTransportService.Model.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
 
 /// <summary>
 /// Изображение порта с метаданными.
@@ -14,14 +13,25 @@ public class PortImage : BaseEntity
     /// Идентификатор изображения порта.
     /// </summary>
     [Key]
-    [Column("id")]
-    public required uint Id { get; set; }
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
+
+    /// <summary>
+    /// Идентификатор порта.
+    /// </summary>
+    public required Guid PortId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на порт.
+    /// </summary>
+    public required Port Port { get; set; }
 
     /// <summary>
     /// Путь к файлу изображения (локально или URL).
     /// </summary>
     [Required]
-    [MaxLength(1000)]
+    [MaxLength(3000)]
+    [Column("image_path")]
     public required string ImagePath { get; set; }
 
     /// <summary>

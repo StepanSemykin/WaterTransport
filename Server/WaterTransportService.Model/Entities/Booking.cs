@@ -13,15 +13,15 @@ public class Booking
     /// Идентификатор бронирования.
     /// </summary>
     [Key]
-    [Column("id")]
-    public required uint Id { get; set; }
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
 
     /// <summary>
-    /// GUID пользователя, оформившего бронирование.
+    /// Идентификатор пользователя, сделавшего бронирование.
     /// </summary>
-    [Column("user_uuid", TypeName = "uuid")]
     [Required]
-    public required Guid UserUuid { get; set; }
+    [Column("user_id", TypeName = "uuid")]
+    public required Guid UserId { get; set; }
 
     /// <summary>
     /// Навигационное свойство на пользователя.
@@ -29,7 +29,7 @@ public class Booking
     public required User User { get; set; }
 
     /// <summary>
-    /// Общая стоимость бронирования в минимальных единицах (например, копейки).
+    /// Общая стоимость бронирования в рублях.
     /// </summary>
     [Column("total_price")]
     [Required]
@@ -43,41 +43,46 @@ public class Booking
     public required ushort NumberOfPassengers { get; set; }
 
     /// <summary>
-    /// Идентификатор записи календаря (рейса).
+    /// Идентификатор записи календаря (рейса), на который сделано бронирование.
     /// </summary>
-    [Column("calendar_id")]
+    [Column("calendar_id", TypeName="uuid")]
     [Required]
-    public required uint CalendarId { get; set; }
+    public required Guid CalendarId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на запись календаря.
+    /// Навигационное свойство на запись календаря (рейс).
     /// </summary>
     public required Calendar Calendar { get; set; }
 
     /// <summary>
     /// Дата заказа/бронирования в UTC.
     /// </summary>
-    [Column("order_date")]
+    [Column("order_date", TypeName ="timestamp")]
     [Required]
     public required DateTime OrderDate { get; set; }
 
     /// <summary>
-    /// Статус бронирования (например: "created", "cancelled").
+    /// Идентификатор статуса бронирования (внешний ключ на справочник статусов).
     /// </summary>
-    [Column("status")]
+    [Column("booking_status_id")]
     [Required]
-    [MaxLength(64)]
-    public required string Status { get; set; }
+    public required uint BookingStatusId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на статус бронирования.
+    /// </summary>
+    public required BookingStatus BookingStatus { get; set; }
 
     /// <summary>
     /// Время создания записи бронирования в UTC.
     /// </summary>
-    [Column("created_at")]
+    [Column("created_at", TypeName = "timestamp")]
     [Required]
-    public required DateTime CreatedAt { get; set; }
+    public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Время отмены бронирования в UTC (если отменено).
     /// </summary>
+    [Column("cancelled_at", TypeName = "timestamp")]
     public DateTime? CancelledAt { get; set; }
 }

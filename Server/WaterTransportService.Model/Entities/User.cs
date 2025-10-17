@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 /// <summary>
 /// Основная сущность пользователя.
 /// </summary>
-
 [Table("users")]
 public class User : BaseEntity
 {
@@ -20,14 +19,13 @@ public class User : BaseEntity
     /// <summary>
     /// Профиль пользователя (1:1 связь).
     /// </summary>
-    [InverseProperty(nameof(UserProfile.User))]
-    public required virtual UserProfile Profile { get; set; }
+    public UserProfile? UserProfile { get; set; }
 
     /// <summary>
     /// Номер телефона пользователя.
     /// </summary>
     [Required]
-    [MaxLength(32)]
+    [MaxLength(20)]
     [Column("phone")]
     public required string Phone { get; set; }
 
@@ -72,37 +70,37 @@ public class User : BaseEntity
     public DateTime? LockedUntil { get; set; }
 
     /// <summary>
-    /// Роли пользователя (через сущность UserRole).
+    /// Роли пользователя.
     /// </summary>
-    [InverseProperty(nameof(UserRole.User))]
-    public required ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<Role> Roles { get; set; } = [];
 
     /// <summary>
     /// Записи паролей пользователя.
     /// </summary>
-    public required ICollection<Password> Passwords { get; set; } = new List<Password>();
+    public ICollection<Password> Passwords { get; set; } = [];
 
     /// <summary>
     /// Бронирования, созданные пользователем.
     /// </summary>
-    [InverseProperty(nameof(Booking.User))]
-    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    public ICollection<Booking> Bookings { get; set; } = [];
 
     /// <summary>
     /// Отзывы, оставленные пользователем (как автор).
     /// </summary>
-    [InverseProperty(nameof(Review.Author))]
-    public ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public ICollection<Review> Reviews { get; set; } = [];
+
+    /// <summary>
+    /// Отзывы, полученные пользователем (как объект отзыва). 
+    /// </summary>
+    public ICollection<Review> ReceivedReviews { get; set; } = [];
 
     /// <summary>
     /// Судна, принадлежащие пользователю.
     /// </summary>
-    [InverseProperty(nameof(Ship.Owner))]
-    public ICollection<Ship> Ships { get; set; } = new List<Ship>();
+    public ICollection<Ship> Ships { get; set; } = [];
 
     /// <summary>
     /// Календарные записи/рейсы, связанные с пользователем.
     /// </summary>
-    [InverseProperty(nameof(Calendar.Owner))]
-    public ICollection<Calendar> Calendars { get; set; } = new List<Calendar>();
+    public ICollection<Calendar> Calendars { get; set; } = [];
 }

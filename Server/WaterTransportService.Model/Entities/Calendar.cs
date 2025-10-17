@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterTransportService.Model.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -14,54 +13,54 @@ public class Calendar
     /// Идентификатор записи календаря.
     /// </summary>
     [Key]
-    [Column("id")]
-    public required uint Id { get; set; }
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
 
     /// <summary>
     /// Идентификатор маршрута.
     /// </summary>
-    [Column("route_id")]
-    [Required]
-    public required uint RouteId { get; set; }
+    [Column("route_id", TypeName = "uuid")]
+    public Guid RouteId { get; set; }
 
     /// <summary>
     /// Навигационное свойство на маршрут.
     /// </summary>
-    public required Route Route { get; set; }
+    public Route? Route { get; set; }
 
     /// <summary>
     /// Время отправления (UTC).
     /// </summary>
+    [Column("departure_at", TypeName = "timestamp")]
     [Required]
     public required DateTime DepartureAt { get; set; }
 
     /// <summary>
     /// Время прибытия (UTC), если известно.
     /// </summary>
+    [Column("arrived_at", TypeName = "timestamp")]
     public DateTime? ArrivedAt { get; set; }
 
     /// <summary>
-    /// Идентификатор статуса календаря.
+    /// Идентификатор статуса записи календаря (внешний ключ на справочник статусов).
     /// </summary>
     [Column("status_id")]
     [Required]
-    public required ushort StatusId { get; set; } 
+    public required ushort CalendarStatusId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на статус календаря.
+    /// Навигационное свойство на статус записи календаря.
     /// </summary>
-    [ForeignKey(nameof(StatusId))]
-    [InverseProperty(nameof(CalendarStatus.Calendars))]
-    public required CalendarStatus Status { get; set; }
+    public required CalendarStatus CalendarStatus { get; set; }
 
     /// <summary>
-    /// GUID владельца записи (внешний ключ на User.Uuid).
+    /// Владелец записи.
     /// </summary>
-    [Column("owner_uuid", TypeName = "uuid")]
-    [Required]
-    public required Guid OwnerUuid { get; set; }
+    [Column("user_id", TypeName = "uuid")]
+    [Required] 
+    public required Guid UserId { get; set; }
 
-    [ForeignKey(nameof(OwnerUuid))]
-    [InverseProperty(nameof(User.Calendars))]
-    public required User Owner { get; set; }
+    /// <summary>
+    /// Навигационное свойство на владельца записи.
+    /// </summary>
+    public required User User { get; set; }
 }

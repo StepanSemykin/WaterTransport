@@ -12,14 +12,15 @@ public class UserImage : BaseEntity
     /// <summary>
     /// Идентификатор изображения.
     /// </summary>
-    [Column("id")]
-    public required uint Id { get; set; }
+    [Column("id", TypeName = "uuid")]
+    public required Guid Id { get; set; }
 
     /// <summary>
     /// Путь к файлу изображения (локально или URL в хранилище).
     /// </summary>
     [Required]
-    [MaxLength(1000)]
+    [MaxLength(3000)]
+    [Column("image_path")]
     public required string ImagePath { get; set; }
 
     /// <summary>
