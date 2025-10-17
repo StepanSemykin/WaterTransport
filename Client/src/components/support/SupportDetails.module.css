@@ -6,6 +6,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-left: calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
 .title {
@@ -67,8 +70,92 @@
 }
 
 @media (max-width: 576px) {
+  .page {
+    padding: 12px;
+    padding-left: calc(12px + env(safe-area-inset-left));
+    padding-right: calc(12px + env(safe-area-inset-right));
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .card-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 12px;
+    margin-bottom: 10px;
+  }
+
+  .badges {
+    gap: 6px;
+  }
+
+  .card-title {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .card-sub {
+    font-size: 12.5px;
+  }
+
   .info-grid {
     grid-template-columns: 1fr;
+    gap: 10px 12px;
+  }
+
+  .info-label {
+    font-size: 12.5px;
+  }
+
+  .info-value {
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+  }
+
+  .textarea {
+    min-height: 120px;
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .actions {
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .btn-primary,
+  .btn-neutral {
+    height: 40px;
+    padding: 0 14px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-primary,
+  .btn-neutral {
+    width: 100%;
+    justify-content: center;
   }
 }
 
