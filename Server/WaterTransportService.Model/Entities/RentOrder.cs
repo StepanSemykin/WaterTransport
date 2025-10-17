@@ -54,20 +54,20 @@ public class RentOrder
     /// <summary>
     /// Время отправления (UTC).
     /// </summary>
-    [Column("rental_start_time", TypeName = "timestamp")]
+    [Column("rental_start_time", TypeName = "timestamptz")]
     [Required]
     public required DateTime RentalStartTime { get; set; }
 
     /// <summary>
     /// Время прибытия (UTC), если известно.
     /// </summary>
-    [Column("rental_end_time", TypeName = "timestamp")]
+    [Column("rental_end_time", TypeName = "timestamptz")]
     public DateTime? RentalEndTime { get; set; }
 
     /// <summary>
     /// Дата оплаты в UTC.
     /// </summary>
-    [Column("order_date", TypeName = "timestamp")]
+    [Column("order_date", TypeName = "timestamptz")]
     public DateTime? OrderDate { get; set; }
 
     /// <summary>
@@ -81,14 +81,14 @@ public class RentOrder
     /// <summary>
     /// Время создания записи бронирования в UTC.
     /// </summary>
-    [Column("created_at", TypeName = "timestamp")]
+    [Column("created_at", TypeName = "timestamptz")]
     [Required]
     public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Время отмены бронирования в UTC (если отменено).
     /// </summary>
-    [Column("cancelled_at", TypeName = "timestamp")]
+    [Column("cancelled_at", TypeName = "timestamptz")]
     public DateTime? CancelledAt { get; set; }
 
 }

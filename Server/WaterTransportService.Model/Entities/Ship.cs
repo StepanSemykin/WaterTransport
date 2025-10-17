@@ -54,7 +54,7 @@ public class Ship
     /// <summary>
     /// Год изготовления.
     /// </summary>
-    [Column("year_of_manufacture", TypeName = "timestamp")]
+    [Column("year_of_manufacture", TypeName = "timestamptz")]
     public DateTime? YearOfManufacture { get; set; }
 
     /// <summary>

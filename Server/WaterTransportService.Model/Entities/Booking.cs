@@ -57,7 +57,7 @@ public class Booking
     /// <summary>
     /// Дата заказа/бронирования в UTC.
     /// </summary>
-    [Column("order_date", TypeName ="timestamp")]
+    [Column("order_date", TypeName = "timestamptz")]
     [Required]
     public required DateTime OrderDate { get; set; }
 
@@ -72,13 +72,13 @@ public class Booking
     /// <summary>
     /// Время создания записи бронирования в UTC.
     /// </summary>
-    [Column("created_at", TypeName = "timestamp")]
+    [Column("created_at", TypeName = "timestamptz")]
     [Required]
     public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Время отмены бронирования в UTC (если отменено).
     /// </summary>
-    [Column("cancelled_at", TypeName = "timestamp")]
+    [Column("cancelled_at", TypeName = "timestamptz")]
     public DateTime? CancelledAt { get; set; }
 }

@@ -24,11 +24,6 @@ public class OldPassword
     public required Guid UserId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на пользователя.
-    /// </summary>
-    public required User User { get; set; }
-
-    /// <summary>
     /// Соль, используемая при хешировании пароля.
     /// </summary>
     [Column("salt")]
@@ -42,4 +37,10 @@ public class OldPassword
     [Required]
     public required string Hash { get; set; }
 
+    /// <summary>
+    /// Время добавления пароля в UTC.
+    /// </summary>
+    [Column("created_at", TypeName = "timestamptz")]
+    [Required]
+    public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

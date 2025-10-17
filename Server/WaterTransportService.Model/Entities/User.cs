@@ -41,13 +41,13 @@ public class User : BaseEntity
     /// Время создания аккаунта в UTC.
     /// </summary>
     [Required]
-    [Column("created_at", TypeName = "timestamp")]
+    [Column("created_at", TypeName = "timestamptz")]
     public new DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Время последнего входа пользователя в UTC.
     /// </summary>
-    [Column("last_login_at", TypeName = "timestamp")]
+    [Column("last_login_at", TypeName = "timestamptz")]
     public DateTime? LastLoginAt { get; set; }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class User : BaseEntity
     /// <summary>
     /// Время до которого аккаунт заблокирован (если есть).
     /// </summary>
-    [Column("locked_until", TypeName = "timestamp")]
+    [Column("locked_until", TypeName = "timestamptz")]
     public DateTime? LockedUntil { get; set; }
 
     /// <summary>

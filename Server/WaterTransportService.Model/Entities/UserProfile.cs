@@ -86,6 +86,6 @@ public class UserProfile : BaseEntity
     /// <summary>
     /// Время последнего обновления профиля в UTC.
     /// </summary>
-    [Column("updated_at", TypeName = "timestamp")]
+    [Column("updated_at", TypeName = "timestamptz")]
     public new DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
 }
