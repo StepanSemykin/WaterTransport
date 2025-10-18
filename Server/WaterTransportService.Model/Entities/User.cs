@@ -38,19 +38,6 @@ public class User : BaseEntity
     public required string Nickname { get; set; }
 
     /// <summary>
-    /// Время создания аккаунта в UTC.
-    /// </summary>
-    [Required]
-    [Column("created_at", TypeName = "timestamptz")]
-    public new DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    /// <summary>
-    /// Время последнего входа пользователя в UTC.
-    /// </summary>
-    [Column("last_login_at", TypeName = "timestamptz")]
-    public DateTime? LastLoginAt { get; set; }
-
-    /// <summary>
     /// Флаг активности аккаунта.
     /// </summary>
     [Required]
@@ -75,11 +62,6 @@ public class User : BaseEntity
     public int[] Roles { get; set; } = [];
 
     /// <summary>
-    /// Старые записи паролей пользователя.
-    /// </summary>
-    public ICollection<OldPassword> OldPasswords { get; set; } = [];
-
-    /// <summary>
     /// Соль, используемая при хешировании пароля.
     /// </summary>
     [Column("salt")]
@@ -94,9 +76,14 @@ public class User : BaseEntity
     public required string Hash { get; set; }
 
     /// <summary>
+    /// Старые записи паролей пользователя.
+    /// </summary>
+    public ICollection<OldPassword> OldPasswords { get; set; } = [];
+
+    /// <summary>
     /// Бронирования, созданные пользователем.
     /// </summary>
-    public ICollection<Booking> Bookings { get; set; } = [];
+    public ICollection<RegularOrder> Bookings { get; set; } = [];
 
     /// <summary>
     /// Отзывы, оставленные пользователем (как автор).
@@ -114,9 +101,25 @@ public class User : BaseEntity
     public ICollection<Ship> Ships { get; set; } = [];
 
     /// <summary>
-    /// Календарные записи/рейсы, связанные с пользователем.
+    /// Календарные записи на регулярные рейсы, связанные с пользователем.
     /// </summary>
-    public ICollection<Calendar> Calendars { get; set; } = [];
+    public ICollection<RegularCalendar> RegularCalendars { get; set; } = [];
 
+    /// <summary>
+    /// Календарные заказы аренд, связанные с пользователем.
+    /// </summary>
+    public ICollection<RentCalendar> RentCalendars { get; set;} = [];
 
+    /// <summary>
+    /// Время создания аккаунта в UTC.
+    /// </summary>
+    [Required]
+    [Column("created_at", TypeName = "timestamptz")]
+    public new DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Время последнего входа пользователя в UTC.
+    /// </summary>
+    [Column("last_login_at", TypeName = "timestamptz")]
+    public DateTime? LastLoginAt { get; set; }
 }

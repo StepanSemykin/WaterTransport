@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WaterTransportService.Model.Entities;
 
 /// <summary>
-/// Сущность, представляющая хеш пароля пользователя и версию алгоритма.
+/// Сущность, представляющая старые хеш пароли пользователя.
 /// </summary>
 [Table("old_passwords")]
 public class OldPassword
@@ -22,6 +22,11 @@ public class OldPassword
     [Column("user_id", TypeName = "uuid")]
     [Required]
     public required Guid UserId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на пользователя.
+    /// </summary>
+    public required User User { get; set; }
 
     /// <summary>
     /// Соль, используемая при хешировании пароля.

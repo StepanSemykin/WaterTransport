@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WaterTransportService.Model.Context;
@@ -11,9 +12,11 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    partial class WaterTransportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251018102507_Migration_3")]
+    partial class Migration_3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,64 +308,6 @@ namespace WaterTransportService.Model.Migrations
                     b.HasIndex("UserUuid");
 
                     b.ToTable("rent_calendars");
-                });
-
-            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("cancelled_at");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("NumberOfPassengers")
-                        .HasColumnType("integer")
-                        .HasColumnName("number_of_passengers");
-
-                    b.Property<DateTime?>("OrderDate")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("order_date");
-
-                    b.Property<Guid>("RentCalendarId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rent_calendar_id");
-
-                    b.Property<DateTime?>("RentalEndTime")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("rental_end_time");
-
-                    b.Property<DateTime>("RentalStartTime")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("rental_start_time");
-
-                    b.Property<string>("StatusName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("name");
-
-                    b.Property<long>("TotalPrice")
-                        .HasColumnType("bigint")
-                        .HasColumnName("total_price");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RentCalendarId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("rent_orders");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Review", b =>
@@ -873,25 +818,6 @@ namespace WaterTransportService.Model.Migrations
                         .HasForeignKey("UserUuid");
 
                     b.Navigation("Ship");
-                });
-
-            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
-                {
-                    b.HasOne("WaterTransportService.Model.Entities.RentCalendar", "RentCalendar")
-                        .WithMany()
-                        .HasForeignKey("RentCalendarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WaterTransportService.Model.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RentCalendar");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Review", b =>

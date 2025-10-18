@@ -75,6 +75,7 @@ public class UserService : IUserService
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Uuid,
+                User = user,
                 Salt = salt,
                 Hash = hash,
                 CreatedAt = DateTime.UtcNow
