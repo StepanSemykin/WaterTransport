@@ -64,15 +64,4 @@ public class Route
     [Column("duration_minutes", TypeName = "interval")]
     public TimeSpan? DurationMinutes { get; set; }
 
-    /// <summary>
-    /// Идентификатор типа маршрута.
-    /// </summary>
-    [Column("route_type_id")]
-    [Required]
-    public required ushort RouteTypeId { get; set; }
-
-    /// <summary>
-    /// Навигационное свойство на тип маршрута.
-    /// </summary>
-    public required RouteType RouteType { get; set; }
 }

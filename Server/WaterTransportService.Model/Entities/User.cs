@@ -41,13 +41,13 @@ public class User : BaseEntity
     /// Время создания аккаунта в UTC.
     /// </summary>
     [Required]
-    [Column("created_at", TypeName = "timestamp")]
+    [Column("created_at", TypeName = "timestamptz")]
     public new DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
     /// Время последнего входа пользователя в UTC.
     /// </summary>
-    [Column("last_login_at", TypeName = "timestamp")]
+    [Column("last_login_at", TypeName = "timestamptz")]
     public DateTime? LastLoginAt { get; set; }
 
     /// <summary>
@@ -55,7 +55,7 @@ public class User : BaseEntity
     /// </summary>
     [Required]
     [Column("is_active")]
-    public required new bool IsActive { get; set; }
+    public required bool IsActive { get; set; }
 
     /// <summary>
     /// Счётчик неудачных попыток входа.
@@ -66,18 +66,32 @@ public class User : BaseEntity
     /// <summary>
     /// Время до которого аккаунт заблокирован (если есть).
     /// </summary>
-    [Column("locked_until", TypeName = "timestamp")]
+    [Column("locked_until", TypeName = "timestamptz")]
     public DateTime? LockedUntil { get; set; }
 
     /// <summary>
     /// Роли пользователя.
     /// </summary>
-    public ICollection<Role> Roles { get; set; } = [];
+    public int[] Roles { get; set; } = [];
 
     /// <summary>
-    /// Записи паролей пользователя.
+    /// Старые записи паролей пользователя.
     /// </summary>
-    public ICollection<Password> Passwords { get; set; } = [];
+    public ICollection<OldPassword> OldPasswords { get; set; } = [];
+
+    /// <summary>
+    /// Соль, используемая при хешировании пароля.
+    /// </summary>
+    [Column("salt")]
+    [Required]
+    public required string Salt { get; set; }
+
+    /// <summary>
+    /// Хеш пароля.
+    /// </summary>
+    [Column("hash")]
+    [Required]
+    public required string Hash { get; set; }
 
     /// <summary>
     /// Бронирования, созданные пользователем.
@@ -103,4 +117,6 @@ public class User : BaseEntity
     /// Календарные записи/рейсы, связанные с пользователем.
     /// </summary>
     public ICollection<Calendar> Calendars { get; set; } = [];
+
+
 }

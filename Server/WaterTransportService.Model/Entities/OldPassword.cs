@@ -6,8 +6,8 @@ namespace WaterTransportService.Model.Entities;
 /// <summary>
 /// Сущность, представляющая хеш пароля пользователя и версию алгоритма.
 /// </summary>
-[Table("passwords")]
-public class Password
+[Table("old_passwords")]
+public class OldPassword
 {
     /// <summary>
     /// Идентификатор записи пароля.
@@ -24,11 +24,6 @@ public class Password
     public required Guid UserId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на пользователя.
-    /// </summary>
-    public required User User { get; set; }
-
-    /// <summary>
     /// Соль, используемая при хешировании пароля.
     /// </summary>
     [Column("salt")]
@@ -43,9 +38,9 @@ public class Password
     public required string Hash { get; set; }
 
     /// <summary>
-    /// Версия/флаг алгоритма хеширования.
+    /// Время добавления пароля в UTC.
     /// </summary>
-    [Column("version")]
+    [Column("created_at", TypeName = "timestamptz")]
     [Required]
-    public required bool Version { get; set; }
+    public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

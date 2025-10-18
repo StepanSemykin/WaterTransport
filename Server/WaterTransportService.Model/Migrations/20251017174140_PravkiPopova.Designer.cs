@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WaterTransportService.Model.Context;
@@ -11,9 +12,11 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    partial class WaterTransportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251017174140_PravkiPopova")]
+    partial class PravkiPopova
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,10 +119,6 @@ namespace WaterTransportService.Model.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp")
-                        .HasColumnName("created_at");
 
                     b.Property<string>("Hash")
                         .IsRequired()
@@ -740,11 +739,13 @@ namespace WaterTransportService.Model.Migrations
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.OldPassword", b =>
                 {
-                    b.HasOne("WaterTransportService.Model.Entities.User", null)
+                    b.HasOne("WaterTransportService.Model.Entities.User", "User")
                         .WithMany("OldPasswords")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Port", b =>
