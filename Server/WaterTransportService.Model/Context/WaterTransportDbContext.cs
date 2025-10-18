@@ -66,6 +66,14 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
             new ShipType { Id = 8, Name = "RubberDinghy" }
         );
 
+        modelBuilder.Entity<BookingStatus>().HasData(
+            new BookingStatus { Id = 1, Name = "AwaitingPayment" },
+            new BookingStatus { Id = 2, Name = "AwaitingConfirmation" },
+            new BookingStatus { Id = 3, Name = "Confirmed" },
+            new BookingStatus { Id = 4, Name = "Cancelled" },
+            new BookingStatus { Id = 5, Name = "Completed" }
+        );
+
         // USER PROFILE (1:1)
         //modelBuilder.Entity<UserProfile>(b =>
         //{
