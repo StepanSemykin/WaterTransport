@@ -1,10 +1,12 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 
 namespace WaterTransportService.Model.Entities;
 
+/// <summary>
+/// Календарь аренды.
+/// </summary>
+[Table("rent_calendars")]
 public class RentCalendar
 {
     /// <summary>

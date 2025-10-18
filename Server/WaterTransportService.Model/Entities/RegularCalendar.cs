@@ -4,10 +4,10 @@ namespace WaterTransportService.Model.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 
 /// <summary>
-/// Запись календаря (конкретный рейс/отправление судна по маршруту).
+/// Запись регулярных рейсов в календаре.
 /// </summary>
-[Table("calendars")]
-public class Calendar
+[Table("regular_calendars")]
+public class RegularCalendar
 {
     /// <summary>
     /// Идентификатор записи календаря.

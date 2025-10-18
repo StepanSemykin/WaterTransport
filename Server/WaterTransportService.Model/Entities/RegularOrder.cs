@@ -4,10 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WaterTransportService.Model.Entities;
 
 /// <summary>
-/// Бронирование рейса/мест пользователем.
+/// Бронирование в регулярном рейсе.
 /// </summary>
-[Table("bookings")]
-public class Booking
+[Table("regular_orders")]
+public class RegularOrder
 {
     /// <summary>
     /// Идентификатор бронирования.
@@ -43,16 +43,16 @@ public class Booking
     public required ushort NumberOfPassengers { get; set; }
 
     /// <summary>
-    /// Идентификатор записи календаря (рейса), на который сделано бронирование.
+    /// Идентификатор записи регулярного рейса в календаре.
     /// </summary>
     [Column("calendar_id", TypeName="uuid")]
     [Required]
-    public required Guid CalendarId { get; set; }
+    public required Guid RegularCalendarId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на запись календаря (рейс).
+    /// Навигационное свойство на запись регулярного рейса в календаре.
     /// </summary>
-    public required Calendar Calendar { get; set; }
+    public required RegularCalendar? RegularCalendar { get; set; }
 
     /// <summary>
     /// Дата заказа/бронирования в UTC.

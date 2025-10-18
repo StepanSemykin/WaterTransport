@@ -58,19 +58,6 @@ public class Ship
     public DateTime? YearOfManufacture { get; set; }
 
     /// <summary>
-    /// Мощность двигателя (если указана).
-    /// </summary>
-    [Column("power")]
-    public ushort? Power { get; set; }
-
-    /// <summary>
-    /// Описание двигателя.
-    /// </summary>
-    [Column("engine")]
-    [MaxLength(20)]
-    public string? Engine { get; set; }
-
-    /// <summary>
     /// Максимальная скорость судна.
     /// </summary>
     [Column("max_speed")]

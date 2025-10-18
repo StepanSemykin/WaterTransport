@@ -1,9 +1,12 @@
-﻿
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaterTransportService.Model.Entities;
 
+/// <summary>
+/// Заказ аренды.
+/// </summary>
+[Table("rent_orders")]
 public class RentOrder
 {
     /// <summary>
