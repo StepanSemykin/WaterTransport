@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Search, Bell, User, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus } from "lucide-react";
+import { Search, Bell, User, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship} from "lucide-react";
 
 import styles from "./HomePage.module.css";
 
 export default function Index() {
-  const [activeTab, setActiveTab] = useState("rental");
+  // const [activeTab, setActiveTab] = useState("rental");
   const [addReturnRoute, setAddReturnRoute] = useState(false);
+  const [addWalkingTrip, setAddWalkingTrip] = useState(false);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [from, setFrom] = useState("");
@@ -14,6 +15,7 @@ export default function Index() {
   const [children, setChildren] = useState(0);
   const [comment, setComment] = useState("");
   const [vehicleType, setVehicleType] = useState("");
+  const [walkDuration, setWalkDuration] = useState("");
 
   const dec = (setter, value, min = 0) => () => setter(value > min ? value - 1 : min);
   const inc = (setter, value, max = 99) => () => setter(value < max ? value + 1 : max);
@@ -25,12 +27,12 @@ export default function Index() {
         <div className={styles["header-content"]}>
           <h1 className={styles["brand-title"]}>AquaRent</h1>
           <div className={styles["icon-group"]}>
-            <button className={styles["menu-button"]} type="button" aria-label="Открыть меню">
+            {/* <button className={styles["menu-button"]} type="button" aria-label="Открыть меню">
               <TabsMenu />
             </button>
             <button className={styles["icon-button"]} type="button" aria-label="Поиск">
               <Search />
-            </button>
+            </button> */}
             <button className={styles["icon-button"]} type="button" aria-label="Уведомления">
               <Bell />
             </button>
@@ -50,7 +52,7 @@ export default function Index() {
         </div>
       </section>
 
-      <section className={styles["tabs-wrapper"]}>
+      {/* <section className={styles["tabs-wrapper"]}>
         <div className={styles["tab-list"]}>
           <button
             type="button"
@@ -67,11 +69,12 @@ export default function Index() {
             Регулярные рейсы
           </button>
         </div>
-      </section>
+      </section> */}
 
       <section className={styles["form-wrapper"]}>
         <div className={styles["form-card"]}>
-          <div className={`${styles["form-section"]} ${styles["form-section--two-columns"]}`}>
+          <div className={`${styles["form-section"]} ${styles["form-section-two-col"]}`}>
+
             <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="from">Откуда</label>
               <div className={styles["input-wrapper"]}>
@@ -80,13 +83,46 @@ export default function Index() {
                   id="from"
                   type="text"
                   className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                  placeholder="Порт отправления"
+                  placeholder="Пристань отправления"
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
                 />
               </div>
             </div>
-            <div className={styles["field"]}>
+
+            {!addWalkingTrip ? (
+              <div className={styles["field"]}>
+                <label className={styles["field-label"]} htmlFor="to">Куда</label>
+                <div className={styles["input-wrapper"]}>
+                  <MapPin className={styles["input-icon"]} />
+                  <input
+                    id="to"
+                    type="text"
+                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
+                    placeholder="Пристань прибытия"
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className={styles["field"]}>
+                <label className={styles["field-label"]} htmlFor="walk-duration">Длительность прогулки</label>
+                <div className={styles["input-wrapper"]}>
+                  <Clock className={styles["input-icon"]} />
+                  <input
+                    id="walk-duration"
+                    type="time"
+                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
+                    placeholder="Например: 2 часа, 30 минут"
+                    value={walkDuration}
+                    onChange={(e) => setWalkDuration(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="to">Куда</label>
               <div className={styles["input-wrapper"]}>
                 <MapPin className={styles["input-icon"]} />
@@ -94,15 +130,28 @@ export default function Index() {
                   id="to"
                   type="text"
                   className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                  placeholder="Порт прибытия"
+                  placeholder="Пристань прибытия"
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
                 />
               </div>
-            </div>
+            </div> */}
           </div>
 
-          <div className={`${styles["form-section"]} ${styles["form-section--date-time"]}`}>
+          <div className={styles["form-checkbox"]}>
+            <input
+              id="walk-route"
+              type="checkbox"
+              className={styles["form-checkbox-input"]}
+              checked={addWalkingTrip}
+              onChange={(event) => setAddWalkingTrip(event.target.checked)}
+            />
+            <label className={styles["field-label"]} htmlFor="return-route">
+              Прогулочная поездка
+            </label>
+          </div>
+
+          <div className={`${styles["form-section"]} ${styles["form-section-date-time"]}`}>
             <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="date">Дата</label>
               <div className={styles["input-wrapper"]}>
@@ -144,6 +193,37 @@ export default function Index() {
             </label>
           </div>
 
+          {addReturnRoute && (
+            <div className={`${styles["form-section"]} ${styles["form-section-date-time"]}`}>
+              <div className={styles["field"]}>
+                <label className={styles["field-label"]} htmlFor="date">Дата обратной поездки</label>
+                <div className={styles["input-wrapper"]}>
+                  <Calendar className={styles["input-icon"]} />
+                  <input
+                    id="date"
+                    type="date"
+                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className={styles["field"]}>
+                <label className={styles["field-label"]} htmlFor="time">Время обратной поездки</label>
+                <div className={styles["input-wrapper"]}>
+                  <Clock className={styles["input-icon"]} />
+                  <input
+                    id="time"
+                    type="time"
+                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>  
+          )}    
+          
           <div className={styles["form-grid-people"]}>
             <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="adults">Взрослые</label>
@@ -196,15 +276,15 @@ export default function Index() {
           </div>
 
           <div className={styles["form-section"]}>
-            <div className={`${styles["field"]} ${styles["field--transport"]}`}>
-              <label className={styles["field-label"]} htmlFor="vehicle-type">Тип ТС</label>
+            <div className={`${styles["field"]} ${styles["field-transport"]}`}>
+              <label className={styles["field-label"]} htmlFor="vehicle-type">Тип судна</label>
               <div className={styles["input-wrapper"]}>
-                <Users className={styles["input-icon"]} />
+                <Ship className={styles["input-icon"]} />
                 <input
                   id="vehicle-type"
                   type="text"
                   className={`${styles["field-input"]} ${styles["with-icon"]} ${styles["transport-input"]}`}
-                  placeholder="Катер, теплоход ..."
+                  placeholder="Яхта, катер ..."
                   value={vehicleType}
                   onChange={(e) => setVehicleType(e.target.value)}
                 />

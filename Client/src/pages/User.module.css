@@ -22,3 +22,8 @@
   margin-bottom: 20px;
 }
 
+@media (max-width: 550px) { 
+  .user-stats {
+    margin-bottom: 10px;
+  }
+}

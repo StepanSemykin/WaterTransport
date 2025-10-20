@@ -3,14 +3,14 @@ import { useState, useEffect } from "react";
 import styles from "./TripCard.module.css";
 
 export function TripCard({
-  imageSrc,
-  imageAlt,
-  title,
-  status,
+  imageSrc = "",
+  imageAlt = "",
+  title = "",
+  status = "",
   details = [],
-  captain,
-  port,
-  rating,
+  captain = "",
+  port = "", 
+  rating = "",
   actions = [],
 }) {
   const [windowWidth, setWindowWidth] = useState(
@@ -28,6 +28,7 @@ export function TripCard({
 
   return (
     <div className={styles["card"]}>
+      
       <div className={styles["media-row"]}>
         <img src={imageSrc} alt={imageAlt} className={styles["media"]} />
         <div className={styles["content"]}>
@@ -99,6 +100,7 @@ export function TripCard({
           </button>
         ))}
       </div>
+
     </div>
   );
 }

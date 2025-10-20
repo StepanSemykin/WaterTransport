@@ -10,8 +10,8 @@ export function Navigation({ params })
   const [activeTab, setActiveTab] = useState(keys[0]);
 
     return (
-      <>
-        <Navbar bg="light" expand="md" className={styles["user-navbar"]}>
+      <div className={styles["user-nagation-container"]}>
+        <Navbar className={styles["user-navbar"]}>
           <Container>
             <Nav
               activeKey={activeTab}
@@ -30,6 +30,6 @@ export function Navigation({ params })
         <div className={styles["user-content"]}>
           {params[activeTab]?.component}
         </div>
-      </>
+      </div>
     );
 }

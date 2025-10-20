@@ -1,0 +1,9 @@
+.user-section {
+  margin-top: 20px;
+}
+
+@media(max-width: 550px) {
+  .user-section-title {
+    font-size: 20px;
+  }
+}
