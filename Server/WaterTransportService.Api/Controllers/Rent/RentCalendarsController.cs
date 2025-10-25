@@ -1,19 +1,15 @@
-﻿
 using Microsoft.AspNetCore.Mvc;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Services;
+using WaterTransportService.Api.Services.Calendars;
 
 namespace WaterTransportService.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController : ControllerBase
+public class RentCalendarsController(IRentCalendarService service) : ControllerBase
 {
-    private readonly IUserService _service;
+    private readonly IRentCalendarService _service = service;
 
-    public UsersController(IUserService service) => _service = service;
-
-    // GET api/users?page=1&pageSize=20
     [HttpGet]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
     {
@@ -21,31 +17,27 @@ public class UsersController : ControllerBase
         return Ok(new { total, page, pageSize, items });
     }
 
-    // GET api/users/{id}
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<UserDto>> GetById(Guid id, CancellationToken ct)
+    public async Task<ActionResult<RentCalendarDto>> GetById(Guid id, CancellationToken ct)
     {
-        var user = await _service.GetByIdAsync(id, ct);
-        return user is null ? NotFound() : Ok(user);
+        var e = await _service.GetByIdAsync(id, ct);
+        return e is null ? NotFound() : Ok(e);
     }
 
-    // POST api/users
     [HttpPost]
-    public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto dto, CancellationToken ct)
+    public async Task<ActionResult<RentCalendarDto>> Create([FromBody] CreateRentCalendarDto dto, CancellationToken ct)
     {
         var created = await _service.CreateAsync(dto, ct);
-        return CreatedAtAction(nameof(GetById), new { id = created.Uuid }, created);
+        return created is null ? BadRequest() : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    // PUT api/users/{id}
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] UpdateUserDto dto, CancellationToken ct)
+    public async Task<ActionResult<RentCalendarDto>> Update(Guid id, [FromBody] UpdateRentCalendarDto dto, CancellationToken ct)
     {
         var updated = await _service.UpdateAsync(id, dto, ct);
         return updated is null ? NotFound() : Ok(updated);
     }
 
-    // DELETE api/users/{id}
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
