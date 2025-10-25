@@ -1,33 +1,35 @@
-п»їusing System.Security.Cryptography;
-using System.Text;
+using System.Security.Cryptography;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Repositories;
-using WaterTransportService.Api.Services;
 using WaterTransportService.Model.Entities;
+using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services;
 
-public class UserService : IUserService
+public class UserService(
+    IEntityRepository<User, Guid> userRepo,
+    IEntityRepository<OldPassword, Guid> oldPasswordRepo
+) : IUserService
 {
-    private readonly IUserRepository _repo;
-
-    public UserService(IUserRepository repo) => _repo = repo;
+    private readonly IEntityRepository<User, Guid> _userRepo = userRepo;
+    private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
 
     public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
 
+        var all = (await _userRepo.GetAllAsync()).ToList();
+        var ordered = all.OrderBy(u => u.CreatedAt).ToList();
+        var total = ordered.Count;
         var skip = (page - 1) * pageSize;
-        var total = await _repo.CountAsync(ct);
-        var items = await _repo.GetAllAsync(skip, pageSize, ct);
+        var items = ordered.Skip(skip).Take(pageSize).Select(MapToDto).ToList();
 
-        return (items.Select(MapToDto).ToList(), total);
+        return (items, total);
     }
 
     public async Task<UserDto?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        var user = await _repo.GetByIdAsync(id, ct);
+        var user = await _userRepo.GetByIdAsync(id);
         return user is null ? null : MapToDto(user);
     }
 
@@ -45,18 +47,18 @@ public class UserService : IUserService
             IsActive = dto.IsActive,
             FailedLoginAttempts = 0,
             LockedUntil = null,
-            Roles = dto.Roles ?? Array.Empty<int>(),
+            Roles = dto.Roles ?? [],
             Salt = salt,
             Hash = hash
         };
 
-        await _repo.AddAsync(user, ct);
+        await _userRepo.AddAsync(user);
         return MapToDto(user);
     }
 
     public async Task<UserDto?> UpdateAsync(Guid id, UpdateUserDto dto, CancellationToken ct)
     {
-        var user = await _repo.GetByIdAsync(id, ct);
+        var user = await _userRepo.GetByIdAsync(id);
         if (user is null) return null;
 
         if (!string.IsNullOrWhiteSpace(dto.Phone)) user.Phone = dto.Phone;
@@ -66,43 +68,40 @@ public class UserService : IUserService
 
         if (!string.IsNullOrEmpty(dto.NewPassword))
         {
-            var (salt, hash) = HashPassword(dto.NewPassword);
-            user.Salt = salt;
-            user.Hash = hash;
-
-            // РёСЃС‚РѕСЂРёСЏ РїР°СЂРѕР»РµР№, РµСЃР»Рё РЅСѓР¶РЅР°:
-            user.OldPasswords.Add(new OldPassword
+            // Сохраняем прежний пароль в историю через репозиторий
+            var oldPwd = new OldPassword
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 User = user,
-                Salt = salt,
-                Hash = hash,
+                Salt = user.Salt,
+                Hash = user.Hash,
                 CreatedAt = DateTime.UtcNow
-            });
+            };
+            await _oldPasswordRepo.AddAsync(oldPwd);
+
+            // Применяем новый пароль пользователю
+            var (salt, hash) = HashPassword(dto.NewPassword);
+            user.Salt = salt;
+            user.Hash = hash;
         }
 
-        await _repo.UpdateAsync(user, ct);
-        return MapToDto(user);
+        var ok = await _userRepo.UpdateAsync(user, id);
+        return ok ? MapToDto(user) : null;
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct)
     {
-        var user = await _repo.GetByIdAsync(id, ct);
-        if (user is null) return false;
-
-        await _repo.DeleteAsync(user, ct);
-        return true;
+        return await _userRepo.DeleteAsync(id);
     }
 
     private static UserDto MapToDto(User u) =>
         new(u.Id, u.Phone, u.Nickname, u.CreatedAt, u.LastLoginAt,
             u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Roles);
 
-    // PBKDF2-С…СЌС€РёСЂРѕРІР°РЅРёРµ РїР°СЂРѕР»СЏ (Р±РµР· РІРЅРµС€РЅРёС… РїР°РєРµС‚РѕРІ)
+    // PBKDF2-хэширование пароля (без внешних пакетов)
     private static (string Salt, string Hash) HashPassword(string password)
     {
-        // РїР°СЂР°РјРµС‚СЂС‹ РјРѕР¶РЅРѕ РІС‹РЅРµСЃС‚Рё РІ РєРѕРЅС„РёРі
         const int saltSize = 16;
         const int keySize = 32;
         const int iterations = 100_000;
