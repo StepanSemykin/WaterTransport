@@ -14,7 +14,7 @@ public class User : BaseEntity
     /// </summary
     [Key]
     [Column("id", TypeName = "uuid")]
-    public required Guid Uuid { get; set; }
+    public required Guid Id { get; set; }
 
     /// <summary>
     /// Профиль пользователя (1:1 связь).
@@ -83,7 +83,12 @@ public class User : BaseEntity
     /// <summary>
     /// Бронирования, созданные пользователем.
     /// </summary>
-    public ICollection<RegularOrder> Bookings { get; set; } = [];
+    public ICollection<RegularOrder> RegularOrders { get; set; } = [];
+
+    /// <summary>
+    /// Бронирования, созданные пользователем.
+    /// </summary>
+    public ICollection<RentOrder> RentOrders { get; set; } = [];
 
     /// <summary>
     /// Отзывы, оставленные пользователем (как автор).
