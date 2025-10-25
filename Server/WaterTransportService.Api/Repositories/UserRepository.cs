@@ -23,7 +23,7 @@ public class UserRepository : IUserRepository
         _db.Users.CountAsync(ct);
 
     public Task<User?> GetByIdAsync(Guid id, CancellationToken ct) =>
-        _db.Users.FirstOrDefaultAsync(u => u.Uuid == id, ct);
+        _db.Users.FirstOrDefaultAsync(u => u.Id == id, ct);
 
     public async Task AddAsync(User user, CancellationToken ct)
     {
@@ -44,5 +44,5 @@ public class UserRepository : IUserRepository
     }
 
     public Task<bool> ExistsAsync(Guid id, CancellationToken ct) =>
-        _db.Users.AnyAsync(u => u.Uuid == id, ct);
+        _db.Users.AnyAsync(u => u.Id == id, ct);
 }

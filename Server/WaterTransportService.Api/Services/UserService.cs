@@ -37,7 +37,7 @@ public class UserService : IUserService
 
         var user = new User
         {
-            Uuid = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             Phone = dto.Phone,
             Nickname = dto.Nickname,
             CreatedAt = DateTime.UtcNow,
@@ -74,7 +74,7 @@ public class UserService : IUserService
             user.OldPasswords.Add(new OldPassword
             {
                 Id = Guid.NewGuid(),
-                UserId = user.Uuid,
+                UserId = user.Id,
                 User = user,
                 Salt = salt,
                 Hash = hash,
@@ -96,7 +96,7 @@ public class UserService : IUserService
     }
 
     private static UserDto MapToDto(User u) =>
-        new(u.Uuid, u.Phone, u.Nickname, u.CreatedAt, u.LastLoginAt,
+        new(u.Id, u.Phone, u.Nickname, u.CreatedAt, u.LastLoginAt,
             u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Roles);
 
     // PBKDF2-хэширование пароля (без внешних пакетов)
