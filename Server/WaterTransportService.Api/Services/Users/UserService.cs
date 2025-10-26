@@ -3,15 +3,17 @@ using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
-namespace WaterTransportService.Api.Services;
+namespace WaterTransportService.Api.Services.Users;
 
 public class UserService(
     IEntityRepository<User, Guid> userRepo,
-    IEntityRepository<OldPassword, Guid> oldPasswordRepo
+    IEntityRepository<OldPassword, Guid> oldPasswordRepo,
+    IEntityRepository<UserProfile, Guid> userProfileRepo
 ) : IUserService
 {
     private readonly IEntityRepository<User, Guid> _userRepo = userRepo;
     private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
+    private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
 
     public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
     {
@@ -53,6 +55,24 @@ public class UserService(
         };
 
         await _userRepo.AddAsync(user);
+
+        // Auto-create a default UserProfile for the new user
+        var profile = new UserProfile
+        {
+            UserId = user.Id,
+            User = user,
+            FirstName = null,
+            LastName = null,
+            Patronymic = null,
+            Email = null,
+            Birthday = null,
+            About = null,
+            Location = null,
+            IsPublic = true,
+            UpdatedAt = DateTime.UtcNow
+        };
+        await _userProfileRepo.AddAsync(profile);
+
         return MapToDto(user);
     }
 

@@ -26,22 +26,9 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
 
     public async Task<UserProfileDto?> CreateAsync(CreateUserProfileDto dto, CancellationToken ct)
     {
-        var entity = new UserProfile
-        {
-            UserId = dto.UserId,
-            User = null!,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Patronymic = dto.Patronymic,
-            Email = dto.Email,
-            Birthday = dto.Birthday,
-            About = dto.About,
-            Location = dto.Location,
-            IsPublic = dto.IsPublic,
-            UpdatedAt = DateTime.UtcNow
-        };
-        var created = await _repo.AddAsync(entity);
-        return MapToDto(created);
+        // метод не нужен, т.к. профиль создается вместе с пользователем
+        await Task.CompletedTask; 
+        return null;
     }
 
     public async Task<UserProfileDto?> UpdateAsync(Guid id, UpdateUserProfileDto dto, CancellationToken ct)

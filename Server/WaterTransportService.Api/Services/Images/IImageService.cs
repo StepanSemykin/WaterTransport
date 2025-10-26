@@ -1,4 +1,4 @@
-namespace WaterTransportService.Api.Services;
+namespace WaterTransportService.Api.Services.Images;
 
 public interface IImageService<TDto, TCreateDto, TUpdateDto>
 {

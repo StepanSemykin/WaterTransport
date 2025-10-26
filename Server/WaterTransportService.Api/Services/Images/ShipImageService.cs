@@ -4,7 +4,7 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Images;
 
-public class ShipImageService(IEntityRepository<ShipImage, Guid> repo) : IImageService<ShipImageDto, CreatePortImageDto, UpdatePortImageDto>
+public class ShipImageService(IEntityRepository<ShipImage, Guid> repo) : IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>
 {
     private readonly IEntityRepository<ShipImage, Guid> _repo = repo;
 

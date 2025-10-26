@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Services;
+using WaterTransportService.Api.Services.Images;
 
-namespace WaterTransportService.Api.Controllers;
+namespace WaterTransportService.Api.Controllers.Images;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserImagesController(IUserImageService service) : ControllerBase
+public class UserImagesController(IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto> service) : ControllerBase
 {
-    private readonly IUserImageService _service = service;
+    private readonly IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto> _service = service;
 
     [HttpGet]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)

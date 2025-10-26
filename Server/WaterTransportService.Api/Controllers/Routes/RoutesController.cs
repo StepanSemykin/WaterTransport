@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Routes;
 
-namespace WaterTransportService.Api.Controllers;
+namespace WaterTransportService.Api.Controllers.Routes;
 
 [ApiController]
 [Route("api/[controller]")]

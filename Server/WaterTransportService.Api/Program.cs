@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using WaterTransportService.Api.Services;
+using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Calendars;
 using WaterTransportService.Api.Services.Images;
 using WaterTransportService.Api.Services.Orders;
@@ -29,7 +29,7 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(
         AppContext.BaseDirectory,
         $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"), true);
-    var modelAsm = typeof(WaterTransportService.Model.Entities.User).Assembly;
+    var modelAsm = typeof(User).Assembly;
     var xmlModel = Path.Combine(AppContext.BaseDirectory, $"{modelAsm.GetName().Name}.xml");
     if (File.Exists(xmlModel))
         options.IncludeXmlComments(xmlModel);
@@ -51,6 +51,7 @@ builder.Services.AddScoped<IEntityRepository<RentOrder, Guid>, RentOrderReposito
 builder.Services.AddScoped<IEntityRepository<Review, Guid>, ReviewRepository>();
 builder.Services.AddScoped<IEntityRepository<UserImage, Guid>, UserImageRepository>();
 builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepository>();
+builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageRepository>();
 
 // Services DI
 builder.Services.AddScoped<IUserService, UserService>();
@@ -64,9 +65,9 @@ builder.Services.AddScoped<IRegularOrderService, RegularOrderService>();
 builder.Services.AddScoped<IRentCalendarService, RentCalendarService>();
 builder.Services.AddScoped<IRentOrderService, RentOrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
-builder.Services.AddScoped<IImageService, UserImageService>();
-builder.Services.AddScoped<IImageService, PortImageService>();
-builder.Services.AddScoped<IImageService, ShipImageService>();
+builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
+builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>, PortImageService>();
+builder.Services.AddScoped<IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>, ShipImageService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 
 builder.Services.AddControllers();

@@ -2,7 +2,7 @@ using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
-namespace WaterTransportService.Api.Services;
+namespace WaterTransportService.Api.Services.Ports;
 
 public class PortService(IEntityRepository<Port, Guid> repo) : IPortService
 {

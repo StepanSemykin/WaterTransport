@@ -1,6 +1,6 @@
 using WaterTransportService.Api.DTO;
 
-namespace WaterTransportService.Api.Services;
+namespace WaterTransportService.Api.Services.Ports;
 
 public interface IPortService
 {
