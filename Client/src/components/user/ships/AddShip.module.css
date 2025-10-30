@@ -1,0 +1,266 @@
+.modal-container {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 60;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #fff;
+  width: 900px;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal-body {
+  padding: 18px 20px;
+  max-height: 70vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-section { 
+  margin-bottom: 12px; 
+}
+
+.section-title {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  text-align: center;
+  color: #222;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.form-row {
+  /* display: flex;
+  gap: 12px;
+  flex-wrap: wrap; */
+
+
+    display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  /* justify-content: space-around; */
+
+}
+
+.form-row .form-field {
+  flex: 1 1 160px; /* все поля одинаково тянутся */
+  min-width: 0;
+}
+
+.form-field {
+  flex: 1 1 1 1;
+}
+
+.form-field, .form-field-fullwidth {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field-fullwidth { 
+  width: 100%; 
+}
+
+.form-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.form-input, .form-select, .form-textarea {
+  padding: 8px 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.price-options { 
+  display: flex; 
+  gap: 12px; 
+  align-items: center; 
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.switch-label { 
+  font-size: 14px; 
+}
+
+.switch { 
+  position: relative; 
+  display: inline-block; 
+  width: 44px; 
+  height: 24px; 
+}
+
+.switch input 
+{ 
+  opacity: 0; 
+  width: 0; 
+  height: 0; 
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: .2s;
+}
+
+.switch input:checked + .slider { 
+  background-color: #4caf50; 
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .2s;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(20px); 
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: #fafafa;
+}
+
+.button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: #f0f0f0;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.button-primary {
+  background: #0b74de;
+  color: #fff;
+  border-color: #0b74de;
+}
+
+.button-secondary {
+  background: #fff;
+  color: #333;
+  border-color: #ccc;
+}
+
+.dropzone {
+  border: 1px dashed #cfcfcf;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88px;
+  transition: .12s, border-color .12s;
+  background: #f8fdff;
+}
+
+.dropzone-active {
+  border-color: #4a90e2;
+  background: rgba(74,144,226,0.06);
+}
+
+.dropzone-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.drop-icon { 
+  font-size: 20px; 
+}
+
+.image-preview-wrapper {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.image-preview {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+}
+
+.preview-actions { 
+  display: flex; 
+  gap: 8px; 
+  align-items: center; 
+}
+
+
+@media (max-width: 750px) {
+  .form-grid { 
+    grid-template-columns: 1fr; 
+  }
+
+  .modal-content { 
+    width: 100%; 
+    height: 100%; 
+    border-radius: 0; 
+  }
+
+  /* .form-row {
+    flex-direction: column;
+  } */
+}
