@@ -5,11 +5,11 @@ import styles from "./TripCard.module.css";
 export function TripCard({
   imageSrc = "",
   imageAlt = "",
-  title = "",
+  title = {},
   status = "",
   details = [],
-  captain = "",
-  port = "", 
+  captain = {},
+  port = {}, 
   rating = "",
   actions = [],
 }) {
@@ -33,18 +33,41 @@ export function TripCard({
         <img src={imageSrc} alt={imageAlt} className={styles["media"]} />
         <div className={styles["content"]}>
           <div className={styles["header"]}>
-            <h3 className={styles["title"]}>
-              <span className={styles["title"]}>{title}</span>
-            </h3>
+            {title && (
+              <div className={styles["title"]}>
+                {title.iconSrc && (
+                  <img 
+                    src={title.iconSrc}
+                    alt={title.iconAlt}
+                    className={styles["title-icon"]}
+                  />
+                )}
+                <span className={styles["title-text"]}>{title.text}</span>
+              </div>
+            )}
             <div className={styles["captain-port"]}>
               {captain && (
                 <div className={styles["captain"]}>
-                  <span>{captain}</span>
+                  {captain.iconSrc && (
+                    <img 
+                      src={captain.iconSrc}
+                      alt={captain.iconAlt}
+                      className={styles["captain-icon"]}
+                    />
+                  )}
+                  <span className={styles["captain-text"]}>{captain.text}</span>
                 </div>
               )}
               {port && (
                 <div className={styles["port"]}>
-                  <span>{port}</span>
+                  {port.iconSrc && (
+                    <img
+                      src={port.iconSrc}
+                      alt={port.iconAlt}
+                      className={styles["port-icon"]}
+                    />
+                  )}
+                  <span className={styles["port-text"]}>{port.text}</span>
                 </div>
               )}
             </div>

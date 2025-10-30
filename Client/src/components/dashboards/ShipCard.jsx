@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 
-import styles from "./ShipCard.module.css";
+import styles from "./TripCard.module.css";
 
 export function ShipCard({
   imageSrc = "",
   imageAlt = "",
-  title = "",
+  title = {},
   status = "",
   type = "",
   details = [],
@@ -31,19 +31,40 @@ export function ShipCard({
         {imageSrc && (
           <img
             src={imageSrc}
-            alt={imageAlt || title}
+            alt={imageAlt}
             className={styles["media"]}
           />
         )}
 
         <div className={styles["content"]}>
           <div className={styles["header"]}>
-            <h3 className={styles["title"]}>{title}</h3>
+            {title && (
+              <div className={styles["title"]}>
+                {title.iconSrc && (
+                  <img 
+                    src={title.iconSrc}
+                    alt={title.iconAlt}
+                    className={styles["title-icon"]}
+                  />
+                )}
+                <span className={styles["title-text"]}>{title.text}</span>
+              </div>
+            )}
 
             {type && (
-              <span className={styles["type"]}>
-                {type}
-              </span>
+              <div className={styles["type"]}>
+                {type.iconSrc && (
+                  <img 
+                    src={type.iconSrc}
+                    alt={type.iconAlt}
+                    className={styles["type-icon"]}
+                  />
+                )}
+                <span className={styles["type-text"]}>{type.text}</span>
+              </div>
+              // <span className={styles["type"]}>
+              //   {type}
+              // </span>
             )}
 
             {details.length > 0 && (
@@ -92,7 +113,7 @@ export function ShipCard({
               className={`${styles["action-btn"]} ${
                 !action.label ? styles["actionIconOnly"] : ""
               }`.trim()}
-              aria-label={action.ariaLabel ?? action.label ?? "Кнопка действия"}
+              aria-label={action.ariaLabel ?? action.label ?? "кнопка действия"}
             >
               {action.label && <span>{action.label}</span>}
               {action.iconSrc && (

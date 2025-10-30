@@ -65,6 +65,11 @@
   font-size: 24px;
 }
 
+.type {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
 .status {
   display: inline-flex;
   background-color: #ffffff;
@@ -73,6 +78,8 @@
   color: #000000;
   font-size: 24px;
   line-height: 1.2;
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .rating {
@@ -114,9 +121,15 @@
   font-size: 24px;
 }
 
-.detail-icon {
+.port, .captain, .title, .type {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+.detail-icon, .port-icon, .captain-icon, .title-icon, .type-icon {
   width: 30px;
-  height: 30px;
+  height: 32px;
 }
 
 .summary {
@@ -173,10 +186,10 @@
 }
 
 @media (max-width: 550px) {
-  .title {
-    display: block;
+  .title, .type {
     font-size: 16px;
-    line-height: 1.25;
+    gap: 8px;        
+    align-items: center;
   }
 
   .meta {
@@ -246,9 +259,9 @@
     gap: 12px;
   }
 
-  .detail-icon {
-    width: 20px;
-    height: 20px;
+  .detail-icon, .title-icon, .type-icon {
+    width: 25px;
+    height: 25px;
   }
 
   .summary {

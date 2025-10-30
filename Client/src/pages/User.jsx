@@ -11,6 +11,10 @@ import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
 import styles from "./User.module.css";
 
 import YachtIcon from "../assets/yacht.jpg"
+import DateIcon from "../assets/date.png"
+import PortIcon from "../assets/port.png"
+import ShipIcon from "../assets/ship.png"
+import WheelIcon from "../assets/wheel.png"
 import ChatIcon from "../assets/chat.png"
 import StarOnIcon from "../assets/star-on.png"
 import StarOffIcon from "../assets/star-off.png"
@@ -32,12 +36,12 @@ const UPCOMING_TRIPS = [
   {
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
-    title: "Luxury Yacht Marina",
+    title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
     status: "Не подтверждено",
-    captain: "Сергей Иванов",
-    port: "Речной вокзал",
+    captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
+    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
     details: [
-      { text: "07.07.2025" },
+      { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
     ],
     actions: [
@@ -50,11 +54,11 @@ const COMPLETED_TRIPS = [
   {
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
-    title: "Luxury Yacht Marina",
-    captain: "Сергей Иванов",
-    port: "Речной вокзал",
+    title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
+    captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
+    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
     details: [
-      { text: "06.06.2025" },
+      { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
     ],
     rating: [
