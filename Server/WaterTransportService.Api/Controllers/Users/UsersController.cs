@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
@@ -19,6 +20,7 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     // GET api/users/{id}
+    [Authorize(Roles = "common")]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<UserDto>> GetById(Guid id, CancellationToken ct)
     {
@@ -48,5 +50,15 @@ public class UsersController(IUserService service) : ControllerBase
     {
         var ok = await _service.DeleteAsync(id, ct);
         return ok ? NoContent() : NotFound();
+    }
+
+    // POST api/users/login
+    [HttpPost("login")]
+    
+    public async Task<ActionResult<string>> Login([FromBody] LoginDto dto, CancellationToken ct)
+    {
+        var token = await _service.LoginAsync(dto);
+        HttpContext.Response.Cookies.Append("AuthToken", token);
+        return token is null ? Unauthorized() : Ok(new { token });
     }
 }

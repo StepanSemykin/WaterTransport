@@ -11,7 +11,7 @@ public record UserDto(
     bool IsActive,
     int? FailedLoginAttempts,
     DateTime? LockedUntil,
-    int[] Roles
+    string? Role
 );
 
 
@@ -29,7 +29,7 @@ public class CreateUserDto
     public bool IsActive { get; set; } = true;
 
     // опционально: роли при создании
-    public int[]? Roles { get; set; }
+    public string? Role{ get; set; }
 }
 
 
@@ -43,9 +43,17 @@ public class UpdateUserDto
 
     public bool? IsActive { get; set; }
 
-    public int[]? Roles { get; set; }
+    public string? Role { get; set; }
 
     // Если передан — обновим пароль
     [MinLength(6)]
     public string? NewPassword { get; set; }
+}
+
+public class LoginDto
+{
+    [Required, MaxLength(20)]
+    public string Phone { get; set; } = default!;
+    [Required, MinLength(6)]
+    public string Password { get; set; } = default!;
 }
