@@ -1,5 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Security.Claims;
+using System.Text;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Calendars;
 using WaterTransportService.Api.Services.Images;
@@ -14,7 +21,31 @@ using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 var builder = WebApplication.CreateBuilder(args);
+const string KEY = "mysupersecret_secretsecretsecretkey!123";
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
+    options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY)),
 
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["AuthToken"];
+
+                return Task.CompletedTask;
+            }
+
+        };
+    });
 builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -36,7 +67,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Repositories DI
-builder.Services.AddScoped<IEntityRepository<User, Guid>, UserRepository>();
+builder.Services.AddScoped<IUserRepository<Guid>, UserRepository>();
 builder.Services.AddScoped<IEntityRepository<OldPassword, Guid>, OldPasswordRepository>();
 builder.Services.AddScoped<IEntityRepository<Port, Guid>, PortRepository>();
 builder.Services.AddScoped<IEntityRepository<PortType, ushort>, PortTypeRepository>();
@@ -69,11 +100,20 @@ builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, Updat
 builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>, PortImageService>();
 builder.Services.AddScoped<IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>, ShipImageService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddControllers();
 
-var app = builder.Build();
 
+var app = builder.Build();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+    HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
+    Secure = CookieSecurePolicy.Always
+});
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -83,6 +123,4 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
-
-
 

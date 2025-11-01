@@ -59,7 +59,7 @@ public class User : BaseEntity
     /// <summary>
     /// Роли пользователя.
     /// </summary>
-    public int[] Roles { get; set; } = [];
+    public string Role { get; set; } = "common";
 
     /// <summary>
     /// Соль, используемая при хешировании пароля.

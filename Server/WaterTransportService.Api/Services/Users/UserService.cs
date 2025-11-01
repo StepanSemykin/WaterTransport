@@ -1,4 +1,9 @@
+using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -6,15 +11,18 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Users;
 
 public class UserService(
-    IEntityRepository<User, Guid> userRepo,
+    IUserRepository<Guid> _userRepo,    
     IEntityRepository<OldPassword, Guid> oldPasswordRepo,
-    IEntityRepository<UserProfile, Guid> userProfileRepo
+    IEntityRepository<UserProfile, Guid> userProfileRepo,
+    IPasswordHasher passwordHasher
 ) : IUserService
 {
-    private readonly IEntityRepository<User, Guid> _userRepo = userRepo;
+    const string KEY = "mysupersecret_secretsecretsecretkey!123";
+    private readonly IUserRepository<Guid> _userRepo = _userRepo;
     private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
     private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
-
+    private readonly IPasswordHasher passwordHasher = passwordHasher;
+   
     public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
     {
         page = page <= 0 ? 1 : page;
@@ -35,6 +43,39 @@ public class UserService(
         return user is null ? null : MapToDto(user);
     }
 
+    public async Task<string> LoginAsync(LoginDto dto)
+    {
+        var user = await _userRepo.GetByPhoneAsync(dto.Phone);
+        if (user is null) { return "non user and non token"; }
+        var result = VerifyPassword(dto.Password, user.Salt, user?.Hash ?? string.Empty);
+
+        if (result ==  false)
+        {
+            // Here you would normally generate a JWT or similar token
+            return "non user and non token";
+        }
+        
+        var token = generateToken(user.Phone, user.Role);
+        return token;
+    }
+
+    private string generateToken(string phone, string role)
+    {
+        Claim[] claims = [new("phone", phone), new("role", role)];
+        var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY)), SecurityAlgorithms.HmacSha256);
+        string ISSUER = "MyAuthServer"; // издатель токена
+        string AUDIENCE = "MyAuthClient"; // потребитель токена
+        var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
+            issuer: ISSUER,
+            audience: AUDIENCE,
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: signingCredentials
+        );
+
+        return new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(token);
+    }
+
     public async Task<UserDto> CreateAsync(CreateUserDto dto, CancellationToken ct)
     {
         var (salt, hash) = HashPassword(dto.Password);
@@ -49,7 +90,7 @@ public class UserService(
             IsActive = dto.IsActive,
             FailedLoginAttempts = 0,
             LockedUntil = null,
-            Roles = dto.Roles ?? [],
+            Role = "common",
             Salt = salt,
             Hash = hash
         };
@@ -84,7 +125,7 @@ public class UserService(
         if (!string.IsNullOrWhiteSpace(dto.Phone)) user.Phone = dto.Phone;
         if (!string.IsNullOrWhiteSpace(dto.Nickname)) user.Nickname = dto.Nickname;
         if (dto.IsActive.HasValue) user.IsActive = dto.IsActive.Value;
-        if (dto.Roles is not null) user.Roles = dto.Roles;
+        if (dto.Role is not null) user.Role = dto.Role;
 
         if (!string.IsNullOrEmpty(dto.NewPassword))
         {
@@ -117,7 +158,7 @@ public class UserService(
 
     private static UserDto MapToDto(User u) =>
         new(u.Id, u.Phone, u.Nickname, u.CreatedAt, u.LastLoginAt,
-            u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Roles);
+            u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
 
     // PBKDF2-хэширование пароля (без внешних пакетов)
     private static (string Salt, string Hash) HashPassword(string password)
@@ -136,5 +177,22 @@ public class UserService(
         var salt = Convert.ToBase64String(saltBytes);
         var hash = Convert.ToBase64String(key);
         return (salt, hash);
+    }
+    private static bool VerifyPassword(string password, string salt, string hash)
+    {
+        const int keySize = 32;
+        const int iterations = 100_000;
+
+        if (string.IsNullOrEmpty(salt) || string.IsNullOrEmpty(hash))
+            return false;
+
+        var saltBytes = Convert.FromBase64String(salt);
+        var expectedHashBytes = Convert.FromBase64String(hash);
+
+        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, iterations, HashAlgorithmName.SHA256);
+        var computedKey = pbkdf2.GetBytes(keySize);
+
+        // Защищённое сравнение, чтобы избежать утечек по времени
+        return CryptographicOperations.FixedTimeEquals(computedKey, expectedHashBytes);
     }
 }
