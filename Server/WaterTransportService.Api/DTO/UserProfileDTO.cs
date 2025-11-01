@@ -4,6 +4,7 @@ namespace WaterTransportService.Api.DTO;
 
 public record UserProfileDto(
     Guid UserId,
+    string? Nickname,
     string? FirstName,
     string? LastName,
     string? Patronymic,
@@ -20,6 +21,9 @@ public class CreateUserProfileDto
     [Required]
     public required Guid UserId { get; set; }
 
+    [MaxLength(16)]
+    public string? Nickname { get; set; }
+
     [MaxLength(32)]
     public string? FirstName { get; set; }
 
@@ -29,12 +33,12 @@ public class CreateUserProfileDto
     [MaxLength(32)]
     public string? Patronymic { get; set; }
 
-    [EmailAddress, MaxLength(256)]
+    [EmailAddress, MaxLength(32)]
     public string? Email { get; set; }
 
     public DateTime? Birthday { get; set; }
 
-    [MaxLength(256)]
+    [MaxLength(512)]
     public string? About { get; set; }
 
     [MaxLength(256)]
@@ -45,6 +49,9 @@ public class CreateUserProfileDto
 
 public class UpdateUserProfileDto
 {
+    [MaxLength(16)]
+    public string? Nickname { get; set; }
+
     [MaxLength(32)]
     public string? FirstName { get; set; }
 

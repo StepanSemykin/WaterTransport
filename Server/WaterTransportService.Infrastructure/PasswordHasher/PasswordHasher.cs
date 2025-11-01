@@ -1,6 +1,4 @@
-﻿using WaterTransportService.Api.Services.Users;
-
-namespace WaterTransportService.Infrastructure;
+﻿namespace WaterTransportService.Infrastructure.PasswordHasher;
 
 public class PasswordHasher : IPasswordHasher
 {

@@ -5,11 +5,9 @@ using Xunit;
 
 namespace WaterTransportService.Tests;
 
-public class WaterTransportTests : IClassFixture<WaterTransportFixture>
+public class WaterTransportTests(WaterTransportFixture fixture) : IClassFixture<WaterTransportFixture>
 {
-    private readonly WaterTransportFixture _fixture;
-
-    public WaterTransportTests(WaterTransportFixture fixture) => _fixture = fixture;
+    private readonly WaterTransportFixture _fixture = fixture;
 
     [Fact]
     public void TestAddUser()
@@ -18,17 +16,18 @@ public class WaterTransportTests : IClassFixture<WaterTransportFixture>
 
         var newUser = new User
         {
-            Uuid = Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             Phone = "+1111111111",
-            Nickname = "newuser",
             CreatedAt = DateTime.UtcNow,
+            Salt = "testsalt",
+            Hash = "testhash",
             IsActive = true
         };
 
         _fixture.WaterTransportData.Users.Add(newUser);
 
         Assert.Equal(usersBefore + 1, _fixture.WaterTransportData.Users.Count);
-        Assert.Contains(_fixture.WaterTransportData.Users, u => u.Uuid == newUser.Uuid);
+        Assert.Contains(_fixture.WaterTransportData.Users, u => u.Id == newUser.Id);
     }
 
     [Fact]
