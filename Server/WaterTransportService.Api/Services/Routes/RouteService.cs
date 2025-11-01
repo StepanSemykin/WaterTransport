@@ -1,15 +1,14 @@
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
-using Route = WaterTransportService.Model.Entities.Route;
+using RouteEntity = WaterTransportService.Model.Entities.Route;
 
 namespace WaterTransportService.Api.Services.Routes;
 
-public class RouteService(IEntityRepository<Route, Guid> repo) : IRouteService
+public class RouteService(IEntityRepository<RouteEntity, Guid> repo) : IRouteService
 {
-    private readonly IEntityRepository<Route, Guid> _repo = repo;
+    private readonly IEntityRepository<RouteEntity, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<RouteDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<RouteDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -19,15 +18,15 @@ public class RouteService(IEntityRepository<Route, Guid> repo) : IRouteService
         return (items, total);
     }
 
-    public async Task<RouteDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<RouteDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<RouteDto?> CreateAsync(CreateRouteDto dto, CancellationToken ct)
+    public async Task<RouteDto?> CreateAsync(CreateRouteDto dto)
     {
-        var entity = new Route
+        var entity = new RouteEntity
         {
             Id = Guid.NewGuid(),
             FromPortId = dto.FromPortId,
@@ -43,7 +42,7 @@ public class RouteService(IEntityRepository<Route, Guid> repo) : IRouteService
         return MapToDto(created);
     }
 
-    public async Task<RouteDto?> UpdateAsync(Guid id, UpdateRouteDto dto, CancellationToken ct)
+    public async Task<RouteDto?> UpdateAsync(Guid id, UpdateRouteDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -56,7 +55,7 @@ public class RouteService(IEntityRepository<Route, Guid> repo) : IRouteService
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
-    private static RouteDto MapToDto(Route e) => new(e.Id, e.FromPortId, e.ToPortId, e.Cost, e.ShipId, e.DurationMinutes);
+    private static RouteDto MapToDto(RouteEntity e) => new(e.Id, e.FromPortId, e.ToPortId, e.Cost, e.ShipId, e.DurationMinutes);
 }

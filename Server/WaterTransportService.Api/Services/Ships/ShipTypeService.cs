@@ -8,7 +8,7 @@ public class ShipTypeService(IEntityRepository<ShipType, ushort> repo) : IShipTy
 {
     private readonly IEntityRepository<ShipType, ushort> _repo = repo;
 
-    public async Task<(IReadOnlyList<ShipTypeDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<ShipTypeDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class ShipTypeService(IEntityRepository<ShipType, ushort> repo) : IShipTy
         return (items, total);
     }
 
-    public async Task<ShipTypeDto?> GetByIdAsync(ushort id, CancellationToken ct)
+    public async Task<ShipTypeDto?> GetByIdAsync(ushort id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<ShipTypeDto?> CreateAsync(CreateShipTypeDto dto, CancellationToken ct)
+    public async Task<ShipTypeDto?> CreateAsync(CreateShipTypeDto dto)
     {
         var entity = new ShipType
         {
@@ -36,7 +36,7 @@ public class ShipTypeService(IEntityRepository<ShipType, ushort> repo) : IShipTy
         return MapToDto(created);
     }
 
-    public async Task<ShipTypeDto?> UpdateAsync(ushort id, UpdateShipTypeDto dto, CancellationToken ct)
+    public async Task<ShipTypeDto?> UpdateAsync(ushort id, UpdateShipTypeDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -46,7 +46,7 @@ public class ShipTypeService(IEntityRepository<ShipType, ushort> repo) : IShipTy
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(ushort id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(ushort id) => _repo.DeleteAsync(id);
 
     private static ShipTypeDto MapToDto(ShipType e) => new(e.Id, e.Name, e.Description);
 }

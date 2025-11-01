@@ -1,4 +1,4 @@
-﻿namespace WaterTransportService.Api.Services.Users;
+﻿namespace WaterTransportService.Infrastructure.PasswordHasher;
 
 public interface IPasswordHasher
 {

@@ -5,7 +5,6 @@ namespace WaterTransportService.Api.DTO;
 public record UserDto(
     Guid Id,
     string Phone,
-    string Nickname,
     DateTime CreatedAt,
     DateTime? LastLoginAt,
     bool IsActive,
@@ -19,9 +18,6 @@ public class CreateUserDto
 {
     [Required, MaxLength(20)]
     public string Phone { get; set; } = default!;
-
-    [Required, MaxLength(64)]
-    public string Nickname { get; set; } = default!;
 
     [Required, MinLength(6)]
     public string Password { get; set; } = default!;
@@ -37,9 +33,6 @@ public class UpdateUserDto
 {
     [MaxLength(20)]
     public string? Phone { get; set; }
-
-    [MaxLength(64)]
-    public string? Nickname { get; set; }
 
     public bool? IsActive { get; set; }
 

@@ -8,7 +8,7 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
 {
     private readonly IEntityRepository<RegularOrder, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<RegularOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<RegularOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
         return (items, total);
     }
 
-    public async Task<RegularOrderDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<RegularOrderDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<RegularOrderDto?> CreateAsync(CreateRegularOrderDto dto, CancellationToken ct)
+    public async Task<RegularOrderDto?> CreateAsync(CreateRegularOrderDto dto)
     {
         var entity = new RegularOrder
         {
@@ -44,7 +44,7 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
         return MapToDto(created);
     }
 
-    public async Task<RegularOrderDto?> UpdateAsync(Guid id, UpdateRegularOrderDto dto, CancellationToken ct)
+    public async Task<RegularOrderDto?> UpdateAsync(Guid id, UpdateRegularOrderDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -58,7 +58,7 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
     private static RegularOrderDto MapToDto(RegularOrder e) => new(e.Id, e.UserId, e.TotalPrice, e.NumberOfPassengers, e.RegularCalendarId, e.OrderDate, e.StatusName, e.CreatedAt, e.CancelledAt);
 }

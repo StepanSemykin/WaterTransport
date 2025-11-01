@@ -16,41 +16,66 @@ using WaterTransportService.Api.Services.Reviews;
 using WaterTransportService.Api.Services.Routes;
 using WaterTransportService.Api.Services.Ships;
 using WaterTransportService.Api.Services.Users;
+using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 var builder = WebApplication.CreateBuilder(args);
-const string KEY = "mysupersecret_secretsecretsecretkey!123";
+
+builder.Configuration
+       .SetBasePath(Directory.GetCurrentDirectory())
+       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+       .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+       .AddUserSecrets<Program>(optional: true)
+       .AddEnvironmentVariables();
+
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme,
-    options =>
+
+// Read signing key from configuration
+var raw = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(raw))
+    throw new InvalidOperationException("Configuration 'Jwt:Key' is missing. Set a 256-bit secret via user-secrets or environment variable (Jwt__Key).");
+
+byte[] keyBytes;
+if (Convert.TryFromBase64String(raw, new Span<byte>(new byte[raw.Length]), out var bytesWritten))
+{
+    keyBytes = Convert.FromBase64String(raw);
+}
+else
+{
+    keyBytes = Encoding.UTF8.GetBytes(raw);
+}
+if (keyBytes.Length < 32)
+    throw new InvalidOperationException("Jwt:Key is too short. Use at least 256-bit (32 bytes).");
+
+var signingKey = new SymmetricSecurityKey(keyBytes);
+
+var issuer = builder.Configuration["Jwt:Issuer"];
+var audience = builder.Configuration["Jwt:Audience"];
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = !string.IsNullOrWhiteSpace(issuer),
+            ValidIssuer = issuer,
+            ValidateAudience = !string.IsNullOrWhiteSpace(audience),
+            ValidAudience = audience,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(KEY)),
-
+            IssuerSigningKey = signingKey
         };
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                context.Token = context.Request.Cookies["AuthToken"];
-
+                context.Token = context.Request.Cookies["AuthToken"]; // read from cookie
                 return Task.CompletedTask;
             }
-
         };
     });
-builder.Configuration
-       .SetBasePath(Directory.GetCurrentDirectory())
-       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-       .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-       .AddEnvironmentVariables();
 
 builder.Services.AddDbContext<WaterTransportDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 
@@ -104,13 +129,12 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 builder.Services.AddControllers();
 
-
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.Strict,
+    MinimumSameSitePolicy = SameSitePolicy(),
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
@@ -123,4 +147,7 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+
+// Helper to choose SameSite based on environment
+SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 

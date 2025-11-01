@@ -4,9 +4,9 @@ namespace WaterTransportService.Api.Services.Ports;
 
 public interface IPortService
 {
-    Task<(IReadOnlyList<PortDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct);
-    Task<PortDto?> GetByIdAsync(Guid id, CancellationToken ct);
-    Task<PortDto?> CreateAsync(CreatePortDto dto, CancellationToken ct);
-    Task<PortDto?> UpdateAsync(Guid id, UpdatePortDto dto, CancellationToken ct);
-    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
+    Task<(IReadOnlyList<PortDto> Items, int Total)> GetAllAsync(int page, int pageSize);
+    Task<PortDto?> GetByIdAsync(Guid id);
+    Task<PortDto?> CreateAsync(CreatePortDto dto);
+    Task<PortDto?> UpdateAsync(Guid id, UpdatePortDto dto);
+    Task<bool> DeleteAsync(Guid id);
 }

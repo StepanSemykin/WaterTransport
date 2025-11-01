@@ -6,6 +6,13 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Model", "WaterTransportService.Model\WaterTransportService.Model.csproj", "{44134951-DEC6-4DFF-9910-76DFED3E5021}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Api", "WaterTransportService.Api\WaterTransportService.Api.csproj", "{D2956EC1-7879-40B3-BAE9-2D3F68E64135}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64B2816F-C280-4340-8C63-7404F9863EEA} = {64B2816F-C280-4340-8C63-7404F9863EEA}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Tests", "WaterTransportService.Tests\WaterTransportService.Tests.csproj", "{ACB48A50-9B1B-FD5B-1911-03FFEC9E0178}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaterTransportService.Infrastructure", "WaterTransportService.Infrastructure\WaterTransportService.Infrastructure.csproj", "{64B2816F-C280-4340-8C63-7404F9863EEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +28,14 @@ Global
 		{D2956EC1-7879-40B3-BAE9-2D3F68E64135}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2956EC1-7879-40B3-BAE9-2D3F68E64135}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2956EC1-7879-40B3-BAE9-2D3F68E64135}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACB48A50-9B1B-FD5B-1911-03FFEC9E0178}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACB48A50-9B1B-FD5B-1911-03FFEC9E0178}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACB48A50-9B1B-FD5B-1911-03FFEC9E0178}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACB48A50-9B1B-FD5B-1911-03FFEC9E0178}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64B2816F-C280-4340-8C63-7404F9863EEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64B2816F-C280-4340-8C63-7404F9863EEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64B2816F-C280-4340-8C63-7404F9863EEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64B2816F-C280-4340-8C63-7404F9863EEA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

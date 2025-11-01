@@ -24,6 +24,13 @@ public class UserProfile : BaseEntity
     public required User User { get; set; }
 
     /// <summary>
+    /// Никнейм пользователя.
+    /// </summary>
+    [MaxLength(16)]
+    [Column("nickname")]
+    public string? Nickname { get; set; }
+
+    /// <summary>
     /// Имя пользователя.
     /// </summary>
     [MaxLength(32)]
@@ -48,7 +55,7 @@ public class UserProfile : BaseEntity
     /// Адрес электронной почты в профиле (опционально).
     /// </summary>
     [EmailAddress]
-    [MaxLength(256)]
+    [MaxLength(32)]
     [Column("email")]   
     public string? Email { get; set; }
 
@@ -66,7 +73,7 @@ public class UserProfile : BaseEntity
     /// <summary>
     /// Краткое описание/о себе.
     /// </summary>
-    [MaxLength(256)]
+    [MaxLength(512)]
     [Column("about")]
     public string? About { get; set; }
 

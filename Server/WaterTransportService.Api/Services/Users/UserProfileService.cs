@@ -8,7 +8,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
 {
     private readonly IEntityRepository<UserProfile, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<UserProfileDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<UserProfileDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,23 +18,24 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
         return (items, total);
     }
 
-    public async Task<UserProfileDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<UserProfileDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<UserProfileDto?> CreateAsync(CreateUserProfileDto dto, CancellationToken ct)
+    public async Task<UserProfileDto?> CreateAsync(CreateUserProfileDto dto)
     {
         // метод не нужен, т.к. профиль создается вместе с пользователем
         await Task.CompletedTask; 
         return null;
     }
 
-    public async Task<UserProfileDto?> UpdateAsync(Guid id, UpdateUserProfileDto dto, CancellationToken ct)
+    public async Task<UserProfileDto?> UpdateAsync(Guid id, UpdateUserProfileDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
+        if (!string.IsNullOrWhiteSpace(dto.Nickname)) entity.Nickname = dto.Nickname;
         if (!string.IsNullOrWhiteSpace(dto.FirstName)) entity.FirstName = dto.FirstName;
         if (!string.IsNullOrWhiteSpace(dto.LastName)) entity.LastName = dto.LastName;
         if (!string.IsNullOrWhiteSpace(dto.Patronymic)) entity.Patronymic = dto.Patronymic;
@@ -48,7 +49,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
-    private static UserProfileDto MapToDto(UserProfile e) => new(e.UserId, e.FirstName, e.LastName, e.Patronymic, e.Email, e.Birthday, e.About, e.Location, e.IsPublic, e.UpdatedAt);
+    private static UserProfileDto MapToDto(UserProfile e) => new(e.UserId, e.Nickname, e.FirstName, e.LastName, e.Patronymic, e.Email, e.Birthday, e.About, e.Location, e.IsPublic, e.UpdatedAt);
 }

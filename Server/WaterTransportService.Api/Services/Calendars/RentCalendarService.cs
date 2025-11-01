@@ -8,7 +8,7 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
 {
     private readonly IEntityRepository<RentCalendar, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<RentCalendarDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<RentCalendarDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
         return (items, total);
     }
 
-    public async Task<RentCalendarDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<RentCalendarDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<RentCalendarDto?> CreateAsync(CreateRentCalendarDto dto, CancellationToken ct)
+    public async Task<RentCalendarDto?> CreateAsync(CreateRentCalendarDto dto)
     {
         var entity = new RentCalendar
         {
@@ -38,7 +38,7 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
         return MapToDto(created);
     }
 
-    public async Task<RentCalendarDto?> UpdateAsync(Guid id, UpdateRentCalendarDto dto, CancellationToken ct)
+    public async Task<RentCalendarDto?> UpdateAsync(Guid id, UpdateRentCalendarDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -49,7 +49,7 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
     private static RentCalendarDto MapToDto(RentCalendar e) => new(e.Id, e.ShipId, e.LowerTimeLimit, e.HighTimeLimit);
 }
