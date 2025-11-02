@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WaterTransportService.Model.Context;
@@ -11,9 +12,11 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    partial class WaterTransportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251102154108_AddRefreshTokenTable")]
+    partial class AddRefreshTokenTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,6 +40,11 @@ namespace WaterTransportService.Model.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("hash");
+
+                    b.Property<string>("Salt")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("salt");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -699,6 +707,11 @@ namespace WaterTransportService.Model.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("Salt")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("salt");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamptz")

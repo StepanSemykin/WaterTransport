@@ -29,13 +29,6 @@ public class OldPassword
     public required User User { get; set; }
 
     /// <summary>
-    /// Соль, используемая при хешировании пароля.
-    /// </summary>
-    [Column("salt")]
-    [Required]
-    public required string Salt { get; set; }
-
-    /// <summary>
     /// Хеш пароля.
     /// </summary>
     [Column("hash")]

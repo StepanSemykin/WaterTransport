@@ -54,13 +54,6 @@ public class User : BaseEntity
     public string Role { get; set; } = "common";
 
     /// <summary>
-    /// Соль, используемая при хешировании пароля.
-    /// </summary>
-    [Column("salt")]
-    [Required]
-    public required string Salt { get; set; }
-
-    /// <summary>
     /// Хеш пароля.
     /// </summary>
     [Column("hash")]
