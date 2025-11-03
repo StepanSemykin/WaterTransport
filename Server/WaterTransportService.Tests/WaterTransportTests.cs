@@ -19,7 +19,6 @@ public class WaterTransportTests(WaterTransportFixture fixture) : IClassFixture<
             Id = Guid.NewGuid(),
             Phone = "+1111111111",
             CreatedAt = DateTime.UtcNow,
-            Salt = "testsalt",
             Hash = "testhash",
             IsActive = true
         };

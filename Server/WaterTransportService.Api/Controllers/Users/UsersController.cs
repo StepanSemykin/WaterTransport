@@ -29,6 +29,7 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     // POST api/users
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto dto)
     {
@@ -52,13 +53,139 @@ public class UsersController(IUserService service) : ControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    // POST api/users/register
+    [HttpPost("register")]
+    public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterDto dto)
+    {
+        var response = await _service.RegisterAsync(dto);
+        if (response is null)
+        {
+            return BadRequest(new { message = "User with this phone already exists" });
+        }
+
+        HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
+        });
+
+        HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        return Ok(response);
+    }
+
     // POST api/users/login
     [HttpPost("login")]
-    
-    public async Task<ActionResult<string>> Login([FromBody] LoginDto dto)
+    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
     {
-        var token = await _service.LoginAsync(dto);
-        HttpContext.Response.Cookies.Append("AuthToken", token);
-        return token is null ? Unauthorized() : Ok(new { token });
+        var response = await _service.LoginAsync(dto);
+        if (response is null)
+        {
+            return Unauthorized(new { message = "Invalid phone or password" });
+        }
+
+        HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
+        });
+
+        HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        return Ok(response);
+    }
+
+    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
+    [HttpPost("refresh")]
+    public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
+    {
+        // Извлекаем refresh токен из cookie
+        if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
+        {
+            return Unauthorized(new { message = "Refresh token not found" });
+        }
+
+        // Пытаемся получить userId из текущих claims или из query параметра
+        Guid finalUserId;
+        
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+                          ?? User.FindFirst("userId");
+        
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
+        {
+            // userId получен из claims текущего токена
+        }
+        else if (userId.HasValue)
+        {
+            // userId передан в query параметре (когда access токен истек)
+            finalUserId = userId.Value;
+        }
+        else
+        {
+            return Unauthorized(new { message = "User ID not found. Please provide userId query parameter." });
+        }
+
+        var response = await _service.RefreshTokenAsync(finalUserId, refreshToken);
+        if (response is null)
+        {
+            return Unauthorized(new { message = "Invalid or expired refresh token" });
+        }
+
+        // Устанавливаем access токен в cookie
+        HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
+        });
+
+        // Обновляем refresh токен в cookie
+        HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        return Ok(response);
+    }
+
+    // POST api/users/logout
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        // Получаем userId из claims
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+                          ?? User.FindFirst("userId");
+        
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            await _service.LogoutAsync(userId);
+        }
+
+        // Удаляем токены из cookie
+        HttpContext.Response.Cookies.Delete("AuthToken");
+        HttpContext.Response.Cookies.Delete("RefreshToken");
+
+        return Ok(new { message = "Logged out successfully" });
     }
 }
