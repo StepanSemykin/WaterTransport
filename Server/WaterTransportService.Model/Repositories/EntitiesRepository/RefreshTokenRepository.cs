@@ -8,7 +8,7 @@ public class RefreshTokenRepository(WaterTransportDbContext context) : IEntityRe
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<RefreshToken> AddAsync(RefreshToken entity)
+    public async Task<RefreshToken> CreateAsync(RefreshToken entity)
     {
         _context.RefreshTokens.Add(entity);
         await _context.SaveChangesAsync();

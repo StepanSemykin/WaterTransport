@@ -83,7 +83,7 @@ public class TokenService(
                 ExpiresAt = expiresAt,
                 CreatedAt = DateTime.UtcNow
             };
-            await _refreshTokenRepo.AddAsync(newToken);
+            await _refreshTokenRepo.CreateAsync(newToken);
         }
     }
 
