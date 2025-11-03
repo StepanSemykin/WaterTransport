@@ -58,7 +58,7 @@ public class UserService(
             Hash = _passwordHasher.Generate(dto.Password) 
         };
 
-        await _userRepo.AddAsync(user);
+        await _userRepo.CreateAsync(user);
 
         var profile = new UserProfile
         {
@@ -74,7 +74,7 @@ public class UserService(
             IsPublic = true,
             UpdatedAt = DateTime.UtcNow
         };
-        await _userProfileRepo.AddAsync(profile);
+        await _userProfileRepo.CreateAsync(profile);
 
         // Генерация токенов
         var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
