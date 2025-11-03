@@ -12,24 +12,12 @@ public class UserRepository(WaterTransportDbContext context) :  IUserRepository<
 
     public async Task<User?> GetByIdAsync(Guid id) => await _context.Users.FindAsync(id);
 
-    public async Task<User> CreateAsync(User entity)
-    {
-        _context.Users.Add(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
     public async Task<User?> GetByPhoneAsync(string phone)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
 
         return user;
     }
-
-
-    public async Task<IEnumerable<User>> GetAllAsync() => await _context.Users.ToListAsync();
-
-    public async Task<User?> GetByIdAsync(Guid id) => await _context.Users.FindAsync(id);
 
     public async Task<bool> UpdateAsync(User entity, Guid id)
     {
@@ -40,6 +28,13 @@ public class UserRepository(WaterTransportDbContext context) :  IUserRepository<
         old.UpdatedAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<User> CreateAsync(User entity)
+    {
+        _context.Users.Add(entity);
+        await _context.SaveChangesAsync();
+        return entity;
     }
 
     public async Task<bool> DeleteAsync(Guid id)
