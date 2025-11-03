@@ -12,7 +12,6 @@ public class WaterTransportFixture
                 Id = Guid.NewGuid(),
                 Phone = "+1234567890",
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
-                Salt = "sdfkllsf",
                 Hash = "hashedpassword1",
                 IsActive = true
             },
@@ -20,7 +19,6 @@ public class WaterTransportFixture
                 Id = Guid.NewGuid(),
                 Phone = "+0987654321",
                 CreatedAt = DateTime.UtcNow.AddDays(-5),
-                Salt = "asldkfjas",
                 Hash = "hashpassword2",
                 IsActive = false
             }

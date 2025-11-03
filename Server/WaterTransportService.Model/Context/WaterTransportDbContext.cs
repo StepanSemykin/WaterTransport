@@ -21,6 +21,7 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
     public required DbSet<RentOrder> RentOrders { get; set; }
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<OldPassword> OldPasswords { get; set; }
+    public required DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -1,7 +1,6 @@
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authorization;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Services.Auth;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -13,14 +12,13 @@ public class UserService(
     IEntityRepository<OldPassword, Guid> oldPasswordRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
     IPasswordHasher passwordHasher,
-    IConfiguration configuration
-) : IUserService
+    ITokenService tokenService) : IUserService
 {
     private readonly IUserRepository<Guid> _userRepo = userRepo;
     private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
     private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
-    private readonly IConfiguration _config = configuration;
+    private readonly ITokenService _tokenService = tokenService;
 
     public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
@@ -42,57 +40,127 @@ public class UserService(
         return user is null ? null : MapToDto(user);
     }
 
-    public async Task<string> LoginAsync(LoginDto dto)
+    public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
+    {
+        // Проверка существования пользователя
+        var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
+        if (existingUser != null)
+        {
+            return null;
+        }
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Phone = dto.Phone,
+            Role = "common",
+            IsActive = true,
+            Hash = _passwordHasher.Generate(dto.Password) 
+        };
+
+        await _userRepo.CreateAsync(user);
+
+        var profile = new UserProfile
+        {
+            UserId = user.Id,
+            User = user,
+            FirstName = null,
+            LastName = null,
+            Patronymic = null,
+            Email = null,
+            Birthday = null,
+            About = null,
+            Location = null,
+            IsPublic = true,
+            UpdatedAt = DateTime.UtcNow
+        };
+        await _userProfileRepo.CreateAsync(profile);
+
+        // Генерация токенов
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
+    }
+
+    public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
     {
         var user = await _userRepo.GetByPhoneAsync(dto.Phone);
-        if (user is null) return "non user and non token";
-        var result = VerifyPassword(dto.Password, user.Salt, user.Hash);
-
-        if (result is false || user.Phone is null)
+        if (user is null || !user.IsActive)
         {
-            return "non user and non token";
+            return null;
         }
 
-        var token = GenerateToken(user.Phone, user.Role ?? string.Empty);
-        return token;
+        if (user.LockedUntil.HasValue && user.LockedUntil.Value > DateTime.UtcNow)
+        {
+            return null;
+        }
+
+        var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
+
+        if (!isValidPassword)
+        {
+            user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
+
+            if (user.FailedLoginAttempts >= 5)
+            {
+                user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
+            }
+
+            await _userRepo.UpdateAsync(user, user.Id);
+            return null;
+        }
+
+        user.FailedLoginAttempts = 0;
+        user.LockedUntil = null;
+        user.LastLoginAt = DateTime.UtcNow;
+        await _userRepo.UpdateAsync(user, user.Id);
+
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
     }
 
-    private string GenerateToken(string phone, string role)
+    public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)
     {
-        var issuer = _config["Jwt:Issuer"];
-        var audience = _config["Jwt:Audience"];
-        var keyStr = _config["Jwt:Key"] ?? string.Empty;
-        var expMinutes = _config.GetValue<int?>("Jwt:ExpirationMinutes") ?? 60;
-
-        Claim[] claims = [new("phone", phone), new("role", role)];
-
-        SymmetricSecurityKey key;
-        try
+        var user = await _userRepo.GetByIdAsync(userId);
+        if (user is null || !user.IsActive)
         {
-            var keyBytes = Convert.FromBase64String(keyStr);
-            key = new SymmetricSecurityKey(keyBytes);
-        }
-        catch
-        {
-            key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(keyStr));
+            return null;
         }
 
-        var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expMinutes),
-            signingCredentials: signingCredentials
-        );
+        var validToken = await _tokenService.ValidateRefreshTokenAsync(userId, refreshToken);
+        if (validToken is null)
+        {
+            return null;
+        }
 
-        return new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(token);
+        // Генерация новых токенов
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, refreshTokenExpiry);
+
+        return new RefreshTokenResponseDto(accessToken, newRefreshToken);
     }
 
+    public async Task<bool> LogoutAsync(Guid userId)
+    {
+        await _tokenService.RevokeRefreshTokenAsync(userId);
+        return true;
+    }
+
+    [Authorize(Roles = "admin")]
     public async Task<UserDto> CreateAsync(CreateUserDto dto)
     {
-        var (salt, hash) = HashPassword(dto.Password);
-
         var user = new User
         {
             Id = Guid.NewGuid(),
@@ -102,9 +170,8 @@ public class UserService(
             IsActive = dto.IsActive,
             FailedLoginAttempts = 0,
             LockedUntil = null,
-            Role = "common",
-            Salt = salt,
-            Hash = hash
+            Role = dto.Role ?? "common",
+            Hash = _passwordHasher.Generate(dto.Password)
         };
 
         await _userRepo.CreateAsync(user);
@@ -144,15 +211,12 @@ public class UserService(
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
                 User = user,
-                Salt = user.Salt,
                 Hash = user.Hash,
                 CreatedAt = DateTime.UtcNow
             };
             await _oldPasswordRepo.CreateAsync(oldPwd);
 
-            var (salt, hash) = HashPassword(dto.NewPassword);
-            user.Salt = salt;
-            user.Hash = hash;
+            user.Hash = _passwordHasher.Generate(dto.NewPassword);
         }
 
         var ok = await _userRepo.UpdateAsync(user, id);
@@ -161,44 +225,12 @@ public class UserService(
 
     public async Task<bool> DeleteAsync(Guid id)
     {
+        //delete refresh token
+        await _tokenService.RevokeRefreshTokenAsync(id);
         return await _userRepo.DeleteAsync(id);
     }
 
     private static UserDto MapToDto(User u) =>
         new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
             u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
-
-    private static (string Salt, string Hash) HashPassword(string password)
-    {
-        const int saltSize = 16;
-        const int keySize = 32;
-        const int iterations = 100_000;
-
-        using var rng = RandomNumberGenerator.Create();
-        var saltBytes = new byte[saltSize];
-        rng.GetBytes(saltBytes);
-
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, iterations, HashAlgorithmName.SHA256);
-        var key = pbkdf2.GetBytes(keySize);
-
-        var salt = Convert.ToBase64String(saltBytes);
-        var hash = Convert.ToBase64String(key);
-        return (salt, hash);
-    }
-    private static bool VerifyPassword(string password, string salt, string hash)
-    {
-        const int keySize = 32;
-        const int iterations = 100_000;
-
-        if (string.IsNullOrEmpty(salt) || string.IsNullOrEmpty(hash))
-            return false;
-
-        var saltBytes = Convert.FromBase64String(salt);
-        var expectedHashBytes = Convert.FromBase64String(hash);
-
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, saltBytes, iterations, HashAlgorithmName.SHA256);
-        var computedKey = pbkdf2.GetBytes(keySize);
-
-        return CryptographicOperations.FixedTimeEquals(computedKey, expectedHashBytes);
-    }
 }

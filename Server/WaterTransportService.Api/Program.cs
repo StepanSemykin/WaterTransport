@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Services.Auth;
 using WaterTransportService.Api.Services.Calendars;
 using WaterTransportService.Api.Services.Images;
 using WaterTransportService.Api.Services.Orders;
@@ -94,6 +95,7 @@ builder.Services.AddSwaggerGen(options =>
 // Repositories DI
 builder.Services.AddScoped<IUserRepository<Guid>, UserRepository>();
 builder.Services.AddScoped<IEntityRepository<OldPassword, Guid>, OldPasswordRepository>();
+builder.Services.AddScoped<IEntityRepository<RefreshToken, Guid>, RefreshTokenRepository>();
 builder.Services.AddScoped<IEntityRepository<Port, Guid>, PortRepository>();
 builder.Services.AddScoped<IEntityRepository<PortType, ushort>, PortTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipType, ushort>, ShipTypeRepository>();
@@ -110,6 +112,7 @@ builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepo
 builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageRepository>();
 
 // Services DI
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPortService, PortService>();
 builder.Services.AddScoped<IPortTypeService, PortTypeService>();
