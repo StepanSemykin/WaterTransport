@@ -8,7 +8,7 @@ public class ReviewService(IEntityRepository<Review, Guid> repo) : IReviewServic
 {
     private readonly IEntityRepository<Review, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<ReviewDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<ReviewDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class ReviewService(IEntityRepository<Review, Guid> repo) : IReviewServic
         return (items, total);
     }
 
-    public async Task<ReviewDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<ReviewDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<ReviewDto?> CreateAsync(CreateReviewDto dto, CancellationToken ct)
+    public async Task<ReviewDto?> CreateAsync(CreateReviewDto dto)
     {
         var entity = new Review
         {
@@ -44,7 +44,7 @@ public class ReviewService(IEntityRepository<Review, Guid> repo) : IReviewServic
         return MapToDto(created);
     }
 
-    public async Task<ReviewDto?> UpdateAsync(Guid id, UpdateReviewDto dto, CancellationToken ct)
+    public async Task<ReviewDto?> UpdateAsync(Guid id, UpdateReviewDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -57,7 +57,7 @@ public class ReviewService(IEntityRepository<Review, Guid> repo) : IReviewServic
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
     private static ReviewDto MapToDto(Review e) => new(e.Id, e.AuthorId, e.UserId, e.ShipId, e.Comment, e.Rating, e.CreatedAt, e.IsActive);
 }

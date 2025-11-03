@@ -4,7 +4,7 @@ using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
-public class UserRepository(WaterTransportDbContext context) : IEntityRepository<User, Guid>
+public class UserRepository(WaterTransportDbContext context) :  IUserRepository<Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
@@ -19,6 +19,17 @@ public class UserRepository(WaterTransportDbContext context) : IEntityRepository
         return entity;
     }
 
+    public async Task<User?> GetByPhoneAsync(string phone)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Phone == phone);
+
+        return user;
+    }
+
+
+    public async Task<IEnumerable<User>> GetAllAsync() => await _context.Users.ToListAsync();
+
+    public async Task<User?> GetByIdAsync(Guid id) => await _context.Users.FindAsync(id);
 
     public async Task<bool> UpdateAsync(User entity, Guid id)
     {

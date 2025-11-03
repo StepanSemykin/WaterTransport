@@ -8,7 +8,7 @@ public class UserImageService(IEntityRepository<UserImage, Guid> repo) : IImageS
 {
     private readonly IEntityRepository<UserImage, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<UserImageDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<UserImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class UserImageService(IEntityRepository<UserImage, Guid> repo) : IImageS
         return (items, total);
     }
 
-    public async Task<UserImageDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<UserImageDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<UserImageDto?> CreateAsync(CreateUserImageDto dto, CancellationToken ct)
+    public async Task<UserImageDto?> CreateAsync(CreateUserImageDto dto)
     {
         var entity = new UserImage
         {
@@ -37,7 +37,7 @@ public class UserImageService(IEntityRepository<UserImage, Guid> repo) : IImageS
         return MapToDto(created);
     }
 
-    public async Task<UserImageDto?> UpdateAsync(Guid id, UpdateUserImageDto dto, CancellationToken ct)
+    public async Task<UserImageDto?> UpdateAsync(Guid id, UpdateUserImageDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -47,7 +47,7 @@ public class UserImageService(IEntityRepository<UserImage, Guid> repo) : IImageS
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
     private static UserImageDto MapToDto(UserImage e) => new(e.Id, e.ImagePath, e.IsPrimary, e.UploadedAt);
 }

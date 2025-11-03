@@ -8,7 +8,7 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
 {
     private readonly IEntityRepository<PortType, ushort> _repo = repo;
 
-    public async Task<(IReadOnlyList<PortTypeDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<PortTypeDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
         return (items, total);
     }
 
-    public async Task<PortTypeDto?> GetByIdAsync(ushort id, CancellationToken ct)
+    public async Task<PortTypeDto?> GetByIdAsync(ushort id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<PortTypeDto?> CreateAsync(CreatePortTypeDto dto, CancellationToken ct)
+    public async Task<PortTypeDto?> CreateAsync(CreatePortTypeDto dto)
     {
         var entity = new PortType
         {
@@ -35,7 +35,7 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
         return MapToDto(created);
     }
 
-    public async Task<PortTypeDto?> UpdateAsync(ushort id, UpdatePortTypeDto dto, CancellationToken ct)
+    public async Task<PortTypeDto?> UpdateAsync(ushort id, UpdatePortTypeDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -44,7 +44,7 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(ushort id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(ushort id) => _repo.DeleteAsync(id);
 
     private static PortTypeDto MapToDto(PortType e) => new(e.Id, e.Title);
 }

@@ -8,7 +8,7 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
 {
     private readonly IEntityRepository<RegularCalendar, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<RegularCalendarDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<RegularCalendarDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
         return (items, total);
     }
 
-    public async Task<RegularCalendarDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<RegularCalendarDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<RegularCalendarDto?> CreateAsync(CreateRegularCalendarDto dto, CancellationToken ct)
+    public async Task<RegularCalendarDto?> CreateAsync(CreateRegularCalendarDto dto)
     {
         var entity = new RegularCalendar
         {
@@ -41,7 +41,7 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
         return MapToDto(created);
     }
 
-    public async Task<RegularCalendarDto?> UpdateAsync(Guid id, UpdateRegularCalendarDto dto, CancellationToken ct)
+    public async Task<RegularCalendarDto?> UpdateAsync(Guid id, UpdateRegularCalendarDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -54,7 +54,7 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
     private static RegularCalendarDto MapToDto(RegularCalendar e) => new(e.Id, e.RouteId, e.DepartureAt, e.ArrivedAt, e.UserId, e.StatusName);
 }

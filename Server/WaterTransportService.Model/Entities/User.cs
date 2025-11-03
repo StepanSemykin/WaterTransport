@@ -30,14 +30,6 @@ public class User : BaseEntity
     public required string Phone { get; set; }
 
     /// <summary>
-    /// Никнейм пользователя.
-    /// </summary>
-    [Required]
-    [MaxLength(64)]
-    [Column("nickname")]
-    public required string Nickname { get; set; }
-
-    /// <summary>
     /// Флаг активности аккаунта.
     /// </summary>
     [Required]
@@ -59,7 +51,7 @@ public class User : BaseEntity
     /// <summary>
     /// Роли пользователя.
     /// </summary>
-    public int[] Roles { get; set; } = [];
+    public string Role { get; set; } = "common";
 
     /// <summary>
     /// Соль, используемая при хешировании пароля.

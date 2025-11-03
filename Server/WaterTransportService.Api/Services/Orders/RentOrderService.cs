@@ -8,7 +8,7 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
 {
     private readonly IEntityRepository<RentOrder, Guid> _repo = repo;
 
-    public async Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize, CancellationToken ct)
+    public async Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -18,13 +18,13 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
         return (items, total);
     }
 
-    public async Task<RentOrderDto?> GetByIdAsync(Guid id, CancellationToken ct)
+    public async Task<RentOrderDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
-    public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto, CancellationToken ct)
+    public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto)
     {
         var entity = new RentOrder
         {
@@ -46,7 +46,7 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
         return MapToDto(created);
     }
 
-    public async Task<RentOrderDto?> UpdateAsync(Guid id, UpdateRentOrderDto dto, CancellationToken ct)
+    public async Task<RentOrderDto?> UpdateAsync(Guid id, UpdateRentOrderDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
@@ -62,7 +62,7 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id, CancellationToken ct) => _repo.DeleteAsync(id);
+    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
     private static RentOrderDto MapToDto(RentOrder e) => new(e.Id, e.UserId, e.TotalPrice, e.NumberOfPassengers, e.RentCalendarId, e.RentalStartTime, e.RentalEndTime, e.OrderDate, e.StatusName, e.CreatedAt, e.CancelledAt);
 }

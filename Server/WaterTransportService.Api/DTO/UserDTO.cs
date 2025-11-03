@@ -5,13 +5,12 @@ namespace WaterTransportService.Api.DTO;
 public record UserDto(
     Guid Id,
     string Phone,
-    string Nickname,
     DateTime CreatedAt,
     DateTime? LastLoginAt,
     bool IsActive,
     int? FailedLoginAttempts,
     DateTime? LockedUntil,
-    int[] Roles
+    string? Role
 );
 
 
@@ -20,16 +19,13 @@ public class CreateUserDto
     [Required, MaxLength(20)]
     public string Phone { get; set; } = default!;
 
-    [Required, MaxLength(64)]
-    public string Nickname { get; set; } = default!;
-
     [Required, MinLength(6)]
     public string Password { get; set; } = default!;
 
     public bool IsActive { get; set; } = true;
 
     // опционально: роли при создании
-    public int[]? Roles { get; set; }
+    public string? Role{ get; set; }
 }
 
 
@@ -38,14 +34,19 @@ public class UpdateUserDto
     [MaxLength(20)]
     public string? Phone { get; set; }
 
-    [MaxLength(64)]
-    public string? Nickname { get; set; }
-
     public bool? IsActive { get; set; }
 
-    public int[]? Roles { get; set; }
+    public string? Role { get; set; }
 
     // Если передан — обновим пароль
     [MinLength(6)]
     public string? NewPassword { get; set; }
+}
+
+public class LoginDto
+{
+    [Required, MaxLength(20)]
+    public string Phone { get; set; } = default!;
+    [Required, MinLength(6)]
+    public string Password { get; set; } = default!;
 }

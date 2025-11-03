@@ -1,5 +1,4 @@
 ﻿using WaterTransportService.Model.Entities;
-
 namespace WaterTransportService.Tests;
 
 public class WaterTransportFixture
@@ -9,20 +8,20 @@ public class WaterTransportFixture
     {
         var users = new List<User>
         {
-            new User
-            {
-                Uuid = Guid.NewGuid(),
+            new() {
+                Id = Guid.NewGuid(),
                 Phone = "+1234567890",
-                Nickname = "testuser1",
                 CreatedAt = DateTime.UtcNow.AddDays(-10),
+                Salt = "sdfkllsf",
+                Hash = "hashedpassword1",
                 IsActive = true
             },
-            new User
-            {
-                Uuid = Guid.NewGuid(),
+            new() {
+                Id = Guid.NewGuid(),
                 Phone = "+0987654321",
-                Nickname = "testuser2",
                 CreatedAt = DateTime.UtcNow.AddDays(-5),
+                Salt = "asldkfjas",
+                Hash = "hashpassword2",
                 IsActive = false
             }
         };
