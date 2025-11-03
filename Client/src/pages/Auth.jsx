@@ -6,13 +6,17 @@ import { User, Mail, Phone, Lock, LogIn } from "lucide-react";
 import styles from "./Auth.module.css";
 
 export default function Auth () {
-  const [activeTab, setActiveTab] = useState("register");
+  const [activeTab, setActiveTab] = useState("login");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
     password: ""
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [registerSuggestion, setRegisterSuggestion] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -21,12 +25,48 @@ export default function Auth () {
     });
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   console.log("Форма отправлена:", formData);
+  // };
+
+const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Форма отправлена:", formData);
+    setError("");
+    setRegisterSuggestion(false);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: formData.phone,
+          password: formData.password
+        })
+      });
+
+      if (res.status === 200) {
+        const data = await res.json();
+        if (data.token) localStorage.setItem("token", data.token);
+        // редирект или обновление состояния приложения
+        window.location.href = "/";
+      } else if (res.status === 401) {
+        setError("Неверный пароль.");
+      } else if (res.status === 404) {
+        setError("Пользователь не найден.");
+        setRegisterSuggestion(true);
+      } else {
+        const txt = await res.text();
+        setError("Ошибка сервера: " + txt);
+      }
+    } catch (err) {
+      setError("Ошибка сети: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
+ return (
     <div className={styles["auth-page"]}>
 
       <Container>
@@ -38,63 +78,7 @@ export default function Auth () {
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <Card className={styles["auth-card"]}>
               <Card.Body className={styles["auth-card-body"]}>
-
-                {/* <div className={styles["auth-tabs"]}>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("login")}
-                    className={`${styles["auth-tab"]} ${activeTab === "login" ? styles["auth-tab-active"] : styles["auth-tab-inactive"]}`}
-                  >
-                    Вход
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("register")}
-                    className={`${styles["auth-tab"]} ${activeTab === "register" ? styles["auth-tab-active"] : styles["auth-tab-inactive"]}`}
-                  >
-                    Регистрация
-                  </button>
-                </div> */}
-
                 <form onSubmit={handleSubmit} className={styles["auth-form"]}>
-                  {/* <div className={styles["form-field"]}>
-                    <label className={styles["form-field-label"]} htmlFor="fullName">
-                      Полное имя
-                    </label>
-                    <div className={styles["form-input-wrapper"]}>
-                      <User className={styles["form-input-icon"]} />
-                      <input
-                        id="fullName"
-                        name="fullName"
-                        type="text"
-                        className={styles["form-field-input"]}
-                        placeholder="Введите ваше полное имя"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div> */}
-
-                  {/* <div className={styles["form-field"]}>
-                    <label className={styles["form-field-label"]} htmlFor="email">
-                      Email
-                    </label>
-                    <div className={styles["form-input-wrapper"]}>
-                      <Mail className={styles["form-input-icon"]} />
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        className={styles["form-field-input"]}
-                        placeholder="Введите ваш email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div> */}
-
                   <div className={styles["form-field"]}>
                     <label className={styles["form-field-label"]} htmlFor="phone">
                       Номер телефона
