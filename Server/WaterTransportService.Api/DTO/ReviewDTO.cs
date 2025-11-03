@@ -25,7 +25,7 @@ public class CreateReviewDto
     [MaxLength(1000)]
     public string? Comment { get; set; }
 
-    [Required, Range(0,5)]
+    [Required, Range(0, 5)]
     public required byte Rating { get; set; }
 }
 
@@ -38,7 +38,7 @@ public class UpdateReviewDto
     [MaxLength(1000)]
     public string? Comment { get; set; }
 
-    [Range(0,5)]
+    [Range(0, 5)]
     public byte? Rating { get; set; }
 
     public bool? IsActive { get; set; }

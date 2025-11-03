@@ -9,7 +9,7 @@ public interface IUserService
     Task<UserDto> CreateAsync(CreateUserDto dto);
     Task<UserDto?> UpdateAsync(Guid id, UpdateUserDto dto);
     Task<bool> DeleteAsync(Guid id);
-    
+
     // Методы аутентификации
     Task<LoginResponseDto?> RegisterAsync(RegisterDto dto);
     Task<LoginResponseDto?> LoginAsync(LoginDto dto);

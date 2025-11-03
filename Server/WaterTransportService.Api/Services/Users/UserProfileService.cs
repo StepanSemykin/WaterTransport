@@ -27,7 +27,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
     public async Task<UserProfileDto?> CreateAsync(CreateUserProfileDto dto)
     {
         // метод не нужен, т.к. профиль создается вместе с пользователем
-        await Task.CompletedTask; 
+        await Task.CompletedTask;
         return null;
     }
 

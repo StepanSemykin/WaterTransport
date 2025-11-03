@@ -1,5 +1,3 @@
-using WaterTransportService.Api.DTO;
-
 namespace WaterTransportService.Api.Services.Images;
 
 public interface IImageService<TDto, TCreateDto, TUpdateDto>

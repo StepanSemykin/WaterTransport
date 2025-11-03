@@ -21,7 +21,7 @@ public class TokenService(
         var keyStr = _config["Jwt:Key"] ?? string.Empty;
         var expMinutes = _config.GetValue<int?>("Jwt:ExpirationMinutes") ?? 60;
 
-        Claim[] claims = 
+        Claim[] claims =
         [
             new(ClaimTypes.NameIdentifier, userId.ToString()),
             new("userId", userId.ToString()),
@@ -90,8 +90,8 @@ public class TokenService(
     public async Task<string?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
     {
         var allTokens = await _refreshTokenRepo.GetAllAsync();
-        var storedToken = allTokens.FirstOrDefault(t => 
-            t.UserId == userId && 
+        var storedToken = allTokens.FirstOrDefault(t =>
+            t.UserId == userId &&
             t.Token == refreshToken &&
             t.ExpiresAt > DateTime.UtcNow);
 
@@ -102,7 +102,7 @@ public class TokenService(
     {
         var allTokens = await _refreshTokenRepo.GetAllAsync();
         var token = allTokens.FirstOrDefault(t => t.UserId == userId);
-        
+
         if (token != null)
         {
             await _refreshTokenRepo.DeleteAsync(token.Id);

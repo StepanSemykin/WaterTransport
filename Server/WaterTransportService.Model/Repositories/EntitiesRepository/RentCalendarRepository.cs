@@ -17,7 +17,7 @@ public class RentCalendarRepository(WaterTransportDbContext context) : IEntityRe
         _context.RentCalendars.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
-    }   
+    }
 
     public async Task<bool> UpdateAsync(RentCalendar entity, Guid id)
     {

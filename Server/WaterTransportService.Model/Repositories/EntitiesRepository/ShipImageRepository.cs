@@ -17,7 +17,7 @@ public class ShipImageRepository(WaterTransportDbContext context) : IEntityRepos
         _context.ShipImages.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
-    }   
+    }
 
     public async Task<bool> UpdateAsync(ShipImage entity, Guid id)
     {

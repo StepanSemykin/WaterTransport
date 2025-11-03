@@ -42,7 +42,7 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     {
         var updated = await _service.UpdateAsync(id, dto);
         return updated is null ? NotFound() : Ok(updated);
-        }
+    }
 
     // DELETE api/userprofiles/{id}
     [HttpDelete("{id:guid}")]

@@ -4,7 +4,7 @@ using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
-public class UserRepository(WaterTransportDbContext context) :  IUserRepository<Guid>
+public class UserRepository(WaterTransportDbContext context) : IUserRepository<Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 

@@ -115,18 +115,15 @@ public class UsersController(IUserService service) : ControllerBase
     [HttpPost("refresh")]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
     {
-        // Извлекаем refresh токен из cookie
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        // Пытаемся получить userId из текущих claims или из query параметра
         Guid finalUserId;
-        
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
-                          ?? User.FindFirst("userId");
-        
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
         {
             // userId получен из claims текущего токена
@@ -147,7 +144,6 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
 
-        // Устанавливаем access токен в cookie
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
@@ -156,7 +152,6 @@ public class UsersController(IUserService service) : ControllerBase
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
-        // Обновляем refresh токен в cookie
         HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
@@ -173,16 +168,14 @@ public class UsersController(IUserService service) : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        // Получаем userId из claims
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
                           ?? User.FindFirst("userId");
-        
+
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
             await _service.LogoutAsync(userId);
         }
 
-        // Удаляем токены из cookie
         HttpContext.Response.Cookies.Delete("AuthToken");
         HttpContext.Response.Cookies.Delete("RefreshToken");
 
