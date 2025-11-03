@@ -8,16 +8,16 @@ public class RegularOrderRepository(WaterTransportDbContext context) : IEntityRe
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<RegularOrder> AddAsync(RegularOrder entity)
+    public async Task<IEnumerable<RegularOrder>> GetAllAsync() => await _context.RegularOrders.ToListAsync();
+
+    public async Task<RegularOrder?> GetByIdAsync(Guid id) => await _context.RegularOrders.FindAsync(id);
+
+    public async Task<RegularOrder> CreateAsync(RegularOrder entity)
     {
         _context.RegularOrders.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<RegularOrder>> GetAllAsync() => await _context.RegularOrders.ToListAsync();
-
-    public async Task<RegularOrder?> GetByIdAsync(Guid id) => await _context.RegularOrders.FindAsync(id);
 
     public async Task<bool> UpdateAsync(RegularOrder entity, Guid id)
     {

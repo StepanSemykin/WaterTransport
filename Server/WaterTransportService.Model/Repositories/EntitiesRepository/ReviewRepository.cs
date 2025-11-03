@@ -8,16 +8,16 @@ public class ReviewRepository(WaterTransportDbContext context) : IEntityReposito
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<Review> AddAsync(Review entity)
+    public async Task<IEnumerable<Review>> GetAllAsync() => await _context.Reviews.ToListAsync();
+
+    public async Task<Review?> GetByIdAsync(Guid id) => await _context.Reviews.FindAsync(id);
+
+    public async Task<Review> CreateAsync(Review entity)
     {
         _context.Reviews.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<Review>> GetAllAsync() => await _context.Reviews.ToListAsync();
-
-    public async Task<Review?> GetByIdAsync(Guid id) => await _context.Reviews.FindAsync(id);
 
     public async Task<bool> UpdateAsync(Review entity, Guid id)
     {

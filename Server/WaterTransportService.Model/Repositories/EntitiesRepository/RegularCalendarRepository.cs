@@ -8,16 +8,16 @@ public class RegularCalendarRepository(WaterTransportDbContext context) : IEntit
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<RegularCalendar> AddAsync(RegularCalendar entity)
+    public async Task<IEnumerable<RegularCalendar>> GetAllAsync() => await _context.RegularCalendars.ToListAsync();
+
+    public async Task<RegularCalendar?> GetByIdAsync(Guid id) => await _context.RegularCalendars.FindAsync(id);
+
+    public async Task<RegularCalendar> CreateAsync(RegularCalendar entity)
     {
         _context.RegularCalendars.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<RegularCalendar>> GetAllAsync() => await _context.RegularCalendars.ToListAsync();
-
-    public async Task<RegularCalendar?> GetByIdAsync(Guid id) => await _context.RegularCalendars.FindAsync(id);
 
     public async Task<bool> UpdateAsync(RegularCalendar entity, Guid id)
     {

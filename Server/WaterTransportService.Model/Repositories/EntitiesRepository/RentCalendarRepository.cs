@@ -8,16 +8,16 @@ public class RentCalendarRepository(WaterTransportDbContext context) : IEntityRe
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<RentCalendar> AddAsync(RentCalendar entity)
+    public async Task<IEnumerable<RentCalendar>> GetAllAsync() => await _context.RentCalendars.ToListAsync();
+
+    public async Task<RentCalendar?> GetByIdAsync(Guid id) => await _context.RentCalendars.FindAsync(id);
+
+    public async Task<RentCalendar> CreateAsync(RentCalendar entity)
     {
         _context.RentCalendars.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
-    }
-
-    public async Task<IEnumerable<RentCalendar>> GetAllAsync() => await _context.RentCalendars.ToListAsync();
-
-    public async Task<RentCalendar?> GetByIdAsync(Guid id) => await _context.RentCalendars.FindAsync(id);
+    }   
 
     public async Task<bool> UpdateAsync(RentCalendar entity, Guid id)
     {

@@ -54,7 +54,7 @@ public class UserService(
             Hash = hash
         };
 
-        await _userRepo.AddAsync(user);
+        await _userRepo.CreateAsync(user);
 
         // Auto-create a default UserProfile for the new user
         var profile = new UserProfile
@@ -71,7 +71,7 @@ public class UserService(
             IsPublic = true,
             UpdatedAt = DateTime.UtcNow
         };
-        await _userProfileRepo.AddAsync(profile);
+        await _userProfileRepo.CreateAsync(profile);
 
         return MapToDto(user);
     }
@@ -98,7 +98,7 @@ public class UserService(
                 Hash = user.Hash,
                 CreatedAt = DateTime.UtcNow
             };
-            await _oldPasswordRepo.AddAsync(oldPwd);
+            await _oldPasswordRepo.CreateAsync(oldPwd);
 
             // ѕримен€ем новый пароль пользователю
             var (salt, hash) = HashPassword(dto.NewPassword);

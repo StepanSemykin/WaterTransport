@@ -8,16 +8,16 @@ public class UserProfileRepository(WaterTransportDbContext context) : IEntityRep
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<UserProfile> AddAsync(UserProfile entity)
+    public async Task<IEnumerable<UserProfile>> GetAllAsync() => await _context.UserProfiles.ToListAsync();
+
+    public async Task<UserProfile?> GetByIdAsync(Guid id) => await _context.UserProfiles.FindAsync(id);
+
+    public async Task<UserProfile> CreateAsync(UserProfile entity)
     {
         _context.UserProfiles.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<UserProfile>> GetAllAsync() => await _context.UserProfiles.ToListAsync();
-
-    public async Task<UserProfile?> GetByIdAsync(Guid id) => await _context.UserProfiles.FindAsync(id);
 
     public async Task<bool> UpdateAsync(UserProfile entity, Guid id)
     {

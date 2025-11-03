@@ -39,7 +39,7 @@ public class RouteService(IEntityRepository<Route, Guid> repo) : IRouteService
             Ship = null!,
             DurationMinutes = dto.DurationMinutes
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

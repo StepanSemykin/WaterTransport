@@ -8,16 +8,16 @@ public class OldPasswordRepository(WaterTransportDbContext context) : IEntityRep
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<OldPassword> AddAsync(OldPassword entity)
+    public async Task<IEnumerable<OldPassword>> GetAllAsync() => await _context.OldPasswords.ToListAsync();
+
+    public async Task<OldPassword?> GetByIdAsync(Guid id) => await _context.OldPasswords.FindAsync(id);
+
+    public async Task<OldPassword> CreateAsync(OldPassword entity)
     {
         _context.OldPasswords.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<OldPassword>> GetAllAsync() => await _context.OldPasswords.ToListAsync();
-
-    public async Task<OldPassword?> GetByIdAsync(Guid id) => await _context.OldPasswords.FindAsync(id);
 
     public async Task<bool> UpdateAsync(OldPassword entity, Guid id)
     {

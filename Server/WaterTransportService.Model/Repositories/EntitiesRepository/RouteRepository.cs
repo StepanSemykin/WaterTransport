@@ -8,16 +8,16 @@ public class RouteRepository(WaterTransportDbContext context) : IEntityRepositor
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<Route> AddAsync(Route entity)
+    public async Task<IEnumerable<Route>> GetAllAsync() => await _context.Routes.ToListAsync();
+
+    public async Task<Route?> GetByIdAsync(Guid id) => await _context.Routes.FindAsync(id);
+
+    public async Task<Route> CreateAsync(Route entity)
     {
         _context.Routes.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<Route>> GetAllAsync() => await _context.Routes.ToListAsync();
-
-    public async Task<Route?> GetByIdAsync(Guid id) => await _context.Routes.FindAsync(id);
 
     public async Task<bool> UpdateAsync(Route entity, Guid id)
     {

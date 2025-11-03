@@ -37,7 +37,7 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
             User = null!,
             StatusName = dto.StatusName
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

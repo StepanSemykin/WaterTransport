@@ -21,7 +21,7 @@ public class Port
     /// </summary>
     [Required]
     [MaxLength(256)]
-    [Column("title")]
+    [Column("title")] 
     public required string Title { get; set; }
 
     /// <summary>

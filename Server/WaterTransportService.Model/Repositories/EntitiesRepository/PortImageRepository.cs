@@ -8,16 +8,16 @@ public class PortImageRepository(WaterTransportDbContext context) : IEntityRepos
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<PortImage> AddAsync(PortImage entity)
+    public async Task<IEnumerable<PortImage>> GetAllAsync() => await _context.PortImages.ToListAsync();
+
+    public async Task<PortImage?> GetByIdAsync(Guid id) => await _context.PortImages.FindAsync(id);
+
+    public async Task<PortImage> CreateAsync(PortImage entity)
     {
         _context.PortImages.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<PortImage>> GetAllAsync() => await _context.PortImages.ToListAsync();
-
-    public async Task<PortImage?> GetByIdAsync(Guid id) => await _context.PortImages.FindAsync(id);
 
     public async Task<bool> UpdateAsync(PortImage entity, Guid id)
     {

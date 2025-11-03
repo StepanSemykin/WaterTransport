@@ -8,16 +8,16 @@ public class UserImageRepository(WaterTransportDbContext context) : IEntityRepos
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<UserImage> AddAsync(UserImage entity)
+    public async Task<IEnumerable<UserImage>> GetAllAsync() => await _context.UserImages.ToListAsync();
+
+    public async Task<UserImage?> GetByIdAsync(Guid id) => await _context.UserImages.FindAsync(id);
+
+    public async Task<UserImage> CreateAsync(UserImage entity)
     {
         _context.UserImages.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<UserImage>> GetAllAsync() => await _context.UserImages.ToListAsync();
-
-    public async Task<UserImage?> GetByIdAsync(Guid id) => await _context.UserImages.FindAsync(id);
 
     public async Task<bool> UpdateAsync(UserImage entity, Guid id)
     {

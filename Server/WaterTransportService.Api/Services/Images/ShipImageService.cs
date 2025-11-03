@@ -35,7 +35,7 @@ public class ShipImageService(IEntityRepository<ShipImage, Guid> repo) : IImageS
             IsPrimary = dto.IsPrimary,
             UploadedAt = DateTime.UtcNow
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

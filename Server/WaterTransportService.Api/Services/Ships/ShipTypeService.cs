@@ -32,7 +32,7 @@ public class ShipTypeService(IEntityRepository<ShipType, ushort> repo) : IShipTy
             Name = dto.Name,
             Description = dto.Description
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

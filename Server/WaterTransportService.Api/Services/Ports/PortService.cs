@@ -36,7 +36,7 @@ public class PortService(IEntityRepository<Port, Guid> repo) : IPortService
             Longitude = dto.Longitude,
             Address = dto.Address
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

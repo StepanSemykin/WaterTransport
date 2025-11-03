@@ -8,16 +8,16 @@ public class ShipImageRepository(WaterTransportDbContext context) : IEntityRepos
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<ShipImage> AddAsync(ShipImage entity)
+    public async Task<IEnumerable<ShipImage>> GetAllAsync() => await _context.ShipImages.ToListAsync();
+
+    public async Task<ShipImage?> GetByIdAsync(Guid id) => await _context.ShipImages.FindAsync(id);
+
+    public async Task<ShipImage> CreateAsync(ShipImage entity)
     {
         _context.ShipImages.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
-    }
-
-    public async Task<IEnumerable<ShipImage>> GetAllAsync() => await _context.ShipImages.ToListAsync();
-
-    public async Task<ShipImage?> GetByIdAsync(Guid id) => await _context.ShipImages.FindAsync(id);
+    }   
 
     public async Task<bool> UpdateAsync(ShipImage entity, Guid id)
     {

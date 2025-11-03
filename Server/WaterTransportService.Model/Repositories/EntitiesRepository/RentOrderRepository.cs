@@ -8,16 +8,16 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<RentOrder> AddAsync(RentOrder entity)
+    public async Task<IEnumerable<RentOrder>> GetAllAsync() => await _context.RentOrders.ToListAsync();
+
+    public async Task<RentOrder?> GetByIdAsync(Guid id) => await _context.RentOrders.FindAsync(id);
+
+    public async Task<RentOrder> CreateAsync(RentOrder entity)
     {
         _context.RentOrders.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<RentOrder>> GetAllAsync() => await _context.RentOrders.ToListAsync();
-
-    public async Task<RentOrder?> GetByIdAsync(Guid id) => await _context.RentOrders.FindAsync(id);
 
     public async Task<bool> UpdateAsync(RentOrder entity, Guid id)
     {

@@ -31,7 +31,7 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
             Id = dto.Id,
             Title = dto.Title
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

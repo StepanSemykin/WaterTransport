@@ -45,7 +45,7 @@ public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
             UserId = dto.UserId,
             User = null!
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

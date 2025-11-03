@@ -8,16 +8,16 @@ public class ShipTypeRepository(WaterTransportDbContext context) : IEntityReposi
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<ShipType> AddAsync(ShipType entity)
+    public async Task<IEnumerable<ShipType>> GetAllAsync() => await _context.ShipTypes.ToListAsync();
+
+    public async Task<ShipType?> GetByIdAsync(ushort id) => await _context.ShipTypes.FindAsync(id);
+
+    public async Task<ShipType> CreateAsync(ShipType entity)
     {
         _context.ShipTypes.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<ShipType>> GetAllAsync() => await _context.ShipTypes.ToListAsync();
-
-    public async Task<ShipType?> GetByIdAsync(ushort id) => await _context.ShipTypes.FindAsync(id);
 
     public async Task<bool> UpdateAsync(ShipType entity, ushort id)
     {

@@ -34,7 +34,7 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
             LowerTimeLimit = dto.LowerTimeLimit,
             HighTimeLimit = dto.HighTimeLimit
         };
-        var created = await _repo.AddAsync(entity);
+        var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
     }
 

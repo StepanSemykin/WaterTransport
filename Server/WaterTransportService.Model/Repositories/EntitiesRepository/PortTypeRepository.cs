@@ -8,16 +8,16 @@ public class PortTypeRepository(WaterTransportDbContext context) : IEntityReposi
 {
     private readonly WaterTransportDbContext _context = context;
 
-    public async Task<PortType> AddAsync(PortType entity)
+    public async Task<IEnumerable<PortType>> GetAllAsync() => await _context.PortTypes.ToListAsync();
+
+    public async Task<PortType?> GetByIdAsync(ushort id) => await _context.PortTypes.FindAsync(id);
+
+    public async Task<PortType> CreateAsync(PortType entity)
     {
         _context.PortTypes.Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
-
-    public async Task<IEnumerable<PortType>> GetAllAsync() => await _context.PortTypes.ToListAsync();
-
-    public async Task<PortType?> GetByIdAsync(ushort id) => await _context.PortTypes.FindAsync(id);
 
     public async Task<bool> UpdateAsync(PortType entity, ushort id)
     {
