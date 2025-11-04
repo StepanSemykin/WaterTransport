@@ -13,6 +13,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+# Repo for Images
+Server/Images/
+
 # Mono auto generated files
 mono_crash.*
 

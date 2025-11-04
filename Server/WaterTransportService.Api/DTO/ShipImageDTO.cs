@@ -1,7 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace WaterTransportService.Api.DTO;
 
+/// <summary>
+/// DTO для чтения изображения корабля.
+/// </summary>
+/// <param name="Id">Уникальный идентификатор изображения.</param>
+/// <param name="ShipId">Идентификатор корабля.</param>
+/// <param name="ImagePath">Путь к файлу изображения.</param>
+/// <param name="IsPrimary">Является ли изображение основным.</param>
+/// <param name="UploadedAt">Дата и время загрузки изображения.</param>
 public record ShipImageDto(
     Guid Id,
     Guid ShipId,
@@ -10,21 +19,41 @@ public record ShipImageDto(
     DateTime UploadedAt
 );
 
+/// <summary>
+/// DTO для создания изображения корабля.
+/// </summary>
 public class CreateShipImageDto
 {
+    /// <summary>
+    /// Идентификатор корабля.
+    /// </summary>
     [Required]
     public required Guid ShipId { get; set; }
 
-    [Required, MaxLength(3000)]
-    public required string ImagePath { get; set; }
+    /// <summary>
+    /// Файл изображения.
+    /// </summary>
+    [Required]
+    public required IFormFile Image { get; set; }
 
+    /// <summary>
+    /// Является ли изображение основным.
+    /// </summary>
     public bool IsPrimary { get; set; }
 }
 
+/// <summary>
+/// DTO для обновления изображения корабля.
+/// </summary>
 public class UpdateShipImageDto
 {
-    [MaxLength(3000)]
-    public string? ImagePath { get; set; }
+    /// <summary>
+    /// Новый файл изображения (необязательно).
+    /// </summary>
+    public IFormFile? Image { get; set; }
 
+    /// <summary>
+    /// Является ли изображение основным (необязательно).
+    /// </summary>
     public bool? IsPrimary { get; set; }
 }

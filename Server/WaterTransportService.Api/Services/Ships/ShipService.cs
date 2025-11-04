@@ -4,10 +4,16 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Ships;
 
+/// <summary>
+/// Сервис для работы с кораблями.
+/// </summary>
 public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
 {
     private readonly IEntityRepository<Ship, Guid> _repo = repo;
 
+    /// <summary>
+    /// Получить список всех кораблей с пагинацией.
+    /// </summary>
     public async Task<(IReadOnlyList<ShipDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -18,12 +24,18 @@ public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить корабль по идентификатору.
+    /// </summary>
     public async Task<ShipDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новый корабль.
+    /// </summary>
     public async Task<ShipDto?> CreateAsync(CreateShipDto dto)
     {
         var entity = new Ship
@@ -49,6 +61,9 @@ public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить существующий корабль.
+    /// </summary>
     public async Task<ShipDto?> UpdateAsync(Guid id, UpdateShipDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
@@ -69,8 +84,14 @@ public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
         return ok ? MapToDto(entity) : null;
     }
 
+    /// <summary>
+    /// Удалить корабль.
+    /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
+    /// <summary>
+    /// Преобразовать сущность корабля в DTO.
+    /// </summary>
     private static ShipDto MapToDto(Ship e) => new(
         e.Id,
         e.Name,

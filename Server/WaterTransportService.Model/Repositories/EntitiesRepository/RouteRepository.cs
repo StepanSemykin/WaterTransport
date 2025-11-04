@@ -4,14 +4,26 @@ using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
+/// <summary>
+/// Репозиторий для сущности маршрута.
+/// </summary>
 public class RouteRepository(WaterTransportDbContext context) : IEntityRepository<Route, Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
+    /// <summary>
+    /// Получить все маршруты.
+    /// </summary>
     public async Task<IEnumerable<Route>> GetAllAsync() => await _context.Routes.ToListAsync();
 
+    /// <summary>
+    /// Получить маршрут по идентификатору.
+    /// </summary>
     public async Task<Route?> GetByIdAsync(Guid id) => await _context.Routes.FindAsync(id);
 
+    /// <summary>
+    /// Создать новый маршрут.
+    /// </summary>
     public async Task<Route> CreateAsync(Route entity)
     {
         _context.Routes.Add(entity);
@@ -19,6 +31,9 @@ public class RouteRepository(WaterTransportDbContext context) : IEntityRepositor
         return entity;
     }
 
+    /// <summary>
+    /// Обновить маршрут.
+    /// </summary>
     public async Task<bool> UpdateAsync(Route entity, Guid id)
     {
         var old = await _context.Routes.FirstOrDefaultAsync(x => x.Id == id);
@@ -29,6 +44,9 @@ public class RouteRepository(WaterTransportDbContext context) : IEntityRepositor
         return true;
     }
 
+    /// <summary>
+    /// Удалить маршрут.
+    /// </summary>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var old = await GetByIdAsync(id);

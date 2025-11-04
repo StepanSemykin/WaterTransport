@@ -13,6 +13,7 @@ using WaterTransportService.Api.Services.Reviews;
 using WaterTransportService.Api.Services.Routes;
 using WaterTransportService.Api.Services.Ships;
 using WaterTransportService.Api.Services.Users;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
@@ -108,6 +109,7 @@ builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepo
 builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageRepository>();
 
 // Services DI
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPortService, PortService>();
