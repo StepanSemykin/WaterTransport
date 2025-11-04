@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ButtonGroup, ToggleButton } from 'react-bootstrap';
+import styles from './FilterTabs.module.css';
 
 export default function FilterTabs({ onFilterChange }) {
   const [activeTab, setActiveTab] = useState('all');
@@ -25,12 +26,11 @@ export default function FilterTabs({ onFilterChange }) {
             key={tab.value}
             id={`tab-${tab.value}`}
             type="radio"
-            variant={activeTab === tab.value ? 'primary' : 'outline-secondary'}
             name="boat-categories"
             value={tab.value}
             checked={activeTab === tab.value}
             onChange={() => handleTabClick(tab.value)}
-            className="me-2 rounded-pill text-nowrap"
+            className={`${styles.tabButton} ${activeTab === tab.value ? styles.active : ''}`}
           >
             {tab.label}
           </ToggleButton>
