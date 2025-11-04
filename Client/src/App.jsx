@@ -5,6 +5,7 @@ import Auth from "./pages/Auth.jsx"
 import User from "./pages/User"
 import Partner from "./pages/Partner.jsx"
 import Support from "./pages/Support.jsx"
+import Results from "./pages/Results.jsx"
 
 import "./App.css"
 
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/user" element={<User />} />
         <Route path="/partner" element={<Partner />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/results" element={<Results />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
