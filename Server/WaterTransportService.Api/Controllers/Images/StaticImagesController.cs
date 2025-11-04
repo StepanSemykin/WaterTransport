@@ -7,14 +7,9 @@ namespace WaterTransportService.Api.Controllers.Images;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class StaticImagesController : ControllerBase
+public class StaticImagesController(IWebHostEnvironment environment) : ControllerBase
 {
-    private readonly IWebHostEnvironment _environment;
-
-    public StaticImagesController(IWebHostEnvironment environment)
-    {
-        _environment = environment;
-    }
+    private readonly IWebHostEnvironment _environment = environment;
 
     /// <summary>
     /// Получить изображение по категории и имени файла.
@@ -40,7 +35,7 @@ public class StaticImagesController : ControllerBase
 
         // Построение пути к файлу
         var imagesBasePath = Path.Combine(
-            Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, 
+            Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath,
             "Images"
         );
         var filePath = Path.Combine(imagesBasePath, category, filename);

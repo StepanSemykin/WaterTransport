@@ -37,6 +37,13 @@ public class RefreshTokenRepository(WaterTransportDbContext context) : IEntityRe
     public async Task<RefreshToken?> GetByIdAsync(Guid id) => await _context.RefreshTokens.FindAsync(id);
 
     /// <summary>
+    /// Получить refresh токен по идентификатору пользователя.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task<RefreshToken?> GetByUserIdAsync(Guid userId) => await _context.RefreshTokens.FirstOrDefaultAsync(x => x.UserId == userId);
+
+    /// <summary>
     /// Обновить refresh токен.
     /// </summary>
     /// <param name="entity">Новые данные.</param>

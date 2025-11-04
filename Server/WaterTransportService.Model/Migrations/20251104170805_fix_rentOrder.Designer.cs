@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WaterTransportService.Model.Context;
@@ -11,9 +12,11 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    partial class WaterTransportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251104170805_fix_rentOrder")]
+    partial class fix_rentOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -101,7 +101,6 @@ builder.Services.AddScoped<IEntityRepository<ShipImage, Guid>, ShipImageReposito
 builder.Services.AddScoped<IEntityRepository<WaterTransportService.Model.Entities.Route, Guid>, RouteRepository>();
 builder.Services.AddScoped<IEntityRepository<RegularCalendar, Guid>, RegularCalendarRepository>();
 builder.Services.AddScoped<IEntityRepository<RegularOrder, Guid>, RegularOrderRepository>();
-builder.Services.AddScoped<IEntityRepository<RentCalendar, Guid>, RentCalendarRepository>();
 builder.Services.AddScoped<IEntityRepository<RentOrder, Guid>, RentOrderRepository>();
 builder.Services.AddScoped<IEntityRepository<Review, Guid>, ReviewRepository>();
 builder.Services.AddScoped<IEntityRepository<UserImage, Guid>, UserImageRepository>();
@@ -119,7 +118,6 @@ builder.Services.AddScoped<IShipService, ShipService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRegularCalendarService, RegularCalendarService>();
 builder.Services.AddScoped<IRegularOrderService, RegularOrderService>();
-builder.Services.AddScoped<IRentCalendarService, RentCalendarService>();
 builder.Services.AddScoped<IRentOrderService, RentOrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
@@ -149,6 +147,5 @@ app.MapControllers();
 
 app.Run();
 
-// Helper to choose SameSite based on environment
 SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 

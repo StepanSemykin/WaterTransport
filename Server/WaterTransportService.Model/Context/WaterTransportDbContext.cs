@@ -17,7 +17,6 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
     public required DbSet<Route> Routes { get; set; }
     public required DbSet<RegularCalendar> RegularCalendars { get; set; }
     public required DbSet<RegularOrder> RegularOrders { get; set; }
-    public required DbSet<RentCalendar> RentCalendars { get; set; }
     public required DbSet<RentOrder> RentOrders { get; set; }
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<OldPassword> OldPasswords { get; set; }
@@ -26,6 +25,24 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<RentOrder>(b =>
+        {
+            b.HasOne(ro => ro.User)
+                .WithMany(u => u.RentOrders)
+                .HasForeignKey(ro => ro.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ro => ro.Partner)
+                .WithMany()
+                .HasForeignKey(ro => ro.PartnerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasOne(ro => ro.Ship)
+                .WithMany()
+                .HasForeignKey(ro => ro.ShipId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.Entity<PortType>().HasData(
             new PortType { Id = 1, Title = "Marine" },
@@ -77,6 +94,46 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .WithMany(s => s.Reviews)
                 .HasForeignKey(r => r.ShipId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<UserProfile>(b =>
+        {
+            b.HasOne(up => up.User)
+                .WithOne(u => u.UserProfile)
+                .HasForeignKey<UserProfile>(up => up.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ShipImage>(b =>
+        {
+            b.HasOne(si => si.Ship)
+                .WithMany(s => s.ShipImages)
+                .HasForeignKey(si => si.ShipId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PortImage>(b =>
+        {
+            b.HasOne(pi => pi.Port)
+                .WithMany(p => p.PortImages)
+                .HasForeignKey(pi => pi.PortId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UserImage>(b =>
+        {
+            b.HasOne(ui => ui.UserProfile)
+                .WithMany(up => up.UserImages)
+                .HasForeignKey(ui => ui.UserProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OldPassword>(b =>
+        {
+            b.HasOne(op => op.User)
+                .WithMany(u => u.OldPasswords)
+                .HasForeignKey(op => op.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

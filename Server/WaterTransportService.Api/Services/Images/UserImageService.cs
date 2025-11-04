@@ -60,7 +60,8 @@ public class UserImageService(
             Id = Guid.NewGuid(),
             ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
-            UploadedAt = DateTime.UtcNow
+            UploadedAt = DateTime.UtcNow,
+            UserProfileId = dto.UserProfileId
         };
         var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
