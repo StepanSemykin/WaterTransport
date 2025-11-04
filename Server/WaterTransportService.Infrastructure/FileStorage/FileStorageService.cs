@@ -19,7 +19,7 @@ public class FileStorageService : IFileStorageService
         _environment = environment;
         // Путь к папке Images в корне Server
         _imagesBasePath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, "Images");
-        
+
         // Создаем базовую папку, если она не существует
         if (!Directory.Exists(_imagesBasePath))
         {

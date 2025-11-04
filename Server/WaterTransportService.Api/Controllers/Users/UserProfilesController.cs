@@ -45,24 +45,6 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     }
 
     /// <summary>
-    /// Создать новый профиль пользователя.
-    /// </summary>
-    /// <param name="dto">Данные для создания профиля.</param>
-    /// <returns>Созданный профиль пользователя.</returns>
-    /// <response code="201">Профиль успешно создан.</response>
-    /// <response code="400">Недопустимые данные.</response>
-    [HttpPost]
-    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UserProfileDto>> Create([FromBody] CreateUserProfileDto dto)
-    {
-        var created = await _service.CreateAsync(dto);
-        return created is null
-            ? BadRequest()
-            : CreatedAtAction(nameof(GetById), new { id = created.UserId }, created);
-    }
-
-    /// <summary>
     /// Обновить профиль пользователя.
     /// </summary>
     /// <param name="id">Уникальный идентификатор профиля.</param>

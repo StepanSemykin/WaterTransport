@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Http;
 
 namespace WaterTransportService.Api.DTO;
 
@@ -22,6 +21,12 @@ public record UserImageDto(
 /// </summary>
 public class CreateUserImageDto
 {
+    /// <summary>
+    /// Идентификатор профиля пользователя, к которому относится изображение.
+    /// </summary>
+    [Required]
+    public required Guid UserProfileId { get; set; }
+
     /// <summary>
     /// Файл изображения.
     /// </summary>

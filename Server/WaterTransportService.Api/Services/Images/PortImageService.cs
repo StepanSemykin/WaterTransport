@@ -1,6 +1,5 @@
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
-using WaterTransportService.Api.Services.Ports;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
@@ -10,7 +9,7 @@ namespace WaterTransportService.Api.Services.Images;
 /// —ервис дл€ работы с изображени€ми портов.
 /// </summary>
 public class PortImageService(
-    IEntityRepository<PortImage, Guid> portImageRepository, 
+    IEntityRepository<PortImage, Guid> portImageRepository,
     IEntityRepository<Port, Guid> portRepository,
     IFileStorageService fileStorageService) : IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>
 {

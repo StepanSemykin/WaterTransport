@@ -12,21 +12,21 @@ public interface IEntityRepository<T, TId>
     /// </summary>
     /// <returns>Коллекция всех сущностей.</returns>
     public Task<IEnumerable<T>> GetAllAsync();
-    
+
     /// <summary>
     /// Получить сущность по идентификатору.
     /// </summary>
     /// <param name="id">Идентификатор сущности.</param>
     /// <returns>Сущность или null, если не найдена.</returns>
     public Task<T?> GetByIdAsync(TId id);
-    
+
     /// <summary>
     /// Создать новую сущность.
     /// </summary>
     /// <param name="entity">Сущность для создания.</param>
     /// <returns>Созданная сущность.</returns>
     public Task<T> CreateAsync(T entity);
-    
+
     /// <summary>
     /// Обновить существующую сущность.
     /// </summary>
@@ -34,7 +34,7 @@ public interface IEntityRepository<T, TId>
     /// <param name="id">Идентификатор обновляемой сущности.</param>
     /// <returns>True, если обновление прошло успешно.</returns>
     public Task<bool> UpdateAsync(T entity, TId id);
-    
+
     /// <summary>
     /// Удалить сущность.
     /// </summary>

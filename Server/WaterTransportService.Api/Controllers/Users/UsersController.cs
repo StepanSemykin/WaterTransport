@@ -187,11 +187,10 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        Guid finalUserId;
 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
 
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
         {
             // userId получен из claims текущего токена
         }
