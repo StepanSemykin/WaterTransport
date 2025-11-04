@@ -4,10 +4,16 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Orders;
 
+/// <summary>
+/// Сервис для работы с заказами регулярных рейсов.
+/// </summary>
 public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : IRegularOrderService
 {
     private readonly IEntityRepository<RegularOrder, Guid> _repo = repo;
 
+    /// <summary>
+    /// Получить список всех заказов с пагинацией.
+    /// </summary>
     public async Task<(IReadOnlyList<RegularOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -18,12 +24,18 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить заказ по идентификатору.
+    /// </summary>
     public async Task<RegularOrderDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новый заказ регулярного рейса.
+    /// </summary>
     public async Task<RegularOrderDto?> CreateAsync(CreateRegularOrderDto dto)
     {
         var entity = new RegularOrder
@@ -44,6 +56,9 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить существующий заказ регулярного рейса.
+    /// </summary>
     public async Task<RegularOrderDto?> UpdateAsync(Guid id, UpdateRegularOrderDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
@@ -58,7 +73,13 @@ public class RegularOrderService(IEntityRepository<RegularOrder, Guid> repo) : I
         return ok ? MapToDto(entity) : null;
     }
 
+    /// <summary>
+    /// Удалить заказ регулярного рейса.
+    /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
+    /// <summary>
+    /// Преобразовать сущность заказа в DTO.
+    /// </summary>
     private static RegularOrderDto MapToDto(RegularOrder e) => new(e.Id, e.UserId, e.TotalPrice, e.NumberOfPassengers, e.RegularCalendarId, e.OrderDate, e.StatusName, e.CreatedAt, e.CancelledAt);
 }

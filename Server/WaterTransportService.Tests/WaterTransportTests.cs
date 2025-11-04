@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using WaterTransportService.Model.Entities;
-using Xunit;
 
 namespace WaterTransportService.Tests;
 

@@ -4,10 +4,16 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Orders;
 
+/// <summary>
+/// Сервис для работы с заказами аренды.
+/// </summary>
 public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOrderService
 {
     private readonly IEntityRepository<RentOrder, Guid> _repo = repo;
 
+    /// <summary>
+    /// Получить список всех заказов аренды с пагинацией.
+    /// </summary>
     public async Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -18,12 +24,18 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить заказ аренды по идентификатору.
+    /// </summary>
     public async Task<RentOrderDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новый заказ аренды.
+    /// </summary>
     public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto)
     {
         var entity = new RentOrder
@@ -46,6 +58,9 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить существующий заказ аренды.
+    /// </summary>
     public async Task<RentOrderDto?> UpdateAsync(Guid id, UpdateRentOrderDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
@@ -62,7 +77,13 @@ public class RentOrderService(IEntityRepository<RentOrder, Guid> repo) : IRentOr
         return ok ? MapToDto(entity) : null;
     }
 
+    /// <summary>
+    /// Удалить заказ аренды.
+    /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
+    /// <summary>
+    /// Преобразовать сущность заказа аренды в DTO.
+    /// </summary>
     private static RentOrderDto MapToDto(RentOrder e) => new(e.Id, e.UserId, e.TotalPrice, e.NumberOfPassengers, e.RentCalendarId, e.RentalStartTime, e.RentalEndTime, e.OrderDate, e.StatusName, e.CreatedAt, e.CancelledAt);
 }

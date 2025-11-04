@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Auth;
@@ -17,6 +13,7 @@ using WaterTransportService.Api.Services.Reviews;
 using WaterTransportService.Api.Services.Routes;
 using WaterTransportService.Api.Services.Ships;
 using WaterTransportService.Api.Services.Users;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
@@ -112,6 +109,7 @@ builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepo
 builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageRepository>();
 
 // Services DI
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPortService, PortService>();

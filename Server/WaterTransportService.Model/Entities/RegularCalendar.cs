@@ -44,7 +44,7 @@ public class RegularCalendar
     /// Владелец записи.
     /// </summary>
     [Column("user_id", TypeName = "uuid")]
-    [Required] 
+    [Required]
     public required Guid UserId { get; set; }
 
     /// <summary>

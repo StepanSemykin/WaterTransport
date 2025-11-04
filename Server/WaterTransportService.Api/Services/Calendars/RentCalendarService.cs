@@ -4,10 +4,16 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Calendars;
 
+/// <summary>
+/// Сервис для работы с календарями аренды.
+/// </summary>
 public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : IRentCalendarService
 {
     private readonly IEntityRepository<RentCalendar, Guid> _repo = repo;
 
+    /// <summary>
+    /// Получить список всех календарей аренды с пагинацией.
+    /// </summary>
     public async Task<(IReadOnlyList<RentCalendarDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -18,12 +24,18 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить календарь аренды по идентификатору.
+    /// </summary>
     public async Task<RentCalendarDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новый календарь аренды.
+    /// </summary>
     public async Task<RentCalendarDto?> CreateAsync(CreateRentCalendarDto dto)
     {
         var entity = new RentCalendar
@@ -38,6 +50,9 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить существующий календарь аренды.
+    /// </summary>
     public async Task<RentCalendarDto?> UpdateAsync(Guid id, UpdateRentCalendarDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
@@ -49,7 +64,13 @@ public class RentCalendarService(IEntityRepository<RentCalendar, Guid> repo) : I
         return ok ? MapToDto(entity) : null;
     }
 
+    /// <summary>
+    /// Удалить календарь аренды.
+    /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
+    /// <summary>
+    /// Преобразовать сущность календаря аренды в DTO.
+    /// </summary>
     private static RentCalendarDto MapToDto(RentCalendar e) => new(e.Id, e.ShipId, e.LowerTimeLimit, e.HighTimeLimit);
 }

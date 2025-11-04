@@ -56,7 +56,7 @@ public class UserProfile : BaseEntity
     /// </summary>
     [EmailAddress]
     [MaxLength(32)]
-    [Column("email")]   
+    [Column("email")]
     public string? Email { get; set; }
 
     /// <summary>

@@ -4,10 +4,16 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Calendars;
 
+/// <summary>
+/// Сервис для работы с календарями регулярных рейсов.
+/// </summary>
 public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> repo) : IRegularCalendarService
 {
     private readonly IEntityRepository<RegularCalendar, Guid> _repo = repo;
 
+    /// <summary>
+    /// Получить список всех календарей с пагинацией.
+    /// </summary>
     public async Task<(IReadOnlyList<RegularCalendarDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -18,12 +24,18 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить календарь по идентификатору.
+    /// </summary>
     public async Task<RegularCalendarDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новый календарь регулярных рейсов.
+    /// </summary>
     public async Task<RegularCalendarDto?> CreateAsync(CreateRegularCalendarDto dto)
     {
         var entity = new RegularCalendar
@@ -41,6 +53,9 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить существующий календарь регулярных рейсов.
+    /// </summary>
     public async Task<RegularCalendarDto?> UpdateAsync(Guid id, UpdateRegularCalendarDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
@@ -54,7 +69,13 @@ public class RegularCalendarService(IEntityRepository<RegularCalendar, Guid> rep
         return ok ? MapToDto(entity) : null;
     }
 
+    /// <summary>
+    /// Удалить календарь регулярных рейсов.
+    /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 
+    /// <summary>
+    /// Преобразовать сущность календаря в DTO.
+    /// </summary>
     private static RegularCalendarDto MapToDto(RegularCalendar e) => new(e.Id, e.RouteId, e.DepartureAt, e.ArrivedAt, e.UserId, e.StatusName);
 }

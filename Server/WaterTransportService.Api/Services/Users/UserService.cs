@@ -55,7 +55,7 @@ public class UserService(
             Phone = dto.Phone,
             Role = "common",
             IsActive = true,
-            Hash = _passwordHasher.Generate(dto.Password) 
+            Hash = _passwordHasher.Generate(dto.Password)
         };
 
         await _userRepo.CreateAsync(user);

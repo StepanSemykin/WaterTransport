@@ -5,56 +5,107 @@ using WaterTransportService.Api.Services.Users;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
+/// <summary>
+/// Контроллер для управления пользователями и аутентификацией.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class UsersController(IUserService service) : ControllerBase
 {
     private readonly IUserService _service = service;
 
-    // GET api/users?page=1&pageSize=20
+    /// <summary>
+    /// Получить список всех пользователей с пагинацией.
+    /// </summary>
+    /// <param name="page">Номер страницы (по умолчанию 1).</param>
+    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+    /// <returns>Список пользователей с информацией о пагинации.</returns>
+    /// <response code="200">Успешно получен список пользователей.</response>
     [HttpGet]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         var (items, total) = await _service.GetAllAsync(page, pageSize);
         return Ok(new { total, page, pageSize, items });
     }
 
-    // GET api/users/{id}
+    /// <summary>
+    /// Получить пользователя по идентификатору.
+    /// </summary>
+    /// <param name="id">Уникальный идентификатор пользователя.</param>
+    /// <returns>Данные пользователя.</returns>
+    /// <response code="200">Пользователь успешно найден.</response>
+    /// <response code="404">Пользователь не найден.</response>
     [Authorize(Roles = "common")]
     [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserDto>> GetById(Guid id)
     {
         var user = await _service.GetByIdAsync(id);
         return user is null ? NotFound() : Ok(user);
     }
 
-    // POST api/users
+    /// <summary>
+    /// Создать нового пользователя.
+    /// </summary>
+    /// <param name="dto">Данные для создания пользователя.</param>
+    /// <returns>Созданный пользователь.</returns>
+    /// <response code="201">Пользователь успешно создан.</response>
+    /// <response code="400">Недопустимые данные.</response>
     [Authorize(Roles = "admin")]
     [HttpPost]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto dto)
     {
         var created = await _service.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
-    // PUT api/users/{id}
+    /// <summary>
+    /// Обновить существующего пользователя.
+    /// </summary>
+    /// <param name="id">Уникальный идентификатор пользователя.</param>
+    /// <param name="dto">Данные для обновления.</param>
+    /// <returns>Обновленный пользователь.</returns>
+    /// <response code="200">Пользователь успешно обновлен.</response>
+    /// <response code="404">Пользователь не найден.</response>
     [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] UpdateUserDto dto)
     {
         var updated = await _service.UpdateAsync(id, dto);
         return updated is null ? NotFound() : Ok(updated);
     }
 
-    // DELETE api/users/{id}
+    /// <summary>
+    /// Удалить пользователя.
+    /// </summary>
+    /// <param name="id">Уникальный идентификатор пользователя.</param>
+    /// <returns>Результат удаления.</returns>
+    /// <response code="204">Пользователь успешно удален.</response>
+    /// <response code="404">Пользователь не найден.</response>
     [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
         var ok = await _service.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }
 
-    // POST api/users/register
+    /// <summary>
+    /// Регистрация нового пользователя.
+    /// </summary>
+    /// <param name="dto">Данные для регистрации.</param>
+    /// <returns>Токены доступа и обновления.</returns>
+    /// <response code="200">Регистрация успешна.</response>
+    /// <response code="400">Пользователь уже существует или неверные данные.</response>
     [HttpPost("register")]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterDto dto)
     {
         var response = await _service.RegisterAsync(dto);
@@ -82,8 +133,16 @@ public class UsersController(IUserService service) : ControllerBase
         return Ok(response);
     }
 
-    // POST api/users/login
+    /// <summary>
+    /// Вход пользователя.
+    /// </summary>
+    /// <param name="dto">Данные для входа.</param>
+    /// <returns>Токены доступа и обновления.</returns>
+    /// <response code="200">Аутентификация успешна.</response>
+    /// <response code="401">Неверный телефон или пароль.</response>
     [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
     {
         var response = await _service.LoginAsync(dto);
@@ -111,22 +170,27 @@ public class UsersController(IUserService service) : ControllerBase
         return Ok(response);
     }
 
-    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
+    /// <summary>
+    /// Обновление пары токенов по refresh токену.
+    /// </summary>
+    /// <param name="userId">Опционально: идентификатор пользователя, если access токен истек.</param>
+    /// <returns>Новая пара токенов.</returns>
+    /// <response code="200">Токены успешно обновлены.</response>
+    /// <response code="401">Refresh токен отсутствует, неверен или истек.</response>
     [HttpPost("refresh")]
+    [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
     {
-        // Извлекаем refresh токен из cookie
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        // Пытаемся получить userId из текущих claims или из query параметра
         Guid finalUserId;
-        
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
-                          ?? User.FindFirst("userId");
-        
+
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
         {
             // userId получен из claims текущего токена
@@ -147,7 +211,6 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
 
-        // Устанавливаем access токен в cookie
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
@@ -156,7 +219,6 @@ public class UsersController(IUserService service) : ControllerBase
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
-        // Обновляем refresh токен в cookie
         HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
@@ -168,21 +230,24 @@ public class UsersController(IUserService service) : ControllerBase
         return Ok(response);
     }
 
-    // POST api/users/logout
+    /// <summary>
+    /// Выход пользователя и отзыв refresh токена.
+    /// </summary>
+    /// <returns>Результат операции.</returns>
+    /// <response code="200">Выход выполнен успешно.</response>
     [Authorize]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Logout()
     {
-        // Получаем userId из claims
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
                           ?? User.FindFirst("userId");
-        
+
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
             await _service.LogoutAsync(userId);
         }
 
-        // Удаляем токены из cookie
         HttpContext.Response.Cookies.Delete("AuthToken");
         HttpContext.Response.Cookies.Delete("RefreshToken");
 

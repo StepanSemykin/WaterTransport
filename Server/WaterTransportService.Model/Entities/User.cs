@@ -98,7 +98,7 @@ public class User : BaseEntity
     /// <summary>
     /// Календарные заказы аренд, связанные с пользователем.
     /// </summary>
-    public ICollection<RentCalendar> RentCalendars { get; set;} = [];
+    public ICollection<RentCalendar> RentCalendars { get; set; } = [];
 
     /// <summary>
     /// Время создания аккаунта в UTC.
