@@ -12,8 +12,8 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    [Migration("20251104174101_make_nickname_nullable")]
-    partial class make_nickname_nullable
+    [Migration("20251105130849_AddRentOrderOfferAndUpdateRentOrder")]
+    partial class AddRentOrderOfferAndUpdateRentOrder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -313,6 +313,10 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("ArrivalPortId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("arrival_port_id");
+
                     b.Property<DateTime?>("CancelledAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("cancelled_at");
@@ -320,6 +324,10 @@ namespace WaterTransportService.Model.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("created_at");
+
+                    b.Property<Guid>("DeparturePortId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("departure_port_id");
 
                     b.Property<int>("NumberOfPassengers")
                         .HasColumnType("integer")
@@ -345,6 +353,10 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("ship_id");
 
+                    b.Property<int>("ShipTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("ship_type_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -361,13 +373,67 @@ namespace WaterTransportService.Model.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ArrivalPortId");
+
+                    b.HasIndex("DeparturePortId");
+
                     b.HasIndex("PartnerId");
 
                     b.HasIndex("ShipId");
 
+                    b.HasIndex("ShipTypeId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("rent_orders");
+                });
+
+            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrderOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<long>("OfferedPrice")
+                        .HasColumnType("bigint")
+                        .HasColumnName("offered_price");
+
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("partner_id");
+
+                    b.Property<Guid>("RentOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rent_order_id");
+
+                    b.Property<DateTime?>("RespondedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("responded_at");
+
+                    b.Property<Guid>("ShipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ship_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("RentOrderId");
+
+                    b.HasIndex("ShipId");
+
+                    b.ToTable("rent_order_offers");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Review", b =>
@@ -874,6 +940,17 @@ namespace WaterTransportService.Model.Migrations
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
                 {
+                    b.HasOne("WaterTransportService.Model.Entities.Port", "ArrivalPort")
+                        .WithMany()
+                        .HasForeignKey("ArrivalPortId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WaterTransportService.Model.Entities.Port", "DeparturePort")
+                        .WithMany()
+                        .HasForeignKey("DeparturePortId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WaterTransportService.Model.Entities.User", "Partner")
                         .WithMany()
                         .HasForeignKey("PartnerId")
@@ -884,17 +961,56 @@ namespace WaterTransportService.Model.Migrations
                         .HasForeignKey("ShipId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("WaterTransportService.Model.Entities.ShipType", "ShipType")
+                        .WithMany()
+                        .HasForeignKey("ShipTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("WaterTransportService.Model.Entities.User", "User")
                         .WithMany("RentOrders")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("ArrivalPort");
+
+                    b.Navigation("DeparturePort");
+
                     b.Navigation("Partner");
 
                     b.Navigation("Ship");
 
+                    b.Navigation("ShipType");
+
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrderOffer", b =>
+                {
+                    b.HasOne("WaterTransportService.Model.Entities.User", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("WaterTransportService.Model.Entities.RentOrder", "RentOrder")
+                        .WithMany("Offers")
+                        .HasForeignKey("RentOrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("WaterTransportService.Model.Entities.Ship", "Ship")
+                        .WithMany()
+                        .HasForeignKey("ShipId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Partner");
+
+                    b.Navigation("RentOrder");
+
+                    b.Navigation("Ship");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Review", b =>
@@ -1018,6 +1134,11 @@ namespace WaterTransportService.Model.Migrations
             modelBuilder.Entity("WaterTransportService.Model.Entities.PortType", b =>
                 {
                     b.Navigation("Ports");
+                });
+
+            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
+                {
+                    b.Navigation("Offers");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Ship", b =>

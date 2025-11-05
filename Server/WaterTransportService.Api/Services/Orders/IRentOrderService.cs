@@ -18,6 +18,11 @@ public interface IRentOrderService
     Task<RentOrderDto?> GetByIdAsync(Guid id);
 
     /// <summary>
+    /// Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+    /// </summary>
+    Task<IEnumerable<RentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId);
+
+    /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
     Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto);
@@ -26,6 +31,16 @@ public interface IRentOrderService
     /// Обновить существующий заказ аренды.
     /// </summary>
     Task<RentOrderDto?> UpdateAsync(Guid id, UpdateRentOrderDto dto);
+
+    /// <summary>
+    /// Завершить аренду (пользователь подтверждает завершение).
+    /// </summary>
+    Task<bool> CompleteOrderAsync(Guid id);
+
+    /// <summary>
+    /// Отменить заказ аренды.
+    /// </summary>
+    Task<bool> CancelOrderAsync(Guid id);
 
     /// <summary>
     /// Удалить заказ аренды.

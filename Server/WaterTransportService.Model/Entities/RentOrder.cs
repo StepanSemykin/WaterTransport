@@ -51,6 +51,41 @@ public class RentOrder
     public Ship? Ship { get; set; }
 
     /// <summary>
+    /// Идентификатор желаемого типа судна.
+    /// </summary>
+    [Column("ship_type_id")]
+    [Required]
+    public required ushort ShipTypeId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на желаемый тип судна.
+    /// </summary>
+    public required ShipType ShipType { get; set; }
+
+    /// <summary>
+    /// Идентификатор порта отправления.
+    /// </summary>
+    [Column("departure_port_id", TypeName = "uuid")]
+    [Required]
+    public required Guid DeparturePortId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на порт отправления.
+    /// </summary>
+    public required Port DeparturePort { get; set; }
+
+    /// <summary>
+    /// Идентификатор порта прибытия (опционально).
+    /// </summary>
+    [Column("arrival_port_id", TypeName = "uuid")]
+    public Guid? ArrivalPortId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на порт прибытия.
+    /// </summary>
+    public Port? ArrivalPort { get; set; }
+
+    /// <summary>
     /// Общая стоимость бронирования в рублях.
     /// </summary>
     [Column("total_price")]
@@ -99,9 +134,13 @@ public class RentOrder
     public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
+    /// Отклики партнеров на данный заказ.
+    /// </summary>
+    public ICollection<RentOrderOffer> Offers { get; set; } = [];
+
+    /// <summary>
     /// Время отмены бронирования в UTC (если отменено).
     /// </summary>
     [Column("cancelled_at", TypeName = "timestamptz")]
     public DateTime? CancelledAt { get; set; }
-
 }

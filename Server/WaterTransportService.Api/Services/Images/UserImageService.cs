@@ -49,15 +49,16 @@ public class UserImageService(
     /// <returns>Созданное изображение или null при ошибке.</returns>
     public async Task<UserImageDto?> CreateAsync(CreateUserImageDto dto)
     {
-        // Проверяем и сохраняем изображение
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
 
-        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users");
+        // Имя сохраненного файла должно быть равно GUID изображения
+        var newId = Guid.NewGuid();
+        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users", newId.ToString());
 
         var entity = new UserImage
         {
-            Id = Guid.NewGuid(),
+            Id = newId,
             ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
             UploadedAt = DateTime.UtcNow,
@@ -78,18 +79,21 @@ public class UserImageService(
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
 
-        // Если предоставлено новое изображение, удаляем старое и сохраняем новое
+        // Если предоставлено новое изображение, сохраняем его с тем же именем (GUID сущности)
         if (dto.Image != null)
         {
             if (!_fileStorageService.IsValidImage(dto.Image))
                 return null;
 
             var oldImagePath = entity.ImagePath;
-            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users");
+            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users", entity.Id.ToString());
             entity.ImagePath = newImagePath;
 
-            // Удаляем старое изображение
-            await _fileStorageService.DeleteImageAsync(oldImagePath);
+            // Удаляем старое изображение, если путь изменился (например, из-за смены расширения)
+            if (!string.Equals(oldImagePath, newImagePath, StringComparison.OrdinalIgnoreCase))
+            {
+                await _fileStorageService.DeleteImageAsync(oldImagePath);
+            }
         }
 
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
