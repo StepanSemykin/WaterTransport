@@ -12,8 +12,8 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    [Migration("20251030084645_InitialCreate1")]
-    partial class InitialCreate1
+    [Migration("20251105083642_force_nickname_nullable")]
+    partial class force_nickname_nullable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,11 +40,6 @@ namespace WaterTransportService.Model.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("hash");
-
-                    b.Property<string>("Salt")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("salt");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
@@ -191,6 +186,38 @@ namespace WaterTransportService.Model.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WaterTransportService.Model.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("token");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("refresh_tokens");
+                });
+
             modelBuilder.Entity("WaterTransportService.Model.Entities.RegularCalendar", b =>
                 {
                     b.Property<Guid>("Id")
@@ -279,37 +306,6 @@ namespace WaterTransportService.Model.Migrations
                     b.ToTable("regular_orders");
                 });
 
-            modelBuilder.Entity("WaterTransportService.Model.Entities.RentCalendar", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime?>("HighTimeLimit")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("high_time_limit");
-
-                    b.Property<DateTime>("LowerTimeLimit")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("lower_time_limit");
-
-                    b.Property<Guid>("ShipId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("ship_id");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShipId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("rent_calendars");
-                });
-
             modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
                 {
                     b.Property<Guid>("Id")
@@ -333,9 +329,9 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("order_date");
 
-                    b.Property<Guid>("RentCalendarId")
+                    b.Property<Guid?>("PartnerId")
                         .HasColumnType("uuid")
-                        .HasColumnName("rent_calendar_id");
+                        .HasColumnName("partner_id");
 
                     b.Property<DateTime?>("RentalEndTime")
                         .HasColumnType("timestamptz")
@@ -345,11 +341,15 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("rental_start_time");
 
-                    b.Property<string>("StatusName")
+                    b.Property<Guid?>("ShipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("ship_id");
+
+                    b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("name");
+                        .HasColumnName("status");
 
                     b.Property<long>("TotalPrice")
                         .HasColumnType("bigint")
@@ -361,7 +361,9 @@ namespace WaterTransportService.Model.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RentCalendarId");
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("ShipId");
 
                     b.HasIndex("UserId");
 
@@ -666,26 +668,16 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("locked_until");
 
-                    b.Property<string>("Nickname")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("nickname");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone");
 
-                    b.PrimitiveCollection<int[]>("Roles")
-                        .IsRequired()
-                        .HasColumnType("integer[]");
-
-                    b.Property<string>("Salt")
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("salt");
+                        .HasColumnName("role");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamptz")
@@ -725,12 +717,13 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("timestamptz")
                         .HasColumnName("uploaded_at");
 
-                    b.Property<Guid?>("UserProfileUserId")
-                        .HasColumnType("uuid");
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_profile_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserProfileUserId");
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("user_images");
                 });
@@ -742,8 +735,8 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnName("user_uuid");
 
                     b.Property<string>("About")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
                         .HasColumnName("about");
 
                     b.Property<DateTime?>("Birthday")
@@ -755,8 +748,8 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
                         .HasColumnName("email");
 
                     b.Property<string>("FirstName")
@@ -777,6 +770,11 @@ namespace WaterTransportService.Model.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")
                         .HasColumnName("location");
+
+                    b.Property<string>("Nickname")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("nickname");
 
                     b.Property<string>("Patronymic")
                         .HasMaxLength(32)
@@ -825,6 +823,17 @@ namespace WaterTransportService.Model.Migrations
                     b.Navigation("Port");
                 });
 
+            modelBuilder.Entity("WaterTransportService.Model.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("WaterTransportService.Model.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WaterTransportService.Model.Entities.RegularCalendar", b =>
                 {
                     b.HasOne("WaterTransportService.Model.Entities.Route", "Route")
@@ -863,36 +872,27 @@ namespace WaterTransportService.Model.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("WaterTransportService.Model.Entities.RentCalendar", b =>
+            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
                 {
+                    b.HasOne("WaterTransportService.Model.Entities.User", "Partner")
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("WaterTransportService.Model.Entities.Ship", "Ship")
                         .WithMany()
                         .HasForeignKey("ShipId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WaterTransportService.Model.Entities.User", null)
-                        .WithMany("RentCalendars")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Ship");
-                });
-
-            modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
-                {
-                    b.HasOne("WaterTransportService.Model.Entities.RentCalendar", "RentCalendar")
-                        .WithMany()
-                        .HasForeignKey("RentCalendarId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("WaterTransportService.Model.Entities.User", "User")
                         .WithMany("RentOrders")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("RentCalendar");
+                    b.Navigation("Partner");
+
+                    b.Navigation("Ship");
 
                     b.Navigation("User");
                 });
@@ -988,9 +988,13 @@ namespace WaterTransportService.Model.Migrations
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.UserImage", b =>
                 {
-                    b.HasOne("WaterTransportService.Model.Entities.UserProfile", null)
+                    b.HasOne("WaterTransportService.Model.Entities.UserProfile", "UserProfile")
                         .WithMany("UserImages")
-                        .HasForeignKey("UserProfileUserId");
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.UserProfile", b =>
@@ -1037,8 +1041,6 @@ namespace WaterTransportService.Model.Migrations
                     b.Navigation("RegularCalendars");
 
                     b.Navigation("RegularOrders");
-
-                    b.Navigation("RentCalendars");
 
                     b.Navigation("RentOrders");
 

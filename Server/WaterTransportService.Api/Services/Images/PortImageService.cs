@@ -54,15 +54,16 @@ public class PortImageService(
         var port = await _portRepository.GetByIdAsync(dto.PortId);
         if (port is null) return null;
 
-        // Проверяем и сохраняем изображение
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
 
-        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports");
+        // Имя сохраненного файла должно быть равно GUID изображения
+        var newId = Guid.NewGuid();
+        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", newId.ToString());
 
         var entity = new PortImage
         {
-            Id = Guid.NewGuid(),
+            Id = newId,
             PortId = dto.PortId,
             Port = port,
             ImagePath = imagePath,
@@ -84,18 +85,20 @@ public class PortImageService(
         var entity = await _portImageRepository.GetByIdAsync(id);
         if (entity is null) return null;
 
-        // Если предоставлено новое изображение, удаляем старое и сохраняем новое
         if (dto.Image != null)
         {
             if (!_fileStorageService.IsValidImage(dto.Image))
                 return null;
 
             var oldImagePath = entity.ImagePath;
-            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports");
+            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", entity.Id.ToString());
             entity.ImagePath = newImagePath;
 
-            // Удаляем старое изображение
-            await _fileStorageService.DeleteImageAsync(oldImagePath);
+            if (!string.Equals(oldImagePath, newImagePath, StringComparison.OrdinalIgnoreCase))
+            {
+                // Удаляем старое изображение, только если путь действительно изменился
+                await _fileStorageService.DeleteImageAsync(oldImagePath);
+            }
         }
 
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
@@ -113,7 +116,6 @@ public class PortImageService(
         var entity = await _portImageRepository.GetByIdAsync(id);
         if (entity is null) return false;
 
-        // Удаляем файл изображения
         await _fileStorageService.DeleteImageAsync(entity.ImagePath);
 
         return await _portImageRepository.DeleteAsync(id);

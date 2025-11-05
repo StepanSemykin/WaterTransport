@@ -34,8 +34,4 @@
     <ProjectReference Include="..\WaterTransportService.Model\WaterTransportService.Model.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\Queries\" />
-  </ItemGroup>
-
 </Project>

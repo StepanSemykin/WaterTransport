@@ -9,9 +9,10 @@ namespace WaterTransportService.Api.Controllers.Images;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class UserImagesController(IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto> service) : ControllerBase
+public class UserImagesController(IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto> service, IWebHostEnvironment environment) : ControllerBase
 {
     private readonly IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto> _service = service;
+    private readonly IWebHostEnvironment _environment = environment;
 
     /// <summary>
     /// Получить список всех изображений пользователей с пагинацией.
@@ -42,6 +43,37 @@ public class UserImagesController(IImageService<UserImageDto, CreateUserImageDto
     {
         var e = await _service.GetByIdAsync(id);
         return e is null ? NotFound() : Ok(e);
+    }
+
+    /// <summary>
+    /// Получить файл изображения по идентификатору изображения.
+    /// </summary>
+    /// <param name="id">Идентификатор изображения.</param>
+    /// <returns>Файл изображения.</returns>
+    [HttpGet("file/{id:guid}")]
+    [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetImage(Guid id)
+    {
+        var dto = await _service.GetByIdAsync(id);
+        if (dto is null) return NotFound();
+
+        var fullPath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, dto.ImagePath);
+        if (!System.IO.File.Exists(fullPath)) return NotFound();
+
+        var extension = Path.GetExtension(fullPath).ToLowerInvariant();
+        var contentType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+
+        var stream = System.IO.File.OpenRead(fullPath);
+        return File(stream, contentType);
     }
 
     /// <summary>

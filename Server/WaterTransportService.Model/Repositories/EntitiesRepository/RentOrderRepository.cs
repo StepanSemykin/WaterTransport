@@ -65,4 +65,32 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
         await _context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Получить заказы по статусам с включением связанных данных.
+    /// </summary>
+    /// <param name="statuses">Список статусов для фильтрации.</param>
+    /// <returns>Коллекция заказов с указанными статусами.</returns>
+    public async Task<IEnumerable<RentOrder>> GetByStatusesAsync(params string[] statuses)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Offers)
+            .Where(ro => statuses.Contains(ro.Status))
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Получить заказ с откликами по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор заказа.</param>
+    /// <returns>Заказ с откликами или null.</returns>
+    public async Task<RentOrder?> GetByIdWithOffersAsync(Guid id)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.Offers)
+            .FirstOrDefaultAsync(ro => ro.Id == id);
+    }
 }

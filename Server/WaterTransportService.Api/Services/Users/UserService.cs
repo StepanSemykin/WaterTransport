@@ -202,6 +202,7 @@ public class UserService(
     public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
     {
         var user = await _userRepo.GetByPhoneAsync(dto.Phone);
+        // пользователь может залогинится только если он неактивен, т.е. вышел ранее 
         if (user is null || user.IsActive)
         {
             return null;

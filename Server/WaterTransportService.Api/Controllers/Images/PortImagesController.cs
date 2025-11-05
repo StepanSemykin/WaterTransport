@@ -9,9 +9,10 @@ namespace WaterTransportService.Api.Controllers.Images;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto> service) : ControllerBase
+public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto> service, IWebHostEnvironment environment) : ControllerBase
 {
     private readonly IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto> _service = service;
+    private readonly IWebHostEnvironment _environment = environment;
 
     /// <summary>
     /// Получить список всех изображений портов с пагинацией.
@@ -91,5 +92,38 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     {
         var ok = await _service.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
+    }
+
+    /// <summary>
+    /// Получить файл изображения по идентификатору изображения.
+    /// </summary>
+    /// <param name="id">Идентификатор изображения.</param>
+    /// <returns>Файл изображения.</returns>
+    /// <response code="200">Файл изображения успешно найден и возвращен.</response>
+    /// <response code="404">Файл не найден.</response>
+    [HttpGet("file/{id:guid}")]
+    [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetImage(Guid id)
+    {
+        var dto = await _service.GetByIdAsync(id);
+        if (dto is null) return NotFound();
+
+        var fullPath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, dto.ImagePath);
+        if (!System.IO.File.Exists(fullPath)) return NotFound();
+
+        var extension = Path.GetExtension(fullPath).ToLowerInvariant();
+        var contentType = extension switch
+        {
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".gif" => "image/gif",
+            ".bmp" => "image/bmp",
+            ".webp" => "image/webp",
+            _ => "application/octet-stream"
+        };
+
+        var stream = System.IO.File.OpenRead(fullPath);
+        return File(stream, contentType);
     }
 }

@@ -5,6 +5,11 @@ namespace WaterTransportService.Api.DTO;
 public record RentOrderDto(
     Guid Id,
     Guid UserId,
+    ushort ShipTypeId,
+    Guid DeparturePortId,
+    Guid? ArrivalPortId,
+    Guid? PartnerId,
+    Guid? ShipId,
     uint? TotalPrice,
     ushort NumberOfPassengers,
     DateTime RentalStartTime,
@@ -20,7 +25,13 @@ public class CreateRentOrderDto
     [Required]
     public required Guid UserId { get; set; }
 
-    public uint? TotalPrice { get; set; }
+    [Required]
+    public required ushort ShipTypeId { get; set; }
+
+    [Required]
+    public required Guid DeparturePortId { get; set; }
+
+    public Guid? ArrivalPortId { get; set; }
 
     [Required]
     public required ushort NumberOfPassengers { get; set; }

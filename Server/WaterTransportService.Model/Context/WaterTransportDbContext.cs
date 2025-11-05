@@ -18,6 +18,7 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
     public required DbSet<RegularCalendar> RegularCalendars { get; set; }
     public required DbSet<RegularOrder> RegularOrders { get; set; }
     public required DbSet<RentOrder> RentOrders { get; set; }
+    public required DbSet<RentOrderOffer> RentOrderOffers { get; set; }
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<OldPassword> OldPasswords { get; set; }
     public required DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -42,6 +43,39 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .WithMany()
                 .HasForeignKey(ro => ro.ShipId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasOne(ro => ro.ShipType)
+                .WithMany()
+                .HasForeignKey(ro => ro.ShipTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ro => ro.DeparturePort)
+                .WithMany()
+                .HasForeignKey(ro => ro.DeparturePortId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(ro => ro.ArrivalPort)
+                .WithMany()
+                .HasForeignKey(ro => ro.ArrivalPortId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<RentOrderOffer>(b =>
+        {
+            b.HasOne(roo => roo.RentOrder)
+                .WithMany(ro => ro.Offers)
+                .HasForeignKey(roo => roo.RentOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(roo => roo.Partner)
+                .WithMany()
+                .HasForeignKey(roo => roo.PartnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(roo => roo.Ship)
+                .WithMany()
+                .HasForeignKey(roo => roo.ShipId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<PortType>().HasData(
