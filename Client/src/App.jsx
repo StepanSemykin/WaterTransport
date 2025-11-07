@@ -6,6 +6,7 @@ import User from "./pages/User"
 import Partner from "./pages/Partner.jsx"
 import Support from "./pages/Support.jsx"
 import Results from "./pages/Results.jsx"
+import Calendar from "./pages/AvailabilityPage.jsx"
 
 import "./App.css"
 
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/partner" element={<Partner />} />
         <Route path="/support" element={<Support />} />
         <Route path="/results" element={<Results />} />
+        <Route path="/calendar" element={<Calendar />} />  {/* /:boatId в путь*/} 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       
