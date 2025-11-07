@@ -24,6 +24,13 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(o => o.AddPolicy("Spa",
+    p => p.WithOrigins("http://localhost:3001" )
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials()
+));
+
 builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -133,11 +140,16 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
+app.UseCors("Spa");
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSitePolicy(),
+    MinimumSameSitePolicy = SameSiteMode.None, // важно для cross-site
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
@@ -152,5 +164,5 @@ app.MapControllers();
 app.Run();
 
 // Helper to choose SameSite based on environment
-SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
+//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 

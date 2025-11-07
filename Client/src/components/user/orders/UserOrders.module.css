@@ -18,7 +18,12 @@
   margin-left: auto;
 }
 
-
+.user-empty {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #6c757d;
+  text-align: center;
+}
 
 @media(max-width: 550px) {
   .user-section-title {

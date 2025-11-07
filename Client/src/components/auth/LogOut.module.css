@@ -1,0 +1,58 @@
+.iconButton {
+  border: none;
+  background: transparent;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: .2s ease;
+  color: inherit;
+}
+
+.iconButton:hover {
+  transform: translateY(-1px);
+  opacity: .9;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warnIcon {
+  width: 20px;
+  height: 20px;
+  color: #f59e0b; /* amber-500 */
+}
+
+.leadText {
+  margin-bottom: 12px;
+  font-size: 20px;
+}
+
+.hintRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569; /* slate-600 */
+  margin: 6px 0;
+  font-size: 18px;
+}
+
+.okIcon {
+  width: 18px;
+  height: 18px;
+  color: #10b981; /* emerald-500 */
+}
+
+.xIcon {
+  width: 18px;
+  height: 18px;
+  color: #ef4444; /* red-500 */
+}

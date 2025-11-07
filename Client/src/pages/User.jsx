@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+
 import { Container } from "react-bootstrap";
 
+import { useAuth } from "../components/auth/AuthContext.jsx";
 import { StatsCard } from "../components/dashboards/StatsCard.jsx";
 import { AccountHeader } from "../components/account/AccountHeader.jsx";
 import { Navigation } from "../components/navigation/Navigation.jsx"
@@ -39,7 +42,9 @@ const UPCOMING_TRIPS = [
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
     status: "Не подтверждено",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    passengers: 8,
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
@@ -56,7 +61,9 @@ const COMPLETED_TRIPS = [
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    passengers: 8,
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
@@ -93,22 +100,65 @@ const USER_NAVIGATION = {
 };
 
 export default function User() {
+  const { user, loading, refreshUser } = useAuth();
+
+  // useEffect(() => {
+  //   if (!user.firstName && !loading) {
+  //     refreshUser(true);
+  //   }
+  // }, [user.firstName, loading, refreshUser]);
+
+  if (loading) {
+    return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
+  }
 
   return (
     <div className={styles["user-page"]}>
       
       <div className={styles["user-header"]}>
-        <AccountHeader {...USER} />
+        {/* <AccountHeader {...USER} /> */}
+        <AccountHeader
+          firstName={user.firstName ?? ""}
+          lastName={user.lastName ?? ""}
+          email={user.email ?? ""}
+          location={user.location ?? ""}
+        />
       </div>
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {STATS.map((stat) => (
+          {/* {STATS.map((stat) => (
             <StatsCard key={stat.title} {...stat} />
-          ))}
+          ))} */}
+          {(user.stats ?? []).map((stat) => (
+          <StatsCard key={stat.title} {...stat} />
+        ))}
         </div>
 
-        <Navigation params={USER_NAVIGATION} />    
+        <Navigation
+          params={{
+            orders: {
+              label: "Заказы",
+              component: (
+                // <UserOrders
+                //   upcomingTrips={user.upcomingTrips ?? []}
+                //   completedTrips={user.completedTrips ?? []}
+                // />
+                <UserOrders 
+                  upcomingTrips={UPCOMING_TRIPS} 
+                  completedTrips={COMPLETED_TRIPS} />
+              ),
+            },
+            settings: {
+              label: "Настройки",
+              component: <UserSettingsMenu items={SETTINGS_ITEMS} />,
+            },
+            support: {
+              label: "Поддержка",
+              component: <UserSupportMenu items={SUPPORT_ITEMS} />,
+            },
+          }}
+        />
       </Container>
       
     </div>

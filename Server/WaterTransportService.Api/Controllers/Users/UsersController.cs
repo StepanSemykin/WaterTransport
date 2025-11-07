@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
 
@@ -60,14 +61,18 @@ public class UsersController(IUserService service) : ControllerBase
         var response = await _service.RegisterAsync(dto);
         if (response is null)
         {
-            return BadRequest(new { message = "User with this phone already exists" });
+            return BadRequest(new 
+            { 
+                code = "USER_EXISTS",
+                message = "РђРєРєР°СѓРЅС‚ СЃ С‚Р°РєРёРј РЅРѕРјРµСЂРѕРј С‚РµР»РµС„РѕРЅР° СѓР¶Рµ РµСЃС‚СЊ" 
+            });
         }
 
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -75,7 +80,7 @@ public class UsersController(IUserService service) : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -86,42 +91,96 @@ public class UsersController(IUserService service) : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
     {
-        var response = await _service.LoginAsync(dto);
-        if (response is null)
+        var result = await _service.LoginAsync(dto);
+
+        if (result is null)
         {
-            return Unauthorized(new { message = "Invalid phone or password" });
+            return StatusCode(500, new 
+            {
+                code = "SERVER_ERROR",
+                message = "Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР° СЃРµСЂРІРµСЂР°" 
+            });
         }
+        else {
+            if (result.Success)
+            {
+                Response.Cookies.Append("AuthToken", result.Data!.AccessToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
+                });
+                Response.Cookies.Append("RefreshToken", result.Data!.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
 
-        HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddHours(1)
-        });
+                return Ok(result.Data);
+            }
 
-        HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
+            switch (result.Failure)
+            {
+                case LoginFailureReason.Locked:
+                    if (result.LockedUntil is DateTimeOffset until)
+                        Response.Headers["Retry-After"] =
+                            Math.Max(0, (int)Math.Ceiling((until - DateTimeOffset.UtcNow).TotalSeconds)).ToString();
 
-        return Ok(response);
+                    return StatusCode(423, new
+                    {
+                        code = "ACCOUNT_LOCKED",
+                        message = "РђРєРєР°СѓРЅС‚ РІСЂРµРјРµРЅРЅРѕ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ",
+                        lockedUntil = result.LockedUntil
+                    });
+
+                case LoginFailureReason.InvalidPassword:
+                    return Unauthorized(new
+                    {
+                        code = "INVALID_CREDENTIALS",
+                        message = "РќРµРІРµСЂРЅС‹Р№ С‚РµР»РµС„РѕРЅ РёР»Рё РїР°СЂРѕР»СЊ",
+                        remainingAttempts = result.RemainingAttempts
+                    });
+
+                case LoginFailureReason.NotFound:
+                    return StatusCode(404, new
+                    {
+                        code = "NOT_FOUND",
+                        message = "РђРєРєР°СѓРЅС‚ РЅРµ РЅР°Р№РґРµРЅ"
+                    });
+
+                case LoginFailureReason.Inactive:
+                    return StatusCode(403, new
+                    {
+                        code = "ACCOUNT INACTIVE",
+                        message = "РђРєРєР°СѓРЅС‚ РЅРµР°РєС‚РёРІРµРЅ"
+                    });
+
+                default:
+                    return StatusCode(500, new
+                    {
+                        code = "UNKNOWN_ERROR",
+                        message = "РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР° Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё"
+                    });
+            }
+        }
     }
 
-    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
+    // POST api/users/refresh?userId={userId} (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ, РµСЃР»Рё access С‚РѕРєРµРЅ РёСЃС‚РµРє)
     [HttpPost("refresh")]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
     {
-        // Извлекаем refresh токен из cookie
+        // РР·РІР»РµРєР°РµРј refresh С‚РѕРєРµРЅ РёР· cookie
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        // Пытаемся получить userId из текущих claims или из query параметра
+        // РџС‹С‚Р°РµРјСЃСЏ РїРѕР»СѓС‡РёС‚СЊ userId РёР· С‚РµРєСѓС‰РёС… claims РёР»Рё РёР· query РїР°СЂР°РјРµС‚СЂР°
         Guid finalUserId;
         
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
@@ -129,11 +188,11 @@ public class UsersController(IUserService service) : ControllerBase
         
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
         {
-            // userId получен из claims текущего токена
+            // userId РїРѕР»СѓС‡РµРЅ РёР· claims С‚РµРєСѓС‰РµРіРѕ С‚РѕРєРµРЅР°
         }
         else if (userId.HasValue)
         {
-            // userId передан в query параметре (когда access токен истек)
+            // userId РїРµСЂРµРґР°РЅ РІ query РїР°СЂР°РјРµС‚СЂРµ (РєРѕРіРґР° access С‚РѕРєРµРЅ РёСЃС‚РµРє)
             finalUserId = userId.Value;
         }
         else
@@ -147,25 +206,36 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
 
-        // Устанавливаем access токен в cookie
+        // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј access С‚РѕРєРµРЅ РІ cookie
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
-        // Обновляем refresh токен в cookie
+        // РћР±РЅРѕРІР»СЏРµРј refresh С‚РѕРєРµРЅ РІ cookie
         HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
         return Ok(response);
+    }
+
+    // GET api/users/profile
+    [HttpGet("profile")]
+    public async Task<ActionResult<UserDto>> GetMyProfile()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+        if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+        var user = await _service.GetByIdAsync(userId);
+        return user is null ? NotFound() : Ok(user);
     }
 
     // POST api/users/logout
@@ -173,8 +243,8 @@ public class UsersController(IUserService service) : ControllerBase
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        // Получаем userId из claims
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+        // РџРѕР»СѓС‡Р°РµРј userId РёР· claims
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
                           ?? User.FindFirst("userId");
         
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
@@ -182,10 +252,46 @@ public class UsersController(IUserService service) : ControllerBase
             await _service.LogoutAsync(userId);
         }
 
-        // Удаляем токены из cookie
+        // РЈРґР°Р»СЏРµРј С‚РѕРєРµРЅС‹ РёР· cookie
         HttpContext.Response.Cookies.Delete("AuthToken");
         HttpContext.Response.Cookies.Delete("RefreshToken");
 
         return Ok(new { message = "Logged out successfully" });
     }
+
+    //// GET api/users/profile/upcoming
+    //[Authorize]
+    //[HttpGet("profile/upcoming")]
+    //public async Task<ActionResult<UserDto>> GetMyUpcomingTrips()
+    //{
+    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+    //    var user = await _service.GetByIdAsync(userId);
+    //    return user is null ? NotFound() : Ok(user);
+    //}
+
+    //// GET api/users/profile/completed
+    //[Authorize]
+    //[HttpGet("profile/completed")]
+    //public async Task<ActionResult<UserDto>> GetMyCompletedTrips()
+    //{
+    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+    //    var user = await _service.GetByIdAsync(userId);
+    //    return user is null ? NotFound() : Ok(user);
+    //}
+
+    //// GET api/users/profile/stats
+    //[Authorize]
+    //[HttpGet("profile/stats")]
+    //public async Task<ActionResult<UserDto>> GetMyStats()
+    //{
+    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+    //    var user = await _service.GetByIdAsync(userId);
+    //    return user is null ? NotFound() : Ok(user);
+    //}
 }

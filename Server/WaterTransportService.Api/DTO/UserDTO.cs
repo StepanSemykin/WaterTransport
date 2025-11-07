@@ -13,7 +13,6 @@ public record UserDto(
     string? Role
 );
 
-
 public class CreateUserDto
 {
     [Required, MaxLength(20)]
@@ -27,7 +26,6 @@ public class CreateUserDto
     // опционально: роли при создании
     public string? Role{ get; set; }
 }
-
 
 public class UpdateUserDto
 {

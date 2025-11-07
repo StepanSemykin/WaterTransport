@@ -76,7 +76,6 @@ public class UserService(
         };
         await _userProfileRepo.CreateAsync(profile);
 
-        // Генерация токенов
         var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
         var refreshToken = _tokenService.GenerateRefreshToken();
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
@@ -86,46 +85,50 @@ public class UserService(
         return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
     }
 
-    public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
+    public async Task<LoginResultDto?> LoginAsync(LoginDto dto)
     {
         var user = await _userRepo.GetByPhoneAsync(dto.Phone);
-        if (user is null || !user.IsActive)
+        if (user is null)
         {
-            return null;
+            return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
         }
-
-        if (user.LockedUntil.HasValue && user.LockedUntil.Value > DateTime.UtcNow)
+        else
         {
-            return null;
-        }
+            if (!user.IsActive)
+                return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
 
-        var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
+            if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
+                return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
 
-        if (!isValidPassword)
-        {
-            user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
-
-            if (user.FailedLoginAttempts >= 5)
+            var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
+            if (!isValidPassword)
             {
-                user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
+                user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
+                if (user.FailedLoginAttempts >= 5)
+                    user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
+
+                await _userRepo.UpdateAsync(user, user.Id);
+
+                var remaining = Math.Max(0, 5 - (user.FailedLoginAttempts ?? 0));
+                return user.LockedUntil.HasValue
+                    ? new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: user.LockedUntil)
+                    : new LoginResultDto(false, Failure: LoginFailureReason.InvalidPassword, RemainingAttempts: remaining);
             }
 
+            user.FailedLoginAttempts = 0;
+            user.LockedUntil = null;
+            user.LastLoginAt = DateTime.UtcNow;
             await _userRepo.UpdateAsync(user, user.Id);
-            return null;
+
+            var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+            var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+            var dtoUser = MapToDto(user);
+            var payload = new LoginResponseDto(accessToken, refreshToken, dtoUser);
+            return new LoginResultDto(true, Data: payload);
         }
-
-        user.FailedLoginAttempts = 0;
-        user.LockedUntil = null;
-        user.LastLoginAt = DateTime.UtcNow;
-        await _userRepo.UpdateAsync(user, user.Id);
-
-        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
-
-        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
     }
 
     public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)

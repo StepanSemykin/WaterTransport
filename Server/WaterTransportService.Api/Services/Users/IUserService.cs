@@ -12,7 +12,7 @@ public interface IUserService
     
     // Методы аутентификации
     Task<LoginResponseDto?> RegisterAsync(RegisterDto dto);
-    Task<LoginResponseDto?> LoginAsync(LoginDto dto);
+    Task<LoginResultDto?> LoginAsync(LoginDto dto);
     Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken);
     Task<bool> LogoutAsync(Guid userId);
 }
