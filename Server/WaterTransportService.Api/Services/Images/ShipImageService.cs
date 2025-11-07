@@ -1,12 +1,19 @@
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Images;
 
-public class ShipImageService(IEntityRepository<ShipImage, Guid> repo) : IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>
+/// <summary>
+/// Сервис для работы с изображениями судов.
+/// </summary>
+public class ShipImageService(
+    IEntityRepository<ShipImage, Guid> repo,
+    IFileStorageService fileStorageService) : IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>
 {
     private readonly IEntityRepository<ShipImage, Guid> _repo = repo;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
 
     public async Task<(IReadOnlyList<ShipImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
@@ -26,12 +33,19 @@ public class ShipImageService(IEntityRepository<ShipImage, Guid> repo) : IImageS
 
     public async Task<ShipImageDto?> CreateAsync(CreateShipImageDto dto)
     {
+        if (!_fileStorageService.IsValidImage(dto.Image))
+            return null;
+
+        // Имя сохраненного файла должно быть равно GUID изображения
+        var newId = Guid.NewGuid();
+        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ships", newId.ToString());
+
         var entity = new ShipImage
         {
-            Id = Guid.NewGuid(),
+            Id = newId,
             ShipId = dto.ShipId,
             Ship = null!,
-            ImagePath = dto.ImagePath,
+            ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
             UploadedAt = DateTime.UtcNow
         };
@@ -43,13 +57,36 @@ public class ShipImageService(IEntityRepository<ShipImage, Guid> repo) : IImageS
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
-        if (!string.IsNullOrWhiteSpace(dto.ImagePath)) entity.ImagePath = dto.ImagePath;
+
+        if (dto.Image != null)
+        {
+            if (!_fileStorageService.IsValidImage(dto.Image))
+                return null;
+
+            var oldImagePath = entity.ImagePath;
+            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ships", entity.Id.ToString());
+            entity.ImagePath = newImagePath;
+
+            if (!string.Equals(oldImagePath, newImagePath, StringComparison.OrdinalIgnoreCase))
+            {
+                await _fileStorageService.DeleteImageAsync(oldImagePath);
+            }
+        }
+
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
         var ok = await _repo.UpdateAsync(entity, id);
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var entity = await _repo.GetByIdAsync(id);
+        if (entity is null) return false;
+
+        await _fileStorageService.DeleteImageAsync(entity.ImagePath);
+
+        return await _repo.DeleteAsync(id);
+    }
 
     private static ShipImageDto MapToDto(ShipImage e) => new(e.Id, e.ShipId, e.ImagePath, e.IsPrimary, e.UploadedAt);
 }

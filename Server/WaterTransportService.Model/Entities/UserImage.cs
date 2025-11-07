@@ -33,6 +33,18 @@ public class UserImage : BaseEntity
     /// Время загрузки изображения в UTC.
     /// </summary>
     [Required]
-    [Column("uploaded_at", TypeName= "timestamptz")]
+    [Column("uploaded_at", TypeName = "timestamptz")]
     public required DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>
+    /// Профиль пользователя, к которому привязано изображение.
+    /// </summary>
+    [ForeignKey(nameof(UserProfile))]
+    [Column("user_profile_id", TypeName = "uuid")]
+    public required Guid UserProfileId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство к профилю пользователя.
+    /// </summary>
+    public UserProfile UserProfile { get; set; } = null!;
 }

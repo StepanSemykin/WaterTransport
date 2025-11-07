@@ -7,6 +7,9 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Users;
 
+/// <summary>
+/// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: CRUD, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+/// </summary>
 public class UserService(
     IUserRepository<Guid> userRepo,
     IEntityRepository<OldPassword, Guid> oldPasswordRepo,
@@ -20,6 +23,12 @@ public class UserService(
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
     private readonly ITokenService _tokenService = tokenService;
 
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="page">пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1).</param>
+    /// <param name="pageSize">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (1-100).</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -34,133 +43,22 @@ public class UserService(
         return (items, total);
     }
 
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>DTO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null, пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<UserDto?> GetByIdAsync(Guid id)
     {
         var user = await _userRepo.GetByIdAsync(id);
         return user is null ? null : MapToDto(user);
     }
 
-    public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
-    {
-        // Проверка существования пользователя
-        var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
-        if (existingUser != null)
-        {
-            return null;
-        }
-
-        var user = new User
-        {
-            Id = Guid.NewGuid(),
-            Phone = dto.Phone,
-            Role = "common",
-            IsActive = true,
-            Hash = _passwordHasher.Generate(dto.Password) 
-        };
-
-        await _userRepo.CreateAsync(user);
-
-        var profile = new UserProfile
-        {
-            UserId = user.Id,
-            User = user,
-            FirstName = null,
-            LastName = null,
-            Patronymic = null,
-            Email = null,
-            Birthday = null,
-            About = null,
-            Location = null,
-            IsPublic = true,
-            UpdatedAt = DateTime.UtcNow
-        };
-        await _userProfileRepo.CreateAsync(profile);
-
-        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
-
-        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
-    }
-
-    public async Task<LoginResultDto?> LoginAsync(LoginDto dto)
-    {
-        var user = await _userRepo.GetByPhoneAsync(dto.Phone);
-        if (user is null)
-        {
-            return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
-        }
-        else
-        {
-            if (!user.IsActive)
-                return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
-
-            if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
-                return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
-
-            var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
-            if (!isValidPassword)
-            {
-                user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
-                if (user.FailedLoginAttempts >= 5)
-                    user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
-
-                await _userRepo.UpdateAsync(user, user.Id);
-
-                var remaining = Math.Max(0, 5 - (user.FailedLoginAttempts ?? 0));
-                return user.LockedUntil.HasValue
-                    ? new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: user.LockedUntil)
-                    : new LoginResultDto(false, Failure: LoginFailureReason.InvalidPassword, RemainingAttempts: remaining);
-            }
-
-            user.FailedLoginAttempts = 0;
-            user.LockedUntil = null;
-            user.LastLoginAt = DateTime.UtcNow;
-            await _userRepo.UpdateAsync(user, user.Id);
-
-            var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-            var refreshToken = _tokenService.GenerateRefreshToken();
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
-
-            var dtoUser = MapToDto(user);
-            var payload = new LoginResponseDto(accessToken, refreshToken, dtoUser);
-            return new LoginResultDto(true, Data: payload);
-        }
-    }
-
-    public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)
-    {
-        var user = await _userRepo.GetByIdAsync(userId);
-        if (user is null || !user.IsActive)
-        {
-            return null;
-        }
-
-        var validToken = await _tokenService.ValidateRefreshTokenAsync(userId, refreshToken);
-        if (validToken is null)
-        {
-            return null;
-        }
-
-        // Генерация новых токенов
-        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var newRefreshToken = _tokenService.GenerateRefreshToken();
-        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-        await _tokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, refreshTokenExpiry);
-
-        return new RefreshTokenResponseDto(accessToken, newRefreshToken);
-    }
-
-    public async Task<bool> LogoutAsync(Guid userId)
-    {
-        await _tokenService.RevokeRefreshTokenAsync(userId);
-        return true;
-    }
-
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ admin).
+    /// </summary>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     [Authorize(Roles = "admin")]
     public async Task<UserDto> CreateAsync(CreateUserDto dto)
     {
@@ -183,6 +81,7 @@ public class UserService(
         {
             UserId = user.Id,
             User = user,
+            Nickname = null,
             FirstName = null,
             LastName = null,
             Patronymic = null,
@@ -198,6 +97,12 @@ public class UserService(
         return MapToDto(user);
     }
 
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null, пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<UserDto?> UpdateAsync(Guid id, UpdateUserDto dto)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -226,13 +131,166 @@ public class UserService(
         return ok ? MapToDto(user) : null;
     }
 
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>True, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
-        //delete refresh token
         await _tokenService.RevokeRefreshTokenAsync(id);
         return await _userRepo.DeleteAsync(id);
     }
 
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ access/refresh пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>
+    /// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </returns>
+    public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
+    {
+        var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
+        if (existingUser != null)
+        {
+            return null;
+        }
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Phone = dto.Phone,
+            Role = "common",
+            IsActive = true,
+            Hash = _passwordHasher.Generate(dto.Password)
+        };
+
+        await _userRepo.CreateAsync(user);
+
+        var profile = new UserProfile
+        {
+            UserId = user.Id,
+            User = user,
+            FirstName = null,
+            LastName = null,
+            Patronymic = null,
+            Email = null,
+            Birthday = null,
+            About = null,
+            Location = null,
+            IsPublic = true,
+            Nickname = null,
+            UpdatedAt = DateTime.UtcNow
+        };
+        await _userProfileRepo.CreateAsync(profile);
+
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
+    }
+
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
+    {
+        var user = await _userRepo.GetByPhoneAsync(dto.Phone);
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ.пїЅ. пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ 
+        if (user is null || user.IsActive)
+        {
+            return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
+        }
+        else
+        {
+            if (!user.IsActive)
+                return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
+
+            if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
+                return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
+
+            var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
+            if (!isValidPassword)
+            {
+                user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
+                if (user.FailedLoginAttempts >= 5)
+                    user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
+
+                await _userRepo.UpdateAsync(user, user.Id);
+
+                var remaining = Math.Max(0, 5 - (user.FailedLoginAttempts ?? 0));
+                return user.LockedUntil.HasValue
+                    ? new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: user.LockedUntil)
+                    : new LoginResultDto(false, Failure: LoginFailureReason.InvalidPassword, RemainingAttempts: remaining);
+            }
+
+        user.FailedLoginAttempts = 0;
+        user.LockedUntil = null;
+        user.LastLoginAt = DateTime.UtcNow;
+        user.IsActive = true;
+        await _userRepo.UpdateAsync(user, user.Id);
+
+            var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+            var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
+    }
+
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ access/refresh пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="userId">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <param name="refreshToken">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)
+    {
+        var user = await _userRepo.GetByIdAsync(userId);
+        if (user is null || !user.IsActive)
+        {
+            return null;
+        }
+
+        var validToken = await _tokenService.ValidateRefreshTokenAsync(userId, refreshToken);
+        if (validToken is null)
+        {
+            return null;
+        }
+
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, refreshTokenExpiry);
+
+        return new RefreshTokenResponseDto(accessToken, newRefreshToken);
+    }
+
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅпїЅ.
+    /// </summary>
+    /// <param name="userId">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ true пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    public async Task<bool> LogoutAsync(Guid userId)
+    {
+        var user = await _userRepo.GetByIdAsync(userId);
+        if (user is null) return false;
+        user.IsActive = false;
+        await _userRepo.UpdateAsync(user, userId);
+        await _tokenService.RevokeRefreshTokenAsync(userId);
+        return true;
+    }
+
+    /// <summary>
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ DTO.
+    /// </summary>
     private static UserDto MapToDto(User u) =>
         new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
             u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);

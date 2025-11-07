@@ -11,16 +11,18 @@ public record UserImageDto(
 
 public class CreateUserImageDto
 {
-    [Required, MaxLength(3000)]
-    public required string ImagePath { get; set; }
+    [Required]
+    public required Guid UserProfileId { get; set; }
+
+    [Required]
+    public required IFormFile Image { get; set; }
 
     public bool IsPrimary { get; set; }
 }
 
 public class UpdateUserImageDto
 {
-    [MaxLength(3000)]
-    public string? ImagePath { get; set; }
+    public IFormFile? Image { get; set; }
 
     public bool? IsPrimary { get; set; }
 }

@@ -19,7 +19,7 @@ public class Route
     /// <summary>
     /// Идентификатор порта отправления.
     /// </summary>
-    [Column("from_port_id", TypeName ="uuid")]
+    [Column("from_port_id", TypeName = "uuid")]
     [Required]
     public required Guid FromPortId { get; set; }
 
@@ -31,7 +31,7 @@ public class Route
     /// <summary>
     /// Идентификатор порта назначения (опционально для аренды).
     /// </summary>
-    [Column("to_port_id", TypeName ="uuid")]
+    [Column("to_port_id", TypeName = "uuid")]
     public Guid? ToPortId { get; set; }
 
     /// <summary>

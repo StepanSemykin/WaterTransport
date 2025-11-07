@@ -24,7 +24,7 @@ public class CreateUserDto
     public bool IsActive { get; set; } = true;
 
     // опционально: роли при создании
-    public string? Role{ get; set; }
+    public string? Role { get; set; }
 }
 
 public class UpdateUserDto

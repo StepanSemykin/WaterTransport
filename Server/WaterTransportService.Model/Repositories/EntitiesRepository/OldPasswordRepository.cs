@@ -4,14 +4,26 @@ using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
+/// <summary>
+/// Репозиторий для истории старых паролей пользователей.
+/// </summary>
 public class OldPasswordRepository(WaterTransportDbContext context) : IEntityRepository<OldPassword, Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
+    /// <summary>
+    /// Получить все записи старых паролей.
+    /// </summary>
     public async Task<IEnumerable<OldPassword>> GetAllAsync() => await _context.OldPasswords.ToListAsync();
 
+    /// <summary>
+    /// Получить запись по идентификатору.
+    /// </summary>
     public async Task<OldPassword?> GetByIdAsync(Guid id) => await _context.OldPasswords.FindAsync(id);
 
+    /// <summary>
+    /// Создать новую запись старого пароля.
+    /// </summary>
     public async Task<OldPassword> CreateAsync(OldPassword entity)
     {
         _context.OldPasswords.Add(entity);
@@ -19,6 +31,9 @@ public class OldPasswordRepository(WaterTransportDbContext context) : IEntityRep
         return entity;
     }
 
+    /// <summary>
+    /// Обновить запись старого пароля.
+    /// </summary>
     public async Task<bool> UpdateAsync(OldPassword entity, Guid id)
     {
         var old = await _context.OldPasswords.FirstOrDefaultAsync(x => x.Id == id);
@@ -29,6 +44,9 @@ public class OldPasswordRepository(WaterTransportDbContext context) : IEntityRep
         return true;
     }
 
+    /// <summary>
+    /// Удалить запись старого пароля.
+    /// </summary>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var old = await GetByIdAsync(id);

@@ -45,7 +45,7 @@ public class RegularOrder
     /// <summary>
     /// Идентификатор записи регулярного рейса в календаре.
     /// </summary>
-    [Column("calendar_id", TypeName="uuid")]
+    [Column("calendar_id", TypeName = "uuid")]
     [Required]
     public required Guid RegularCalendarId { get; set; }
 

@@ -1,55 +1,128 @@
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Images;
 
-public class PortImageService(IEntityRepository<PortImage, Guid> repo) : IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>
+/// <summary>
+/// Сервис для работы с изображениями портов.
+/// </summary>
+public class PortImageService(
+    IEntityRepository<PortImage, Guid> portImageRepository,
+    IEntityRepository<Port, Guid> portRepository,
+    IFileStorageService fileStorageService) : IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>
 {
-    private readonly IEntityRepository<PortImage, Guid> _repo = repo;
+    private readonly IEntityRepository<PortImage, Guid> _portImageRepository = portImageRepository;
+    private readonly IEntityRepository<Port, Guid> _portRepository = portRepository;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
 
+    /// <summary>
+    /// Получить список всех изображений портов с пагинацией.
+    /// </summary>
+    /// <param name="page">Номер страницы.</param>
+    /// <param name="pageSize">Размер страницы.</param>
+    /// <returns>Кортеж со списком изображений и общим количеством.</returns>
     public async Task<(IReadOnlyList<PortImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
-        var all = (await _repo.GetAllAsync()).OrderByDescending(x => x.UploadedAt).ToList();
+        var all = (await _portImageRepository.GetAllAsync()).OrderByDescending(x => x.UploadedAt).ToList();
         var total = all.Count;
         var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить изображение порта по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор изображения.</param>
+    /// <returns>DTO изображения порта или null, если не найдено.</returns>
     public async Task<PortImageDto?> GetByIdAsync(Guid id)
     {
-        var e = await _repo.GetByIdAsync(id);
+        var e = await _portImageRepository.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новое изображение порта.
+    /// </summary>
+    /// <param name="dto">Данные для создания изображения.</param>
+    /// <returns>Созданное изображение или null при ошибке.</returns>
     public async Task<PortImageDto?> CreateAsync(CreatePortImageDto dto)
     {
+        var port = await _portRepository.GetByIdAsync(dto.PortId);
+        if (port is null) return null;
+
+        if (!_fileStorageService.IsValidImage(dto.Image))
+            return null;
+
+        // Имя сохраненного файла должно быть равно GUID изображения
+        var newId = Guid.NewGuid();
+        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", newId.ToString());
+
         var entity = new PortImage
         {
-            Id = Guid.NewGuid(),
+            Id = newId,
             PortId = dto.PortId,
-            Port = null!,
-            ImagePath = dto.ImagePath,
+            Port = port,
+            ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
             UploadedAt = DateTime.UtcNow
         };
-        var created = await _repo.CreateAsync(entity);
+        var created = await _portImageRepository.CreateAsync(entity);
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить изображение порта.
+    /// </summary>
+    /// <param name="id">Идентификатор изображения.</param>
+    /// <param name="dto">Данные для обновления.</param>
+    /// <returns>Обновленное изображение или null при ошибке.</returns>
     public async Task<PortImageDto?> UpdateAsync(Guid id, UpdatePortImageDto dto)
     {
-        var entity = await _repo.GetByIdAsync(id);
+        var entity = await _portImageRepository.GetByIdAsync(id);
         if (entity is null) return null;
-        if (!string.IsNullOrWhiteSpace(dto.ImagePath)) entity.ImagePath = dto.ImagePath;
+
+        if (dto.Image != null)
+        {
+            if (!_fileStorageService.IsValidImage(dto.Image))
+                return null;
+
+            var oldImagePath = entity.ImagePath;
+            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", entity.Id.ToString());
+            entity.ImagePath = newImagePath;
+
+            if (!string.Equals(oldImagePath, newImagePath, StringComparison.OrdinalIgnoreCase))
+            {
+                // Удаляем старое изображение, только если путь действительно изменился
+                await _fileStorageService.DeleteImageAsync(oldImagePath);
+            }
+        }
+
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
-        var ok = await _repo.UpdateAsync(entity, id);
+        var ok = await _portImageRepository.UpdateAsync(entity, id);
         return ok ? MapToDto(entity) : null;
     }
 
-    public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
+    /// <summary>
+    /// Удалить изображение порта.
+    /// </summary>
+    /// <param name="id">Идентификатор изображения.</param>
+    /// <returns>True, если удаление прошло успешно.</returns>
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var entity = await _portImageRepository.GetByIdAsync(id);
+        if (entity is null) return false;
 
+        await _fileStorageService.DeleteImageAsync(entity.ImagePath);
+
+        return await _portImageRepository.DeleteAsync(id);
+    }
+
+    /// <summary>
+    /// Преобразовать сущность изображения порта в DTO.
+    /// </summary>
     private static PortImageDto MapToDto(PortImage e) => new(e.Id, e.PortId, e.ImagePath, e.IsPrimary, e.UploadedAt);
 }

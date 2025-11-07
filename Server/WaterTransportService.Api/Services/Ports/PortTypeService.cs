@@ -4,10 +4,16 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Ports;
 
+/// <summary>
+/// Сервис для работы с типами портов.
+/// </summary>
 public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTypeService
 {
     private readonly IEntityRepository<PortType, ushort> _repo = repo;
 
+    /// <summary>
+    /// Получить список всех типов портов с пагинацией.
+    /// </summary>
     public async Task<(IReadOnlyList<PortTypeDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -18,12 +24,18 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
         return (items, total);
     }
 
+    /// <summary>
+    /// Получить тип порта по идентификатору.
+    /// </summary>
     public async Task<PortTypeDto?> GetByIdAsync(ushort id)
     {
         var e = await _repo.GetByIdAsync(id);
         return e is null ? null : MapToDto(e);
     }
 
+    /// <summary>
+    /// Создать новый тип порта.
+    /// </summary>
     public async Task<PortTypeDto?> CreateAsync(CreatePortTypeDto dto)
     {
         var entity = new PortType
@@ -35,6 +47,9 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
         return MapToDto(created);
     }
 
+    /// <summary>
+    /// Обновить существующий тип порта.
+    /// </summary>
     public async Task<PortTypeDto?> UpdateAsync(ushort id, UpdatePortTypeDto dto)
     {
         var entity = await _repo.GetByIdAsync(id);
@@ -44,7 +59,13 @@ public class PortTypeService(IEntityRepository<PortType, ushort> repo) : IPortTy
         return ok ? MapToDto(entity) : null;
     }
 
+    /// <summary>
+    /// Удалить тип порта.
+    /// </summary>
     public Task<bool> DeleteAsync(ushort id) => _repo.DeleteAsync(id);
 
+    /// <summary>
+    /// Преобразовать сущность типа порта в DTO.
+    /// </summary>
     private static PortTypeDto MapToDto(PortType e) => new(e.Id, e.Title);
 }

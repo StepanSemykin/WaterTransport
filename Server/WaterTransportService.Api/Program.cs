@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Security.Claims;
 using System.Text;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Auth;
@@ -17,6 +13,7 @@ using WaterTransportService.Api.Services.Reviews;
 using WaterTransportService.Api.Services.Routes;
 using WaterTransportService.Api.Services.Ships;
 using WaterTransportService.Api.Services.Users;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
@@ -107,18 +104,21 @@ builder.Services.AddScoped<IEntityRepository<Port, Guid>, PortRepository>();
 builder.Services.AddScoped<IEntityRepository<PortType, ushort>, PortTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipType, ushort>, ShipTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<Ship, Guid>, ShipRepository>();
+builder.Services.AddScoped<ShipRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipImage, Guid>, ShipImageRepository>();
 builder.Services.AddScoped<IEntityRepository<WaterTransportService.Model.Entities.Route, Guid>, RouteRepository>();
 builder.Services.AddScoped<IEntityRepository<RegularCalendar, Guid>, RegularCalendarRepository>();
 builder.Services.AddScoped<IEntityRepository<RegularOrder, Guid>, RegularOrderRepository>();
-builder.Services.AddScoped<IEntityRepository<RentCalendar, Guid>, RentCalendarRepository>();
 builder.Services.AddScoped<IEntityRepository<RentOrder, Guid>, RentOrderRepository>();
+builder.Services.AddScoped<RentOrderRepository>();
+builder.Services.AddScoped<RentOrderOfferRepository>();
 builder.Services.AddScoped<IEntityRepository<Review, Guid>, ReviewRepository>();
 builder.Services.AddScoped<IEntityRepository<UserImage, Guid>, UserImageRepository>();
 builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepository>();
 builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageRepository>();
 
 // Services DI
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPortService, PortService>();
@@ -128,8 +128,8 @@ builder.Services.AddScoped<IShipService, ShipService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRegularCalendarService, RegularCalendarService>();
 builder.Services.AddScoped<IRegularOrderService, RegularOrderService>();
-builder.Services.AddScoped<IRentCalendarService, RentCalendarService>();
 builder.Services.AddScoped<IRentOrderService, RentOrderService>();
+builder.Services.AddScoped<IRentOrderOfferService, RentOrderOfferService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
 builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>, PortImageService>();
@@ -149,7 +149,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.None, // важно для cross-site
+    MinimumSameSitePolicy = SameSiteMode.None, // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ cross-site
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
@@ -163,6 +163,5 @@ app.MapControllers();
 
 app.Run();
 
-// Helper to choose SameSite based on environment
-//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
+SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 

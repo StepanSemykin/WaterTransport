@@ -4,14 +4,26 @@ using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
+/// <summary>
+/// Репозиторий для сущности порта.
+/// </summary>
 public class PortRepository(WaterTransportDbContext context) : IEntityRepository<Port, Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
+    /// <summary>
+    /// Получить все порты.
+    /// </summary>
     public async Task<IEnumerable<Port>> GetAllAsync() => await _context.Ports.ToListAsync();
 
+    /// <summary>
+    /// Получить порт по идентификатору.
+    /// </summary>
     public async Task<Port?> GetByIdAsync(Guid id) => await _context.Ports.FindAsync(id);
 
+    /// <summary>
+    /// Создать новый порт.
+    /// </summary>
     public async Task<Port> CreateAsync(Port entity)
     {
         _context.Ports.Add(entity);
@@ -19,6 +31,9 @@ public class PortRepository(WaterTransportDbContext context) : IEntityRepository
         return entity;
     }
 
+    /// <summary>
+    /// Обновить порт.
+    /// </summary>
     public async Task<bool> UpdateAsync(Port entity, Guid id)
     {
         var old = await _context.Ports.FirstOrDefaultAsync(x => x.Id == id);
@@ -37,6 +52,9 @@ public class PortRepository(WaterTransportDbContext context) : IEntityRepository
         return true;
     }
 
+    /// <summary>
+    /// Удалить порт.
+    /// </summary>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var old = await GetByIdAsync(id);

@@ -51,6 +51,7 @@ public class User : BaseEntity
     /// <summary>
     /// Роли пользователя.
     /// </summary>
+    [Column("role")]
     public string Role { get; set; } = "common";
 
     /// <summary>
@@ -94,11 +95,6 @@ public class User : BaseEntity
     /// Календарные записи на регулярные рейсы, связанные с пользователем.
     /// </summary>
     public ICollection<RegularCalendar> RegularCalendars { get; set; } = [];
-
-    /// <summary>
-    /// Календарные заказы аренд, связанные с пользователем.
-    /// </summary>
-    public ICollection<RentCalendar> RentCalendars { get; set;} = [];
 
     /// <summary>
     /// Время создания аккаунта в UTC.
