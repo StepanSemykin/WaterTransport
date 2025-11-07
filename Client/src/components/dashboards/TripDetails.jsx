@@ -75,7 +75,7 @@ export default function TripDetails({
               />
             )} */}
             <div className={styles["trip-summary-info"]}>
-              {trip?.status && <span className={styles["trip-summary-status"]}>{trip.status}</span>}
+              {/* {trip?.status && <span className={styles["trip-summary-status"]}>{trip.status}</span>} */}
               {trip?.title && (
                 <div className={styles["trip-summary-line"]}>
                   Судно: {trip.title.text}
@@ -140,7 +140,7 @@ export default function TripDetails({
               </Form.Group>
 
               <Button type="submit" variant="primary" disabled={saving || !price}>
-                {saving ? "Сохранение..." : "Сохранить"}
+                {saving ? "Отправка..." : "Отправить предложение"}
               </Button>
             </Form>
           )}

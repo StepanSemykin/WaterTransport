@@ -199,11 +199,11 @@ public class UserService(
     /// </summary>
     /// <param name="dto">������ ��� �����.</param>
     /// <returns>����� ������� � ������ ������������ ��� null ��� ������ ��������������.</returns>
-    public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
+    public async Task<LoginResultDto?> LoginAsync(LoginDto dto)
     {
         var user = await _userRepo.GetByPhoneAsync(dto.Phone);
         // ������������ ����� ����������� ������ ���� �� ���������, �.�. ����� ����� 
-        if (user is null || user.IsActive)
+        if (user is null)
         {
             return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
         }
@@ -230,18 +230,22 @@ public class UserService(
                     : new LoginResultDto(false, Failure: LoginFailureReason.InvalidPassword, RemainingAttempts: remaining);
             }
 
-        user.FailedLoginAttempts = 0;
-        user.LockedUntil = null;
-        user.LastLoginAt = DateTime.UtcNow;
-        user.IsActive = true;
-        await _userRepo.UpdateAsync(user, user.Id);
+            user.FailedLoginAttempts = 0;
+            user.LockedUntil = null;
+            user.LastLoginAt = DateTime.UtcNow;
+            user.IsActive = true;
+            await _userRepo.UpdateAsync(user, user.Id);
 
             var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
             var refreshToken = _tokenService.GenerateRefreshToken();
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
             await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
+            var dtoUser = MapToDto(user);
+            var payload = new LoginResponseDto(accessToken, refreshToken, dtoUser);
+
+            return new LoginResultDto(true, Data: payload);
+        }
     }
 
     /// <summary>
@@ -294,4 +298,5 @@ public class UserService(
     private static UserDto MapToDto(User u) =>
         new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
             u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
+      
 }

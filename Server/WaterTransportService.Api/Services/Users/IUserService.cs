@@ -58,7 +58,7 @@ public interface IUserService
     /// </summary>
     /// <param name="dto">������ ��� �����.</param>
     /// <returns>����� � �������� ��� null ��� ������ ��������������.</returns>
-    Task<LoginResponseDto?> LoginAsync(LoginDto dto);
+    Task<LoginResultDto?> LoginAsync(LoginDto dto);
 
     /// <summary>
     /// �������� ������ �� refresh ������.

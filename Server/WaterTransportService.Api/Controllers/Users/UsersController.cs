@@ -146,9 +146,9 @@ public class UsersController(IUserService service) : ControllerBase
     /// <response code="200">�������������� �������.</response>
     /// <response code="401">�������� ������� ��� ������.</response>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
+    public async Task<ActionResult<LoginResultDto>> Login([FromBody] LoginDto dto)
     {
         var result = await _service.LoginAsync(dto);
 
@@ -253,15 +253,15 @@ public class UsersController(IUserService service) : ControllerBase
         
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
                           ?? User.FindFirst("userId");
-        
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
 
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId));
 
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
-        {
-            // userId получен из claims текущего токена
-        }
+        //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+
+        //if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
+        //{
+        //    // userId получен из claims текущего токена
+        //}
         else if (userId.HasValue)
         {
             // userId передан в query параметре (когда access токен истек)
@@ -321,7 +321,7 @@ public class UsersController(IUserService service) : ControllerBase
     public async Task<IActionResult> Logout()
     {
         // Получаем userId из claims
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
+        //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
                           ?? User.FindFirst("userId");
 

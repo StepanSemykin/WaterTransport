@@ -33,6 +33,7 @@ const USER = {
   lastName: "Иванов",
   email: "ivanov@ivanov.com",
   registred: "На сайте с 01.01.2025",
+  isPartner: true
 };
 
 const SHIPS = [
@@ -59,7 +60,8 @@ const UPCOMING_TRIPS = [
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
     status: "Подтверждено",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
@@ -76,7 +78,8 @@ const COMPLETED_TRIPS = [
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "06.06.2025" },
       { text: "12:00" },
@@ -101,7 +104,8 @@ const POSSIBLE_TRIPS = [
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
     status: "Подтвердить",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "08.08.2025" },
       { text: "12:00" },
@@ -126,7 +130,7 @@ const SUPPORT_ITEMS = [
 ];
 
 const USER_NAVIGATION = {
-  orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} possibleTrips={POSSIBLE_TRIPS}  /> },
+  orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} possibleTrips={POSSIBLE_TRIPS} isPartner={USER.isPartner}  /> },
   ships: {label: "Суда", component: <UserShips ships={SHIPS}/>},
   settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
   support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> },

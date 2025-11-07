@@ -7,12 +7,12 @@ const AuthContext = createContext(null);
 const INITIAL_USER_STATE = {
   id: null,
   phone: null,
-  role: null,
   createdAt: null,
   lastLoginAt: null,
   isActive: false,
   failedLoginAttempts: null,
   lockedUntil: null,
+  role: null,
 
   nickname: null,
   firstName: null,
@@ -31,6 +31,7 @@ const INITIAL_USER_STATE = {
 };
 
 const GET_MY_PROFILE_ENDPOINT = "/api/users/profile";
+const LOGIN_ENDPOINT = "/api/users/login";
 const USER_PROFILES_ENDPOINT = "/api/userprofiles";
 const LOGOUT_ENDPOINT = "/api/users/logout";
 const LOCATION = "/auth";
@@ -82,18 +83,21 @@ export function AuthProvider({ children }) {
               stats: Array.isArray(profile.stats) ? profile.stats : nextUser.stats,
             });
           }
-        } catch (profileErr) {
+        } 
+        catch (profileErr) {
           console.warn("[AuthContext] Failed to fetch UserProfileDto:", profileErr);
         }
       }
 
       setUser((prev) => ({ ...prev, ...nextUser }));
       hasFetched.current = true;
-    } catch (err) {
+    } 
+    catch (err) {
       console.error("[AuthContext] Failed to refresh user:", err);
       setUser(INITIAL_USER_STATE);
       hasFetched.current = true;
-    } finally {
+    } 
+    finally {
       inFlight.current = false;
       setLoading(false);
     }

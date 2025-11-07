@@ -1,4 +1,5 @@
 export async function apiFetch(path, init = {}) {
+  console.log("[apiFetch] path=", path);
   return fetch(path, {
     credentials: "include", 
     headers: {

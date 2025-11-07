@@ -14,7 +14,7 @@ export function AccountHeader({ firstName, lastName, email, location }) {
     <div className={styles["user-header"]}>
       <Container className={styles["user-topbar"]}>
         <div className={styles["user-profile"]}>
-          {firstName && lastName (
+          {firstName && lastName && (
             <div className={styles["user-avatar"]}>
             <span className={styles["user-avatar-text"]}>{`${firstName[0]}${lastName[0]}`}</span>
           </div>

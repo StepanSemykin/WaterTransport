@@ -22,7 +22,7 @@ export default function UserOrders({
             {(hasUpcoming || hasCompleted) && (
               <div className={styles["user-divider"]} />
             )}
-            <h2 className={styles["user-section-title"]}>Возможные</h2>
+            <h2 className={styles["user-section-title"]}>Заявки</h2>
             <div className={styles["user-card-list"]}>
               {possibleTrips.map((trip) => (
                 // <TripCard key={trip.title} {...trip} />
@@ -37,9 +37,9 @@ export default function UserOrders({
           </section>
         ) : (
           <section className={styles["user-section"]}>
-            <h2 className={styles["user-section-title"]}>Возможные</h2>
+            <h2 className={styles["user-section-title"]}>Заявки</h2>
             <div className={styles["user-empty"]}>
-              На данный момент у Вас нет возможных заказов
+              На данный момент у Вас нет заявок
             </div>
           </section>
         )
