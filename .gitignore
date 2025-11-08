@@ -404,3 +404,4 @@ FodyWeavers.xsd
 *.sln.iml
 DonutsboxServer/Donutsbox.Api/appsettings.Development.json
 DonutsboxServer/Auth.Api/appsettings.Development.json
+appsettings.Development.json
