@@ -1,12 +1,13 @@
-using Microsoft.AspNetCore.Authorization;
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
 /// <summary>
-/// Контроллер для управления пользователями и аутентификацией.
+/// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -15,12 +16,12 @@ public class UsersController(IUserService service) : ControllerBase
     private readonly IUserService _service = service;
 
     /// <summary>
-    /// Получить список всех пользователей с пагинацией.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список пользователей с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список пользователей.</response>
+    /// <param name="page">пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1).</param>
+    /// <param name="pageSize">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 20, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 100).</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -30,12 +31,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить пользователя по идентификатору.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор пользователя.</param>
-    /// <returns>Данные пользователя.</returns>
-    /// <response code="200">Пользователь успешно найден.</response>
-    /// <response code="404">Пользователь не найден.</response>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="404">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [Authorize(Roles = "common")]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
@@ -47,12 +48,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// Создать нового пользователя.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="dto">Данные для создания пользователя.</param>
-    /// <returns>Созданный пользователь.</returns>
-    /// <response code="201">Пользователь успешно создан.</response>
-    /// <response code="400">Недопустимые данные.</response>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="201">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="400">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [Authorize(Roles = "admin")]
     [HttpPost]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
@@ -64,13 +65,13 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// Обновить существующего пользователя.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор пользователя.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный пользователь.</returns>
-    /// <response code="200">Пользователь успешно обновлен.</response>
-    /// <response code="404">Пользователь не найден.</response>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="404">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -81,12 +82,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// Удалить пользователя.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор пользователя.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Пользователь успешно удален.</response>
-    /// <response code="404">Пользователь не найден.</response>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="204">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="404">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -97,12 +98,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// Регистрация нового пользователя.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="dto">Данные для регистрации.</param>
-    /// <returns>Токены доступа и обновления.</returns>
-    /// <response code="200">Регистрация успешна.</response>
-    /// <response code="400">Пользователь уже существует или неверные данные.</response>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="400">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [HttpPost("register")]
     [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -111,14 +112,18 @@ public class UsersController(IUserService service) : ControllerBase
         var response = await _service.RegisterAsync(dto);
         if (response is null)
         {
-            return BadRequest(new { message = "User with this phone already exists" });
+            return BadRequest(new 
+            { 
+                code = "USER_EXISTS",
+                message = "РђРєРєР°СѓРЅС‚ СЃ С‚Р°РєРёРј РЅРѕРјРµСЂРѕРј С‚РµР»РµС„РѕРЅР° СѓР¶Рµ РµСЃС‚СЊ" 
+            });
         }
 
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -126,7 +131,7 @@ public class UsersController(IUserService service) : ControllerBase
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -134,70 +139,132 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// Вход пользователя.
+    /// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="dto">Данные для входа.</param>
-    /// <returns>Токены доступа и обновления.</returns>
-    /// <response code="200">Аутентификация успешна.</response>
-    /// <response code="401">Неверный телефон или пароль.</response>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="401">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
+    public async Task<ActionResult<LoginResultDto>> Login([FromBody] LoginDto dto)
     {
-        var response = await _service.LoginAsync(dto);
-        if (response is null)
+        var result = await _service.LoginAsync(dto);
+
+        if (result is null)
         {
-            return Unauthorized(new { message = "Invalid phone or password" });
+            return StatusCode(500, new 
+            {
+                code = "SERVER_ERROR",
+                message = "Р’РЅСѓС‚СЂРµРЅРЅСЏСЏ РѕС€РёР±РєР° СЃРµСЂРІРµСЂР°" 
+            });
         }
+        else {
+            if (result.Success)
+            {
+                Response.Cookies.Append("AuthToken", result.Data!.AccessToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
+                });
+                Response.Cookies.Append("RefreshToken", result.Data!.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Path = "/",
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
+                });
 
-        HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddHours(1)
-        });
+                return Ok(result.Data);
+            }
 
-        HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
+            switch (result.Failure)
+            {
+                case LoginFailureReason.Locked:
+                    if (result.LockedUntil is DateTimeOffset until)
+                        Response.Headers["Retry-After"] =
+                            Math.Max(0, (int)Math.Ceiling((until - DateTimeOffset.UtcNow).TotalSeconds)).ToString();
 
-        return Ok(response);
+                    return StatusCode(423, new
+                    {
+                        code = "ACCOUNT_LOCKED",
+                        message = "РђРєРєР°СѓРЅС‚ РІСЂРµРјРµРЅРЅРѕ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ",
+                        lockedUntil = result.LockedUntil
+                    });
+
+                case LoginFailureReason.InvalidPassword:
+                    return Unauthorized(new
+                    {
+                        code = "INVALID_CREDENTIALS",
+                        message = "РќРµРІРµСЂРЅС‹Р№ С‚РµР»РµС„РѕРЅ РёР»Рё РїР°СЂРѕР»СЊ",
+                        remainingAttempts = result.RemainingAttempts
+                    });
+
+                case LoginFailureReason.NotFound:
+                    return StatusCode(404, new
+                    {
+                        code = "NOT_FOUND",
+                        message = "РђРєРєР°СѓРЅС‚ РЅРµ РЅР°Р№РґРµРЅ"
+                    });
+
+                case LoginFailureReason.Inactive:
+                    return StatusCode(403, new
+                    {
+                        code = "ACCOUNT INACTIVE",
+                        message = "РђРєРєР°СѓРЅС‚ РЅРµР°РєС‚РёРІРµРЅ"
+                    });
+
+                default:
+                    return StatusCode(500, new
+                    {
+                        code = "UNKNOWN_ERROR",
+                        message = "РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР° Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё"
+                    });
+            }
+        }
     }
 
+    // POST api/users/refresh?userId={userId} (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ, РµСЃР»Рё access С‚РѕРєРµРЅ РёСЃС‚РµРє)
     /// <summary>
-    /// Обновление пары токенов по refresh токену.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="userId">Опционально: идентификатор пользователя, если access токен истек.</param>
-    /// <returns>Новая пара токенов.</returns>
-    /// <response code="200">Токены успешно обновлены.</response>
-    /// <response code="401">Refresh токен отсутствует, неверен или истек.</response>
+    /// <param name="userId">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ access пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</response>
+    /// <response code="401">Refresh пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.</response>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
     {
+        // РР·РІР»РµРєР°РµРј refresh С‚РѕРєРµРЅ РёР· cookie
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
+        // РџС‹С‚Р°РµРјСЃСЏ РїРѕР»СѓС‡РёС‚СЊ userId РёР· С‚РµРєСѓС‰РёС… claims РёР»Рё РёР· query РїР°СЂР°РјРµС‚СЂР°
         Guid finalUserId;
+        
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+                          ?? User.FindFirst("userId");
 
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId));
 
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
-        {
-            // userId получен из claims текущего токена
-        }
+        //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+
+        //if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
+        //{
+        //    // userId РїРѕР»СѓС‡РµРЅ РёР· claims С‚РµРєСѓС‰РµРіРѕ С‚РѕРєРµРЅР°
+        //}
         else if (userId.HasValue)
         {
-            // userId передан в query параметре (когда access токен истек)
+            // userId РїРµСЂРµРґР°РЅ РІ query РїР°СЂР°РјРµС‚СЂРµ (РєРѕРіРґР° access С‚РѕРєРµРЅ РёСЃС‚РµРє)
             finalUserId = userId.Value;
         }
         else
@@ -211,35 +278,50 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
 
+        // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј access С‚РѕРєРµРЅ РІ cookie
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
+        // РћР±РЅРѕРІР»СЏРµРј refresh С‚РѕРєРµРЅ РІ cookie
         HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
         return Ok(response);
     }
 
+    // GET api/users/profile
+    [HttpGet("profile")]
+    public async Task<ActionResult<UserDto>> GetMyProfile()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+        if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+        var user = await _service.GetByIdAsync(userId);
+        return user is null ? NotFound() : Ok(user);
+    }
+
     /// <summary>
-    /// Выход пользователя и отзыв refresh токена.
+    /// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <returns>Результат операции.</returns>
-    /// <response code="200">Выход выполнен успешно.</response>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <response code="200">пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</response>
     [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Logout()
     {
+        // РџРѕР»СѓС‡Р°РµРј userId РёР· claims
+        //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
                           ?? User.FindFirst("userId");
 
@@ -248,9 +330,46 @@ public class UsersController(IUserService service) : ControllerBase
             await _service.LogoutAsync(userId);
         }
 
+        // РЈРґР°Р»СЏРµРј С‚РѕРєРµРЅС‹ РёР· cookie
         HttpContext.Response.Cookies.Delete("AuthToken");
         HttpContext.Response.Cookies.Delete("RefreshToken");
 
         return Ok(new { message = "Logged out successfully" });
     }
+
+    //// GET api/users/profile/upcoming
+    //[Authorize]
+    //[HttpGet("profile/upcoming")]
+    //public async Task<ActionResult<UserDto>> GetMyUpcomingTrips()
+    //{
+    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+    //    var user = await _service.GetByIdAsync(userId);
+    //    return user is null ? NotFound() : Ok(user);
+    //}
+
+    //// GET api/users/profile/completed
+    //[Authorize]
+    //[HttpGet("profile/completed")]
+    //public async Task<ActionResult<UserDto>> GetMyCompletedTrips()
+    //{
+    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+    //    var user = await _service.GetByIdAsync(userId);
+    //    return user is null ? NotFound() : Ok(user);
+    //}
+
+    //// GET api/users/profile/stats
+    //[Authorize]
+    //[HttpGet("profile/stats")]
+    //public async Task<ActionResult<UserDto>> GetMyStats()
+    //{
+    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+
+    //    var user = await _service.GetByIdAsync(userId);
+    //    return user is null ? NotFound() : Ok(user);
+    //}
 }

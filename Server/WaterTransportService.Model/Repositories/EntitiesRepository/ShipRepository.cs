@@ -55,4 +55,30 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Получить все суда пользователя с типом судна.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Коллекция судов пользователя.</returns>
+    public async Task<IEnumerable<Ship>> GetByUserIdAsync(Guid userId)
+    {
+        return await _context.Ships
+            .Include(s => s.ShipType)
+            .Where(s => s.UserId == userId)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Получить судно с типом и портом по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор судна.</param>
+    /// <returns>Судно с включенными связями или null.</returns>
+    public async Task<Ship?> GetByIdWithDetailsAsync(Guid id)
+    {
+        return await _context.Ships
+            .Include(s => s.ShipType)
+            .Include(s => s.Port)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
 }

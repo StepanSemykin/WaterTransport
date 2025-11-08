@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { Search, Bell, User, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship } from "lucide-react";
+import { Button, Container } from "react-bootstrap";
 
 import styles from "./HomePage.module.css";
 
 export default function Index() {
+  const navigate = useNavigate();
   // const [activeTab, setActiveTab] = useState("rental");
   const [addReturnRoute, setAddReturnRoute] = useState(false);
   const [addWalkingTrip, setAddWalkingTrip] = useState(false);
@@ -27,18 +31,21 @@ export default function Index() {
         <div className={styles["header-content"]}>
           <h1 className={styles["brand-title"]}>AquaRent</h1>
           <div className={styles["icon-group"]}>
-            {/* <button className={styles["menu-button"]} type="button" aria-label="Открыть меню">
-              <TabsMenu />
-            </button>
-            <button className={styles["icon-button"]} type="button" aria-label="Поиск">
-              <Search />
-            </button> */}
-            <button className={styles["icon-button"]} type="button" aria-label="Уведомления">
+            <Button 
+              variant="light" 
+              className={styles["icon-button"]} 
+              aria-label="Профиль"
+            >
               <Bell />
-            </button>
-            <button className={styles["icon-button"]} type="button" aria-label="Профиль">
-              <User />
-            </button>
+            </Button>
+            <Button 
+              variant="light" 
+              onClick={() => navigate("/user")}
+              className={styles["icon-button"]} 
+              aria-label="Профиль"
+            >
+              <UserIcon />
+            </Button>
           </div>
         </div>
       </header>

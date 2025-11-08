@@ -29,11 +29,68 @@ public class RentOrder
     public required User User { get; set; }
 
     /// <summary>
+    /// Идентификатор партнёра, если партнёр откликнулся на заявку.
+    /// </summary>
+    [Column("partner_id", TypeName = "uuid")]
+    public Guid? PartnerId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на партнёра.
+    /// </summary>
+    public User? Partner { get; set; }
+
+    /// <summary>
+    /// Идентификатор корабля, предложенного партнером в заказе.
+    /// </summary>
+    [Column("ship_id", TypeName = "uuid")]
+    public Guid? ShipId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на корабль.
+    /// </summary>
+    public Ship? Ship { get; set; }
+
+    /// <summary>
+    /// Идентификатор желаемого типа судна.
+    /// </summary>
+    [Column("ship_type_id")]
+    [Required]
+    public required ushort ShipTypeId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на желаемый тип судна.
+    /// </summary>
+    public required ShipType ShipType { get; set; }
+
+    /// <summary>
+    /// Идентификатор порта отправления.
+    /// </summary>
+    [Column("departure_port_id", TypeName = "uuid")]
+    [Required]
+    public required Guid DeparturePortId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на порт отправления.
+    /// </summary>
+    public required Port DeparturePort { get; set; }
+
+    /// <summary>
+    /// Идентификатор порта прибытия (опционально).
+    /// </summary>
+    [Column("arrival_port_id", TypeName = "uuid")]
+    public Guid? ArrivalPortId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на порт прибытия.
+    /// </summary>
+    public Port? ArrivalPort { get; set; }
+
+    /// <summary>
     /// Общая стоимость бронирования в рублях.
     /// </summary>
     [Column("total_price")]
     [Required]
-    public required uint TotalPrice { get; set; }
+    public uint? TotalPrice { get; set; }
 
     /// <summary>
     /// Количество пассажиров в бронировании.
@@ -41,18 +98,6 @@ public class RentOrder
     [Column("number_of_passengers")]
     [Required]
     public required ushort NumberOfPassengers { get; set; }
-
-    /// <summary>
-    /// Идентификатор записи календаря (рейса), на который сделано бронирование.
-    /// </summary>
-    [Column("rent_calendar_id", TypeName = "uuid")]
-    [Required]
-    public required Guid RentCalendarId { get; set; }
-
-    /// <summary>
-    /// Навигационное свойство на запись календаря (рейс).
-    /// </summary>
-    public required RentCalendar RentCalendar { get; set; }
 
     /// <summary>
     /// Время отправления (UTC).
@@ -78,8 +123,8 @@ public class RentOrder
     /// </summary>
     [Required]
     [MaxLength(20)]
-    [Column("name")]
-    public required string StatusName { get; set; }
+    [Column("status")]
+    public required string Status { get; set; }
 
     /// <summary>
     /// Время создания записи бронирования в UTC.
@@ -89,9 +134,13 @@ public class RentOrder
     public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
+    /// Отклики партнеров на данный заказ.
+    /// </summary>
+    public ICollection<RentOrderOffer> Offers { get; set; } = [];
+
+    /// <summary>
     /// Время отмены бронирования в UTC (если отменено).
     /// </summary>
     [Column("cancelled_at", TypeName = "timestamptz")]
     public DateTime? CancelledAt { get; set; }
-
 }

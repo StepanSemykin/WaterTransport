@@ -26,3 +26,19 @@ public record RefreshTokenResponseDto(
     string AccessToken,
     string RefreshToken
 );
+
+public enum LoginFailureReason
+{
+    NotFound,
+    Inactive,   
+    Locked,               
+    InvalidPassword    
+}
+
+public sealed record LoginResultDto(
+    bool Success,
+    LoginResponseDto? Data = null,
+    LoginFailureReason? Failure = null,
+    DateTimeOffset? LockedUntil = null,
+    int? RemainingAttempts = null
+);

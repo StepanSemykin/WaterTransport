@@ -5,13 +5,17 @@ namespace WaterTransportService.Api.DTO;
 public record RentOrderDto(
     Guid Id,
     Guid UserId,
-    uint TotalPrice,
+    ushort ShipTypeId,
+    Guid DeparturePortId,
+    Guid? ArrivalPortId,
+    Guid? PartnerId,
+    Guid? ShipId,
+    uint? TotalPrice,
     ushort NumberOfPassengers,
-    Guid RentCalendarId,
     DateTime RentalStartTime,
     DateTime? RentalEndTime,
     DateTime? OrderDate,
-    string StatusName,
+    string Status,
     DateTime CreatedAt,
     DateTime? CancelledAt
 );
@@ -22,13 +26,15 @@ public class CreateRentOrderDto
     public required Guid UserId { get; set; }
 
     [Required]
-    public required uint TotalPrice { get; set; }
+    public required ushort ShipTypeId { get; set; }
+
+    [Required]
+    public required Guid DeparturePortId { get; set; }
+
+    public Guid? ArrivalPortId { get; set; }
 
     [Required]
     public required ushort NumberOfPassengers { get; set; }
-
-    [Required]
-    public required Guid RentCalendarId { get; set; }
 
     [Required]
     public required DateTime RentalStartTime { get; set; }
@@ -38,18 +44,19 @@ public class CreateRentOrderDto
     public DateTime? OrderDate { get; set; }
 
     [Required, MaxLength(20)]
-    public required string StatusName { get; set; }
+    public required string Status { get; set; }
 }
 
 public class UpdateRentOrderDto
 {
+    public Guid? PartnerId { get; set; }
+    public Guid? ShipId { get; set; }
     public uint? TotalPrice { get; set; }
     public ushort? NumberOfPassengers { get; set; }
-    public Guid? RentCalendarId { get; set; }
     public DateTime? RentalStartTime { get; set; }
     public DateTime? RentalEndTime { get; set; }
     public DateTime? OrderDate { get; set; }
     [MaxLength(20)]
-    public string? StatusName { get; set; }
+    public string? Status { get; set; }
     public DateTime? CancelledAt { get; set; }
 }

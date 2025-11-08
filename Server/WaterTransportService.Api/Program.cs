@@ -21,6 +21,13 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(o => o.AddPolicy("Spa",
+    p => p.WithOrigins("http://localhost:3001" )
+          .AllowAnyHeader()
+          .AllowAnyMethod()
+          .AllowCredentials()
+));
+
 builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -97,12 +104,14 @@ builder.Services.AddScoped<IEntityRepository<Port, Guid>, PortRepository>();
 builder.Services.AddScoped<IEntityRepository<PortType, ushort>, PortTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipType, ushort>, ShipTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<Ship, Guid>, ShipRepository>();
+builder.Services.AddScoped<ShipRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipImage, Guid>, ShipImageRepository>();
 builder.Services.AddScoped<IEntityRepository<WaterTransportService.Model.Entities.Route, Guid>, RouteRepository>();
 builder.Services.AddScoped<IEntityRepository<RegularCalendar, Guid>, RegularCalendarRepository>();
 builder.Services.AddScoped<IEntityRepository<RegularOrder, Guid>, RegularOrderRepository>();
-builder.Services.AddScoped<IEntityRepository<RentCalendar, Guid>, RentCalendarRepository>();
 builder.Services.AddScoped<IEntityRepository<RentOrder, Guid>, RentOrderRepository>();
+builder.Services.AddScoped<RentOrderRepository>();
+builder.Services.AddScoped<RentOrderOfferRepository>();
 builder.Services.AddScoped<IEntityRepository<Review, Guid>, ReviewRepository>();
 builder.Services.AddScoped<IEntityRepository<UserImage, Guid>, UserImageRepository>();
 builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepository>();
@@ -119,8 +128,8 @@ builder.Services.AddScoped<IShipService, ShipService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRegularCalendarService, RegularCalendarService>();
 builder.Services.AddScoped<IRegularOrderService, RegularOrderService>();
-builder.Services.AddScoped<IRentCalendarService, RentCalendarService>();
 builder.Services.AddScoped<IRentOrderService, RentOrderService>();
+builder.Services.AddScoped<IRentOrderOfferService, RentOrderOfferService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
 builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>, PortImageService>();
@@ -131,11 +140,16 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.UseHttpsRedirection();
+app.UseCors("Spa");
+
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSitePolicy(),
+    MinimumSameSitePolicy = SameSiteMode.None, // ����� ��� cross-site
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
@@ -149,6 +163,5 @@ app.MapControllers();
 
 app.Run();
 
-// Helper to choose SameSite based on environment
 SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 
