@@ -86,7 +86,7 @@ export function ShipCard({
           </div>
 
           <div className={styles["meta"]}>
-            {status && <span className={styles["status"]}>{status}</span>}
+            {status && <span className={styles["confirm"]}>{status}</span>}
 
             {rating && Array.isArray(rating) && rating.length > 0 && (
               <div className={styles["rating"]}>

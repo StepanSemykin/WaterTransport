@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Auth;
@@ -11,6 +12,7 @@ namespace WaterTransportService.Api.Services.Users;
 /// ������ ���������� ��������������: CRUD, ��������������, ������ � ����������.
 /// </summary>
 public class UserService(
+    IMapper mapper,
     IUserRepository<Guid> userRepo,
     IEntityRepository<OldPassword, Guid> oldPasswordRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
@@ -38,7 +40,11 @@ public class UserService(
         var ordered = all.OrderBy(u => u.CreatedAt).ToList();
         var total = ordered.Count;
         var skip = (page - 1) * pageSize;
-        var items = ordered.Skip(skip).Take(pageSize).Select(MapToDto).ToList();
+        var items = ordered
+            .Skip(skip)
+            .Take(pageSize)
+            .Select(u => mapper.Map<UserDto>(u))
+            .ToList();
 
         return (items, total);
     }
@@ -51,7 +57,9 @@ public class UserService(
     public async Task<UserDto?> GetByIdAsync(Guid id)
     {
         var user = await _userRepo.GetByIdAsync(id);
-        return user is null ? null : MapToDto(user);
+        var userDto = mapper.Map<UserDto>(user);
+
+        return user is null ? null : userDto;
     }
 
     /// <summary>
@@ -94,7 +102,9 @@ public class UserService(
         };
         await _userProfileRepo.CreateAsync(profile);
 
-        return MapToDto(user);
+        var userDto = mapper.Map<UserDto>(user);
+
+        return userDto;
     }
 
     /// <summary>
@@ -128,7 +138,9 @@ public class UserService(
         }
 
         var ok = await _userRepo.UpdateAsync(user, id);
-        return ok ? MapToDto(user) : null;
+        var userDto = mapper.Map<UserDto>(user);
+
+        return ok ? userDto : null;
     }
 
     /// <summary>
@@ -191,7 +203,9 @@ public class UserService(
 
         await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
+        var userDto = mapper.Map<UserDto>(user);
+
+        return new LoginResponseDto(accessToken, refreshToken, userDto);
     }
 
     /// <summary>
@@ -209,8 +223,8 @@ public class UserService(
         }
         else
         {
-            if (!user.IsActive)
-                return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
+            //if (!user.IsActive)
+            //    return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
 
             if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
                 return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
@@ -241,8 +255,12 @@ public class UserService(
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
             await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-            var dtoUser = MapToDto(user);
-            var payload = new LoginResponseDto(accessToken, refreshToken, dtoUser);
+            var userDto = mapper.Map<UserDto>(user);
+            var payload = new LoginResponseDto(
+                AccessToken: accessToken,
+                RefreshToken: refreshToken,
+                User: userDto
+            );
 
             return new LoginResultDto(true, Data: payload);
         }
@@ -295,8 +313,9 @@ public class UserService(
     /// <summary>
     /// ������������� �������� ������������ � DTO.
     /// </summary>
-    private static UserDto MapToDto(User u) =>
-        new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
-            u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
+    //private static UserDto MapToDto(User u) =>
+    //    new()
+        //new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
+        //    u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
       
 }

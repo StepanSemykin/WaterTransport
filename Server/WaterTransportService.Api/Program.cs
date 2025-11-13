@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using WaterTransportService.Api;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Auth;
 using WaterTransportService.Api.Services.Calendars;
@@ -136,6 +139,8 @@ builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, Updat
 builder.Services.AddScoped<IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>, ShipImageService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<Mapping>());
 
 builder.Services.AddControllers();
 

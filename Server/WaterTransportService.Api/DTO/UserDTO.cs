@@ -3,13 +3,9 @@
 namespace WaterTransportService.Api.DTO;
 
 public record UserDto(
-    Guid Id,
+    //Guid Id,
     string Phone,
-    DateTime CreatedAt,
-    DateTime? LastLoginAt,
     bool IsActive,
-    int? FailedLoginAttempts,
-    DateTime? LockedUntil,
     string? Role
 );
 

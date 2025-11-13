@@ -60,6 +60,28 @@
   flex: 1;
 }
 
+.trip-review {
+  margin-top: 20px;
+}
+
+.trip-review-rating {
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.trip-review-comment {
+  margin-top: 8px;
+}
+
+.trip-review-edit {
+  margin-top: 10px;
+}
+
+.trip-review-button {
+  display: flex;
+  gap: 8px;
+}
+
 @media (max-width: 576px) {
   .trip-summary {
     flex-direction: column;

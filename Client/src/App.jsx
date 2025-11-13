@@ -44,11 +44,14 @@ export default function App() {
 
       <div className="App">
         <Routes>
-          <Route path="/auth" element={<Auth />} />
+          <Route 
+            path="/auth" 
+            element={<Auth />} 
+          />
           <Route
             path="/"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["common"]}>
                 <HomePage />
               </ProtectedRoute>
             }
@@ -56,7 +59,7 @@ export default function App() {
           <Route
             path="/user"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["common"]}>
                 <User />
               </ProtectedRoute>
             }
@@ -64,7 +67,7 @@ export default function App() {
           <Route
             path="/partner"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["partner"]}>
                 <Partner />
               </ProtectedRoute>
             }
@@ -77,7 +80,11 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Navigate to="/auth" replace />} />
+          <Route 
+            path="*" 
+            element={
+            <Navigate to="/auth" replace />} 
+          />
         </Routes>
       </div>
       

@@ -61,7 +61,7 @@ export function AuthProvider({ children }) {
       const account = await accountRes.json();
       const nextUser = { ...INITIAL_USER_STATE, ...account };
 
-      if (account?.id) {
+      if (account?.phone) {
         try {
           const profileRes = await apiFetch(`${USER_PROFILES_ENDPOINT}/${account.id}`, {
             method: "GET",
@@ -125,6 +125,9 @@ export function AuthProvider({ children }) {
       refreshUser,
       logout,
       isAuthenticated: Boolean(user?.phone),
+      role: user?.role,
+      isCommon: user?.role === "common",
+      isPartner: user?.role === "partner",
     }),
     [user, loading]
   );

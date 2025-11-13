@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
@@ -61,7 +62,8 @@ public class UsersController(IUserService service) : ControllerBase
     public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto dto)
     {
         var created = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        //return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        return Ok(created);
     }
 
     /// <summary>
@@ -146,9 +148,12 @@ public class UsersController(IUserService service) : ControllerBase
     /// <response code="200">�������������� �������.</response>
     /// <response code="401">�������� ������� ��� ������.</response>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(LoginResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<LoginResultDto>> Login([FromBody] LoginDto dto)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status423Locked)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto dto)
     {
         var result = await _service.LoginAsync(dto);
 
@@ -160,7 +165,8 @@ public class UsersController(IUserService service) : ControllerBase
                 message = "Внутренняя ошибка сервера" 
             });
         }
-        else {
+        else 
+        {
             if (result.Success)
             {
                 Response.Cookies.Append("AuthToken", result.Data!.AccessToken, new CookieOptions
@@ -180,7 +186,7 @@ public class UsersController(IUserService service) : ControllerBase
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
 
-                return Ok(result.Data);
+                return Ok(result.Data.User);
             }
 
             switch (result.Failure)
