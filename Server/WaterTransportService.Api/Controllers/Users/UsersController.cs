@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
 /// <summary>
-/// ���������� ��� ���������� �������������� � ���������������.
+/// Контроллер для управления пользователями и аутентификацией.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -17,12 +16,12 @@ public class UsersController(IUserService service) : ControllerBase
     private readonly IUserService _service = service;
 
     /// <summary>
-    /// �������� ������ ���� ������������� � ����������.
+    /// Получить список всех пользователей с пагинацией.
     /// </summary>
-    /// <param name="page">����� �������� (�� ��������� 1).</param>
-    /// <param name="pageSize">���������� ��������� �� �������� (�� ��������� 20, �������� 100).</param>
-    /// <returns>������ ������������� � ����������� � ���������.</returns>
-    /// <response code="200">������� ������� ������ �������������.</response>
+    /// <param name="page">Номер страницы (по умолчанию 1).</param>
+    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+    /// <returns>Список пользователей с информацией о пагинации.</returns>
+    /// <response code="200">Успешно получен список пользователей.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -32,12 +31,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// �������� ������������ �� ��������������.
+    /// Получить пользователя по идентификатору.
     /// </summary>
-    /// <param name="id">���������� ������������� ������������.</param>
-    /// <returns>������ ������������.</returns>
-    /// <response code="200">������������ ������� ������.</response>
-    /// <response code="404">������������ �� ������.</response>
+    /// <param name="id">Уникальный идентификатор пользователя.</param>
+    /// <returns>Данные пользователя.</returns>
+    /// <response code="200">Пользователь успешно найден.</response>
+    /// <response code="404">Пользователь не найден.</response>
     [Authorize(Roles = "common")]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
@@ -49,12 +48,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// ������� ������ ������������.
+    /// Создать нового пользователя.
     /// </summary>
-    /// <param name="dto">������ ��� �������� ������������.</param>
-    /// <returns>��������� ������������.</returns>
-    /// <response code="201">������������ ������� ������.</response>
-    /// <response code="400">������������ ������.</response>
+    /// <param name="dto">Данные для создания пользователя.</param>
+    /// <returns>Созданный пользователь.</returns>
+    /// <response code="201">Пользователь успешно создан.</response>
+    /// <response code="400">Некорректные данные.</response>
     [Authorize(Roles = "admin")]
     [HttpPost]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
@@ -67,13 +66,13 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// �������� ������������� ������������.
+    /// Обновить существующего пользователя.
     /// </summary>
-    /// <param name="id">���������� ������������� ������������.</param>
-    /// <param name="dto">������ ��� ����������.</param>
-    /// <returns>����������� ������������.</returns>
-    /// <response code="200">������������ ������� ��������.</response>
-    /// <response code="404">������������ �� ������.</response>
+    /// <param name="id">Уникальный идентификатор пользователя.</param>
+    /// <param name="dto">Данные для обновления.</param>
+    /// <returns>Обновленный пользователь.</returns>
+    /// <response code="200">Пользователь успешно обновлен.</response>
+    /// <response code="404">Пользователь не найден.</response>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -84,12 +83,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// ������� ������������.
+    /// Удалить пользователя.
     /// </summary>
-    /// <param name="id">���������� ������������� ������������.</param>
-    /// <returns>��������� ��������.</returns>
-    /// <response code="204">������������ ������� ������.</response>
-    /// <response code="404">������������ �� ������.</response>
+    /// <param name="id">Уникальный идентификатор пользователя.</param>
+    /// <returns>Результат операции.</returns>
+    /// <response code="204">Пользователь успешно удален.</response>
+    /// <response code="404">Пользователь не найден.</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -100,12 +99,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// ����������� ������ ������������.
+    /// Зарегистрировать нового пользователя.
     /// </summary>
-    /// <param name="dto">������ ��� �����������.</param>
-    /// <returns>������ ������� � ����������.</returns>
-    /// <response code="200">����������� �������.</response>
-    /// <response code="400">������������ ��� ���������� ��� �������� ������.</response>
+    /// <param name="dto">Данные для регистрации.</param>
+    /// <returns>Токены доступа и информация.</returns>
+    /// <response code="200">Регистрация успешна.</response>
+    /// <response code="400">Пользователь уже существует или неверные данные.</response>
     [HttpPost("register")]
     [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -141,12 +140,12 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// ���� ������������.
+    /// Вход пользователя.
     /// </summary>
-    /// <param name="dto">������ ��� �����.</param>
-    /// <returns>������ ������� � ����������.</returns>
-    /// <response code="200">�������������� �������.</response>
-    /// <response code="401">�������� ������� ��� ������.</response>
+    /// <param name="dto">Данные для входа.</param>
+    /// <returns>Токены доступа и информация.</returns>
+    /// <response code="200">Аутентификация успешна.</response>
+    /// <response code="401">Неверные учетные или данные.</response>
     [HttpPost("login")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -237,40 +236,30 @@ public class UsersController(IUserService service) : ControllerBase
 
     // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
-    /// ���������� ���� ������� �� refresh ������.
+    /// Обновление пары токенов по refresh токену.
     /// </summary>
-    /// <param name="userId">�����������: ������������� ������������, ���� access ����� �����.</param>
-    /// <returns>����� ���� �������.</returns>
-    /// <response code="200">������ ������� ���������.</response>
-    /// <response code="401">Refresh ����� �����������, ������� ��� �����.</response>
+    /// <param name="userId">Опционально: идентификатор пользователя, если access токен истек.</param>
+    /// <returns>Новая пара токенов.</returns>
+    /// <response code="200">Токены успешно обновлены.</response>
+    /// <response code="401">Refresh токен недействителен, истекший или ложный.</response>
     [HttpPost("refresh")]
     [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
     {
-        // Извлекаем refresh токен из cookie
         if (!Request.Cookies.TryGetValue("RefreshToken", out var refreshToken))
         {
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        // Пытаемся получить userId из текущих claims или из query параметра
         Guid finalUserId;
         
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
                           ?? User.FindFirst("userId");
 
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId));
-
-        //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
-
-        //if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
-        //{
-        //    // userId получен из claims текущего токена
-        //}
         else if (userId.HasValue)
         {
-            // userId передан в query параметре (когда access токен истек)
             finalUserId = userId.Value;
         }
         else
@@ -284,7 +273,6 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Invalid or expired refresh token" });
         }
 
-        // Устанавливаем access токен в cookie
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
@@ -293,7 +281,6 @@ public class UsersController(IUserService service) : ControllerBase
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
-        // Обновляем refresh токен в cookie
         HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
@@ -306,6 +293,7 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     // GET api/users/profile
+    [Authorize]
     [HttpGet("profile")]
     public async Task<ActionResult<UserDto>> GetMyProfile()
     {
@@ -317,17 +305,15 @@ public class UsersController(IUserService service) : ControllerBase
     }
 
     /// <summary>
-    /// ����� ������������ � ����� refresh ������.
+    /// Выйти пользователя и удалить refresh токены.
     /// </summary>
-    /// <returns>��������� ��������.</returns>
-    /// <response code="200">����� �������� �������.</response>
+    /// <returns>Результат операции.</returns>
+    /// <response code="200">Выход выполнен успешно.</response>
     [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Logout()
     {
-        // Получаем userId из claims
-        //var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) 
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
                           ?? User.FindFirst("userId");
 
@@ -336,7 +322,6 @@ public class UsersController(IUserService service) : ControllerBase
             await _service.LogoutAsync(userId);
         }
 
-        // Удаляем токены из cookie
         HttpContext.Response.Cookies.Delete("AuthToken");
         HttpContext.Response.Cookies.Delete("RefreshToken");
 
