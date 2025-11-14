@@ -5,7 +5,7 @@ using WaterTransportService.Model.Entities;
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для сущности порта.
+/// Репозиторий для портовых данных.
 /// </summary>
 public class PortRepository(WaterTransportDbContext context) : IEntityRepository<Port, Guid>
 {
