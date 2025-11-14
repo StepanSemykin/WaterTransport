@@ -5,24 +5,24 @@ using WaterTransportService.Model.Entities;
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для сущности типа корабля.
+/// Репозиторий для типов судов.
 /// </summary>
 public class ShipTypeRepository(WaterTransportDbContext context) : IEntityRepository<ShipType, ushort>
 {
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
-    /// Получить все типы кораблей.
+    /// Получить все типы судов.
     /// </summary>
     public async Task<IEnumerable<ShipType>> GetAllAsync() => await _context.ShipTypes.ToListAsync();
 
     /// <summary>
-    /// Получить тип корабля по идентификатору.
+    /// Получить тип судна по идентификатору.
     /// </summary>
     public async Task<ShipType?> GetByIdAsync(ushort id) => await _context.ShipTypes.FindAsync(id);
 
     /// <summary>
-    /// Создать тип корабля.
+    /// Создать тип судна.
     /// </summary>
     public async Task<ShipType> CreateAsync(ShipType entity)
     {
@@ -32,7 +32,7 @@ public class ShipTypeRepository(WaterTransportDbContext context) : IEntityReposi
     }
 
     /// <summary>
-    /// Обновить тип корабля.
+    /// Обновить тип судна.
     /// </summary>
     public async Task<bool> UpdateAsync(ShipType entity, ushort id)
     {
@@ -45,7 +45,7 @@ public class ShipTypeRepository(WaterTransportDbContext context) : IEntityReposi
     }
 
     /// <summary>
-    /// Удалить тип корабля.
+    /// Удалить тип судна.
     /// </summary>
     public async Task<bool> DeleteAsync(ushort id)
     {
