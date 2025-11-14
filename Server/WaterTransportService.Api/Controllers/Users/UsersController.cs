@@ -305,14 +305,18 @@ public class UsersController(IUserService service) : ControllerBase
         return Ok(response);
     }
 
-    // GET api/users/profile
-    [HttpGet("profile")]
+    // GET api/users/me
+    [HttpGet("me")]
     public async Task<ActionResult<UserDto>> GetMyProfile()
     {
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-        if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+        if (!Guid.TryParse(id, out var userId))
+        {
+            return Unauthorized();
+        }
 
         var user = await _service.GetByIdAsync(userId);
+
         return user is null ? NotFound() : Ok(user);
     }
 

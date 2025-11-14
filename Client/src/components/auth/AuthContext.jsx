@@ -5,13 +5,13 @@ import { apiFetch } from "../../api/api.js";
 const AuthContext = createContext(null);
 
 const INITIAL_USER_STATE = {
-  id: null,
+  // id: null,
   phone: null,
-  createdAt: null,
-  lastLoginAt: null,
+  // createdAt: null,
+  // lastLoginAt: null,
   isActive: false,
-  failedLoginAttempts: null,
-  lockedUntil: null,
+  // failedLoginAttempts: null,
+  // lockedUntil: null,
   role: null,
 
   nickname: null,
@@ -22,17 +22,17 @@ const INITIAL_USER_STATE = {
   birthday: null,
   about: null,
   location: null,
-  isPublic: false,
-  updatedAt: null,
+  // isPublic: false,
+  // updatedAt: null,
 
   upcomingTrips: [],
   completedTrips: [],
   stats: [],
 };
 
-const GET_MY_PROFILE_ENDPOINT = "/api/users/profile";
+const ME_ENDPOINT = "/api/users/me";
 const LOGIN_ENDPOINT = "/api/users/login";
-const USER_PROFILES_ENDPOINT = "/api/userprofiles";
+const USER_PROFILE_ENDPOINT = "/api/userprofiles/me";
 const LOGOUT_ENDPOINT = "/api/users/logout";
 const LOCATION = "/auth";
 
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      const accountRes = await apiFetch(GET_MY_PROFILE_ENDPOINT, { method: "GET" });
+      const accountRes = await apiFetch(ME_ENDPOINT, { method: "GET" });
 
       if (!accountRes.ok) {
         setUser(INITIAL_USER_STATE);
@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
 
       if (account?.phone) {
         try {
-          const profileRes = await apiFetch(`${USER_PROFILES_ENDPOINT}/${account.id}`, {
+          const profileRes = await apiFetch(`${USER_PROFILE_ENDPOINT}/${account.id}`, {
             method: "GET",
           });
 

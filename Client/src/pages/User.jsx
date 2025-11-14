@@ -10,6 +10,7 @@ import { Navigation } from "../components/navigation/Navigation.jsx"
 import UserOrders from "../components/user/orders/UserOrders.jsx";
 import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
+import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 
 import styles from "./User.module.css";
 
@@ -85,7 +86,7 @@ const COMPLETED_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: "Учетная запись", icon: "Home" },
+  { key: "account", label: "Учетная запись", content: <AccountSettings />, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
 ];

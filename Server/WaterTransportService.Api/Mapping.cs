@@ -2,13 +2,13 @@ using AutoMapper;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Api.DTO;
 
-namespace WaterTransportService.Api
+namespace WaterTransportService.Api;
+
+public class Mapping : Profile
 {
-    public class Mapping : Profile
+    public Mapping()
     {
-        public Mapping()
-        {
-            CreateMap<User, UserDto>().ReverseMap();
-        }
+        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<UserProfile, UserProfileDto>().ReverseMap();
     }
 }
