@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace WaterTransportService.Api.DTO;
 
 public record UserProfileDto(
-    Guid UserId,
+    //Guid UserId,
     string? Nickname,
     string? FirstName,
     string? LastName,
@@ -11,15 +11,15 @@ public record UserProfileDto(
     string? Email,
     DateTime? Birthday,
     string? About,
-    string? Location,
-    bool IsPublic,
-    DateTime? UpdatedAt
+    string? Location
+    //bool IsPublic
+    //DateTime? UpdatedAt
 );
 
 public class CreateUserProfileDto
 {
-    [Required]
-    public required Guid UserId { get; set; }
+    //[Required]
+    //public required Guid UserId { get; set; }
 
     [MaxLength(16)]
     public string? Nickname { get; set; }
@@ -44,7 +44,7 @@ public class CreateUserProfileDto
     [MaxLength(256)]
     public string? Location { get; set; }
 
-    public bool IsPublic { get; set; } = true;
+    //public bool IsPublic { get; set; } = true;
 }
 
 public class UpdateUserProfileDto
@@ -72,5 +72,5 @@ public class UpdateUserProfileDto
     [MaxLength(256)]
     public string? Location { get; set; }
 
-    public bool? IsPublic { get; set; }
+    //public bool? IsPublic { get; set; }
 }
