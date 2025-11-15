@@ -154,7 +154,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.None, // ����� ��� cross-site
+    MinimumSameSitePolicy = SameSiteMode.None, 
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
