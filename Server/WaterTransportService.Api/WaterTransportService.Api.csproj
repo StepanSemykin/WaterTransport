@@ -7,6 +7,7 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
 	<NoWarn>$(NoWarn);1591</NoWarn>
     <UserSecretsId>0635395b-75df-452f-99c9-9a409ea2b7e6</UserSecretsId>
+    <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
 
   <ItemGroup>

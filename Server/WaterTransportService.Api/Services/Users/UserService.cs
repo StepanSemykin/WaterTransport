@@ -308,14 +308,5 @@ public class UserService(
         await _userRepo.UpdateAsync(user, userId);
         await _tokenService.RevokeRefreshTokenAsync(userId);
         return true;
-    }
-
-    /// <summary>
-    /// ������������� �������� ������������ � DTO.
-    /// </summary>
-    //private static UserDto MapToDto(User u) =>
-    //    new()
-        //new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
-        //    u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
-      
+    } 
 }
