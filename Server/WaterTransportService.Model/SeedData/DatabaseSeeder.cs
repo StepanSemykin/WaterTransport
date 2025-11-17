@@ -47,11 +47,11 @@ public static class DatabaseSeeder
 
         var commonUserData = new[]
         {
-            "+79001234567",
-            "+79001234568",
-            "+79001234569",
-            "+79001234570",
-            "+79001234571"
+            "79001234567",
+            "79001234568",
+            "79001234569",
+            "79001234570",
+            "79001234571"
         };
 
         foreach (var phone in commonUserData)
@@ -80,10 +80,10 @@ public static class DatabaseSeeder
 
         var partnerUserData = new[]
         {
-            "+79101234567",
-            "+79101234568",
-            "+79101234569",
-            "+79101234570"
+            "79101234567",
+            "79101234568",
+            "79101234569",
+            "79101234570"
         };
 
         foreach (var phone in partnerUserData)
@@ -257,7 +257,6 @@ public static class DatabaseSeeder
 
         foreach (var partner in partnerUsers)
         {
-            // Каждый партнер имеет от 2 до 5 кораблей
             var shipsCount = Random.Shared.Next(2, 6);
 
             for (int i = 0; i < shipsCount; i++)
@@ -279,7 +278,7 @@ public static class DatabaseSeeder
                     Width = (ushort)Random.Shared.Next(2, 11),
                     Length = (ushort)Random.Shared.Next(6, 41),
                     Description = descriptions[Random.Shared.Next(descriptions.Length)],
-                    CostPerHour = (uint)Random.Shared.Next(3000, 50001) * 100, // От 3000 до 50000 рублей в час (в копейках)
+                    CostPerHour = (uint)Random.Shared.Next(3000, 50001) * 100,
                     PortId = port.Id,
                     Port = port,
                     UserId = partner.Id,

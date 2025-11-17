@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -12,11 +13,13 @@ public class ShipService(
     IEntityRepository<Ship, Guid> repo,
     IPortRepository<Guid> portRepo,
     IUserRepository<Guid> userRepo,
+    IEntityRepository<ShipType, ushort> shipTypeRepo,
     IMapper mapper) : IShipService
 {
     private readonly IEntityRepository<Ship, Guid> _repo = repo;
     private readonly IPortRepository<Guid> _portRepo = portRepo;
     private readonly IUserRepository<Guid> _userRepo = userRepo;
+    private readonly IEntityRepository<ShipType, ushort> _shipTypeRepo = shipTypeRepo;
 
     /// <summary>
     /// Получить список всех судов с пагинацией.
@@ -77,9 +80,12 @@ public class ShipService(
         if (port is null)
             return null;
 
-        // 2. Найти пользователя по телефону
         var user = await _userRepo.GetByPhoneAsync(dto.UserDto.Phone);
         if (user is null)
+            return null;
+
+        var shipType = await _shipTypeRepo.GetByIdAsync(dto.ShipTypeId);
+        if (shipType is null)
             return null;
 
         var entity = new Ship
@@ -87,7 +93,7 @@ public class ShipService(
             Id = Guid.NewGuid(),
             Name = dto.Name,
             ShipTypeId = dto.ShipTypeId,
-            ShipType = null!,
+            ShipType = shipType,
             Capacity = dto.Capacity,
             RegistrationNumber = dto.RegistrationNumber,
             YearOfManufacture = dto.YearOfManufacture,
@@ -97,9 +103,9 @@ public class ShipService(
             Description = dto.Description,
             CostPerHour = dto.CostPerHour,
             PortId = port.Id,
-            Port = null!,
+            Port = port,
             UserId = user.Id,
-            User = null!
+            User = user
         };
 
         var created = await _repo.CreateAsync(entity);

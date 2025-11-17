@@ -13,9 +13,15 @@ public class AuthService(
     IPasswordHasher passwordHasher,
     ITokenService tokenService) : IAuthService
 {
+    private readonly IMapper _mapper = mapper;
+    private readonly IUserRepository<Guid> _userRepo = userRepo;
+    private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly ITokenService _tokenService = tokenService;
+
     public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
     {
-        var existingUser = await userRepo.GetByPhoneAsync(dto.Phone);
+        var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
         if (existingUser != null)
         {
             return null;
@@ -27,11 +33,11 @@ public class AuthService(
             Phone = dto.Phone,
             Role = "common",
             IsActive = true,
-            Hash = passwordHasher.Generate(dto.Password),
+            Hash = _passwordHasher.Generate(dto.Password),
             CreatedAt = DateTime.UtcNow
         };
 
-        await userRepo.CreateAsync(user);
+        await _userRepo.CreateAsync(user);
 
         var profile = new UserProfile
         {
@@ -48,22 +54,22 @@ public class AuthService(
             Nickname = null,
             UpdatedAt = DateTime.UtcNow
         };
-        await userProfileRepo.CreateAsync(profile);
+        await _userProfileRepo.CreateAsync(profile);
 
-        var accessToken = tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var refreshToken = tokenService.GenerateRefreshToken();
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
-        await tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-        var userDto = mapper.Map<UserDto>(user);
+        var userDto = _mapper.Map<UserDto>(user);
 
         return new LoginResponseDto(accessToken, refreshToken, userDto);
     }
 
     public async Task<LoginResultDto?> LoginAsync(LoginDto dto)
     {
-        var user = await userRepo.GetByPhoneAsync(dto.Phone);
+        var user = await _userRepo.GetByPhoneAsync(dto.Phone);
         if (user is null)
         {
             return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
@@ -72,14 +78,14 @@ public class AuthService(
         if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
             return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
 
-        var isValidPassword = passwordHasher.Verify(dto.Password, user.Hash);
+        var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
         if (!isValidPassword)
         {
             user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
             if (user.FailedLoginAttempts >= 5)
                 user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
 
-            await userRepo.UpdateAsync(user, user.Id);
+            await _userRepo.UpdateAsync(user, user.Id);
 
             var remaining = Math.Max(0, 5 - (user.FailedLoginAttempts ?? 0));
             return user.LockedUntil.HasValue
@@ -91,14 +97,14 @@ public class AuthService(
         user.LockedUntil = null;
         user.LastLoginAt = DateTime.UtcNow;
         user.IsActive = true;
-        await userRepo.UpdateAsync(user, user.Id);
+        await _userRepo.UpdateAsync(user, user.Id);
 
-        var accessToken = tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var refreshToken = tokenService.GenerateRefreshToken();
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-        await tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-        var userDto = mapper.Map<UserDto>(user);
+        var userDto = _mapper.Map<UserDto>(user);
         var payload = new LoginResponseDto(
             AccessToken: accessToken,
             RefreshToken: refreshToken,
@@ -110,34 +116,34 @@ public class AuthService(
 
     public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)
     {
-        var user = await userRepo.GetByIdAsync(userId);
+        var user = await _userRepo.GetByIdAsync(userId);
         if (user is null || !user.IsActive)
         {
             return null;
         }
 
-        var validToken = await tokenService.ValidateRefreshTokenAsync(userId, refreshToken);
+        var validToken = await _tokenService.ValidateRefreshTokenAsync(userId, refreshToken);
         if (validToken is null)
         {
             return null;
         }
 
-        var accessToken = tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var newRefreshToken = tokenService.GenerateRefreshToken();
+        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
-        await tokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, refreshTokenExpiry);
+        await _tokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, refreshTokenExpiry);
 
         return new RefreshTokenResponseDto(accessToken, newRefreshToken);
     }
 
     public async Task<bool> LogoutAsync(Guid userId)
     {
-        var user = await userRepo.GetByIdAsync(userId);
+        var user = await _userRepo.GetByIdAsync(userId);
         if (user is null) return false;
         user.IsActive = false;
-        await userRepo.UpdateAsync(user, userId);
-        await tokenService.RevokeRefreshTokenAsync(userId);
+        await _userRepo.UpdateAsync(user, userId);
+        await _tokenService.RevokeRefreshTokenAsync(userId);
         return true;
     }
 }

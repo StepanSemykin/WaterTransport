@@ -18,6 +18,7 @@ public class PortImageService(
     private readonly IEntityRepository<PortImage, Guid> _repo = repo;
     private readonly IPortRepository<Guid> _portRepo = portRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить список всех изображений портов с пагинацией.
@@ -31,7 +32,7 @@ public class PortImageService(
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderByDescending(x => x.UploadedAt).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => mapper.Map<PortImageDto>(u)).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => _mapper.Map<PortImageDto>(u)).ToList();
         return (items, total);
     }
 
@@ -43,7 +44,7 @@ public class PortImageService(
     public async Task<PortImageDto?> GetByIdAsync(Guid id)
     {
         var portImage = await _repo.GetByIdAsync(id);
-        var portImageDto = mapper.Map<PortImageDto?>(portImage);
+        var portImageDto = _mapper.Map<PortImageDto?>(portImage);
 
         return portImage is null ? null : portImageDto;
     }
@@ -58,7 +59,7 @@ public class PortImageService(
         if (_repo is not PortImageRepository imageRepo) return null;
 
         var primaryImage = await imageRepo.GetPrimaryByPortIdAsync(entityId);
-        return primaryImage == null ? null : mapper.Map<PortImageDto>(primaryImage);
+        return primaryImage == null ? null : _mapper.Map<PortImageDto>(primaryImage);
     }
 
     /// <summary>
@@ -71,7 +72,7 @@ public class PortImageService(
         if (_repo is not PortImageRepository imageRepo) return Array.Empty<PortImageDto>();
 
         var images = await imageRepo.GetAllByPortIdAsync(entityId);
-        return images.Select(img => mapper.Map<PortImageDto>(img)).ToList();
+        return images.Select(img => _mapper.Map<PortImageDto>(img)).ToList();
     }
 
     /// <summary>
@@ -101,7 +102,7 @@ public class PortImageService(
             UploadedAt = DateTime.UtcNow
         };
         var created = await _repo.CreateAsync(entity);
-        var createdDto = mapper.Map<PortImageDto>(created);
+        var createdDto = _mapper.Map<PortImageDto>(created);
 
         return createdDto;
     }
@@ -135,7 +136,7 @@ public class PortImageService(
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
 
         var updated = await _repo.UpdateAsync(entity, id);
-        var updatedDto = mapper.Map<PortImageDto>(entity);
+        var updatedDto = _mapper.Map<PortImageDto>(entity);
 
         return updated ? updatedDto : null;
     }

@@ -18,6 +18,7 @@ public class ShipImageService(
     private readonly IEntityRepository<ShipImage, Guid> _repo = repo;
     private readonly IEntityRepository<Ship, Guid> _shipRepo = shipRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
+    private readonly IMapper _mapper = mapper;
 
     public async Task<(IReadOnlyList<ShipImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
@@ -25,14 +26,14 @@ public class ShipImageService(
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderByDescending(x => x.UploadedAt).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => mapper.Map<ShipImageDto>(u)).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => _mapper.Map<ShipImageDto>(u)).ToList();
         return (items, total);
     }
 
     public async Task<ShipImageDto?> GetByIdAsync(Guid id)
     {
         var shipImage = await _repo.GetByIdAsync(id);
-        var shipImageDto = mapper.Map<ShipImageDto?>(shipImage);
+        var shipImageDto = _mapper.Map<ShipImageDto?>(shipImage);
 
         return shipImage is null ? null : shipImageDto;
     }
@@ -47,7 +48,7 @@ public class ShipImageService(
         if (_repo is not ShipImageRepository imageRepo) return null;
 
         var primaryImage = await imageRepo.GetPrimaryByShipIdAsync(entityId);
-        return primaryImage == null ? null : mapper.Map<ShipImageDto>(primaryImage);
+        return primaryImage == null ? null : _mapper.Map<ShipImageDto>(primaryImage);
     }
 
     /// <summary>
@@ -60,7 +61,7 @@ public class ShipImageService(
         if (_repo is not ShipImageRepository imageRepo) return Array.Empty<ShipImageDto>();
 
         var images = await imageRepo.GetAllByShipIdAsync(entityId);
-        return images.Select(img => mapper.Map<ShipImageDto>(img)).ToList();
+        return images.Select(img => _mapper.Map<ShipImageDto>(img)).ToList();
     }
 
     public async Task<ShipImageDto?> CreateAsync(CreateShipImageDto dto)
@@ -85,7 +86,7 @@ public class ShipImageService(
             UploadedAt = DateTime.UtcNow
         };
         var created = await _repo.CreateAsync(entity);
-        var createdDto = mapper.Map<ShipImageDto>(created);
+        var createdDto = _mapper.Map<ShipImageDto>(created);
 
         return createdDto;
     }
@@ -113,7 +114,7 @@ public class ShipImageService(
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
 
         var updated = await _repo.UpdateAsync(entity, id);
-        var updatedDto = mapper.Map<ShipImageDto>(updated);
+        var updatedDto = _mapper.Map<ShipImageDto>(updated);
 
         return updated ? updatedDto : null;
     }
