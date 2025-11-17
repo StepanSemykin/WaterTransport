@@ -46,16 +46,18 @@ public class UserImagesController(IImageService<UserImageDto, CreateUserImageDto
     }
 
     /// <summary>
-    /// Получить файл изображения по идентификатору изображения.
+    /// Получить основное (primary) изображение пользователя по идентификатору пользователя (UserId).
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>Файл изображения.</returns>
-    [HttpGet("file/{id:guid}")]
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Файл основного изображения.</returns>
+    /// <response code="200">Файл изображения успешно найден и возвращен.</response>
+    /// <response code="404">Файл не найден.</response>
+    [HttpGet("file/{userId:guid}")]
     [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetImage(Guid id)
+    public async Task<IActionResult> GetImage(Guid userId)
     {
-        var dto = await _service.GetByIdAsync(id);
+        var dto = await _service.GetPrimaryImageByEntityIdAsync(userId);
         if (dto is null) return NotFound();
 
         var fullPath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, dto.ImagePath);
@@ -77,19 +79,66 @@ public class UserImagesController(IImageService<UserImageDto, CreateUserImageDto
     }
 
     /// <summary>
+    /// Получить все файлы изображений пользователя в base64 формате.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Массив изображений с данными в base64.</returns>
+    /// <response code="200">Файлы изображений успешно получены.</response>
+    [HttpGet("user/{userId:guid}/files")]
+    [ProducesResponseType(typeof(object[]), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetAllImageFiles(Guid userId)
+    {
+        var images = await _service.GetAllImagesByEntityIdAsync(userId);
+        if (!images.Any())
+            return Ok(Array.Empty<object>());
+
+        var rootPath = Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath;
+        var result = new List<object>();
+
+        foreach (var img in images)
+        {
+            var fullPath = Path.Combine(rootPath, img.ImagePath);
+            if (!System.IO.File.Exists(fullPath))
+                continue;
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+            var extension = Path.GetExtension(fullPath).ToLowerInvariant();
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            result.Add(new
+            {
+                id = img.Id,
+                isPrimary = img.IsPrimary,
+                contentType,
+                data = Convert.ToBase64String(bytes)
+            });
+        }
+
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Создать новое изображение пользователя.
     /// </summary>
-    /// <param name="dto">Данные для создания изображения (форма multipart/form-data).</param>
+    /// <param name="dto">Данные для создания изображения (форма multipart/form-data). Поиск пользователя осуществляется по телефону.</param>
     /// <returns>Созданное изображение пользователя.</returns>
     /// <response code="201">Изображение успешно создано.</response>
-    /// <response code="400">Недопустимый файл изображения.</response>
+    /// <response code="400">Недопустимый телефон пользователя или файл изображения.</response>
     [HttpPost]
     [ProducesResponseType(typeof(UserImageDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<UserImageDto>> Create([FromForm] CreateUserImageDto dto)
     {
         var created = await _service.CreateAsync(dto);
-        return created is null ? BadRequest("Invalid image file") : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        return created is null ? BadRequest("Invalid user id or image file") : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     /// <summary>

@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="15.0.1" />
+    <PackageReference Include="AutoMapper" Version="15.1.0" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.21" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="8.0.21" />
@@ -33,6 +33,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WaterTransportService.Infrastructure\WaterTransportService.Infrastructure.csproj" />
     <ProjectReference Include="..\WaterTransportService.Model\WaterTransportService.Model.csproj" />
+    <ProjectReference Include="..\WaterTransportService.Authentication\WaterTransportService.Authentication.csproj" />
   </ItemGroup>
 
   <ItemGroup>

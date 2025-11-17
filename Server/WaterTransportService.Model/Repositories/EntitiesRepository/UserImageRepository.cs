@@ -66,4 +66,39 @@ public class UserImageRepository(WaterTransportDbContext context) : IEntityRepos
         await _context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Получить основное (primary) изображение пользователя по идентификатору пользователя.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Primary изображение или самое новое, если primary нет.</returns>
+    public async Task<UserImage?> GetPrimaryByUserIdAsync(Guid userId)
+    {
+        var primaryImage = await _context.UserImages
+            .Where(img => img.UserProfileId == userId && img.IsPrimary)
+            .OrderByDescending(img => img.UploadedAt)
+            .FirstOrDefaultAsync();
+
+        if (primaryImage != null)
+            return primaryImage;
+
+        return await _context.UserImages
+            .Where(img => img.UserProfileId == userId)
+            .OrderByDescending(img => img.UploadedAt)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Получить все изображения пользователя по идентификатору пользователя.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Список изображений, отсортированных по IsPrimary и дате.</returns>
+    public async Task<IReadOnlyList<UserImage>> GetAllByUserIdAsync(Guid userId)
+    {
+        return await _context.UserImages
+            .Where(img => img.UserProfileId == userId)
+            .OrderByDescending(img => img.IsPrimary)
+            .ThenByDescending(img => img.UploadedAt)
+            .ToListAsync();
+    }
 }
