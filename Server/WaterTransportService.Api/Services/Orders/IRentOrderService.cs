@@ -1,49 +1,49 @@
-using WaterTransportService.Api.DTO;
+п»їusing WaterTransportService.Api.DTO;
 
 namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
-/// Интерфейс сервиса для управления заказами аренды.
+/// РРЅС‚РµСЂС„РµР№СЃ СЃРµСЂРІРёСЃР° РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ Р·Р°РєР°Р·Р°РјРё Р°СЂРµРЅРґС‹.
 /// </summary>
 public interface IRentOrderService
 {
     /// <summary>
-    /// Получить список всех заказов аренды с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… Р·Р°РєР°Р·РѕРІ Р°СЂРµРЅРґС‹ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
     Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize);
 
     /// <summary>
-    /// Получить заказ аренды по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     Task<RentOrderDto?> GetByIdAsync(Guid id);
 
     /// <summary>
-    /// Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+    /// РџРѕР»СѓС‡РёС‚СЊ РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°РєР°Р·С‹ РґР»СЏ РїР°СЂС‚РЅРµСЂРѕРІ (С„РёР»СЊС‚СЂР°С†РёСЏ РїРѕ РїРѕСЂС‚Сѓ Рё С‚РёРїСѓ СЃСѓРґРЅР°).
     /// </summary>
     Task<IEnumerable<RentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId);
 
     /// <summary>
-    /// Создать новый заказ аренды.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
-    Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto);
+    Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto, Guid userId);
 
     /// <summary>
-    /// Обновить существующий заказ аренды.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
     Task<RentOrderDto?> UpdateAsync(Guid id, UpdateRentOrderDto dto);
 
     /// <summary>
-    /// Завершить аренду (пользователь подтверждает завершение).
+    /// Р—Р°РІРµСЂС€РёС‚СЊ Р°СЂРµРЅРґСѓ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕРґС‚РІРµСЂР¶РґР°РµС‚ Р·Р°РІРµСЂС€РµРЅРёРµ).
     /// </summary>
     Task<bool> CompleteOrderAsync(Guid id);
 
     /// <summary>
-    /// Отменить заказ аренды.
+    /// РћС‚РјРµРЅРёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
     Task<bool> CancelOrderAsync(Guid id);
 
     /// <summary>
-    /// Удалить заказ аренды.
+    /// РЈРґР°Р»РёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
     Task<bool> DeleteAsync(Guid id);
 }

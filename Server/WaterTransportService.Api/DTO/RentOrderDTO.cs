@@ -23,15 +23,12 @@ public record RentOrderDto(
 public class CreateRentOrderDto
 {
     [Required]
-    public required Guid UserId { get; set; }
-
-    [Required]
     public required ushort ShipTypeId { get; set; }
 
     [Required]
-    public required Guid DeparturePortId { get; set; }
+    public required string DeparturePortTitle { get; set; }
 
-    public Guid? ArrivalPortId { get; set; }
+    public string? ArrivalPortTitle { get; set; } = null;
 
     [Required]
     public required ushort NumberOfPassengers { get; set; }
@@ -43,8 +40,6 @@ public class CreateRentOrderDto
 
     public DateTime? OrderDate { get; set; }
 
-    [Required, MaxLength(20)]
-    public required string Status { get; set; }
 }
 
 public class UpdateRentOrderDto

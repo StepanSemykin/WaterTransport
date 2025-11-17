@@ -193,33 +193,34 @@ public class UsersController(IUserService service) : ControllerBase
                         Response.Headers.RetryAfter =
                             Math.Max(0, (int)Math.Ceiling((until - DateTimeOffset.UtcNow).TotalSeconds)).ToString();
 
-                return StatusCode(423, new
-                {
-                    code = "ACCOUNT_LOCKED",
-                    message = "Аккаунт временно заблокирован",
-                    lockedUntil = result.LockedUntil
-                });
+                    return StatusCode(423, new
+                    {
+                        code = "ACCOUNT_LOCKED",
+                        message = "Аккаунт временно заблокирован",
+                        lockedUntil = result.LockedUntil
+                    });
 
-            case LoginFailureReason.InvalidPassword:
-                return Unauthorized(new
-                {
-                    code = "INVALID_CREDENTIALS",
-                    message = "Неверный телефон или пароль",
-                    remainingAttempts = result.RemainingAttempts
-                });
+                case LoginFailureReason.InvalidPassword:
+                    return Unauthorized(new
+                    {
+                        code = "INVALID_CREDENTIALS",
+                        message = "Неверный телефон или пароль",
+                        remainingAttempts = result.RemainingAttempts
+                    });
 
-            case LoginFailureReason.NotFound:
-                return StatusCode(404, new { code = "NOT_FOUND", message = "Аккаунт не найден" });
+                case LoginFailureReason.NotFound:
+                    return StatusCode(404, new { code = "NOT_FOUND", message = "Аккаунт не найден" });
 
-            case LoginFailureReason.Inactive:
-                return StatusCode(403, new { code = "ACCOUNT_INACTIVE", message = "Аккаунт неактивен" });
+                case LoginFailureReason.Inactive:
+                    return StatusCode(403, new { code = "ACCOUNT_INACTIVE", message = "Аккаунт неактивен" });
 
-            default:
-                return StatusCode(500, new { code = "UNKNOWN_ERROR", message = "Неизвестная ошибка аутентификации" });
+                default:
+                    return StatusCode(500, new { code = "UNKNOWN_ERROR", message = "Неизвестная ошибка аутентификации" });
+            }
         }
     }
 
-    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
+    /// POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
     /// </summary>

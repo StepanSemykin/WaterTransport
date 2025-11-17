@@ -318,11 +318,11 @@ public class UserService(
     /// <returns>Токены доступа и данные пользователя.</returns>
     public async Task<LoginResponseDto?> GenerateTokenAsync(Guid id, UserDto dto)
     {
-        var accessToken = _tokenService.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);
-        var refreshToken = _tokenService.GenerateRefreshToken();
+        var accessToken = _token_service.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);
+        var refreshToken = _token_service.GenerateRefreshToken();
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
-        await _tokenService.SaveRefreshTokenAsync(id, refreshToken, refreshTokenExpiry);
+        await _token_service.SaveRefreshTokenAsync(id, refreshToken, refreshTokenExpiry);
 
         return new LoginResponseDto(accessToken, refreshToken, dto);
     }
