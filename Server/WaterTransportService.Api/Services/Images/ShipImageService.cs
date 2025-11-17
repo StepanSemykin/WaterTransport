@@ -1,4 +1,4 @@
-using AutoMapper;   
+using AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
@@ -11,10 +11,12 @@ namespace WaterTransportService.Api.Services.Images;
 /// </summary>
 public class ShipImageService(
     IEntityRepository<ShipImage, Guid> repo,
+    IEntityRepository<Ship, Guid> shipRepo,
     IFileStorageService fileStorageService,
     IMapper mapper) : IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>
 {
     private readonly IEntityRepository<ShipImage, Guid> _repo = repo;
+    private readonly IEntityRepository<Ship, Guid> _shipRepo = shipRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
 
     public async Task<(IReadOnlyList<ShipImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
@@ -35,21 +37,48 @@ public class ShipImageService(
         return shipImage is null ? null : shipImageDto;
     }
 
+    /// <summary>
+    /// Получить основное (primary) изображение судна по идентификатору судна (ShipId).
+    /// </summary>
+    /// <param name="entityId">Идентификатор судна.</param>
+    /// <returns>DTO основного изображения судна или null, если не найдено.</returns>
+    public async Task<ShipImageDto?> GetPrimaryImageByEntityIdAsync(Guid entityId)
+    {
+        if (_repo is not ShipImageRepository imageRepo) return null;
+
+        var primaryImage = await imageRepo.GetPrimaryByShipIdAsync(entityId);
+        return primaryImage == null ? null : mapper.Map<ShipImageDto>(primaryImage);
+    }
+
+    /// <summary>
+    /// Получить все изображения судна по идентификатору судна (ShipId).
+    /// </summary>
+    /// <param name="entityId">Идентификатор судна.</param>
+    /// <returns>Список DTO изображений судна.</returns>
+    public async Task<IReadOnlyList<ShipImageDto>> GetAllImagesByEntityIdAsync(Guid entityId)
+    {
+        if (_repo is not ShipImageRepository imageRepo) return Array.Empty<ShipImageDto>();
+
+        var images = await imageRepo.GetAllByShipIdAsync(entityId);
+        return images.Select(img => mapper.Map<ShipImageDto>(img)).ToList();
+    }
+
     public async Task<ShipImageDto?> CreateAsync(CreateShipImageDto dto)
     {
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
 
-        // Имя сохраненного файла должно быть равно GUID изображения
+        var ship = await _shipRepo.GetByIdAsync(dto.ShipId);
+        if (ship is null)
+            return null;
+
         var newId = Guid.NewGuid();
         var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ships", newId.ToString());
-
-        var shipImage = mapper.Map<ShipImage>(dto);
 
         var entity = new ShipImage
         {
             Id = newId,
-            ShipId = shipImage.ShipId,
+            ShipId = ship.Id,
             Ship = null!,
             ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
@@ -82,6 +111,7 @@ public class ShipImageService(
         }
 
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
+
         var updated = await _repo.UpdateAsync(entity, id);
         var updatedDto = mapper.Map<ShipImageDto>(updated);
 

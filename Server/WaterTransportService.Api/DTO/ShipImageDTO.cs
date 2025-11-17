@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Api.DTO;
@@ -6,14 +5,14 @@ namespace WaterTransportService.Api.DTO;
 /// <summary>
 /// DTO для чтения изображения судна.
 /// </summary>
-/// <param name="ShipName">Название судна.</param>
+/// <param name="Id">Уникальный идентификатор изображения.</param>
+/// <param name="ShipId">Идентификатор судна.</param>
 /// <param name="ImagePath">Путь к файлу изображения.</param>
 /// <param name="IsPrimary">Является ли изображение основным.</param>
 /// <param name="UploadedAt">Дата и время загрузки изображения.</param>
 public record ShipImageDto(
-    //Guid Id,
-    //Guid ShipId,
-    string ShipName,
+    Guid Id,
+    Guid ShipId,
     string ImagePath,
     bool IsPrimary,
     DateTime UploadedAt
@@ -25,10 +24,10 @@ public record ShipImageDto(
 public class CreateShipImageDto
 {
     /// <summary>
-    /// Название судна.
+    /// Идентификатор судна.
     /// </summary>
     [Required]
-    public required string ShipName { get; set; }
+    public required Guid ShipId { get; set; }
 
     /// <summary>
     /// Файл изображения.

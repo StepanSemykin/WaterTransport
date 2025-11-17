@@ -98,18 +98,18 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Получить файл изображения по идентификатору изображения.
+    /// Получить основное (primary) изображение судна по идентификатору судна (ShipId).
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>Файл изображения.</returns>
+    /// <param name="shipId">Идентификатор судна.</param>
+    /// <returns>Файл основного изображения.</returns>
     /// <response code="200">Файл изображения успешно найден и возвращен.</response>
     /// <response code="404">Файл не найден.</response>
-    [HttpGet("file/{id:guid}")]
+    [HttpGet("file/{shipId:guid}")]
     [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetImage(Guid id)
+    public async Task<IActionResult> GetImage(Guid shipId)
     {
-        var dto = await _service.GetByIdAsync(id);
+        var dto = await _service.GetPrimaryImageByEntityIdAsync(shipId);
         if (dto is null) return NotFound();
 
         var fullPath = Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, dto.ImagePath);
@@ -128,5 +128,66 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
 
         var stream = System.IO.File.OpenRead(fullPath);
         return File(stream, contentType);
+    }
+
+    /// <summary>
+    /// Получить все изображения судна по идентификатору судна (ShipId).
+    /// </summary>
+    /// <param name="shipId">Идентификатор судна.</param>
+    /// <returns>Список данных всех изображений судна.</returns>
+    /// <response code="200">Список изображений успешно получен.</response>
+    [HttpGet("ship/{shipId:guid}")]
+    [ProducesResponseType(typeof(IReadOnlyList<ShipImageDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<ShipImageDto>>> GetAllImages(Guid shipId)
+    {
+        var images = await _service.GetAllImagesByEntityIdAsync(shipId);
+        return Ok(images);
+    }
+
+    /// <summary>
+    /// Получить все файлы изображений судна в base64 формате.
+    /// </summary>
+    /// <param name="shipId">Идентификатор судна.</param>
+    /// <returns>Массив изображений с данными в base64.</returns>
+    /// <response code="200">Файлы изображений успешно получены.</response>
+    [HttpGet("ship/{shipId:guid}/files")]
+    [ProducesResponseType(typeof(object[]), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetAllImageFiles(Guid shipId)
+    {
+        var images = await _service.GetAllImagesByEntityIdAsync(shipId);
+        if (!images.Any())
+            return Ok(Array.Empty<object>());
+
+        var rootPath = Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath;
+        var result = new List<object>();
+
+        foreach (var img in images)
+        {
+            var fullPath = Path.Combine(rootPath, img.ImagePath);
+            if (!System.IO.File.Exists(fullPath))
+                continue;
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(fullPath);
+            var extension = Path.GetExtension(fullPath).ToLowerInvariant();
+            var contentType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            result.Add(new
+            {
+                id = img.Id,
+                isPrimary = img.IsPrimary,
+                contentType,
+                data = Convert.ToBase64String(bytes)
+            });
+        }
+
+        return Ok(result);
     }
 }

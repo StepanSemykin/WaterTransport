@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Exceptions;
 using WaterTransportService.Api.Services.Users;
-using WaterTransportService.Model.Entities;
+using WaterTransportService.Authentication.DTO;
+using WaterTransportService.Authentication.Services;
+using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
@@ -13,10 +16,8 @@ namespace WaterTransportService.Api.Controllers.Users;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class UsersController(IUserService service) : ControllerBase
+public class UsersController(IUserService userService, IAuthService authService) : ControllerBase
 {
-    private readonly IUserService _service = service;
-
     /// <summary>
     /// Получить список всех пользователей с пагинацией.
     /// </summary>
@@ -28,7 +29,7 @@ public class UsersController(IUserService service) : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        var (items, total) = await _service.GetAllAsync(page, pageSize);
+        var (items, total) = await userService.GetAllAsync(page, pageSize);
         return Ok(new { total, page, pageSize, items });
     }
 
@@ -41,11 +42,11 @@ public class UsersController(IUserService service) : ControllerBase
     /// <response code="404">Пользователь не найден.</response>
     [Authorize(Roles = "common")]
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserDto>> GetById(Guid id)
+    public async Task<ActionResult<AuthUserDto>> GetById(Guid id)
     {
-        var user = await _service.GetByIdAsync(id);
+        var user = await userService.GetByIdAsync(id);
         return user is null ? NotFound() : Ok(user);
     }
 
@@ -58,12 +59,11 @@ public class UsersController(IUserService service) : ControllerBase
     /// <response code="400">Некорректные данные.</response>
     [Authorize(Roles = "admin")]
     [HttpPost]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto dto)
+    public async Task<ActionResult<AuthUserDto>> Create([FromBody] CreateUserDto dto)
     {
-        var created = await _service.CreateAsync(dto);
-        //return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        var created = await userService.CreateAsync(dto);
         return created is null ? BadRequest() : Ok(created);
     }
 
@@ -74,14 +74,27 @@ public class UsersController(IUserService service) : ControllerBase
     /// <param name="dto">Данные для обновления.</param>
     /// <returns>Обновленный пользователь.</returns>
     /// <response code="200">Пользователь успешно обновлен.</response>
+    /// <response code="400">Некорректные данные (например, повторяющийся пароль).</response>
     /// <response code="404">Пользователь не найден.</response>
     [HttpPut("{id:guid}")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserDto>> Update(Guid id, [FromBody] UpdateUserDto dto)
+    public async Task<ActionResult<AuthUserDto>> Update(Guid id, [FromBody] UpdateUserDto dto)
     {
-        var updated = await _service.UpdateAsync(id, dto);
-        return updated is null ? NotFound() : Ok(updated);
+        try
+        {
+            var updated = await userService.UpdateAsync(id, dto);
+            return updated is null ? NotFound() : Ok(updated);
+        }
+        catch (DuplicatePasswordException ex)
+        {
+            return BadRequest(new
+            {
+                code = "DUPLICATE_PASSWORD",
+                message = ex.Message
+            });
+        }
     }
 
     /// <summary>
@@ -96,7 +109,7 @@ public class UsersController(IUserService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var ok = await _service.DeleteAsync(id);
+        var ok = await userService.DeleteAsync(id);
         return ok ? NoContent() : NotFound();
     }
 
@@ -112,10 +125,14 @@ public class UsersController(IUserService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterDto dto)
     {
-        var response = await _service.RegisterAsync(dto);
+        var response = await authService.RegisterAsync(dto);
         if (response is null)
         {
-            return BadRequest(new { message = "User with this phone already exists" });
+            return BadRequest(new
+            {
+                code = "USER_EXISTS",
+                message = "Аккаунт с таким номером телефона уже есть"
+            });
         }
 
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
@@ -149,78 +166,93 @@ public class UsersController(IUserService service) : ControllerBase
     /// <response code="423">Пользователь временно заблокирован.</response>
     /// <response code="500">Ошибка сервера.</response>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status423Locked)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto dto)
+    public async Task<ActionResult<AuthUserDto>> Login([FromBody] LoginDto dto)
     {
-        var result = await _service.LoginAsync(dto);
+        var result = await authService.LoginAsync(dto);
+
         if (result is null)
         {
-            return StatusCode(500, new { code = "SERVER_ERROR", message = "Внутренняя ошибка сервера" });
+            return StatusCode(500, new
+            {
+                code = "SERVER_ERROR",
+                message = "Внутренняя ошибка сервера"
+            });
         }
-        else 
+
+        if (result.Success)
         {
-            if (result.Success)
+            Response.Cookies.Append("AuthToken", result.Data!.AccessToken, new CookieOptions
             {
-                Response.Cookies.Append("AuthToken", result.Data!.AccessToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Path = "/",
-                    Expires = DateTimeOffset.UtcNow.AddHours(1)
-                });
-                Response.Cookies.Append("RefreshToken", result.Data!.RefreshToken, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Path = "/",
-                    Expires = DateTimeOffset.UtcNow.AddDays(7)
-                });
-
-                return Ok(result.Data.User);
-            }
-
-            switch (result.Failure)
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+            Response.Cookies.Append("RefreshToken", result.Data!.RefreshToken, new CookieOptions
             {
-                case LoginFailureReason.Locked:
-                    if (result.LockedUntil is DateTimeOffset until)
-                        Response.Headers.RetryAfter =
-                            Math.Max(0, (int)Math.Ceiling((until - DateTimeOffset.UtcNow).TotalSeconds)).ToString();
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
+            });
 
-                    return StatusCode(423, new
-                    {
-                        code = "ACCOUNT_LOCKED",
-                        message = "Аккаунт временно заблокирован",
-                        lockedUntil = result.LockedUntil
-                    });
+            return Ok(result.Data.User);
+        }
 
-                case LoginFailureReason.InvalidPassword:
-                    return Unauthorized(new
-                    {
-                        code = "INVALID_CREDENTIALS",
-                        message = "Неверный телефон или пароль",
-                        remainingAttempts = result.RemainingAttempts
-                    });
+        switch (result.Failure)
+        {
+            case LoginFailureReason.Locked:
+                if (result.LockedUntil is DateTimeOffset until)
+                    Response.Headers.RetryAfter =
+                        Math.Max(0, (int)Math.Ceiling((until - DateTimeOffset.UtcNow).TotalSeconds)).ToString();
 
-                case LoginFailureReason.NotFound:
-                    return StatusCode(404, new { code = "NOT_FOUND", message = "Аккаунт не найден" });
+                return StatusCode(423, new
+                {
+                    code = "ACCOUNT_LOCKED",
+                    message = "Аккаунт временно заблокирован",
+                    lockedUntil = result.LockedUntil
+                });
 
-                case LoginFailureReason.Inactive:
-                    return StatusCode(403, new { code = "ACCOUNT_INACTIVE", message = "Аккаунт неактивен" });
+            case LoginFailureReason.InvalidPassword:
+                return Unauthorized(new
+                {
+                    code = "INVALID_CREDENTIALS",
+                    message = "Неверный телефон или пароль",
+                    remainingAttempts = result.RemainingAttempts
+                });
 
-                default:
-                    return StatusCode(500, new { code = "UNKNOWN_ERROR", message = "Неизвестная ошибка аутентификации" });
-            }
+            case LoginFailureReason.NotFound:
+                return StatusCode(404, new
+                {
+                    code = "NOT_FOUND",
+                    message = "Аккаунт не найден"
+                });
+
+            case LoginFailureReason.Inactive:
+                return StatusCode(403, new
+                {
+                    code = "ACCOUNT INACTIVE",
+                    message = "Аккаунт неактивен"
+                });
+
+            default:
+                return StatusCode(500, new
+                {
+                    code = "UNKNOWN_ERROR",
+                    message = "Неизвестная ошибка аутентификации"
+                });
         }
     }
-
-    /// POST api/users/refresh?userId={userId} (опционально, если access токен истек)
+    }
+    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
     /// </summary>
@@ -238,10 +270,10 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
-                          ?? User.FindFirst("userId");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
 
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
+        Guid finalUserId;
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId))
         {
             // finalUserId уже установлен
         }
@@ -254,7 +286,7 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "User ID not found. Please provide userId query parameter." });
         }
 
-        var response = await _service.RefreshTokenAsync(finalUserId, refreshToken);
+        var response = await authService.RefreshTokenAsync(finalUserId, refreshToken);
         if (response is null)
         {
             return Unauthorized(new { message = "Invalid or expired refresh token" });
@@ -279,12 +311,14 @@ public class UsersController(IUserService service) : ControllerBase
         return Ok(response);
     }
 
-    // GET api/users/me
+    /// <summary>
+    /// Получить профиль текущего пользователя.
+    /// </summary>
     [HttpGet("me")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserDto>> GetMyProfile()
+    public async Task<ActionResult<AuthUserDto>> GetMyProfile()
     {
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
         if (!Guid.TryParse(id, out var userId))
@@ -292,8 +326,7 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized();
         }
 
-        var user = await _service.GetByIdAsync(userId);
-
+        var user = await userService.GetByIdAsync(userId);
         return user is null ? NotFound() : Ok(user);
     }
 
@@ -307,12 +340,11 @@ public class UsersController(IUserService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Logout()
     {
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
-                          ?? User.FindFirst("userId");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
 
         if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            await _service.LogoutAsync(userId);
+            await authService.LogoutAsync(userId);
         }
 
         HttpContext.Response.Cookies.Delete("AuthToken");
@@ -329,13 +361,13 @@ public class UsersController(IUserService service) : ControllerBase
     /// <response code="401">Пользователь не авторизован.</response>
     /// <response code="404">Пользователь не найден.</response>
     /// <response code="500">Ошибка сервера.</response>
-    [Authorize(Roles = "common")] // только обычный пользователь
+    [Authorize(Roles = "common")]
     [HttpPost("become-partner")]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<UserDto>> BecomePartner()
+    public async Task<ActionResult<AuthUserDto>> BecomePartner()
     {
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
         if (!Guid.TryParse(id, out var userId))
@@ -343,7 +375,7 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized();
         }
 
-        var user = await _service.GetByIdAsync(userId);
+        var user = await userService.GetByIdAsync(userId);
         if (user is null)
         {
             return NotFound();
@@ -359,13 +391,13 @@ public class UsersController(IUserService service) : ControllerBase
             Role = "partner"
         };
 
-        var updated = await _service.UpdateAsync(userId, dto);
+        var updated = await userService.UpdateAsync(userId, dto);
         if (updated is null)
         {
             return NotFound();
-        }   
+        }
 
-        var response = await _service.GenerateTokenAsync(userId, updated);
+        var response = await userService.GenerateTokenAsync(userId, updated);
         if (response is null)
         {
             return StatusCode(500, new

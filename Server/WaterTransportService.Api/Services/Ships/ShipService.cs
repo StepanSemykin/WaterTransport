@@ -1,6 +1,5 @@
 using AutoMapper;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Services.Ports;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
@@ -145,6 +144,21 @@ public class ShipService(
         var updatedDto = mapper.Map<ShipDto>(updated);
 
         return updated ? updatedDto : null;
+    }
+
+    /// <summary>
+    /// ѕолучить судно по регистрационному номеру.
+    /// </summary>
+    public async Task<ShipDto?> GetByRegistrationNumberAsync(string registrationNumber)
+    {
+        var all = await _repo.GetAllAsync();
+        var ship = all.FirstOrDefault(s => s.RegistrationNumber == registrationNumber);
+
+        if (ship is null)
+            return null;
+
+        var shipDto = mapper.Map<ShipDto>(ship);
+        return shipDto;
     }
 
     /// <summary>
