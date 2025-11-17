@@ -21,6 +21,7 @@ using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
+using WaterTransportService.Model.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -146,6 +147,28 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+// Инициализация синтетических данных
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<WaterTransportDbContext>();
+        var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+        
+        await context.Database.MigrateAsync();
+        
+        var testPasswordHash = passwordHasher.Generate("123456");
+        
+        await DatabaseSeeder.SeedAsync(context, testPasswordHash);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Произошла ошибка при инициализации базы данных.");
+    }
+}
+
 app.UseHttpsRedirection();
 app.UseCors("Spa");
 
@@ -168,5 +191,4 @@ app.MapControllers();
 
 app.Run();
 
-SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
-
+//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;

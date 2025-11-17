@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
 
       if (account?.phone) {
         try {
-          const profileRes = await apiFetch(`${USER_PROFILE_ENDPOINT}/${account.id}`, {
+          const profileRes = await apiFetch(`${USER_PROFILE_ENDPOINT}`, {
             method: "GET",
           });
 
