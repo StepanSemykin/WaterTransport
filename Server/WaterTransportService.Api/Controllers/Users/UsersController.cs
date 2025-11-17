@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
@@ -147,7 +148,6 @@ public class UsersController(IUserService service) : ControllerBase
     public async Task<ActionResult<LoginResultDto>> Login([FromBody] LoginDto dto)
     {
         var result = await _service.LoginAsync(dto);
-
         if (result is null)
         {
             return StatusCode(500, new { code = "SERVER_ERROR", message = "Внутренняя ошибка сервера" });
