@@ -66,4 +66,39 @@ public class ShipImageRepository(WaterTransportDbContext context) : IEntityRepos
         await _context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Получить основное (primary) изображение судна по идентификатору судна.
+    /// </summary>
+    /// <param name="shipId">Идентификатор судна.</param>
+    /// <returns>Primary изображение или самое новое, если primary нет.</returns>
+    public async Task<ShipImage?> GetPrimaryByShipIdAsync(Guid shipId)
+    {
+        var primaryImage = await _context.ShipImages
+            .Where(img => img.ShipId == shipId && img.IsPrimary)
+            .OrderByDescending(img => img.UploadedAt)
+            .FirstOrDefaultAsync();
+
+        if (primaryImage != null)
+            return primaryImage;
+
+        return await _context.ShipImages
+            .Where(img => img.ShipId == shipId)
+            .OrderByDescending(img => img.UploadedAt)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Получить все изображения судна по идентификатору судна.
+    /// </summary>
+    /// <param name="shipId">Идентификатор судна.</param>
+    /// <returns>Список изображений, отсортированных по IsPrimary и дате.</returns>
+    public async Task<IReadOnlyList<ShipImage>> GetAllByShipIdAsync(Guid shipId)
+    {
+        return await _context.ShipImages
+            .Where(img => img.ShipId == shipId)
+            .OrderByDescending(img => img.IsPrimary)
+            .ThenByDescending(img => img.UploadedAt)
+            .ToListAsync();
+    }
 }

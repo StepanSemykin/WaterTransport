@@ -35,7 +35,7 @@ public static class DatabaseSeeder
 
         var ports = await CreatePortsAsync(context);
 
-        var ships = await CreateShipsAsync(context, partnerUsers, ports);
+        await CreateShipsAsync(context, partnerUsers, ports);
 
         Console.WriteLine("Синтетические данные успешно добавлены в базу данных.");
     }
@@ -47,14 +47,14 @@ public static class DatabaseSeeder
 
         var commonUserData = new[]
         {
-            (Phone: "+79001234567", Nickname: "IvanIvanov"),
-            (Phone: "+79001234568", Nickname: "PetrPetrov"),
-            (Phone: "+79001234569", Nickname: "SidorSidorov"),
-            (Phone: "+79001234570", Nickname: "AlexKuznetsov"),
-            (Phone: "+79001234571", Nickname: "MariaSmirnova")
+            "+79001234567",
+            "+79001234568",
+            "+79001234569",
+            "+79001234570",
+            "+79001234571"
         };
 
-        foreach (var (phone, nickname) in commonUserData)
+        foreach (var phone in commonUserData)
         {
             users.Add(new User
             {
@@ -80,13 +80,13 @@ public static class DatabaseSeeder
 
         var partnerUserData = new[]
         {
-            (Phone: "+79101234567", Nickname: "BoatRentalPro"),
-            (Phone: "+79101234568", Nickname: "SeaVoyage"),
-            (Phone: "+79101234569", Nickname: "RiverCruise"),
-            (Phone: "+79101234570", Nickname: "YachtClub")
+            "+79101234567",
+            "+79101234568",
+            "+79101234569",
+            "+79101234570"
         };
 
-        foreach (var (phone, nickname) in partnerUserData)
+        foreach (var phone in partnerUserData)
         {
             users.Add(new User
             {
@@ -126,8 +126,8 @@ public static class DatabaseSeeder
                 Patronymic = "Иванович",
                 Email = $"{user.Phone.Replace("+", "").Replace(" ", "")}@example.com",
                 Birthday = DateTime.UtcNow.AddYears(-Random.Shared.Next(18, 65)).Date,
-                About = user.Role == "partner" 
-                    ? "Профессиональный поставщик услуг водного транспорта" 
+                About = user.Role == "partner"
+                    ? "Профессиональный поставщик услуг водного транспорта"
                     : "Люблю водные прогулки и путешествия",
                 Location = locations[Random.Shared.Next(locations.Length)],
                 IsPublic = true,
@@ -147,8 +147,7 @@ public static class DatabaseSeeder
 
         var ports = new List<Port>
         {
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Речной вокзал Москва",
                 PortTypeId = 2,
@@ -157,8 +156,7 @@ public static class DatabaseSeeder
                 Longitude = 37.4863,
                 Address = "Ленинградское шоссе, 51, Москва"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Морской вокзал Сочи",
                 PortTypeId = 1,
@@ -167,8 +165,7 @@ public static class DatabaseSeeder
                 Longitude = 39.7207,
                 Address = "Войкова, 1, Сочи"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Речной порт Санкт-Петербург",
                 PortTypeId = 2,
@@ -177,8 +174,7 @@ public static class DatabaseSeeder
                 Longitude = 30.4829,
                 Address = "Проспект Обуховской Обороны, 195, Санкт-Петербург"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Морской порт Владивосток",
                 PortTypeId = 1,
@@ -187,8 +183,7 @@ public static class DatabaseSeeder
                 Longitude = 131.8855,
                 Address = "Нижнепортовая, 1, Владивосток"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Речной вокзал Нижний Новгород",
                 PortTypeId = 2,
@@ -197,8 +192,7 @@ public static class DatabaseSeeder
                 Longitude = 44.0063,
                 Address = "Нижне-Волжская набережная, 1, Нижний Новгород"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Морской порт Новороссийск",
                 PortTypeId = 1,
@@ -207,8 +201,7 @@ public static class DatabaseSeeder
                 Longitude = 37.7715,
                 Address = "Портовая, 14, Новороссийск"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Речной порт Казань",
                 PortTypeId = 2,
@@ -217,8 +210,7 @@ public static class DatabaseSeeder
                 Longitude = 49.1207,
                 Address = "Девятаева, 1, Казань"
             },
-            new Port
-            {
+            new() {
                 Id = Guid.NewGuid(),
                 Title = "Яхт-клуб Стрелка",
                 PortTypeId = 6,
@@ -267,7 +259,7 @@ public static class DatabaseSeeder
         {
             // Каждый партнер имеет от 2 до 5 кораблей
             var shipsCount = Random.Shared.Next(2, 6);
-            
+
             for (int i = 0; i < shipsCount; i++)
             {
                 var port = ports[Random.Shared.Next(ports.Count)];

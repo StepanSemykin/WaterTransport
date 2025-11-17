@@ -66,4 +66,39 @@ public class PortImageRepository(WaterTransportDbContext context) : IEntityRepos
         await _context.SaveChangesAsync();
         return true;
     }
+
+    /// <summary>
+    /// Получить основное (primary) изображение порта по идентификатору порта.
+    /// </summary>
+    /// <param name="portId">Идентификатор порта.</param>
+    /// <returns>Primary изображение или самое новое, если primary нет.</returns>
+    public async Task<PortImage?> GetPrimaryByPortIdAsync(Guid portId)
+    {
+        var primaryImage = await _context.PortImages
+            .Where(img => img.PortId == portId && img.IsPrimary)
+            .OrderByDescending(img => img.UploadedAt)
+            .FirstOrDefaultAsync();
+
+        if (primaryImage != null)
+            return primaryImage;
+
+        return await _context.PortImages
+            .Where(img => img.PortId == portId)
+            .OrderByDescending(img => img.UploadedAt)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Получить все изображения порта по идентификатору порта.
+    /// </summary>
+    /// <param name="portId">Идентификатор порта.</param>
+    /// <returns>Список изображений, отсортированных по IsPrimary и дате.</returns>
+    public async Task<IReadOnlyList<PortImage>> GetAllByPortIdAsync(Guid portId)
+    {
+        return await _context.PortImages
+            .Where(img => img.PortId == portId)
+            .OrderByDescending(img => img.IsPrimary)
+            .ThenByDescending(img => img.UploadedAt)
+            .ToListAsync();
+    }
 }

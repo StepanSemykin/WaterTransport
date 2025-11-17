@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using WaterTransportService.Api;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Services.Auth;
+using WaterTransportService.Api.Middleware;
 using WaterTransportService.Api.Services.Calendars;
 using WaterTransportService.Api.Services.Images;
 using WaterTransportService.Api.Services.Orders;
@@ -16,6 +14,7 @@ using WaterTransportService.Api.Services.Reviews;
 using WaterTransportService.Api.Services.Routes;
 using WaterTransportService.Api.Services.Ships;
 using WaterTransportService.Api.Services.Users;
+using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Context;
@@ -26,7 +25,7 @@ using WaterTransportService.Model.SeedData;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(o => o.AddPolicy("Spa",
-    p => p.WithOrigins("http://localhost:3001" )
+    p => p.WithOrigins("http://localhost:3001")
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials()
@@ -88,6 +87,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddDbContext<WaterTransportDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 
+// Register global exception handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -124,6 +127,7 @@ builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageReposito
 // Services DI
 builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPortService, PortService>();
 builder.Services.AddScoped<IPortTypeService, PortTypeService>();
@@ -155,11 +159,11 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<WaterTransportDbContext>();
         var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-        
+
         await context.Database.MigrateAsync();
-        
+
         var testPasswordHash = passwordHasher.Generate("123456");
-        
+
         await DatabaseSeeder.SeedAsync(context, testPasswordHash);
     }
     catch (Exception ex)
@@ -172,12 +176,14 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 app.UseCors("Spa");
 
+// Global exception handler
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.None, 
+    MinimumSameSitePolicy = SameSiteMode.None,
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });

@@ -12,8 +12,8 @@ public record UserProfileDto(
     DateTime? Birthday,
     string? About,
     string? Location
-    //bool IsPublic
-    //DateTime? UpdatedAt
+//bool IsPublic
+//DateTime? UpdatedAt
 );
 
 public class CreateUserProfileDto
