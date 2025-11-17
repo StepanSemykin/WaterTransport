@@ -11,6 +11,7 @@ namespace WaterTransportService.Api.Services.Ports;
 public class PortService(IPortRepository<Guid> repo, IMapper mapper) : IPortService
 {
     private readonly IPortRepository<Guid> _repo = repo;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// ѕолучить список всех портов с пагинацией.
@@ -31,7 +32,7 @@ public class PortService(IPortRepository<Guid> repo, IMapper mapper) : IPortServ
     public async Task<PortDto?> GetByIdAsync(Guid id)
     {
         var port = await _repo.GetByIdAsync(id);
-        var portDto = mapper.Map<PortDto?>(port);
+        var portDto = _mapper.Map<PortDto?>(port);
 
         return port is null ? null : portDto;
     }
@@ -52,7 +53,7 @@ public class PortService(IPortRepository<Guid> repo, IMapper mapper) : IPortServ
             Address = dto.Address
         };
         var created = await _repo.CreateAsync(entity);
-        var createdDto = mapper.Map<PortDto?>(created);
+        var createdDto = _mapper.Map<PortDto?>(created);
 
         return createdDto;
     }
@@ -70,7 +71,7 @@ public class PortService(IPortRepository<Guid> repo, IMapper mapper) : IPortServ
         if (dto.Longitude.HasValue) entity.Longitude = dto.Longitude.Value;
         if (!string.IsNullOrWhiteSpace(dto.Address)) entity.Address = dto.Address;
         var updated = await _repo.UpdateAsync(entity, id);
-        var updatedDto = mapper.Map<PortDto?>(updated);
+        var updatedDto = _mapper.Map<PortDto?>(updated);
 
         return updated ? updatedDto : null;
     }
