@@ -10,9 +10,13 @@ namespace WaterTransportService.Api.Services.Images;
 /// </summary>
 public class UserImageService(
     IEntityRepository<UserImage, Guid> repo,
+    IUserRepository<Guid> userRepo,
+    IEntityRepository<UserProfile, Guid> userProfileRepo,
     IFileStorageService fileStorageService) : IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>
 {
     private readonly IEntityRepository<UserImage, Guid> _repo = repo;
+    private readonly IUserRepository<Guid> _userRepo = userRepo;
+    private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
 
     /// <summary>
@@ -20,7 +24,7 @@ public class UserImageService(
     /// </summary>
     /// <param name="page">Номер страницы.</param>
     /// <param name="pageSize">Размер страницы.</param>
-    /// <returns>Кортеж со списком изображений и общим количеством.</returns>
+    /// <returns>Кортеж из списка изображений и общего количества.</returns>
     public async Task<(IReadOnlyList<UserImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -43,6 +47,32 @@ public class UserImageService(
     }
 
     /// <summary>
+    /// Получить основное (primary) изображение пользователя по идентификатору пользователя (UserId).
+    /// </summary>
+    /// <param name="entityId">Идентификатор пользователя.</param>
+    /// <returns>DTO основного изображения пользователя или null, если не найдено.</returns>
+    public async Task<UserImageDto?> GetPrimaryImageByEntityIdAsync(Guid entityId)
+    {
+        if (_repo is not UserImageRepository imageRepo) return null;
+
+        var primaryImage = await imageRepo.GetPrimaryByUserIdAsync(entityId);
+        return primaryImage == null ? null : MapToDto(primaryImage);
+    }
+
+    /// <summary>
+    /// Получить все изображения пользователя по идентификатору пользователя (UserId).
+    /// </summary>
+    /// <param name="entityId">Идентификатор пользователя.</param>
+    /// <returns>Список DTO изображений пользователя.</returns>
+    public async Task<IReadOnlyList<UserImageDto>> GetAllImagesByEntityIdAsync(Guid entityId)
+    {
+        if (_repo is not UserImageRepository imageRepo) return Array.Empty<UserImageDto>();
+
+        var images = await imageRepo.GetAllByUserIdAsync(entityId);
+        return images.Select(MapToDto).ToList();
+    }
+
+    /// <summary>
     /// Создать новое изображение пользователя.
     /// </summary>
     /// <param name="dto">Данные для создания изображения.</param>
@@ -52,7 +82,16 @@ public class UserImageService(
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
 
-        // Имя сохраненного файла должно быть равно GUID изображения
+        var user = await _userRepo.GetByIdAsync(dto.UserId);
+        if (user is null)
+            return null;
+
+        var userProfiles = await _userProfileRepo.GetAllAsync();
+        var userProfile = userProfiles.FirstOrDefault(up => up.UserId == user.Id);
+
+        if (userProfile is null)
+            return null;
+
         var newId = Guid.NewGuid();
         var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users", newId.ToString());
 
@@ -62,7 +101,8 @@ public class UserImageService(
             ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
             UploadedAt = DateTime.UtcNow,
-            UserProfileId = dto.UserProfileId
+            UserProfileId = userProfile.UserId,
+            UserProfile = userProfile
         };
         var created = await _repo.CreateAsync(entity);
         return MapToDto(created);
@@ -79,7 +119,6 @@ public class UserImageService(
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
 
-        // Если предоставлено новое изображение, сохраняем его с тем же именем (GUID сущности)
         if (dto.Image != null)
         {
             if (!_fileStorageService.IsValidImage(dto.Image))
@@ -89,7 +128,6 @@ public class UserImageService(
             var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users", entity.Id.ToString());
             entity.ImagePath = newImagePath;
 
-            // Удаляем старое изображение, если путь изменился (например, из-за смены расширения)
             if (!string.Equals(oldImagePath, newImagePath, StringComparison.OrdinalIgnoreCase))
             {
                 await _fileStorageService.DeleteImageAsync(oldImagePath);
@@ -105,13 +143,12 @@ public class UserImageService(
     /// Удалить изображение пользователя.
     /// </summary>
     /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>True, если удаление прошло успешно.</returns>
+    /// <returns>True, если операция прошла успешно.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return false;
 
-        // Удаляем файл изображения
         await _fileStorageService.DeleteImageAsync(entity.ImagePath);
 
         return await _repo.DeleteAsync(id);
@@ -120,5 +157,5 @@ public class UserImageService(
     /// <summary>
     /// Преобразовать сущность изображения пользователя в DTO.
     /// </summary>
-    private static UserImageDto MapToDto(UserImage e) => new(e.Id, e.ImagePath, e.IsPrimary, e.UploadedAt);
+    private static UserImageDto MapToDto(UserImage e) => new(e.Id, e.UserProfileId, e.ImagePath, e.IsPrimary, e.UploadedAt);
 }

@@ -1,15 +1,18 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Services.Auth;
+using WaterTransportService.Api.Exceptions;
+using WaterTransportService.Authentication.DTO;
+using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
+using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
 
 namespace WaterTransportService.Api.Services.Users;
 
 /// <summary>
-/// РЎРµСЂРІРёСЃ СѓРїСЂР°РІР»РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё.
+/// Сервис управления пользователями.
 /// </summary>
 public class UserService(
     IMapper mapper,
@@ -19,24 +22,18 @@ public class UserService(
     IPasswordHasher passwordHasher,
     ITokenService tokenService) : IUserService
 {
-    private readonly IUserRepository<Guid> _userRepo = userRepo;
-    private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
-    private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
-    private readonly IPasswordHasher _passwordHasher = passwordHasher;
-    private readonly ITokenService _tokenService = tokenService;
-
     /// <summary>
-    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ СЃ РїР°РіРёРЅР°С†РёРµР№.
+    /// Получить список пользователей с пагинацией.
     /// </summary>
-    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РјРёРЅРёРјСѓРј 1).</param>
-    /// <param name="pageSize">Р Р°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (1-100).</param>
-    /// <returns>РљРѕСЂС‚РµР¶ РёР· СЃРїРёСЃРєР° РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ Рё РѕР±С‰РµРіРѕ РєРѕР»РёС‡РµСЃС‚РІР°.</returns>
+    /// <param name="page">Номер страницы (минимум 1).</param>
+    /// <param name="pageSize">Размер страницы (1-100).</param>
+    /// <returns>Кортеж из списка пользователей и общего количества.</returns>
     public async Task<(IReadOnlyList<User> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
 
-        var all = (await _userRepo.GetAllAsync()).ToList();
+        var all = (await userRepo.GetAllAsync()).ToList();
         var ordered = all.OrderBy(u => u.CreatedAt).ToList();
         var total = ordered.Count;
         var skip = (page - 1) * pageSize;
@@ -50,25 +47,25 @@ public class UserService(
     }
 
     /// <summary>
-    /// РџРѕР»СѓС‡РёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
+    /// Получить пользователя по идентификатору.
     /// </summary>
-    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <returns>DTO РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ.</returns>
-    public async Task<UserDto?> GetByIdAsync(Guid id)
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <returns>DTO пользователя или null, если не найден.</returns>
+    public async Task<AuthUserDto?> GetByIdAsync(Guid id)
     {
-        var user = await _userRepo.GetByIdAsync(id);
-        var userDto = mapper.Map<UserDto>(user);
+        var user = await userRepo.GetByIdAsync(id);
+        var userDto = mapper.Map<AuthUserDto>(user);
 
         return user is null ? null : userDto;
     }
 
     /// <summary>
-    /// РЎРѕР·РґР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (С‚РѕР»СЊРєРѕ РґР»СЏ СЂРѕР»Рё admin).
+    /// Создать пользователя (только для роли admin).
     /// </summary>
-    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ.</returns>
+    /// <param name="dto">Данные для создания пользователя.</param>
+    /// <returns>Созданный пользователь.</returns>
     [Authorize(Roles = "admin")]
-    public async Task<UserDto> CreateAsync(CreateUserDto dto)
+    public async Task<AuthUserDto> CreateAsync(CreateUserDto dto)
     {
         var user = new User
         {
@@ -80,10 +77,10 @@ public class UserService(
             FailedLoginAttempts = 0,
             LockedUntil = null,
             Role = dto.Role ?? "common",
-            Hash = _passwordHasher.Generate(dto.Password)
+            Hash = passwordHasher.Generate(dto.Password)
         };
 
-        await _userRepo.CreateAsync(user);
+        await userRepo.CreateAsync(user);
 
         var profile = new UserProfile
         {
@@ -100,22 +97,23 @@ public class UserService(
             IsPublic = true,
             UpdatedAt = DateTime.UtcNow
         };
-        await _userProfileRepo.CreateAsync(profile);
+        await userProfileRepo.CreateAsync(profile);
 
-        var userDto = mapper.Map<UserDto>(user);
+        var userDto = mapper.Map<AuthUserDto>(user);
 
         return userDto;
     }
 
     /// <summary>
-    /// РћР±РЅРѕРІРёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ. РџСЂРё РёР·РјРµРЅРµРЅРёРё РїР°СЂРѕР»СЏ СЃРѕС…СЂР°РЅСЏРµС‚ С…РµС€ РІ РёСЃС‚РѕСЂРёСЋ.
+    /// Обновить данные пользователя. При изменении пароля сохраняет хеш в историю.
     /// </summary>
-    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
-    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ.</returns>
-    public async Task<UserDto?> UpdateAsync(Guid id, UpdateUserDto dto)
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="dto">Данные для обновления.</param>
+    /// <returns>Обновленный пользователь или null, если не найден.</returns>
+    /// <exception cref="DuplicatePasswordException">Выбрасывается, если новый пароль совпадает с текущим или ранее использованными.</exception>
+    public async Task<AuthUserDto?> UpdateAsync(Guid id, UpdateUserDto dto)
     {
-        var user = await _userRepo.GetByIdAsync(id);
+        var user = await userRepo.GetByIdAsync(id);
         if (user is null) return null;
 
         if (!string.IsNullOrWhiteSpace(dto.Phone)) user.Phone = dto.Phone;
@@ -124,7 +122,24 @@ public class UserService(
 
         if (!string.IsNullOrEmpty(dto.NewPassword))
         {
-            var oldPwd = new OldPassword
+            var oldPasswords = (await oldPasswordRepo.GetAllAsync())
+                .Where(op => op.UserId == user.Id)
+                .ToList();
+
+            foreach (var oldPwd in oldPasswords)
+            {
+                if (passwordHasher.Verify(dto.NewPassword, oldPwd.Hash))
+                {
+                    throw new DuplicatePasswordException("Новый пароль не должен совпадать с ранее использованными паролями.");
+                }
+            }
+
+            if (passwordHasher.Verify(dto.NewPassword, user.Hash))
+            {
+                throw new DuplicatePasswordException("Новый пароль не должен совпадать с текущим паролем.");
+            }
+
+            var oldPassword = new OldPassword
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
@@ -132,197 +147,42 @@ public class UserService(
                 Hash = user.Hash,
                 CreatedAt = DateTime.UtcNow
             };
-            await _oldPasswordRepo.CreateAsync(oldPwd);
+            user.OldPasswords.Add(oldPassword);
+            await oldPasswordRepo.CreateAsync(oldPassword);
 
-            user.Hash = _passwordHasher.Generate(dto.NewPassword);
+            user.Hash = passwordHasher.Generate(dto.NewPassword);
         }
 
-        var ok = await _userRepo.UpdateAsync(user, id);
-        var userDto = mapper.Map<UserDto>(user);
+        var ok = await userRepo.UpdateAsync(user, id);
+        var userDto = mapper.Map<AuthUserDto>(user);
 
         return ok ? userDto : null;
     }
 
     /// <summary>
-    /// РЈРґР°Р»РёС‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё РѕС‚РѕР·РІР°С‚СЊ РІСЃРµ refresh С‚РѕРєРµРЅС‹.
+    /// Удалить пользователя и отозвать все refresh токены.
     /// </summary>
-    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <returns>True, РµСЃР»Рё РѕРїРµСЂР°С†РёСЏ РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ.</returns>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <returns>True, если операция прошла успешно.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
-        await _tokenService.RevokeRefreshTokenAsync(id);
-        return await _userRepo.DeleteAsync(id);
+        await tokenService.RevokeRefreshTokenAsync(id);
+        return await userRepo.DeleteAsync(id);
     }
 
     /// <summary>
-    /// Р РµРіРёСЃС‚СЂР°С†РёСЏ РЅРѕРІРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ Рё СЃРѕР·РґР°РЅРёРµ access/refresh С‚РѕРєРµРЅРѕРІ.
+    /// Cоздать access/refresh токены для пользователя, сменившего роль.
     /// </summary>
-    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё.</param>
-    /// <returns>
-    /// РўРѕРєРµРЅС‹ РґРѕСЃС‚СѓРїР° Рё РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё null, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј С‚РµР»РµС„РѕРЅРѕРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.
-    /// </returns>
-    public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="dto">Данные для cмены роли.</param>
+    /// <returns>Токены доступа и данные пользователя.</returns>
+    public async Task<LoginResponseDto?> GenerateTokenAsync(Guid id, AuthUserDto dto)
     {
-        var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
-        if (existingUser != null)
-        {
-            return null;
-        }
-
-        var user = new User
-        {
-            Id = Guid.NewGuid(),
-            Phone = dto.Phone,
-            Role = "common",
-            IsActive = true,
-            Hash = _passwordHasher.Generate(dto.Password)
-        };
-
-        await _userRepo.CreateAsync(user);
-
-        var profile = new UserProfile
-        {
-            UserId = user.Id,
-            User = user,
-            FirstName = null,
-            LastName = null,
-            Patronymic = null,
-            Email = null,
-            Birthday = null,
-            About = null,
-            Location = null,
-            IsPublic = true,
-            Nickname = null,
-            UpdatedAt = DateTime.UtcNow
-        };
-        await _userProfileRepo.CreateAsync(profile);
-
-        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var refreshToken = _tokenService.GenerateRefreshToken();
+        var accessToken = tokenService.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);
+        var refreshToken = tokenService.GenerateRefreshToken();
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
-        await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
-
-        var userDto = mapper.Map<UserDto>(user);
-
-        return new LoginResponseDto(accessToken, refreshToken, userDto);
-    }
-
-    /// <summary>
-    /// Р’С…РѕРґ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ С‚РµР»РµС„РѕРЅСѓ Рё РїР°СЂРѕР»СЋ. Р‘Р»РѕРєРёСЂСѓРµС‚ РІСЂРµРјРµРЅРЅРѕ РїРѕСЃР»Рµ СЃРµСЂРёРё РЅРµСѓРґР°С‡РЅС‹С… РїРѕРїС‹С‚РѕРє.
-    /// </summary>
-    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РІС…РѕРґР°.</param>
-    /// <returns>РўРѕРєРµРЅС‹ РґРѕСЃС‚СѓРїР° Рё РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё null РїСЂРё РѕС€РёР±РєРµ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё.</returns>
-    public async Task<LoginResultDto?> LoginAsync(LoginDto dto)
-    {
-        var user = await _userRepo.GetByPhoneAsync(dto.Phone);
-        // РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РјРѕР¶РµС‚ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё СЃС‚Р°С‚СЊ РЅРµР°РєС‚РёРІРЅС‹Рј, Р°.Рє. Р»РѕРіРёРЅ С‡РµСЂРµР·
-        if (user is null)
-        {
-            return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
-        }
-        else
-        {
-            //if (!user.IsActive)
-            //    return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
-
-            if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
-                return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
-
-            var isValidPassword = _passwordHasher.Verify(dto.Password, user.Hash);
-            if (!isValidPassword)
-            {
-                user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
-                if (user.FailedLoginAttempts >= 5)
-                    user.LockedUntil = DateTime.UtcNow.AddMinutes(15);
-
-                await _userRepo.UpdateAsync(user, user.Id);
-
-                var remaining = Math.Max(0, 5 - (user.FailedLoginAttempts ?? 0));
-                return user.LockedUntil.HasValue
-                    ? new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: user.LockedUntil)
-                    : new LoginResultDto(false, Failure: LoginFailureReason.InvalidPassword, RemainingAttempts: remaining);
-            }
-
-            user.FailedLoginAttempts = 0;
-            user.LockedUntil = null;
-            user.LastLoginAt = DateTime.UtcNow;
-            user.IsActive = true;
-            await _userRepo.UpdateAsync(user, user.Id);
-
-            var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-            var refreshToken = _tokenService.GenerateRefreshToken();
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-            await _tokenService.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
-
-            var userDto = mapper.Map<UserDto>(user);
-            var payload = new LoginResponseDto(
-                AccessToken: accessToken,
-                RefreshToken: refreshToken,
-                User: userDto
-            );
-
-            return new LoginResultDto(true, Data: payload);
-        }
-    }
-
-    /// <summary>
-    /// РћР±РЅРѕРІРёС‚СЊ access/refresh С‚РѕРєРµРЅС‹ РїСЂРё РЅР°Р»РёС‡РёРё РІР°Р»РёРґРЅРѕРіРѕ refresh С‚РѕРєРµРЅР°.
-    /// </summary>
-    /// <param name="userId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <param name="refreshToken">РЎСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ refresh С‚РѕРєРµРЅ.</param>
-    /// <returns>РќРѕРІР°СЏ РїР°СЂР° С‚РѕРєРµРЅРѕРІ РёР»Рё null РїСЂРё РЅРµРІР°Р»РёРґРЅРѕРј С‚РѕРєРµРЅРµ/РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ.</returns>
-    public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)
-    {
-        var user = await _userRepo.GetByIdAsync(userId);
-        if (user is null || !user.IsActive)
-        {
-            return null;
-        }
-
-        var validToken = await _tokenService.ValidateRefreshTokenAsync(userId, refreshToken);
-        if (validToken is null)
-        {
-            return null;
-        }
-
-        var accessToken = _tokenService.GenerateAccessToken(user.Phone, user.Role ?? "common", user.Id);
-        var newRefreshToken = _tokenService.GenerateRefreshToken();
-        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-        await _tokenService.SaveRefreshTokenAsync(user.Id, newRefreshToken, refreshTokenExpiry);
-
-        return new RefreshTokenResponseDto(accessToken, newRefreshToken);
-    }
-
-    /// <summary>
-    /// Р’С‹С…РѕРґ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ: РѕС‚Р·С‹РІ refresh С‚РѕРєРµРЅРѕРІ.
-    /// </summary>
-    /// <param name="userId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <returns>Р’СЃРµРіРґР° true РїРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕР№ РѕС‚РјРµРЅС‹.</returns>
-    public async Task<bool> LogoutAsync(Guid userId)
-    {
-        var user = await _userRepo.GetByIdAsync(userId);
-        if (user is null) return false;
-        user.IsActive = false;
-        await _userRepo.UpdateAsync(user, userId);
-        await _tokenService.RevokeRefreshTokenAsync(userId);
-        return true;
-    }
-
-    /// <summary>
-    /// CРѕР·РґР°С‚СЊ access/refresh С‚РѕРєРµРЅС‹ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, СЃРјРµРЅРёРІС€РµРіРѕ СЂРѕР»СЊ.
-    /// </summary>
-    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
-    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ cРјРµРЅС‹ СЂРѕР»Рё.</param>
-    /// <returns>РўРѕРєРµРЅС‹ РґРѕСЃС‚СѓРїР° Рё РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
-    public async Task<LoginResponseDto?> GenerateTokenAsync(Guid id, UserDto dto)
-    {
-        var accessToken = _tokenService.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
-
-        await _tokenService.SaveRefreshTokenAsync(id, refreshToken, refreshTokenExpiry);
+        await tokenService.SaveRefreshTokenAsync(id, refreshToken, refreshTokenExpiry);
 
         return new LoginResponseDto(accessToken, refreshToken, dto);
     }
