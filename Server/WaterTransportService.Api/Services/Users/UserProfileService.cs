@@ -1,3 +1,4 @@
+using AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -7,7 +8,7 @@ namespace WaterTransportService.Api.Services.Users;
 /// <summary>
 /// Сервис для работы с профилями пользователей.
 /// </summary>
-public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUserProfileService
+public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapper mapper) : IUserProfileService
 {
     private readonly IEntityRepository<UserProfile, Guid> _repo = repo;
 
@@ -23,19 +24,26 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderBy(x => x.UserId).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+        var pageItems = all
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .ToList();
+        var items = mapper.Map<List<UserProfileDto>>(pageItems);
+
         return (items, total);
     }
 
     /// <summary>
     /// Получить профиль по идентификатору пользователя.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="id">Идентификатор профиля пользователя.</param>
     /// <returns>DTO профиля или null, если не найден.</returns>
     public async Task<UserProfileDto?> GetByIdAsync(Guid id)
     {
-        var e = await _repo.GetByIdAsync(id);
-        return e is null ? null : MapToDto(e);
+        var userProfile = await _repo.GetByIdAsync(id);
+        var userProfileDto = mapper.Map<UserProfileDto>(userProfile);
+
+        return userProfile is null ? null : userProfileDto;
     }
 
     /// <summary>
@@ -61,20 +69,23 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
     /// <returns>Обновленный профиль или null, если профиль не найден.</returns>
     public async Task<UserProfileDto?> UpdateAsync(Guid id, UpdateUserProfileDto dto)
     {
-        var entity = await _repo.GetByIdAsync(id);
-        if (entity is null) return null;
-        if (!string.IsNullOrWhiteSpace(dto.Nickname)) entity.Nickname = dto.Nickname;
-        if (!string.IsNullOrWhiteSpace(dto.FirstName)) entity.FirstName = dto.FirstName;
-        if (!string.IsNullOrWhiteSpace(dto.LastName)) entity.LastName = dto.LastName;
-        if (!string.IsNullOrWhiteSpace(dto.Patronymic)) entity.Patronymic = dto.Patronymic;
-        if (!string.IsNullOrWhiteSpace(dto.Email)) entity.Email = dto.Email;
-        if (dto.Birthday.HasValue) entity.Birthday = dto.Birthday.Value;
-        if (!string.IsNullOrWhiteSpace(dto.About)) entity.About = dto.About;
-        if (!string.IsNullOrWhiteSpace(dto.Location)) entity.Location = dto.Location;
-        if (dto.IsPublic.HasValue) entity.IsPublic = dto.IsPublic.Value;
-        entity.UpdatedAt = DateTime.UtcNow;
-        var ok = await _repo.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+        var userProfile = await _repo.GetByIdAsync(id);
+        if (userProfile is null) return null;
+        if (!string.IsNullOrWhiteSpace(dto.Nickname)) userProfile.Nickname = dto.Nickname;
+        if (!string.IsNullOrWhiteSpace(dto.FirstName)) userProfile.FirstName = dto.FirstName;
+        if (!string.IsNullOrWhiteSpace(dto.LastName)) userProfile.LastName = dto.LastName;
+        if (!string.IsNullOrWhiteSpace(dto.Patronymic)) userProfile.Patronymic = dto.Patronymic;
+        if (!string.IsNullOrWhiteSpace(dto.Email)) userProfile.Email = dto.Email;
+        if (dto.Birthday.HasValue) userProfile.Birthday = dto.Birthday.Value;
+        if (!string.IsNullOrWhiteSpace(dto.About)) userProfile.About = dto.About;
+        if (!string.IsNullOrWhiteSpace(dto.Location)) userProfile.Location = dto.Location;
+        //if (dto.IsPublic.HasValue) userProfile.IsPublic = dto.IsPublic.Value;
+        userProfile.UpdatedAt = DateTime.UtcNow;
+        var ok = await _repo.UpdateAsync(userProfile, id);
+
+        var userProfileDto = mapper.Map<UserProfileDto>(userProfile);
+
+        return ok ? userProfileDto : null;
     }
 
     /// <summary>
@@ -83,9 +94,4 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo) : IUs
     /// <param name="id">Идентификатор пользователя.</param>
     /// <returns>True, если удаление прошло успешно.</returns>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность профиля в DTO.
-    /// </summary>
-    private static UserProfileDto MapToDto(UserProfile e) => new(e.UserId, e.Nickname, e.FirstName, e.LastName, e.Patronymic, e.Email, e.Birthday, e.About, e.Location, e.IsPublic, e.UpdatedAt);
 }

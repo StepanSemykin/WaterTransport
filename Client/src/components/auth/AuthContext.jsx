@@ -5,13 +5,13 @@ import { apiFetch } from "../../api/api.js";
 const AuthContext = createContext(null);
 
 const INITIAL_USER_STATE = {
-  id: null,
+  // id: null,
   phone: null,
-  createdAt: null,
-  lastLoginAt: null,
-  isActive: false,
-  failedLoginAttempts: null,
-  lockedUntil: null,
+  // createdAt: null,
+  // lastLoginAt: null,
+  // isActive: false,
+  // failedLoginAttempts: null,
+  // lockedUntil: null,
   role: null,
 
   nickname: null,
@@ -22,26 +22,46 @@ const INITIAL_USER_STATE = {
   birthday: null,
   about: null,
   location: null,
-  isPublic: false,
-  updatedAt: null,
+  // isPublic: false,
+  // updatedAt: null,
 
   upcomingTrips: [],
   completedTrips: [],
   stats: [],
 };
 
-const GET_MY_PROFILE_ENDPOINT = "/api/users/profile";
+const ME_ENDPOINT = "/api/users/me";
 const LOGIN_ENDPOINT = "/api/users/login";
-const USER_PROFILES_ENDPOINT = "/api/userprofiles";
+const USER_PROFILE_ENDPOINT = "/api/userprofiles/me";
 const LOGOUT_ENDPOINT = "/api/users/logout";
+const PORTS_ENDPOINT = "/api/ports/all";
 const LOCATION = "/auth";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(INITIAL_USER_STATE);
   const [loading, setLoading] = useState(true);
+  const [ports, setPorts] = useState([]);
+  const [portsLoading, setPortsLoading] = useState(true);
 
   const hasFetched = useRef(false);
   const inFlight = useRef(false);
+
+  async function loadPorts() {
+    setPortsLoading(true);
+    try {
+    const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
+    if (res.ok) {
+      const data = await res.json();
+      setPorts(Array.isArray(data.items) ? data.items : []);
+    }
+    }
+    catch (err) {
+      console.warn("[AuthContext] ports load failed", err);
+    } 
+    finally {
+      setPortsLoading(false);
+    }
+  }
 
   async function refreshUser({ force = false } = {}) {
     if ((hasFetched.current || inFlight.current) && !force) return;
@@ -50,7 +70,8 @@ export function AuthProvider({ children }) {
     setLoading(true);
 
     try {
-      const accountRes = await apiFetch(GET_MY_PROFILE_ENDPOINT, { method: "GET" });
+      const accountRes = await apiFetch(ME_ENDPOINT, { method: "GET" });
+      await loadPorts();
 
       if (!accountRes.ok) {
         setUser(INITIAL_USER_STATE);
@@ -61,11 +82,9 @@ export function AuthProvider({ children }) {
       const account = await accountRes.json();
       const nextUser = { ...INITIAL_USER_STATE, ...account };
 
-      if (account?.id) {
+      if (account?.phone) {
         try {
-          const profileRes = await apiFetch(`${USER_PROFILES_ENDPOINT}/${account.id}`, {
-            method: "GET",
-          });
+          const profileRes = await apiFetch(USER_PROFILE_ENDPOINT, {method: "GET"});
 
           if (profileRes.ok) {
             const profile = await profileRes.json();
@@ -106,7 +125,8 @@ export function AuthProvider({ children }) {
   async function logout() {
     try {
       await apiFetch(LOGOUT_ENDPOINT, { method: "POST" });
-    } finally {
+    } 
+    finally {
       setUser(INITIAL_USER_STATE);
       hasFetched.current = false;
       window.location.href = LOCATION;
@@ -122,11 +142,16 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       loading,
+      ports,
+      portsLoading,
       refreshUser,
       logout,
       isAuthenticated: Boolean(user?.phone),
+      role: user?.role,
+      isCommon: user?.role === "common",
+      isPartner: user?.role === "partner",
     }),
-    [user, loading]
+    [user, loading, ports, portsLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

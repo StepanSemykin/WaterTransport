@@ -20,11 +20,12 @@ public class PortsController(IPortService service) : ControllerBase
     /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
     /// <returns>Список портов с информацией о пагинации.</returns>
     /// <response code="200">Успешно получен список портов.</response>
-    [HttpGet]
+    [HttpGet("all")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         var (items, total) = await _service.GetAllAsync(page, pageSize);
+
         return Ok(new { total, page, pageSize, items });
     }
 
@@ -41,6 +42,7 @@ public class PortsController(IPortService service) : ControllerBase
     public async Task<ActionResult<PortDto>> GetById(Guid id)
     {
         var e = await _service.GetByIdAsync(id);
+
         return e is null ? NotFound() : Ok(e);
     }
 
@@ -57,7 +59,8 @@ public class PortsController(IPortService service) : ControllerBase
     public async Task<ActionResult<PortDto>> Create([FromBody] CreatePortDto dto)
     {
         var created = await _service.CreateAsync(dto);
-        return created is null ? BadRequest() : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+
+        return created is null ? BadRequest() : Ok(created);
     }
 
     /// <summary>

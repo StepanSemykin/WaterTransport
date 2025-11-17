@@ -3,13 +3,9 @@
 namespace WaterTransportService.Api.DTO;
 
 public record UserDto(
-    Guid Id,
+    //Guid Id,
     string Phone,
-    DateTime CreatedAt,
-    DateTime? LastLoginAt,
-    bool IsActive,
-    int? FailedLoginAttempts,
-    DateTime? LockedUntil,
+    //bool IsActive,
     string? Role
 );
 
@@ -40,3 +36,14 @@ public class UpdateUserDto
     [MinLength(6)]
     public string? NewPassword { get; set; } = null!;
 }
+
+//public class UpdateUserRoleDto
+//{
+//    [Required, MaxLength(20)]
+//    public string Phone { get; set; } = default!;
+
+//    public bool IsActive { get; set; } = true;
+
+//    [Required]
+//    public string Role { get; set; } = default!;
+//}

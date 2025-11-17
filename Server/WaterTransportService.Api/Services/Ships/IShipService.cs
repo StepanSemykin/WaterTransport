@@ -1,4 +1,5 @@
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Api.Services.Ships;
 
@@ -10,12 +11,17 @@ public interface IShipService
     /// <summary>
     /// Получить список всех кораблей с пагинацией.
     /// </summary>
-    Task<(IReadOnlyList<ShipDto> Items, int Total)> GetAllAsync(int page, int pageSize);
+    Task<(IReadOnlyList<Ship> Items, int Total)> GetAllAsync(int page, int pageSize);
 
     /// <summary>
     /// Получить корабль по идентификатору.
     /// </summary>
     Task<ShipDto?> GetByIdAsync(Guid id);
+
+    /// <summary>
+    /// Получить все суда пользователя.  
+    /// </summary>
+    Task<(IReadOnlyList<ShipDto> Items, int Total)> GetByUserAsync(Guid userId, int page, int pageSize);
 
     /// <summary>
     /// Создать новый корабль.
@@ -31,4 +37,5 @@ public interface IShipService
     /// Удалить корабль.
     /// </summary>
     Task<bool> DeleteAsync(Guid id);
+
 }

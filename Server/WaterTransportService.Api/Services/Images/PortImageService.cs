@@ -10,11 +10,11 @@ namespace WaterTransportService.Api.Services.Images;
 /// </summary>
 public class PortImageService(
     IEntityRepository<PortImage, Guid> portImageRepository,
-    IEntityRepository<Port, Guid> portRepository,
+    IPortRepository<Guid> portRepository,
     IFileStorageService fileStorageService) : IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>
 {
     private readonly IEntityRepository<PortImage, Guid> _portImageRepository = portImageRepository;
-    private readonly IEntityRepository<Port, Guid> _portRepository = portRepository;
+    private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
 
     /// <summary>

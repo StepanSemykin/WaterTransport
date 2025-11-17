@@ -11,13 +11,13 @@ namespace WaterTransportService.Api.Services.Orders;
 public class RentOrderService(
     RentOrderRepository rentOrderRepository,
     IEntityRepository<Ship, Guid> shipRepository,
-    IEntityRepository<Port, Guid> portRepository,
+    IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
     IUserRepository<Guid> userRepository) : IRentOrderService
 {
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
     private readonly IEntityRepository<Ship, Guid> _shipRepository = shipRepository;
-    private readonly IEntityRepository<Port, Guid> _portRepository = portRepository;
+    private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
 
@@ -53,8 +53,8 @@ public class RentOrderService(
             .Where(s => s.UserId == partnerId)
             .ToList();
 
-        if (!partnerShips.Any())
-            return Enumerable.Empty<RentOrderDto>();
+        if (partnerShips.Count == 0)
+            return [];
 
         // ѕолучаем заказы, которые ожидают откликов
         var availableOrders = await _rentOrderRepository.GetByStatusesAsync(

@@ -19,6 +19,11 @@ public interface IUserRepository<Id>
     public Task<User?> GetByIdAsync(Id id);
 
     /// <summary>
+    /// Получить пользователя по номеру телефона.
+    /// </summary>
+    public Task<User?> GetByPhoneAsync(string phone);
+
+    /// <summary>
     /// Создать пользователя.
     /// </summary>
     public Task<User> CreateAsync(User user);
@@ -32,9 +37,4 @@ public interface IUserRepository<Id>
     /// Удалить пользователя.
     /// </summary>
     public Task<bool> DeleteAsync(Id id);
-
-    /// <summary>
-    /// Получить пользователя по номеру телефона.
-    /// </summary>
-    public Task<User?> GetByPhoneAsync(string phone);
 }

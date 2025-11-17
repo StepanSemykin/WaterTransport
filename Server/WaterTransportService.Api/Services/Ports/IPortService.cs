@@ -1,4 +1,5 @@
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Api.Services.Ports;
 
@@ -13,7 +14,7 @@ public interface IPortService
     /// <param name="page">Номер страницы.</param>
     /// <param name="pageSize">Размер страницы.</param>
     /// <returns>Кортеж со списком портов и общим количеством.</returns>
-    Task<(IReadOnlyList<PortDto> Items, int Total)> GetAllAsync(int page, int pageSize);
+    Task<(IReadOnlyList<Port> Items, int Total)> GetAllAsync(int page, int pageSize);
 
     /// <summary>
     /// Получить порт по идентификатору.

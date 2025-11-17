@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Auth;
 using WaterTransportService.Infrastructure.PasswordHasher;
@@ -8,9 +9,10 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Users;
 
 /// <summary>
-/// Сервис управления пользователями: CRUD, аутентификация, вход и управление токенами.
+/// Сервис управления пользователями.
 /// </summary>
 public class UserService(
+    IMapper mapper,
     IUserRepository<Guid> userRepo,
     IEntityRepository<OldPassword, Guid> oldPasswordRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
@@ -26,10 +28,10 @@ public class UserService(
     /// <summary>
     /// Получить список пользователей с пагинацией.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 10, максимум 100).</param>
-    /// <returns>Кортеж: список пользователей в виде DTO и общее количество записей.</returns>
-    public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize)
+    /// <param name="page">Номер страницы (минимум 1).</param>
+    /// <param name="pageSize">Размер страницы (1-100).</param>
+    /// <returns>Кортеж из списка пользователей и общего количества.</returns>
+    public async Task<(IReadOnlyList<User> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -38,7 +40,11 @@ public class UserService(
         var ordered = all.OrderBy(u => u.CreatedAt).ToList();
         var total = ordered.Count;
         var skip = (page - 1) * pageSize;
-        var items = ordered.Skip(skip).Take(pageSize).Select(MapToDto).ToList();
+        var items = ordered
+            .Skip(skip)
+            .Take(pageSize)
+            .Select(u => u)
+            .ToList();
 
         return (items, total);
     }
@@ -47,18 +53,20 @@ public class UserService(
     /// Получить пользователя по идентификатору.
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>DTO пользователя или null, если пользователь не найден.</returns>
+    /// <returns>DTO пользователя или null, если не найден.</returns>
     public async Task<UserDto?> GetByIdAsync(Guid id)
     {
         var user = await _userRepo.GetByIdAsync(id);
-        return user is null ? null : MapToDto(user);
+        var userDto = mapper.Map<UserDto>(user);
+
+        return user is null ? null : userDto;
     }
 
     /// <summary>
-    /// Создать пользователя (доступно только для роли admin).
+    /// Создать пользователя (только для роли admin).
     /// </summary>
     /// <param name="dto">Данные для создания пользователя.</param>
-    /// <returns>Созданный пользователь в виде DTO.</returns>
+    /// <returns>Созданный пользователь.</returns>
     [Authorize(Roles = "admin")]
     public async Task<UserDto> CreateAsync(CreateUserDto dto)
     {
@@ -94,15 +102,17 @@ public class UserService(
         };
         await _userProfileRepo.CreateAsync(profile);
 
-        return MapToDto(user);
+        var userDto = mapper.Map<UserDto>(user);
+
+        return userDto;
     }
 
     /// <summary>
-    /// Обновить данные пользователя. При необходимости обновляет пароль и сохраняет предыдущий хеш.
+    /// Обновить данные пользователя. При изменении пароля сохраняет хеш в историю.
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>
     /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновлённый DTO пользователя или null, если пользователь не найден.</returns>
+    /// <returns>Обновленный пользователь или null, если не найден.</returns>
     public async Task<UserDto?> UpdateAsync(Guid id, UpdateUserDto dto)
     {
         var user = await _userRepo.GetByIdAsync(id);
@@ -128,14 +138,16 @@ public class UserService(
         }
 
         var ok = await _userRepo.UpdateAsync(user, id);
-        return ok ? MapToDto(user) : null;
+        var userDto = mapper.Map<UserDto>(user);
+
+        return ok ? userDto : null;
     }
 
     /// <summary>
-    /// Удалить пользователя и отозвать его refresh-токен.
+    /// Удалить пользователя и отозвать все refresh токены.
     /// </summary>
     /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>True, если пользователь успешно удалён.</returns>
+    /// <returns>True, если операция прошла успешно.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         await _token_service.RevokeRefreshTokenAsync(id);
@@ -143,10 +155,12 @@ public class UserService(
     }
 
     /// <summary>
-    /// Зарегистрировать нового пользователя, сгенерировать и сохранить access/refresh токены.
+    /// Регистрация нового пользователя и создание access/refresh токенов.
     /// </summary>
-    /// <param name="dto">Данные регистрации.</param>
-    /// <returns>LoginResponseDto с access и refresh токенами и DTO пользователя; или null если пользователь уже существует.</returns>
+    /// <param name="dto">Данные для регистрации.</param>
+    /// <returns>
+    /// Токены доступа и данные пользователя или null, если пользователь с таким телефоном уже существует.
+    /// </returns>
     public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
     {
         var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
@@ -189,26 +203,28 @@ public class UserService(
 
         await _token_service.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-        return new LoginResponseDto(accessToken, refreshToken, MapToDto(user));
+        var userDto = mapper.Map<UserDto>(user);
+
+        return new LoginResponseDto(accessToken, refreshToken, userDto);
     }
 
     /// <summary>
-    /// Авторизация пользователя по телефону и паролю. При успешной авторизации генерирует и сохраняет токены.
+    /// Вход пользователя по телефону и паролю. Блокирует временно после серии неудачных попыток.
     /// </summary>
     /// <param name="dto">Данные для входа.</param>
-    /// <returns>LoginResultDto с результатом операции и данными (при успехе).</returns>
+    /// <returns>Токены доступа и данные пользователя или null при ошибке аутентификации.</returns>
     public async Task<LoginResultDto?> LoginAsync(LoginDto dto)
     {
         var user = await _userRepo.GetByPhoneAsync(dto.Phone);
-        // Если пользователь не найден — вернуть соответствующую причину.
+        // Пользователь может автоматически стать неактивным, а.к. логин через
         if (user is null)
         {
             return new LoginResultDto(false, Failure: LoginFailureReason.NotFound);
         }
         else
         {
-            if (!user.IsActive)
-                return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
+            //if (!user.IsActive)
+            //    return new LoginResultDto(false, Failure: LoginFailureReason.Inactive);
 
             if (user.LockedUntil is { } locked && locked > DateTime.UtcNow)
                 return new LoginResultDto(false, Failure: LoginFailureReason.Locked, LockedUntil: locked);
@@ -239,19 +255,23 @@ public class UserService(
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
             await _token_service.SaveRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-            var dtoUser = MapToDto(user);
-            var payload = new LoginResponseDto(accessToken, refreshToken, dtoUser);
+            var userDto = mapper.Map<UserDto>(user);
+            var payload = new LoginResponseDto(
+                AccessToken: accessToken,
+                RefreshToken: refreshToken,
+                User: userDto
+            );
 
             return new LoginResultDto(true, Data: payload);
         }
     }
 
     /// <summary>
-    /// Обновить пару access/refresh токенов по предоставленному refresh токену.
+    /// Обновить access/refresh токены при наличии валидного refresh токена.
     /// </summary>
     /// <param name="userId">Идентификатор пользователя.</param>
-    /// <param name="refreshToken">Refresh токен.</param>
-    /// <returns>Новая пара токенов или null при невалидном/просроченном токене.</returns>
+    /// <param name="refreshToken">Существующий refresh токен.</param>
+    /// <returns>Новая пара токенов или null при невалидном токене/пользователе.</returns>
     public async Task<RefreshTokenResponseDto?> RefreshTokenAsync(Guid userId, string refreshToken)
     {
         var user = await _userRepo.GetByIdAsync(userId);
@@ -276,10 +296,10 @@ public class UserService(
     }
 
     /// <summary>
-    /// Выход пользователя: деактивация (если требуется) и отзыв refresh токена.
+    /// Выход пользователя: отзыв refresh токенов.
     /// </summary>
     /// <param name="userId">Идентификатор пользователя.</param>
-    /// <returns>True, если операция выполнена успешно.</returns>
+    /// <returns>Всегда true после успешной отмены.</returns>
     public async Task<bool> LogoutAsync(Guid userId)
     {
         var user = await _userRepo.GetByIdAsync(userId);
@@ -291,9 +311,19 @@ public class UserService(
     }
 
     /// <summary>
-    /// Преобразовать сущность User в DTO.
+    /// Cоздать access/refresh токены для пользователя, сменившего роль.
     /// </summary>
-    private static UserDto MapToDto(User u) =>
-        new(u.Id, u.Phone, u.CreatedAt, u.LastLoginAt,
-            u.IsActive, u.FailedLoginAttempts, u.LockedUntil, u.Role);
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="dto">Данные для cмены роли.</param>
+    /// <returns>Токены доступа и данные пользователя.</returns>
+    public async Task<LoginResponseDto?> GenerateTokenAsync(Guid id, UserDto dto)
+    {
+        var accessToken = _tokenService.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(id, refreshToken, refreshTokenExpiry);
+
+        return new LoginResponseDto(accessToken, refreshToken, dto);
+    }
 }

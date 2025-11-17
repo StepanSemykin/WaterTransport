@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using AutoMapper;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using WaterTransportService.Api;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Auth;
 using WaterTransportService.Api.Services.Calendars;
@@ -100,7 +103,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<IUserRepository<Guid>, UserRepository>();
 builder.Services.AddScoped<IEntityRepository<OldPassword, Guid>, OldPasswordRepository>();
 builder.Services.AddScoped<IEntityRepository<RefreshToken, Guid>, RefreshTokenRepository>();
-builder.Services.AddScoped<IEntityRepository<Port, Guid>, PortRepository>();
+builder.Services.AddScoped<IPortRepository<Guid>, PortRepository>();
 builder.Services.AddScoped<IEntityRepository<PortType, ushort>, PortTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipType, ushort>, ShipTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<Ship, Guid>, ShipRepository>();
@@ -137,6 +140,8 @@ builder.Services.AddScoped<IImageService<ShipImageDto, CreateShipImageDto, Updat
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<Mapping>());
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -149,7 +154,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.None, // ����� ��� cross-site
+    MinimumSameSitePolicy = SameSiteMode.None, 
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
     Secure = CookieSecurePolicy.Always
 });
@@ -163,5 +168,5 @@ app.MapControllers();
 
 app.Run();
 
-SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
+//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 

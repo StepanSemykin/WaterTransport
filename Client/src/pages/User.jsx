@@ -10,6 +10,8 @@ import { Navigation } from "../components/navigation/Navigation.jsx"
 import UserOrders from "../components/user/orders/UserOrders.jsx";
 import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
+import AccountSettings from "../components/user/settings/AccountSettings.jsx";
+import PartnerRequest from "../components/user/settings/PartnerRequest.jsx";
 
 import styles from "./User.module.css";
 
@@ -40,7 +42,8 @@ const UPCOMING_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-    status: "Не подтверждено",
+    confirm: "Подтверждено",
+    status: "upcoming",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
     portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
     portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
@@ -60,6 +63,8 @@ const COMPLETED_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
+    confirm: "",
+    status: "completed",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
     portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
     portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
@@ -82,8 +87,9 @@ const COMPLETED_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: "Учетная запись", icon: "Home" },
+  { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
+  { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>, icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
 ];
 

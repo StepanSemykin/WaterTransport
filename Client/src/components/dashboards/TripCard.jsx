@@ -8,7 +8,7 @@ export function TripCard({
   imageSrc = "",
   imageAlt = "",
   title = {},
-  status = "",
+  confirm = "",
   details = [],
   captain = {},
   portDeparture = {}, 
@@ -41,7 +41,7 @@ export function TripCard({
     imageSrc,
     imageAlt,
     title,
-    status,
+    confirm,
     details,
     captain,
     portDeparture,
@@ -137,7 +137,7 @@ export function TripCard({
               </div>
             </div>
             <div className={styles["meta"]}>
-              {status && <span className={styles["status"]}>{status}</span>}
+              {confirm && <span className={styles["confirm"]}>{confirm}</span>}
               {rating && (
                 <div className={styles["rating"]}>
                   {rating.map((icon, index) => (
