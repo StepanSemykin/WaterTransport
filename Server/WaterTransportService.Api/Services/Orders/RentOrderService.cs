@@ -53,8 +53,8 @@ public class RentOrderService(
             .Where(s => s.UserId == partnerId)
             .ToList();
 
-        if (!partnerShips.Any())
-            return Enumerable.Empty<RentOrderDto>();
+        if (partnerShips.Count == 0)
+            return [];
 
         // ѕолучаем заказы, которые ожидают откликов
         var availableOrders = await _rentOrderRepository.GetByStatusesAsync(

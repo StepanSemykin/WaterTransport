@@ -198,7 +198,7 @@ public class UsersController(IUserService service) : ControllerBase
             {
                 case LoginFailureReason.Locked:
                     if (result.LockedUntil is DateTimeOffset until)
-                        Response.Headers["Retry-After"] =
+                        Response.Headers.RetryAfter =
                             Math.Max(0, (int)Math.Ceiling((until - DateTimeOffset.UtcNow).TotalSeconds)).ToString();
 
                     return StatusCode(423, new
@@ -258,12 +258,13 @@ public class UsersController(IUserService service) : ControllerBase
             return Unauthorized(new { message = "Refresh token not found" });
         }
 
-        Guid finalUserId;
-        
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)
                           ?? User.FindFirst("userId");
 
-        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out finalUserId));
+        if (userIdClaim != null && Guid.TryParse(userIdClaim.Value, out Guid finalUserId))
+        {
+            // finalUserId уже установлен
+        }
         else if (userId.HasValue)
         {
             finalUserId = userId.Value;
