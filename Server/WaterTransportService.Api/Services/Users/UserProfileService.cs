@@ -11,6 +11,7 @@ namespace WaterTransportService.Api.Services.Users;
 public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapper mapper) : IUserProfileService
 {
     private readonly IEntityRepository<UserProfile, Guid> _repo = repo;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить список всех профилей с пагинацией.
@@ -28,7 +29,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
         .Skip((page - 1) * pageSize)
         .Take(pageSize)
         .ToList();
-        var items = mapper.Map<List<UserProfileDto>>(pageItems);
+        var items = _mapper.Map<List<UserProfileDto>>(pageItems);
 
         return (items, total);
     }
@@ -41,7 +42,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
     public async Task<UserProfileDto?> GetByIdAsync(Guid id)
     {
         var userProfile = await _repo.GetByIdAsync(id);
-        var userProfileDto = mapper.Map<UserProfileDto>(userProfile);
+        var userProfileDto = _mapper.Map<UserProfileDto>(userProfile);
 
         return userProfile is null ? null : userProfileDto;
     }
@@ -83,7 +84,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
         userProfile.UpdatedAt = DateTime.UtcNow;
         var ok = await _repo.UpdateAsync(userProfile, id);
 
-        var userProfileDto = mapper.Map<UserProfileDto>(userProfile);
+        var userProfileDto = _mapper.Map<UserProfileDto>(userProfile);
 
         return ok ? userProfileDto : null;
     }
