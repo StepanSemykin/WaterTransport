@@ -1,3 +1,4 @@
+using AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -7,20 +8,20 @@ namespace WaterTransportService.Api.Services.Ports;
 /// <summary>
 /// Сервис для работы с портами.
 /// </summary>
-public class PortService(IEntityRepository<Port, Guid> repo) : IPortService
+public class PortService(IPortRepository<Guid> repo, IMapper mapper) : IPortService
 {
-    private readonly IEntityRepository<Port, Guid> _repo = repo;
+    private readonly IPortRepository<Guid> _repo = repo;
 
     /// <summary>
     /// Получить список всех портов с пагинацией.
     /// </summary>
-    public async Task<(IReadOnlyList<PortDto> Items, int Total)> GetAllAsync(int page, int pageSize)
+    public async Task<(IReadOnlyList<Port> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderBy(x => x.Title).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => u).ToList();
         return (items, total);
     }
 
@@ -29,8 +30,10 @@ public class PortService(IEntityRepository<Port, Guid> repo) : IPortService
     /// </summary>
     public async Task<PortDto?> GetByIdAsync(Guid id)
     {
-        var e = await _repo.GetByIdAsync(id);
-        return e is null ? null : MapToDto(e);
+        var port = await _repo.GetByIdAsync(id);
+        var portDto = mapper.Map<PortDto?>(port);
+
+        return port is null ? null : portDto;
     }
 
     /// <summary>
@@ -49,7 +52,9 @@ public class PortService(IEntityRepository<Port, Guid> repo) : IPortService
             Address = dto.Address
         };
         var created = await _repo.CreateAsync(entity);
-        return MapToDto(created);
+        var createdDto = mapper.Map<PortDto?>(created);
+
+        return createdDto;
     }
 
     /// <summary>
@@ -64,17 +69,14 @@ public class PortService(IEntityRepository<Port, Guid> repo) : IPortService
         if (dto.Latitude.HasValue) entity.Latitude = dto.Latitude.Value;
         if (dto.Longitude.HasValue) entity.Longitude = dto.Longitude.Value;
         if (!string.IsNullOrWhiteSpace(dto.Address)) entity.Address = dto.Address;
-        var ok = await _repo.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+        var updated = await _repo.UpdateAsync(entity, id);
+        var updatedDto = mapper.Map<PortDto?>(updated);
+
+        return updated ? updatedDto : null;
     }
 
     /// <summary>
     /// Удалить порт.
     /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность порта в DTO.
-    /// </summary>
-    private static PortDto MapToDto(Port e) => new(e.Id, e.Title, e.PortTypeId, e.Latitude, e.Longitude, e.Address);
 }

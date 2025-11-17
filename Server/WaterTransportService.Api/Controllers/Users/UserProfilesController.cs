@@ -34,18 +34,15 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfileDto>> GetMyProfile()
     {
-        var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userIdStr is null)
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+        if (!Guid.TryParse(id, out var userId))
+        {
             return Unauthorized();
+        }
 
-        var userId = Guid.Parse(userIdStr);
+        var user = await _service.GetByIdAsync(userId);
 
-        var profile = await _service.GetByIdAsync(userId);
-        if (profile is null)
-            return NotFound();
-
-        // profile уже UserProfileDto без Id
-        return Ok(profile);
+        return user is null ? NotFound() : Ok(user);
     }
 
     /// <summary>

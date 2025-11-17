@@ -90,10 +90,15 @@ export default function Auth () {
       });
 
     if (res.ok) {
-      window.location.href = "/";
+      const data = await res.json();
+      if (data.role === "partner"){
+        window.location.href = "/partner";
+      }
+      else {
+        window.location.href = "/";
+      }
     } 
     else if (res.status === 400) {
-
     }
     else if (res.status === 401) {
       setError("Неверный номер телефона или пароль");

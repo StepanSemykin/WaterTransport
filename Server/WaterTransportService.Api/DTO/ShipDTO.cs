@@ -2,21 +2,41 @@ using System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Api.DTO;
 
-public record ShipDto(
-    Guid Id,
-    string Name,
-    ushort ShipTypeId,
-    ushort Capacity,
-    string RegistrationNumber,
-    DateTime? YearOfManufacture,
-    ushort? MaxSpeed,
-    ushort? Width,
-    ushort? Length,
-    string? Description,
-    uint? CostPerHour,
-    Guid PortId,
-    Guid UserId
-);
+//public record ShipDto(
+//    //Guid Id,
+//    string Name,
+//    ushort ShipTypeId,
+//    ushort Capacity,
+//    string RegistrationNumber,
+//    DateTime? YearOfManufacture,
+//    ushort? MaxSpeed,
+//    ushort? Width,
+//    ushort? Length,
+//    string? Description,
+//    uint? CostPerHour,
+//    PortDto PortDto,
+//    UserDto UserDto
+//    //string PortTitle,    
+//    //string UserPhone
+//    //Guid PortId,
+//    //Guid UserId
+//);
+
+public record ShipDto
+{
+    public string Name { get; init; } = default!;
+    public ushort ShipTypeId { get; init; }
+    public ushort Capacity { get; init; }
+    public string RegistrationNumber { get; init; } = default!;
+    public DateTime? YearOfManufacture { get; init; }
+    public ushort? MaxSpeed { get; init; }
+    public ushort? Width { get; init; }
+    public ushort? Length { get; init; }
+    public string? Description { get; init; }
+    public uint? CostPerHour { get; init; }
+    public PortDto Port { get; init; } = default!;
+    public UserDto User { get; init; } = default!;
+}
 
 public class CreateShipDto
 {
@@ -46,10 +66,10 @@ public class CreateShipDto
     public uint? CostPerHour { get; set; }
 
     [Required]
-    public required Guid PortId { get; set; }
+    public required PortDto PortDto { get; set; }
 
     [Required]
-    public required Guid UserId { get; set; }
+    public required UserDto UserDto { get; set; }
 }
 
 public class UpdateShipDto
@@ -77,7 +97,7 @@ public class UpdateShipDto
 
     public uint? CostPerHour { get; set; }
 
-    public Guid? PortId { get; set; }
+    public required PortDto PortDto { get; set; }
 
-    public Guid? UserId { get; set; }
+    public required UserDto UserDto { get; set; }
 }

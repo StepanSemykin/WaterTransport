@@ -31,7 +31,7 @@ public class UserService(
     /// <param name="page">Номер страницы (минимум 1).</param>
     /// <param name="pageSize">Размер страницы (1-100).</param>
     /// <returns>Кортеж из списка пользователей и общего количества.</returns>
-    public async Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize)
+    public async Task<(IReadOnlyList<User> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
@@ -43,7 +43,7 @@ public class UserService(
         var items = ordered
             .Skip(skip)
             .Take(pageSize)
-            .Select(u => mapper.Map<UserDto>(u))
+            .Select(u => u)
             .ToList();
 
         return (items, total);
@@ -308,5 +308,22 @@ public class UserService(
         await _userRepo.UpdateAsync(user, userId);
         await _tokenService.RevokeRefreshTokenAsync(userId);
         return true;
-    } 
+    }
+
+    /// <summary>
+    /// Cоздать access/refresh токены для пользователя, сменившего роль.
+    /// </summary>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="dto">Данные для cмены роли.</param>
+    /// <returns>Токены доступа и данные пользователя.</returns>
+    public async Task<LoginResponseDto?> GenerateTokenAsync(Guid id, UserDto dto)
+    {
+        var accessToken = _tokenService.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+        await _tokenService.SaveRefreshTokenAsync(id, refreshToken, refreshTokenExpiry);
+
+        return new LoginResponseDto(accessToken, refreshToken, dto);
+    }
 }
