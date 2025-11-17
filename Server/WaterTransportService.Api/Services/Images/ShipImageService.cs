@@ -44,6 +44,7 @@ public class ShipImageService(
         var newId = Guid.NewGuid();
         var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ships", newId.ToString());
 
+        //var ship = await _repo.GetByIdAsync(dto.ShipId);
         var shipImage = mapper.Map<ShipImage>(dto);
 
         var entity = new ShipImage
