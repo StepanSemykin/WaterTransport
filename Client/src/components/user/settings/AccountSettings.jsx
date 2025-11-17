@@ -5,6 +5,8 @@ import { Form, Button, Alert, Spinner } from "react-bootstrap";
 import { useAuth } from "../../auth/AuthContext";
 import { apiFetch } from "../../../api/api.js";
 
+import styles from "./AccountSettings.module.css";
+
 export default function AccountSettings() {
   const { user, refreshUser } = useAuth();
 
@@ -81,7 +83,7 @@ export default function AccountSettings() {
 
       const res = await apiFetch("/api/userprofiles/me", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        // headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -214,7 +216,7 @@ export default function AccountSettings() {
           />
         </Form.Group> */}
 
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles["buttons"]}>
           <Button type="submit" variant="primary" disabled={saving}>
             {saving ? (
               <>

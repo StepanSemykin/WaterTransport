@@ -1,4 +1,5 @@
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Api.Services.Users;
 
@@ -13,7 +14,7 @@ public interface IUserService
     /// <param name="page">Номер страницы.</param>
     /// <param name="pageSize">Размер страницы.</param>
     /// <returns>Кортеж из списка пользователей и общего количества.</returns>
-    Task<(IReadOnlyList<UserDto> Items, int Total)> GetAllAsync(int page, int pageSize);
+    Task<(IReadOnlyList<User> Items, int Total)> GetAllAsync(int page, int pageSize);
 
     /// <summary>
     /// Получить пользователя по идентификатору.
@@ -74,4 +75,12 @@ public interface IUserService
     /// <param name="userId">Идентификатор пользователя.</param>
     /// <returns>True, если операция успешна.</returns>
     Task<bool> LogoutAsync(Guid userId);
+
+    /// <summary>
+    /// Cоздать access/refresh токены для пользователя, сменившего роль.
+    /// </summary>
+    /// <param name="id">Идентификатор пользователя.</param>
+    /// <param name="dto">Данные для cмены роли.</param>
+    /// <returns>Токены доступа и данные пользователя.</returns>
+    Task<LoginResponseDto?> GenerateTokenAsync(Guid id, UserDto dto);
 }

@@ -10,6 +10,14 @@ export async function apiFetch(path, init = {}) {
   });
 }
 
+export async function apiFetchRaw(path, init = {}) {
+  console.log("[apiFetchRaw] path=", path);
+  return fetch(path, {
+    credentials: "include",
+    ...init,
+  });
+}
+
 // api.js
 // export async function apiFetch(path, init = {}) {
 //   const controller = new AbortController();

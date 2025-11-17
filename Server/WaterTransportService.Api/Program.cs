@@ -103,7 +103,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<IUserRepository<Guid>, UserRepository>();
 builder.Services.AddScoped<IEntityRepository<OldPassword, Guid>, OldPasswordRepository>();
 builder.Services.AddScoped<IEntityRepository<RefreshToken, Guid>, RefreshTokenRepository>();
-builder.Services.AddScoped<IEntityRepository<Port, Guid>, PortRepository>();
+builder.Services.AddScoped<IPortRepository<Guid>, PortRepository>();
 builder.Services.AddScoped<IEntityRepository<PortType, ushort>, PortTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipType, ushort>, ShipTypeRepository>();
 builder.Services.AddScoped<IEntityRepository<Ship, Guid>, ShipRepository>();
@@ -168,5 +168,5 @@ app.MapControllers();
 
 app.Run();
 
-SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
+//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
 

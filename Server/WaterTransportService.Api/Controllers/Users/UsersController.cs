@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
+using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
@@ -62,7 +63,7 @@ public class UsersController(IUserService service) : ControllerBase
     {
         var created = await _service.CreateAsync(dto);
         //return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        return Ok(created);
+        return created is null ? BadRequest() : Ok(created);
     }
 
     /// <summary>
@@ -145,10 +146,15 @@ public class UsersController(IUserService service) : ControllerBase
     /// <param name="dto">Данные для входа.</param>
     /// <returns>Токены доступа и информация.</returns>
     /// <response code="200">Аутентификация успешна.</response>
-    /// <response code="401">Неверные учетные или данные.</response>
+    /// <response code="401">Неверные данные для авторизации.</response>
+    /// <response code="403">Доступ запрещен.</response>
+    /// <response code="404">Пользователь не найден.</response>
+    /// <response code="423">Пользователь временно заблокирован.</response>
+    /// <response code="500">Ошибка сервера.</response>
     [HttpPost("login")]
     [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status423Locked)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -294,6 +300,9 @@ public class UsersController(IUserService service) : ControllerBase
 
     // GET api/users/me
     [HttpGet("me")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserDto>> GetMyProfile()
     {
         var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
@@ -330,6 +339,81 @@ public class UsersController(IUserService service) : ControllerBase
 
         return Ok(new { message = "Logged out successfully" });
     }
+
+    /// <summary>
+    /// Сменить роль обычному пользователю на партнера.
+    /// </summary>
+    /// <returns> Обновленный пользователь с ролью партнера.</returns>
+    /// <response code="200">Обновление роли выполнено успешно.</response>
+    /// <response code="401">Пользователь не авторизован.</response>
+    /// <response code="404">Пользователь не найден.</response>
+    /// <response code="500">Ошибка сервера.</response>
+    [Authorize(Roles = "common")] // только обычный пользователь
+    [HttpPost("become-partner")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<UserDto>> BecomePartner()
+    {
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+        if (!Guid.TryParse(id, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _service.GetByIdAsync(userId);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        if (string.Equals(user.Role, "partner", StringComparison.OrdinalIgnoreCase))
+        {
+            return Ok(user);
+        }
+
+        var dto = new UpdateUserDto
+        {
+            Role = "partner"
+        };
+
+        var updated = await _service.UpdateAsync(userId, dto);
+        if (updated is null)
+        {
+            return NotFound();
+        }   
+
+        var response = await _service.GenerateTokenAsync(userId, updated);
+        if (response is null)
+        {
+            return StatusCode(500, new
+            {
+                code = "TOKEN_GENERATION_FAILED",
+                message = "Не удалось сгенерировать новые токены"
+            });
+        }
+        Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/",
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
+        });
+
+        Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/",
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        return Ok(updated);
+    }
+
 
     //// GET api/users/profile/upcoming
     //[Authorize]

@@ -26,6 +26,7 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         var (items, total) = await _service.GetAllAsync(page, pageSize);
+
         return Ok(new { total, page, pageSize, items });
     }
 
@@ -42,6 +43,7 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     public async Task<ActionResult<ShipImageDto>> GetById(Guid id)
     {
         var e = await _service.GetByIdAsync(id);
+
         return e is null ? NotFound() : Ok(e);
     }
 
@@ -58,7 +60,8 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     public async Task<ActionResult<ShipImageDto>> Create([FromForm] CreateShipImageDto dto)
     {
         var created = await _service.CreateAsync(dto);
-        return created is null ? BadRequest("Invalid ship ID or image file") : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+
+        return created is null ? BadRequest("Invalid ship ID or image file") : Ok(created);
     }
 
     /// <summary>

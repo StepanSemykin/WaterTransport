@@ -1,5 +1,6 @@
 import { Container } from "react-bootstrap";
 
+import { useAuth } from "../components/auth/AuthContext.jsx";
 import { StatsCard } from "../components/dashboards/StatsCard.jsx";
 import { AccountHeader } from "../components/account/AccountHeader.jsx";
 import { Navigation } from "../components/navigation/Navigation.jsx"
@@ -8,6 +9,7 @@ import UserOrders from "../components/user/orders/UserOrders.jsx";
 import UserShips from "../components/user/ships/UserShips.jsx";
 import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
+import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 
 import styles from "./User.module.css";
 
@@ -121,7 +123,7 @@ const POSSIBLE_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: "Учетная запись", icon: "Home" },
+  { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
   { key: "bookings", label: "Автоподтверждение бронирования", content: "Автоподтверждение бронирования", icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
@@ -141,18 +143,32 @@ const USER_NAVIGATION = {
 };
 
 export default function Partner() {
+  const { user, loading, refreshUser } = useAuth();
+
+  if (loading) {
+    return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
+  }
 
   return (
     <div className={styles["user-page"]}>
       
       <div className={styles["user-header"]}>
-        <AccountHeader {...USER} />
+        {/* <AccountHeader {...USER} /> */}
+        <AccountHeader
+          firstName={user.firstName ?? ""}
+          lastName={user.lastName ?? ""}
+          email={user.email ?? ""}
+          location={user.location ?? ""}
+        />
       </div>
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {STATS.map((stat) => (
-            <StatsCard key={stat.title} {...stat} />
+          {/* {STATS.map((stat) => (
+            <StatsCard key={stat.title} {...stat} /> */}
+
+          {(user.stats ?? []).map((stat) => (
+          <StatsCard key={stat.title} {...stat} />
           ))}
         </div>
 

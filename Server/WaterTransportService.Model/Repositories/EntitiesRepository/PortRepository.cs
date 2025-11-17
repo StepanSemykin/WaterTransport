@@ -7,7 +7,7 @@ namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 /// <summary>
 /// Репозиторий для портовых данных.
 /// </summary>
-public class PortRepository(WaterTransportDbContext context) : IEntityRepository<Port, Guid>
+public class PortRepository(WaterTransportDbContext context) : IPortRepository<Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
@@ -20,6 +20,16 @@ public class PortRepository(WaterTransportDbContext context) : IEntityRepository
     /// Получить порт по идентификатору.
     /// </summary>
     public async Task<Port?> GetByIdAsync(Guid id) => await _context.Ports.FindAsync(id);
+
+    /// <summary>
+    /// Получить порт по названию.    
+    /// </summary>  
+    public async Task<Port?> GetByTitleAsync(string title)
+    {
+        var port = await _context.Ports.FirstOrDefaultAsync(u => u.Title == title);
+
+        return port;
+    }
 
     /// <summary>
     /// Создать новый порт.

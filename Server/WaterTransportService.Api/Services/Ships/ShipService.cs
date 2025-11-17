@@ -1,43 +1,88 @@
+using AutoMapper;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Services.Ports;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Ships;
 
 /// <summary>
-/// Сервис для работы с кораблями.
+/// Сервис для работы с судами.
 /// </summary>
-public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
+public class ShipService(
+    IEntityRepository<Ship, Guid> repo,
+    IPortRepository<Guid> portRepo,
+    IUserRepository<Guid> userRepo,
+    IMapper mapper) : IShipService
 {
     private readonly IEntityRepository<Ship, Guid> _repo = repo;
+    private readonly IPortRepository<Guid> _portRepo = portRepo;
+    private readonly IUserRepository<Guid> _userRepo = userRepo;
 
     /// <summary>
-    /// Получить список всех кораблей с пагинацией.
+    /// Получить список всех судов с пагинацией.
     /// </summary>
-    public async Task<(IReadOnlyList<ShipDto> Items, int Total)> GetAllAsync(int page, int pageSize)
+    public async Task<(IReadOnlyList<Ship> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderBy(x => x.Name).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => u).ToList();
+
         return (items, total);
     }
 
     /// <summary>
-    /// Получить корабль по идентификатору.
+    /// Получить судно по идентификатору.
     /// </summary>
     public async Task<ShipDto?> GetByIdAsync(Guid id)
     {
-        var e = await _repo.GetByIdAsync(id);
-        return e is null ? null : MapToDto(e);
+        var ship = await _repo.GetByIdAsync(id);
+        var shipDto = mapper.Map<ShipDto?>(ship);
+
+        return ship is null ? null : shipDto;
     }
 
     /// <summary>
-    /// Создать новый корабль.
+    /// Получить все суда конкретного пользователя по его userId (из токена).
+    /// </summary>
+    public async Task<(IReadOnlyList<ShipDto> Items, int Total)> GetByUserAsync(Guid userId, int page, int pageSize)
+    {
+        page = page <= 0 ? 1 : page;
+        pageSize = pageSize <= 0 ? 20 : Math.Min(pageSize, 100);
+
+        var all = (await _repo.GetAllAsync())
+            .Where(s => s.UserId == userId)
+            .ToList();
+
+        var ordered = all.OrderBy(s => s.Name).ToList();
+        var total = ordered.Count;
+        var skip = (page - 1) * pageSize;
+
+        var items = ordered
+            .Skip(skip)
+            .Take(pageSize)
+            .Select(s => mapper.Map<ShipDto>(s))
+            .ToList();
+
+        return (items, total);
+    }
+
+    /// <summary>
+    /// Создать новое судно.
     /// </summary>
     public async Task<ShipDto?> CreateAsync(CreateShipDto dto)
     {
+        var port = await _portRepo.GetByTitleAsync(dto.PortDto.Title);
+        if (port is null)
+            return null;
+
+        // 2. Найти пользователя по телефону
+        var user = await _userRepo.GetByPhoneAsync(dto.UserDto.Phone);
+        if (user is null)
+            return null;
+
         var entity = new Ship
         {
             Id = Guid.NewGuid(),
@@ -52,20 +97,35 @@ public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
             Length = dto.Length,
             Description = dto.Description,
             CostPerHour = dto.CostPerHour,
-            PortId = dto.PortId,
+            PortId = port.Id,
             Port = null!,
-            UserId = dto.UserId,
+            UserId = user.Id,
             User = null!
         };
+
         var created = await _repo.CreateAsync(entity);
-        return MapToDto(created);
+        var createdDto = mapper.Map<ShipDto>(created);
+
+        return createdDto;
     }
 
     /// <summary>
-    /// Обновить существующий корабль.
+    /// Обновить существующее судно.
     /// </summary>
     public async Task<ShipDto?> UpdateAsync(Guid id, UpdateShipDto dto)
     {
+        //var port = mapper.Map<Port>(dto.PortDto);
+        //var user = mapper.Map<User>(dto.UserDto);
+        //if (port is null || user is null) return null;
+        var port = await _portRepo.GetByTitleAsync(dto.PortDto.Title);
+        if (port is null)
+            return null;
+
+        // 2. Найти пользователя по телефону
+        var user = await _userRepo.GetByPhoneAsync(dto.UserDto.Phone);
+        if (user is null)
+            return null;
+
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
         if (!string.IsNullOrWhiteSpace(dto.Name)) entity.Name = dto.Name;
@@ -78,32 +138,17 @@ public class ShipService(IEntityRepository<Ship, Guid> repo) : IShipService
         if (dto.Length.HasValue) entity.Length = dto.Length.Value;
         if (!string.IsNullOrWhiteSpace(dto.Description)) entity.Description = dto.Description;
         if (dto.CostPerHour.HasValue) entity.CostPerHour = dto.CostPerHour.Value;
-        if (dto.PortId.HasValue) entity.PortId = dto.PortId.Value;
-        if (dto.UserId.HasValue) entity.UserId = dto.UserId.Value;
-        var ok = await _repo.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+        if (!string.IsNullOrWhiteSpace(dto.PortDto.Title)) entity.PortId = port.Id;
+        if (!string.IsNullOrWhiteSpace(dto.UserDto.Phone)) entity.UserId = user.Id;
+
+        var updated = await _repo.UpdateAsync(entity, id);
+        var updatedDto = mapper.Map<ShipDto>(updated);
+
+        return updated ? updatedDto : null;
     }
 
     /// <summary>
-    /// Удалить корабль.
+    /// Удалить судно.
     /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность корабля в DTO.
-    /// </summary>
-    private static ShipDto MapToDto(Ship e) => new(
-        e.Id,
-        e.Name,
-        e.ShipTypeId,
-        e.Capacity,
-        e.RegistrationNumber,
-        e.YearOfManufacture,
-        e.MaxSpeed,
-        e.Width,
-        e.Length,
-        e.Description,
-        e.CostPerHour,
-        e.PortId,
-        e.UserId);
 }
