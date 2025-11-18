@@ -146,13 +146,13 @@ export default function User() {
             orders: {
               label: "Заказы",
               component: (
-                // <UserOrders
-                //   upcomingTrips={user.upcomingTrips ?? []}
-                //   completedTrips={user.completedTrips ?? []}
-                // />
-                <UserOrders 
-                  upcomingTrips={UPCOMING_TRIPS} 
-                  completedTrips={COMPLETED_TRIPS} />
+                <UserOrders
+                  upcomingTrips={user.upcomingTrips ?? []}
+                  completedTrips={user.completedTrips ?? []}
+                />
+                // <UserOrders 
+                //   upcomingTrips={UPCOMING_TRIPS} 
+                //   completedTrips={COMPLETED_TRIPS} />
               ),
             },
             settings: {
