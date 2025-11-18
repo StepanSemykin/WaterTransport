@@ -221,6 +221,44 @@
   padding-right: 38px !important;
 }
 
+.input-icon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  z-index: 1;
+}
+/* 
+.clear-button {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.clear-button:hover {
+  color: var(--color-accent);
+}
+
+.clear-button svg {
+  width: 18px;
+  height: 18px;
+} */
+
+
+
+
 .map-section { 
   width: 100%; 
 }
