@@ -1,0 +1,2354 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WaterTransportService.Api</name>
+    </assembly>
+    <members>
+        <member name="T:WaterTransportService.Api.Controllers.Images.PortImagesController">
+            <summary>
+            Контроллер для управления изображениями портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.#ctor(WaterTransportService.Api.Services.Images.IImageService{WaterTransportService.Api.DTO.PortImageDto,WaterTransportService.Api.DTO.CreatePortImageDto,WaterTransportService.Api.DTO.UpdatePortImageDto},Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Контроллер для управления изображениями портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех изображений портов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список изображений портов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список изображений.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.GetById(System.Guid)">
+            <summary>
+            Получить изображение порта по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <returns>Данные изображения порта.</returns>
+            <response code="200">Изображение успешно найдено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.Create(WaterTransportService.Api.DTO.CreatePortImageDto)">
+            <summary>
+            Создать новое изображение порта.
+            </summary>
+            <param name="dto">Данные для создания изображения (форма multipart/form-data). Поиск порта осуществляется по названию.</param>
+            <returns>Созданное изображение порта.</returns>
+            <response code="201">Изображение успешно создано.</response>
+            <response code="400">Недопустимое название порта или файл изображения.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.Update(System.Guid,WaterTransportService.Api.DTO.UpdatePortImageDto)">
+            <summary>
+            Обновить существующее изображение порта.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <param name="dto">Данные для обновления (форма multipart/form-data).</param>
+            <returns>Обновленное изображение порта.</returns>
+            <response code="200">Изображение успешно обновлено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.Delete(System.Guid)">
+            <summary>
+            Удалить изображение порта.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Изображение успешно удалено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.GetImage(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение порта по идентификатору порта (PortId).
+            </summary>
+            <param name="portId">Идентификатор порта.</param>
+            <returns>Файл основного изображения.</returns>
+            <response code="200">Файл изображения успешно найден и возвращен.</response>
+            <response code="404">Файл не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.GetAllImages(System.Guid)">
+            <summary>
+            Получить все изображения порта по идентификатору порта (PortId).
+            </summary>
+            <param name="portId">Идентификатор порта.</param>
+            <returns>Список данных всех изображений порта.</returns>
+            <response code="200">Список изображений успешно получен.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.PortImagesController.GetAllImageFiles(System.Guid)">
+            <summary>
+            Получить все файлы изображений порта в base64 формате.
+            </summary>
+            <param name="portId">Идентификатор порта.</param>
+            <returns>Массив изображений с данными в base64.</returns>
+            <response code="200">Файлы изображений успешно получены.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Images.ShipImagesController">
+            <summary>
+            Контроллер для управления изображениями судов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.#ctor(WaterTransportService.Api.Services.Images.IImageService{WaterTransportService.Api.DTO.ShipImageDto,WaterTransportService.Api.DTO.CreateShipImageDto,WaterTransportService.Api.DTO.UpdateShipImageDto},Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Контроллер для управления изображениями судов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех изображений судов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список изображений судов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список изображений.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.GetById(System.Guid)">
+            <summary>
+            Получить изображение судна по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <returns>Данные изображения судна.</returns>
+            <response code="200">Изображение успешно найдено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.Create(WaterTransportService.Api.DTO.CreateShipImageDto)">
+            <summary>
+            Создать новое изображение судна.
+            </summary>
+            <param name="dto">Данные для создания изображения (форма multipart/form-data).</param>
+            <returns>Созданное изображение судна.</returns>
+            <response code="201">Изображение успешно создано.</response>
+            <response code="400">Недопустимый ID судна или файл изображения.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateShipImageDto)">
+            <summary>
+            Обновить существующее изображение судна.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <param name="dto">Данные для обновления (форма multipart/form-data).</param>
+            <returns>Обновленное изображение судна.</returns>
+            <response code="200">Изображение успешно обновлено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.Delete(System.Guid)">
+            <summary>
+            Удалить изображение судна.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Изображение успешно удалено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.GetImage(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение судна по идентификатору судна (ShipId).
+            </summary>
+            <param name="shipId">Идентификатор судна.</param>
+            <returns>Файл основного изображения.</returns>
+            <response code="200">Файл изображения успешно найден и возвращен.</response>
+            <response code="404">Файл не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.GetAllImages(System.Guid)">
+            <summary>
+            Получить все изображения судна по идентификатору судна (ShipId).
+            </summary>
+            <param name="shipId">Идентификатор судна.</param>
+            <returns>Список данных всех изображений судна.</returns>
+            <response code="200">Список изображений успешно получен.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.ShipImagesController.GetAllImageFiles(System.Guid)">
+            <summary>
+            Получить все файлы изображений судна в base64 формате.
+            </summary>
+            <param name="shipId">Идентификатор судна.</param>
+            <returns>Массив изображений с данными в base64.</returns>
+            <response code="200">Файлы изображений успешно получены.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Images.UserImagesController">
+            <summary>
+            Контроллер для управления изображениями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.#ctor(WaterTransportService.Api.Services.Images.IImageService{WaterTransportService.Api.DTO.UserImageDto,WaterTransportService.Api.DTO.CreateUserImageDto,WaterTransportService.Api.DTO.UpdateUserImageDto},Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Контроллер для управления изображениями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех изображений пользователей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список изображений пользователей с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список изображений.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.GetById(System.Guid)">
+            <summary>
+            Получить изображение пользователя по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <returns>Данные изображения пользователя.</returns>
+            <response code="200">Изображение успешно найдено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.GetImage(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение пользователя по идентификатору пользователя (UserId).
+            </summary>
+            <param name="userId">Идентификатор пользователя.</param>
+            <returns>Файл основного изображения.</returns>
+            <response code="200">Файл изображения успешно найден и возвращен.</response>
+            <response code="404">Файл не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.GetAllImageFiles(System.Guid)">
+            <summary>
+            Получить все файлы изображений пользователя в base64 формате.
+            </summary>
+            <param name="userId">Идентификатор пользователя.</param>
+            <returns>Массив изображений с данными в base64.</returns>
+            <response code="200">Файлы изображений успешно получены.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.Create(WaterTransportService.Api.DTO.CreateUserImageDto)">
+            <summary>
+            Создать новое изображение пользователя.
+            </summary>
+            <param name="dto">Данные для создания изображения (форма multipart/form-data). Поиск пользователя осуществляется по телефону.</param>
+            <returns>Созданное изображение пользователя.</returns>
+            <response code="201">Изображение успешно создано.</response>
+            <response code="400">Недопустимый телефон пользователя или файл изображения.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateUserImageDto)">
+            <summary>
+            Обновить существующее изображение пользователя.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <param name="dto">Данные для обновления (форма multipart/form-data).</param>
+            <returns>Обновленное изображение пользователя.</returns>
+            <response code="200">Изображение успешно обновлено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Images.UserImagesController.Delete(System.Guid)">
+            <summary>
+            Удалить изображение пользователя.
+            </summary>
+            <param name="id">Уникальный идентификатор изображения.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Изображение успешно удалено.</response>
+            <response code="404">Изображение не найдено.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Ports.PortsController">
+            <summary>
+            Контроллер для управления портами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortsController.#ctor(WaterTransportService.Api.Services.Ports.IPortService)">
+            <summary>
+            Контроллер для управления портами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortsController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех портов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список портов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список портов.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortsController.GetById(System.Guid)">
+            <summary>
+            Получить порт по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор порта.</param>
+            <returns>Данные порта.</returns>
+            <response code="200">Порт успешно найден.</response>
+            <response code="404">Порт не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortsController.Create(WaterTransportService.Api.DTO.CreatePortDto)">
+            <summary>
+            Создать новый порт.
+            </summary>
+            <param name="dto">Данные для создания порта.</param>
+            <returns>Созданный порт.</returns>
+            <response code="201">Порт успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortsController.Update(System.Guid,WaterTransportService.Api.DTO.UpdatePortDto)">
+            <summary>
+            Обновить существующий порт.
+            </summary>
+            <param name="id">Уникальный идентификатор порта.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный порт.</returns>
+            <response code="200">Порт успешно обновлен.</response>
+            <response code="404">Порт не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortsController.Delete(System.Guid)">
+            <summary>
+            Удалить порт.
+            </summary>
+            <param name="id">Уникальный идентификатор порта.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Порт успешно удален.</response>
+            <response code="404">Порт не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Ports.PortTypesController">
+            <summary>
+            Контроллер для управления типами портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortTypesController.#ctor(WaterTransportService.Api.Services.Ports.IPortTypeService)">
+            <summary>
+            Контроллер для управления типами портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortTypesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех типов портов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список типов портов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список типов портов.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortTypesController.GetById(System.UInt16)">
+            <summary>
+            Получить тип порта по идентификатору.
+            </summary>
+            <param name="id">Идентификатор типа порта.</param>
+            <returns>Данные типа порта.</returns>
+            <response code="200">Тип порта успешно найден.</response>
+            <response code="404">Тип порта не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortTypesController.Create(WaterTransportService.Api.DTO.CreatePortTypeDto)">
+            <summary>
+            Создать новый тип порта.
+            </summary>
+            <param name="dto">Данные для создания типа порта.</param>
+            <returns>Созданный тип порта.</returns>
+            <response code="201">Тип порта успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortTypesController.Update(System.UInt16,WaterTransportService.Api.DTO.UpdatePortTypeDto)">
+            <summary>
+            Обновить существующий тип порта.
+            </summary>
+            <param name="id">Идентификатор типа порта.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный тип порта.</returns>
+            <response code="200">Тип порта успешно обновлен.</response>
+            <response code="404">Тип порта не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ports.PortTypesController.Delete(System.UInt16)">
+            <summary>
+            Удалить тип порта.
+            </summary>
+            <param name="id">Идентификатор типа порта.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Тип порта успешно удален.</response>
+            <response code="404">Тип порта не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController">
+            <summary>
+            Контроллер для управления календарями регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController.#ctor(WaterTransportService.Api.Services.Calendars.IRegularCalendarService)">
+            <summary>
+            Контроллер для управления календарями регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех календарей регулярных рейсов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список календарей с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список календарей.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController.GetById(System.Guid)">
+            <summary>
+            Получить календарь регулярных рейсов по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор календаря.</param>
+            <returns>Данные календаря.</returns>
+            <response code="200">Календарь успешно найден.</response>
+            <response code="404">Календарь не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController.Create(WaterTransportService.Api.DTO.CreateRegularCalendarDto)">
+            <summary>
+            Создать новый календарь регулярных рейсов.
+            </summary>
+            <param name="dto">Данные для создания календаря.</param>
+            <returns>Созданный календарь.</returns>
+            <response code="201">Календарь успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateRegularCalendarDto)">
+            <summary>
+            Обновить календарь регулярных рейсов.
+            </summary>
+            <param name="id">Уникальный идентификатор календаря.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный календарь.</returns>
+            <response code="200">Календарь успешно обновлен.</response>
+            <response code="404">Календарь не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularCalendarsController.Delete(System.Guid)">
+            <summary>
+            Удалить календарь регулярных рейсов.
+            </summary>
+            <param name="id">Уникальный идентификатор календаря.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Календарь успешно удален.</response>
+            <response code="404">Календарь не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Regular.RegularOrdersController">
+            <summary>
+            Контроллер для управления заказами регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularOrdersController.#ctor(WaterTransportService.Api.Services.Orders.IRegularOrderService)">
+            <summary>
+            Контроллер для управления заказами регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularOrdersController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех заказов регулярных рейсов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список заказов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список заказов.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularOrdersController.GetById(System.Guid)">
+            <summary>
+            Получить заказ регулярного рейса по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор заказа.</param>
+            <returns>Данные заказа.</returns>
+            <response code="200">Заказ успешно найден.</response>
+            <response code="404">Заказ не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularOrdersController.Create(WaterTransportService.Api.DTO.CreateRegularOrderDto)">
+            <summary>
+            Создать новый заказ регулярного рейса.
+            </summary>
+            <param name="dto">Данные для создания заказа.</param>
+            <returns>Созданный заказ.</returns>
+            <response code="201">Заказ успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularOrdersController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateRegularOrderDto)">
+            <summary>
+            Обновить заказ регулярного рейса.
+            </summary>
+            <param name="id">Уникальный идентификатор заказа.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный заказ.</returns>
+            <response code="200">Заказ успешно обновлен.</response>
+            <response code="404">Заказ не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Regular.RegularOrdersController.Delete(System.Guid)">
+            <summary>
+            Удалить заказ регулярного рейса.
+            </summary>
+            <param name="id">Уникальный идентификатор заказа.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Заказ успешно удален.</response>
+            <response code="404">Заказ не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Rent.OffersController">
+            <summary>
+            Контроллер для работы с откликами партнеров на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersController.#ctor(WaterTransportService.Api.Services.Orders.IRentOrderOfferService)">
+            <summary>
+            Контроллер для работы с откликами партнеров на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersController.GetOffersByRentOrder(System.Guid)">
+            <summary>
+            Получить все отклики для конкретного заказа аренды.
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <returns>Список откликов.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersController.GetOfferById(System.Guid,System.Guid)">
+            <summary>
+            Получить отклик по идентификатору.
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <param name="id">Идентификатор отклика.</param>
+            <returns>Отклик или NotFound.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersController.CreateOffer(System.Guid,WaterTransportService.Api.DTO.CreateRentOrderOfferDto)">
+            <summary>
+            Создать новый отклик на заказ аренды (партнер откликается).
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <param name="dto">Данные для создания отклика.</param>
+            <returns>Созданный отклик.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersController.AcceptOffer(System.Guid,System.Guid)">
+            <summary>
+            Принять отклик (пользователь выбирает партнера).
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <param name="id">Идентификатор принимаемого отклика.</param>
+            <returns>NoContent при успехе.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersController.DeleteOffer(System.Guid,System.Guid)">
+            <summary>
+            Удалить отклик.
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <param name="id">Идентификатор отклика для удаления.</param>
+            <returns>NoContent при успехе.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Rent.OffersPartnerController">
+            <summary>
+            Контроллер для партнеров - управление откликами на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersPartnerController.#ctor(WaterTransportService.Api.Services.Orders.IRentOrderOfferService)">
+            <summary>
+            Контроллер для партнеров - управление откликами на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.OffersPartnerController.GetPartnerOffers(System.Guid)">
+            <summary>
+            Получить все отклики конкретного партнера.
+            </summary>
+            <param name="partnerId">Идентификатор партнера.</param>
+            <returns>Список откликов партнера.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Rent.RentOrdersController">
+            <summary>
+            Контроллер для управления заказами аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.#ctor(WaterTransportService.Api.Services.Orders.IRentOrderService)">
+            <summary>
+            Контроллер для управления заказами аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех заказов аренды с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список заказов аренды с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список заказов аренды.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.GetById(System.Guid)">
+            <summary>
+            Получить заказ аренды по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор заказа аренды.</param>
+            <returns>Данные заказа аренды.</returns>
+            <response code="200">Заказ аренды успешно найден.</response>
+            <response code="404">Заказ аренды не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.GetAvailableForPartner(System.Guid)">
+            <summary>
+            Получить доступные заказы для партнера (с фильтрацией по порту, типу судна и вместимости).
+            </summary>
+            <param name="partnerId">Идентификатор партнера.</param>
+            <returns>Список доступных заказов для партнера.</returns>
+            <response code="200">Список успешно получен.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.Create(WaterTransportService.Api.DTO.CreateRentOrderDto)">
+            <summary>
+            Создать новый заказ аренды.
+            </summary>
+            <param name="dto">Данные для создания заказа аренды.</param>
+            <returns>Созданный заказ аренды.</returns>
+            <response code="201">Заказ аренды успешно создан.</response>
+            <response code="400">Некорректные данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateRentOrderDto)">
+            <summary>
+            Обновить существующий заказ аренды.
+            </summary>
+            <param name="id">Уникальный идентификатор заказа аренды.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный заказ аренды.</returns>
+            <response code="200">Заказ аренды успешно обновлен.</response>
+            <response code="404">Заказ аренды не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.CompleteOrder(System.Guid)">
+            <summary>
+            Завершить аренду (пользователь подтверждает завершение).
+            </summary>
+            <param name="id">Идентификатор заказа аренды.</param>
+            <returns>NoContent при успехе.</returns>
+            <response code="204">Аренда успешно завершена.</response>
+            <response code="400">Невозможно завершить аренду.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.CancelOrder(System.Guid)">
+            <summary>
+            Отменить заказ аренды.
+            </summary>
+            <param name="id">Идентификатор заказа аренды.</param>
+            <returns>NoContent при успехе.</returns>
+            <response code="204">Заказ успешно отменен.</response>
+            <response code="404">Заказ не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Rent.RentOrdersController.Delete(System.Guid)">
+            <summary>
+            Удалить заказ аренды.
+            </summary>
+            <param name="id">Уникальный идентификатор заказа аренды.</param>
+            <returns>Результат операции.</returns>
+            <response code="204">Заказ аренды успешно удален.</response>
+            <response code="404">Заказ аренды не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Reviews.ReviewsController">
+            <summary>
+            Контроллер для управления отзывами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Reviews.ReviewsController.#ctor(WaterTransportService.Api.Services.Reviews.IReviewService)">
+            <summary>
+            Контроллер для управления отзывами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Reviews.ReviewsController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех отзывов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список отзывов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список отзывов.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Reviews.ReviewsController.GetById(System.Guid)">
+            <summary>
+            Получить отзыв по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор отзыва.</param>
+            <returns>Данные отзыва.</returns>
+            <response code="200">Отзыв успешно найден.</response>
+            <response code="404">Отзыв не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Reviews.ReviewsController.Create(WaterTransportService.Api.DTO.CreateReviewDto)">
+            <summary>
+            Создать новый отзыв.
+            </summary>
+            <param name="dto">Данные для создания отзыва.</param>
+            <returns>Созданный отзыв.</returns>
+            <response code="201">Отзыв успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Reviews.ReviewsController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateReviewDto)">
+            <summary>
+            Обновить отзыв.
+            </summary>
+            <param name="id">Уникальный идентификатор отзыва.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный отзыв.</returns>
+            <response code="200">Отзыв успешно обновлен.</response>
+            <response code="404">Отзыв не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Reviews.ReviewsController.Delete(System.Guid)">
+            <summary>
+            Удалить отзыв.
+            </summary>
+            <param name="id">Уникальный идентификатор отзыва.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Отзыв успешно удален.</response>
+            <response code="404">Отзыв не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Routes.RoutesController">
+            <summary>
+            Контроллер для управления маршрутами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Routes.RoutesController.#ctor(WaterTransportService.Api.Services.Routes.IRouteService)">
+            <summary>
+            Контроллер для управления маршрутами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Routes.RoutesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех маршрутов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список маршрутов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список маршрутов.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Routes.RoutesController.GetById(System.Guid)">
+            <summary>
+            Получить маршрут по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор маршрута.</param>
+            <returns>Данные маршрута.</returns>
+            <response code="200">Маршрут успешно найден.</response>
+            <response code="404">Маршрут не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Routes.RoutesController.Create(WaterTransportService.Api.DTO.CreateRouteDto)">
+            <summary>
+            Создать новый маршрут.
+            </summary>
+            <param name="dto">Данные для создания маршрута.</param>
+            <returns>Созданный маршрут.</returns>
+            <response code="201">Маршрут успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Routes.RoutesController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateRouteDto)">
+            <summary>
+            Обновить существующий маршрут.
+            </summary>
+            <param name="id">Уникальный идентификатор маршрута.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный маршрут.</returns>
+            <response code="200">Маршрут успешно обновлен.</response>
+            <response code="404">Маршрут не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Routes.RoutesController.Delete(System.Guid)">
+            <summary>
+            Удалить маршрут.
+            </summary>
+            <param name="id">Уникальный идентификатор маршрута.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Маршрут успешно удален.</response>
+            <response code="404">Маршрут не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Ships.ShipsController">
+            <summary>
+            Контроллер для управления судами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.#ctor(WaterTransportService.Api.Services.Ships.IShipService)">
+            <summary>
+            Контроллер для управления судами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех судов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список судов с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список судов.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.GetById(System.Guid)">
+            <summary>
+            Получить судно по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор судна.</param>
+            <returns>Данные судна.</returns>
+            <response code="200">Судно успешно найдено.</response>
+            <response code="404">Судно не найдено.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.GetMyShips(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех судов текущего пользователя (по токену).
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Размер страницы (по умолчанию 20, максимум 100).</param>
+            <returns>Список судов пользователя с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список судов пользователя.</response>
+            <response code="401">Пользователь не авторизован.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.Create(WaterTransportService.Api.DTO.CreateShipDto)">
+            <summary>
+            Создать новое судно.
+            </summary>
+            <param name="dto">Данные для создания судна.</param>
+            <returns>Созданное судно.</returns>
+            <response code="201">Судно успешно создано.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateShipDto)">
+            <summary>
+            Обновить существующий корабль.
+            </summary>
+            <param name="id">Уникальный идентификатор корабля.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный корабль.</returns>
+            <response code="200">Корабль успешно обновлен.</response>
+            <response code="404">Корабль не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipsController.Delete(System.Guid)">
+            <summary>
+            Удалить корабль.
+            </summary>
+            <param name="id">Уникальный идентификатор корабля.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Корабль успешно удален.</response>
+            <response code="404">Корабль не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Ships.ShipTypesController">
+            <summary>
+            Контроллер для управления типами кораблей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipTypesController.#ctor(WaterTransportService.Api.Services.Ships.IShipTypeService)">
+            <summary>
+            Контроллер для управления типами кораблей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipTypesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех типов кораблей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список типов кораблей с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список типов кораблей.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipTypesController.GetById(System.UInt16)">
+            <summary>
+            Получить тип корабля по идентификатору.
+            </summary>
+            <param name="id">Идентификатор типа корабля.</param>
+            <returns>Данные типа корабля.</returns>
+            <response code="200">Тип корабля успешно найден.</response>
+            <response code="404">Тип корабля не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipTypesController.Create(WaterTransportService.Api.DTO.CreateShipTypeDto)">
+            <summary>
+            Создать новый тип корабля.
+            </summary>
+            <param name="dto">Данные для создания типа корабля.</param>
+            <returns>Созданный тип корабля.</returns>
+            <response code="201">Тип корабля успешно создан.</response>
+            <response code="400">Недопустимые данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipTypesController.Update(System.UInt16,WaterTransportService.Api.DTO.UpdateShipTypeDto)">
+            <summary>
+            Обновить существующий тип корабля.
+            </summary>
+            <param name="id">Идентификатор типа корабля.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный тип корабля.</returns>
+            <response code="200">Тип корабля успешно обновлен.</response>
+            <response code="404">Тип корабля не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Ships.ShipTypesController.Delete(System.UInt16)">
+            <summary>
+            Удалить тип корабля.
+            </summary>
+            <param name="id">Идентификатор типа корабля.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Тип корабля успешно удален.</response>
+            <response code="404">Тип корабля не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Users.UserProfilesController">
+            <summary>
+            Контроллер для управления профилями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UserProfilesController.#ctor(WaterTransportService.Api.Services.Users.IUserProfileService)">
+            <summary>
+            Контроллер для управления профилями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UserProfilesController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех профилей пользователей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список профилей пользователей с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список профилей.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UserProfilesController.GetById(System.Guid)">
+            <summary>
+            Получить профиль пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор профиля пользователя.</param>
+            <returns>Данные профиля пользователя.</returns>
+            <response code="200">Профиль успешно найден.</response>
+            <response code="404">Профиль не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UserProfilesController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateUserProfileDto)">
+            <summary>
+            Обновить профиль пользователя.
+            </summary>
+            <param name="id">Уникальный идентификатор профиля.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный профиль пользователя.</returns>
+            <response code="200">Профиль успешно обновлен.</response>
+            <response code="404">Профиль не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UserProfilesController.Delete(System.Guid)">
+            <summary>
+            Удалить профиль пользователя.
+            </summary>
+            <param name="id">Уникальный идентификатор профиля.</param>
+            <returns>Результат удаления.</returns>
+            <response code="204">Профиль успешно удален.</response>
+            <response code="404">Профиль не найден.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.Controllers.Users.UsersController">
+            <summary>
+            Контроллер для управления пользователями и аутентификацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.#ctor(WaterTransportService.Api.Services.Users.IUserService,WaterTransportService.Authentication.Services.IAuthService)">
+            <summary>
+            Контроллер для управления пользователями и аутентификацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.GetAll(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех пользователей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (по умолчанию 1).</param>
+            <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+            <returns>Список пользователей с информацией о пагинации.</returns>
+            <response code="200">Успешно получен список пользователей.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.GetById(System.Guid)">
+            <summary>
+            Получить пользователя по идентификатору.
+            </summary>
+            <param name="id">Уникальный идентификатор пользователя.</param>
+            <returns>Данные пользователя.</returns>
+            <response code="200">Пользователь успешно найден.</response>
+            <response code="404">Пользователь не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.Create(WaterTransportService.Api.DTO.CreateUserDto)">
+            <summary>
+            Создать нового пользователя.
+            </summary>
+            <param name="dto">Данные для создания пользователя.</param>
+            <returns>Созданный пользователь.</returns>
+            <response code="201">Пользователь успешно создан.</response>
+            <response code="400">Некорректные данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.Update(System.Guid,WaterTransportService.Api.DTO.UpdateUserDto)">
+            <summary>
+            Обновить существующего пользователя.
+            </summary>
+            <param name="id">Уникальный идентификатор пользователя.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный пользователь.</returns>
+            <response code="200">Пользователь успешно обновлен.</response>
+            <response code="400">Некорректные данные (например, повторяющийся пароль).</response>
+            <response code="404">Пользователь не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.Delete(System.Guid)">
+            <summary>
+            Удалить пользователя.
+            </summary>
+            <param name="id">Уникальный идентификатор пользователя.</param>
+            <returns>Результат операции.</returns>
+            <response code="204">Пользователь успешно удален.</response>
+            <response code="404">Пользователь не найден.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.Register(WaterTransportService.Authentication.DTO.RegisterDto)">
+            <summary>
+            Зарегистрировать нового пользователя.
+            </summary>
+            <param name="dto">Данные для регистрации.</param>
+            <returns>Токены доступа и информация.</returns>
+            <response code="200">Регистрация успешна.</response>
+            <response code="400">Пользователь уже существует или неверные данные.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.Login(WaterTransportService.Authentication.DTO.LoginDto)">
+            <summary>
+            Вход пользователя.
+            </summary>
+            <param name="dto">Данные для входа.</param>
+            <returns>Токены доступа и информация.</returns>
+            <response code="200">Аутентификация успешна.</response>
+            <response code="401">Неверные данные для авторизации.</response>
+            <response code="403">Доступ запрещен.</response>
+            <response code="404">Пользователь не найден.</response>
+            <response code="423">Пользователь временно заблокирован.</response>
+            <response code="500">Ошибка сервера.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.RefreshToken(System.Nullable{System.Guid})">
+            <summary>
+            Обновление пары токенов по refresh токену.
+            </summary>
+            <param name="userId">Опционально: идентификатор пользователя, если access токен истек.</param>
+            <returns>Новая пара токенов.</returns>
+            <response code="200">Токены успешно обновлены.</response>
+            <response code="401">Refresh токен недействителен, истекший или ложный.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.GetMyProfile">
+            <summary>
+            Получить профиль текущего пользователя.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.Logout">
+            <summary>
+            Выйти пользователя и удалить refresh токены.
+            </summary>
+            <returns>Результат операции.</returns>
+            <response code="200">Выход выполнен успешно.</response>
+        </member>
+        <member name="M:WaterTransportService.Api.Controllers.Users.UsersController.BecomePartner">
+            <summary>
+            Сменить роль обычному пользователю на партнера.
+            </summary>
+            <returns> Обновленный пользователь с ролью партнера.</returns>
+            <response code="200">Обновление роли выполнено успешно.</response>
+            <response code="401">Пользователь не авторизован.</response>
+            <response code="404">Пользователь не найден.</response>
+            <response code="500">Ошибка сервера.</response>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.PortImageDto">
+            <summary>
+            DTO для чтения изображения порта.
+            </summary>
+            <param name="Id">Уникальный идентификатор изображения.</param>
+            <param name="PortId">Идентификатор порта.</param>
+            <param name="ImagePath">Путь к файлу изображения.</param>
+            <param name="IsPrimary">Является ли изображение основным.</param>
+            <param name="UploadedAt">Дата и время загрузки изображения.</param>
+        </member>
+        <member name="M:WaterTransportService.Api.DTO.PortImageDto.#ctor(System.Guid,System.Guid,System.String,System.Boolean,System.DateTime)">
+            <summary>
+            DTO для чтения изображения порта.
+            </summary>
+            <param name="Id">Уникальный идентификатор изображения.</param>
+            <param name="PortId">Идентификатор порта.</param>
+            <param name="ImagePath">Путь к файлу изображения.</param>
+            <param name="IsPrimary">Является ли изображение основным.</param>
+            <param name="UploadedAt">Дата и время загрузки изображения.</param>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.PortImageDto.Id">
+            <summary>Уникальный идентификатор изображения.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.PortImageDto.PortId">
+            <summary>Идентификатор порта.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.PortImageDto.ImagePath">
+            <summary>Путь к файлу изображения.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.PortImageDto.IsPrimary">
+            <summary>Является ли изображение основным.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.PortImageDto.UploadedAt">
+            <summary>Дата и время загрузки изображения.</summary>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.CreatePortImageDto">
+            <summary>
+            DTO для создания изображения порта.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreatePortImageDto.PortId">
+            <summary>
+            Идентификатор порта.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreatePortImageDto.Image">
+            <summary>
+            Файл изображения.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreatePortImageDto.IsPrimary">
+            <summary>
+            Является ли изображение основным.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.UpdatePortImageDto">
+            <summary>
+            DTO для обновления изображения порта.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.UpdatePortImageDto.Image">
+            <summary>
+            Новый файл изображения (необязательно).
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.UpdatePortImageDto.IsPrimary">
+            <summary>
+            Является ли изображение основным (необязательно).
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.ShipImageDto">
+            <summary>
+            DTO для чтения изображения судна.
+            </summary>
+            <param name="Id">Уникальный идентификатор изображения.</param>
+            <param name="ShipId">Идентификатор судна.</param>
+            <param name="ImagePath">Путь к файлу изображения.</param>
+            <param name="IsPrimary">Является ли изображение основным.</param>
+            <param name="UploadedAt">Дата и время загрузки изображения.</param>
+        </member>
+        <member name="M:WaterTransportService.Api.DTO.ShipImageDto.#ctor(System.Guid,System.Guid,System.String,System.Boolean,System.DateTime)">
+            <summary>
+            DTO для чтения изображения судна.
+            </summary>
+            <param name="Id">Уникальный идентификатор изображения.</param>
+            <param name="ShipId">Идентификатор судна.</param>
+            <param name="ImagePath">Путь к файлу изображения.</param>
+            <param name="IsPrimary">Является ли изображение основным.</param>
+            <param name="UploadedAt">Дата и время загрузки изображения.</param>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.ShipImageDto.Id">
+            <summary>Уникальный идентификатор изображения.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.ShipImageDto.ShipId">
+            <summary>Идентификатор судна.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.ShipImageDto.ImagePath">
+            <summary>Путь к файлу изображения.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.ShipImageDto.IsPrimary">
+            <summary>Является ли изображение основным.</summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.ShipImageDto.UploadedAt">
+            <summary>Дата и время загрузки изображения.</summary>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.CreateShipImageDto">
+            <summary>
+            DTO для создания изображения судна.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreateShipImageDto.ShipId">
+            <summary>
+            Идентификатор судна.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreateShipImageDto.Image">
+            <summary>
+            Файл изображения.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreateShipImageDto.IsPrimary">
+            <summary>
+            Является ли изображение основным.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.UpdateShipImageDto">
+            <summary>
+            DTO для обновления изображения судна.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.UpdateShipImageDto.Image">
+            <summary>
+            Новый файл изображения (необязательно).
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.UpdateShipImageDto.IsPrimary">
+            <summary>
+            Является ли изображение основным (необязательно).
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.DTO.CreateUserImageDto">
+            <summary>
+            DTO для создания изображения пользователя.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreateUserImageDto.UserId">
+            <summary>
+            Идентификатор пользователя.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreateUserImageDto.Image">
+            <summary>
+            Файл изображения.
+            </summary>
+        </member>
+        <member name="P:WaterTransportService.Api.DTO.CreateUserImageDto.IsPrimary">
+            <summary>
+            Является ли изображение основным.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Exceptions.DuplicatePasswordException">
+            <summary>
+            Исключение, выбрасываемое при попытке использования повторяющегося пароля.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Exceptions.DuplicatePasswordException.#ctor">
+            <summary>
+            Создает новый экземпляр исключения с сообщением по умолчанию.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Exceptions.DuplicatePasswordException.#ctor(System.String)">
+            <summary>
+            Создает новый экземпляр исключения с указанным сообщением.
+            </summary>
+            <param name="message">Сообщение об ошибке.</param>
+        </member>
+        <member name="M:WaterTransportService.Api.Exceptions.DuplicatePasswordException.#ctor(System.String,System.Exception)">
+            <summary>
+            Создает новый экземпляр исключения с указанным сообщением и внутренним исключением.
+            </summary>
+            <param name="message">Сообщение об ошибке.</param>
+            <param name="innerException">Внутреннее исключение.</param>
+        </member>
+        <member name="T:WaterTransportService.Api.Middleware.GlobalExceptionHandler">
+            <summary>
+            Глобальный обработчик исключений приложения.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Middleware.GlobalExceptionHandler.#ctor(Microsoft.Extensions.Logging.ILogger{WaterTransportService.Api.Middleware.GlobalExceptionHandler})">
+            <summary>
+            Глобальный обработчик исключений приложения.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Calendars.IRegularCalendarService">
+            <summary>
+            Интерфейс сервиса для работы с календарями регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.IRegularCalendarService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список календарей с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.IRegularCalendarService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить календарь по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.IRegularCalendarService.CreateAsync(WaterTransportService.Api.DTO.CreateRegularCalendarDto)">
+            <summary>
+            Создать новый календарь.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.IRegularCalendarService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRegularCalendarDto)">
+            <summary>
+            Обновить существующий календарь.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.IRegularCalendarService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить календарь.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Calendars.RegularCalendarService">
+            <summary>
+            Сервис для работы с календарями регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.RegularCalendar,System.Guid})">
+            <summary>
+            Сервис для работы с календарями регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех календарей с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить календарь по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.CreateAsync(WaterTransportService.Api.DTO.CreateRegularCalendarDto)">
+            <summary>
+            Создать новый календарь регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRegularCalendarDto)">
+            <summary>
+            Обновить существующий календарь регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить календарь регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Calendars.RegularCalendarService.MapToDto(WaterTransportService.Model.Entities.RegularCalendar)">
+            <summary>
+            Преобразовать сущность календаря в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Images.IImageService`3">
+            <summary>
+            Интерфейс для сервисов управления изображениями.
+            </summary>
+            <typeparam name="TDto">Тип DTO для чтения изображения.</typeparam>
+            <typeparam name="TCreateDto">Тип DTO для создания изображения.</typeparam>
+            <typeparam name="TUpdateDto">Тип DTO для обновления изображения.</typeparam>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех изображений с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж со списком изображений и общим количеством.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить изображение по идентификатору.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <returns>DTO изображения или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.GetPrimaryImageByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение сущности по идентификатору сущности (UserId, PortId, ShipId).
+            </summary>
+            <param name="entityId">Идентификатор сущности.</param>
+            <returns>DTO основного изображения или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.GetAllImagesByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить все изображения сущности по идентификатору сущности (UserId, PortId, ShipId).
+            </summary>
+            <param name="entityId">Идентификатор сущности.</param>
+            <returns>Список DTO изображений.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.CreateAsync(`1)">
+            <summary>
+            Создать новое изображение.
+            </summary>
+            <param name="dto">Данные для создания изображения.</param>
+            <returns>Созданное изображение или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.UpdateAsync(System.Guid,`2)">
+            <summary>
+            Обновить существующее изображение.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленное изображение или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.IImageService`3.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить изображение.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Images.PortImageService">
+            <summary>
+            Сервис для работы с изображениями портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.PortImage,System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IPortRepository{System.Guid},WaterTransportService.Infrastructure.FileStorage.IFileStorageService,AutoMapper.IMapper)">
+            <summary>
+            Сервис для работы с изображениями портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех изображений портов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж со списком изображений и общим количеством.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить изображение порта по идентификатору.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <returns>DTO изображения порта или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.GetPrimaryImageByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение порта по идентификатору порта (PortId).
+            </summary>
+            <param name="entityId">Идентификатор порта.</param>
+            <returns>DTO основного изображения порта или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.GetAllImagesByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить все изображения порта по идентификатору порта (PortId).
+            </summary>
+            <param name="entityId">Идентификатор порта.</param>
+            <returns>Список DTO изображений порта.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.CreateAsync(WaterTransportService.Api.DTO.CreatePortImageDto)">
+            <summary>
+            Создать новое изображение порта.
+            </summary>
+            <param name="dto">Данные для создания изображения.</param>
+            <returns>Созданное изображение или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdatePortImageDto)">
+            <summary>
+            Обновить изображение порта.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленное изображение или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.PortImageService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить изображение порта.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Images.ShipImageService">
+            <summary>
+            Сервис для работы с изображениями судов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.ShipImageService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.ShipImage,System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.Ship,System.Guid},WaterTransportService.Infrastructure.FileStorage.IFileStorageService,AutoMapper.IMapper)">
+            <summary>
+            Сервис для работы с изображениями судов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.ShipImageService.GetPrimaryImageByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение судна по идентификатору судна (ShipId).
+            </summary>
+            <param name="entityId">Идентификатор судна.</param>
+            <returns>DTO основного изображения судна или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.ShipImageService.GetAllImagesByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить все изображения судна по идентификатору судна (ShipId).
+            </summary>
+            <param name="entityId">Идентификатор судна.</param>
+            <returns>Список DTO изображений судна.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Images.UserImageService">
+            <summary>
+            Сервис для работы с изображениями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.UserImage,System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IUserRepository{System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.UserProfile,System.Guid},WaterTransportService.Infrastructure.FileStorage.IFileStorageService)">
+            <summary>
+            Сервис для работы с изображениями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех изображений пользователей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж из списка изображений и общего количества.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить изображение пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <returns>DTO изображения пользователя или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.GetPrimaryImageByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить основное (primary) изображение пользователя по идентификатору пользователя (UserId).
+            </summary>
+            <param name="entityId">Идентификатор пользователя.</param>
+            <returns>DTO основного изображения пользователя или null, если не найдено.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.GetAllImagesByEntityIdAsync(System.Guid)">
+            <summary>
+            Получить все изображения пользователя по идентификатору пользователя (UserId).
+            </summary>
+            <param name="entityId">Идентификатор пользователя.</param>
+            <returns>Список DTO изображений пользователя.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.CreateAsync(WaterTransportService.Api.DTO.CreateUserImageDto)">
+            <summary>
+            Создать новое изображение пользователя.
+            </summary>
+            <param name="dto">Данные для создания изображения.</param>
+            <returns>Созданное изображение или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateUserImageDto)">
+            <summary>
+            Обновить изображение пользователя.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленное изображение или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить изображение пользователя.
+            </summary>
+            <param name="id">Идентификатор изображения.</param>
+            <returns>True, если операция прошла успешно.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Images.UserImageService.MapToDto(WaterTransportService.Model.Entities.UserImage)">
+            <summary>
+            Преобразовать сущность изображения пользователя в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Orders.IRegularOrderService">
+            <summary>
+            Интерфейс сервиса для управления заказами регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRegularOrderService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех заказов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRegularOrderService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить заказ по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRegularOrderService.CreateAsync(WaterTransportService.Api.DTO.CreateRegularOrderDto)">
+            <summary>
+            Создать новый заказ.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRegularOrderService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRegularOrderDto)">
+            <summary>
+            Обновить существующий заказ.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRegularOrderService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить заказ.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Orders.IRentOrderOfferService">
+            <summary>
+            Интерфейс сервиса для работы с откликами партнеров на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderOfferService.GetOffersByRentOrderIdAsync(System.Guid)">
+            <summary>
+            Получить все отклики для конкретного заказа.
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <returns>Коллекция откликов.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderOfferService.GetOffersByPartnerIdAsync(System.Guid)">
+            <summary>
+            Получить все отклики конкретного партнера.
+            </summary>
+            <param name="partnerId">Идентификатор партнера.</param>
+            <returns>Коллекция откликов партнера.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderOfferService.GetOfferByIdAsync(System.Guid)">
+            <summary>
+            Получить отклик по идентификатору.
+            </summary>
+            <param name="id">Идентификатор отклика.</param>
+            <returns>Отклик или null.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderOfferService.CreateOfferAsync(WaterTransportService.Api.DTO.CreateRentOrderOfferDto)">
+            <summary>
+            Создать новый отклик партнера на заказ.
+            </summary>
+            <param name="createDto">Данные для создания отклика.</param>
+            <returns>Созданный отклик.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderOfferService.AcceptOfferAsync(System.Guid,System.Guid)">
+            <summary>
+            Принять отклик партнера (пользователь выбирает партнера).
+            </summary>
+            <param name="rentOrderId">Идентификатор заказа аренды.</param>
+            <param name="offerId">Идентификатор принимаемого отклика.</param>
+            <returns>True, если операция успешна.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderOfferService.DeleteOfferAsync(System.Guid)">
+            <summary>
+            Удалить отклик.
+            </summary>
+            <param name="id">Идентификатор отклика.</param>
+            <returns>True, если удаление успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Orders.IRentOrderService">
+            <summary>
+            Интерфейс сервиса для управления заказами аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех заказов аренды с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить заказ аренды по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.GetAvailableOrdersForPartnerAsync(System.Guid)">
+            <summary>
+            Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.CreateAsync(WaterTransportService.Api.DTO.CreateRentOrderDto)">
+            <summary>
+            Создать новый заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRentOrderDto)">
+            <summary>
+            Обновить существующий заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.CompleteOrderAsync(System.Guid)">
+            <summary>
+            Завершить аренду (пользователь подтверждает завершение).
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.CancelOrderAsync(System.Guid)">
+            <summary>
+            Отменить заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.IRentOrderService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить заказ аренды.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Orders.RegularOrderService">
+            <summary>
+            Сервис для работы с заказами регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.RegularOrder,System.Guid})">
+            <summary>
+            Сервис для работы с заказами регулярных рейсов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех заказов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить заказ по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.CreateAsync(WaterTransportService.Api.DTO.CreateRegularOrderDto)">
+            <summary>
+            Создать новый заказ регулярного рейса.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRegularOrderDto)">
+            <summary>
+            Обновить существующий заказ регулярного рейса.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить заказ регулярного рейса.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RegularOrderService.MapToDto(WaterTransportService.Model.Entities.RegularOrder)">
+            <summary>
+            Преобразовать сущность заказа в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Orders.RentOrderOfferService">
+            <summary>
+            Сервис для работы с откликами партнеров на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.RentOrderOfferRepository,WaterTransportService.Model.Repositories.EntitiesRepository.RentOrderRepository,WaterTransportService.Model.Repositories.EntitiesRepository.ShipRepository,WaterTransportService.Model.Repositories.EntitiesRepository.IUserRepository{System.Guid},WaterTransportService.Model.Context.WaterTransportDbContext)">
+            <summary>
+            Сервис для работы с откликами партнеров на заказы аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.GetOffersByRentOrderIdAsync(System.Guid)">
+            <summary>
+            Получить все отклики для конкретного заказа.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.GetOffersByPartnerIdAsync(System.Guid)">
+            <summary>
+            Получить все отклики конкретного партнера.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.GetOfferByIdAsync(System.Guid)">
+            <summary>
+            Получить отклик по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.CreateOfferAsync(WaterTransportService.Api.DTO.CreateRentOrderOfferDto)">
+            <summary>
+            Создать новый отклик партнера на заказ.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.AcceptOfferAsync(System.Guid,System.Guid)">
+            <summary>
+            Принять отклик партнера (пользователь выбирает партнера).
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.DeleteOfferAsync(System.Guid)">
+            <summary>
+            Удалить отклик.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.ValidateShipForOrder(WaterTransportService.Model.Entities.Ship,WaterTransportService.Model.Entities.RentOrder)">
+            <summary>
+            Проверить соответствие судна требованиям заказа.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderOfferService.MapToDto(WaterTransportService.Model.Entities.RentOrderOffer)">
+            <summary>
+            Преобразование сущности отклика в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Orders.RentOrderService">
+            <summary>
+            Сервис для работы с заказами аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.RentOrderRepository,WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.Ship,System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IPortRepository{System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.ShipType,System.UInt16},WaterTransportService.Model.Repositories.EntitiesRepository.IUserRepository{System.Guid})">
+            <summary>
+            Сервис для работы с заказами аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех заказов аренды с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить заказ аренды по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.GetAvailableOrdersForPartnerAsync(System.Guid)">
+            <summary>
+            Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.CreateAsync(WaterTransportService.Api.DTO.CreateRentOrderDto)">
+            <summary>
+            Создать новый заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRentOrderDto)">
+            <summary>
+            Обновить существующий заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.CompleteOrderAsync(System.Guid)">
+            <summary>
+            Завершить аренду (пользователь подтверждает завершение).
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.CancelOrderAsync(System.Guid)">
+            <summary>
+            Отменить заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить заказ аренды.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Orders.RentOrderService.MapToDto(WaterTransportService.Model.Entities.RentOrder)">
+            <summary>
+            Преобразовать сущность заказа аренды в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ports.IPortService">
+            <summary>
+            Интерфейс сервиса для работы с портами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех портов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж со списком портов и общим количеством.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить порт по идентификатору.
+            </summary>
+            <param name="id">Идентификатор порта.</param>
+            <returns>DTO порта или null, если не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortService.CreateAsync(WaterTransportService.Api.DTO.CreatePortDto)">
+            <summary>
+            Создать новый порт.
+            </summary>
+            <param name="dto">Данные для создания порта.</param>
+            <returns>Созданный порт или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdatePortDto)">
+            <summary>
+            Обновить существующий порт.
+            </summary>
+            <param name="id">Идентификатор порта.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный порт или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить порт.
+            </summary>
+            <param name="id">Идентификатор порта.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ports.IPortTypeService">
+            <summary>
+            Интерфейс сервиса для работы с типами портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortTypeService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех типов портов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж со списком типов портов и общим количеством.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortTypeService.GetByIdAsync(System.UInt16)">
+            <summary>
+            Получить тип порта по идентификатору.
+            </summary>
+            <param name="id">Идентификатор типа порта.</param>
+            <returns>DTO типа порта или null, если не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortTypeService.CreateAsync(WaterTransportService.Api.DTO.CreatePortTypeDto)">
+            <summary>
+            Создать новый тип порта.
+            </summary>
+            <param name="dto">Данные для создания типа порта.</param>
+            <returns>Созданный тип порта или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortTypeService.UpdateAsync(System.UInt16,WaterTransportService.Api.DTO.UpdatePortTypeDto)">
+            <summary>
+            Обновить существующий тип порта.
+            </summary>
+            <param name="id">Идентификатор типа порта.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный тип порта или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.IPortTypeService.DeleteAsync(System.UInt16)">
+            <summary>
+            Удалить тип порта.
+            </summary>
+            <param name="id">Идентификатор типа порта.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ports.PortService">
+            <summary>
+            Сервис для работы с портами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IPortRepository{System.Guid},AutoMapper.IMapper)">
+            <summary>
+            Сервис для работы с портами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех портов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить порт по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortService.CreateAsync(WaterTransportService.Api.DTO.CreatePortDto)">
+            <summary>
+            Создать новый порт.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdatePortDto)">
+            <summary>
+            Обновить существующий порт.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить порт.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ports.PortTypeService">
+            <summary>
+            Сервис для работы с типами портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.PortType,System.UInt16})">
+            <summary>
+            Сервис для работы с типами портов.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех типов портов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.GetByIdAsync(System.UInt16)">
+            <summary>
+            Получить тип порта по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.CreateAsync(WaterTransportService.Api.DTO.CreatePortTypeDto)">
+            <summary>
+            Создать новый тип порта.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.UpdateAsync(System.UInt16,WaterTransportService.Api.DTO.UpdatePortTypeDto)">
+            <summary>
+            Обновить существующий тип порта.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.DeleteAsync(System.UInt16)">
+            <summary>
+            Удалить тип порта.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ports.PortTypeService.MapToDto(WaterTransportService.Model.Entities.PortType)">
+            <summary>
+            Преобразовать сущность типа порта в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Reviews.IReviewService">
+            <summary>
+            Интерфейс сервиса для работы с отзывами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.IReviewService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех отзывов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.IReviewService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить отзыв по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.IReviewService.CreateAsync(WaterTransportService.Api.DTO.CreateReviewDto)">
+            <summary>
+            Создать новый отзыв.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.IReviewService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateReviewDto)">
+            <summary>
+            Обновить отзыв.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.IReviewService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить отзыв.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Reviews.ReviewService">
+            <summary>
+            Сервис для работы с отзывами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.Review,System.Guid})">
+            <summary>
+            Сервис для работы с отзывами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех отзывов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить отзыв по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.CreateAsync(WaterTransportService.Api.DTO.CreateReviewDto)">
+            <summary>
+            Создать новый отзыв.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateReviewDto)">
+            <summary>
+            Обновить существующий отзыв.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить отзыв.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Reviews.ReviewService.MapToDto(WaterTransportService.Model.Entities.Review)">
+            <summary>
+            Преобразовать сущность отзыва в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Routes.IRouteService">
+            <summary>
+            Интерфейс сервиса для работы с маршрутами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.IRouteService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список маршрутов с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж со списком маршрутов и общим количеством.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.IRouteService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить маршрут по идентификатору.
+            </summary>
+            <param name="id">Идентификатор маршрута.</param>
+            <returns>DTO маршрута или null, если не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.IRouteService.CreateAsync(WaterTransportService.Api.DTO.CreateRouteDto)">
+            <summary>
+            Создать новый маршрут.
+            </summary>
+            <param name="dto">Данные для создания маршрута.</param>
+            <returns>Созданный маршрут или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.IRouteService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRouteDto)">
+            <summary>
+            Обновить существующий маршрут.
+            </summary>
+            <param name="id">Идентификатор маршрута.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный маршрут или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.IRouteService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить маршрут.
+            </summary>
+            <param name="id">Идентификатор маршрута.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Routes.RouteService">
+            <summary>
+            Сервис для работы с маршрутами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.Route,System.Guid})">
+            <summary>
+            Сервис для работы с маршрутами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех маршрутов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить маршрут по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.CreateAsync(WaterTransportService.Api.DTO.CreateRouteDto)">
+            <summary>
+            Создать новый маршрут.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateRouteDto)">
+            <summary>
+            Обновить существующий маршрут.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить маршрут.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Routes.RouteService.MapToDto(WaterTransportService.Model.Entities.Route)">
+            <summary>
+            Преобразовать сущность маршрута в DTO.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ships.IShipService">
+            <summary>
+            Интерфейс сервиса для работы с кораблями.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех кораблей с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить корабль по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipService.GetByUserAsync(System.Guid,System.Int32,System.Int32)">
+            <summary>
+            Получить все суда пользователя.  
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipService.CreateAsync(WaterTransportService.Api.DTO.CreateShipDto)">
+            <summary>
+            Создать новый корабль.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateShipDto)">
+            <summary>
+            Обновить существующий корабль.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить корабль.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ships.IShipTypeService">
+            <summary>
+            Интерфейс сервиса для работы с типами кораблей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipTypeService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех типов кораблей с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipTypeService.GetByIdAsync(System.UInt16)">
+            <summary>
+            Получить тип корабля по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipTypeService.CreateAsync(WaterTransportService.Api.DTO.CreateShipTypeDto)">
+            <summary>
+            Создать новый тип корабля.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipTypeService.UpdateAsync(System.UInt16,WaterTransportService.Api.DTO.UpdateShipTypeDto)">
+            <summary>
+            Обновить существующий тип корабля.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.IShipTypeService.DeleteAsync(System.UInt16)">
+            <summary>
+            Удалить тип корабля.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Ships.ShipService">
+            <summary>
+            Сервис для работы с судами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.Ship,System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IPortRepository{System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IUserRepository{System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.ShipType,System.UInt16},AutoMapper.IMapper)">
+            <summary>
+            Сервис для работы с судами.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех судов с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить судно по идентификатору.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.GetByUserAsync(System.Guid,System.Int32,System.Int32)">
+            <summary>
+            Получить все суда конкретного пользователя по его userId (из токена).
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.CreateAsync(WaterTransportService.Api.DTO.CreateShipDto)">
+            <summary>
+            Создать новое судно.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateShipDto)">
+            <summary>
+            Обновить существующее судно.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.GetByRegistrationNumberAsync(System.String)">
+            <summary>
+            Получить судно по регистрационному номеру.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Ships.ShipService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить судно.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Users.IUserProfileService">
+            <summary>
+            Интерфейс сервиса для работы с профилями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserProfileService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список профилей с пагинацией.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserProfileService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить профиль по идентификатору пользователя.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserProfileService.CreateAsync(WaterTransportService.Api.DTO.CreateUserProfileDto)">
+            <summary>
+            Создать новый профиль пользователя.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserProfileService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateUserProfileDto)">
+            <summary>
+            Обновить существующий профиль.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserProfileService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить профиль.
+            </summary>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Users.IUserService">
+            <summary>
+            Интерфейс сервиса для управления пользователями
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список пользователей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы.</param>
+            <param name="pageSize">Размер страницы.</param>
+            <returns>Кортеж из списка пользователей и общего количества.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <returns>DTO пользователя или null, если не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserService.CreateAsync(WaterTransportService.Api.DTO.CreateUserDto)">
+            <summary>
+            Создать нового пользователя.
+            </summary>
+            <param name="dto">Данные для создания пользователя.</param>
+            <returns>Созданный пользователь.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateUserDto)">
+            <summary>
+            Обновить существующего пользователя.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный пользователь или null при ошибке.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить пользователя.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.IUserService.GenerateTokenAsync(System.Guid,WaterTransportService.Authentication.DTO.UserDto)">
+            <summary>
+            Cоздать access/refresh токены для пользователя, сменившего роль.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="dto">Данные для cмены роли.</param>
+            <returns>Токены доступа и данные пользователя.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Users.UserProfileService">
+            <summary>
+            Сервис для работы с профилями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserProfileService.#ctor(WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.UserProfile,System.Guid},AutoMapper.IMapper)">
+            <summary>
+            Сервис для работы с профилями пользователей.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserProfileService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список всех профилей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (минимум 1).</param>
+            <param name="pageSize">Размер страницы (1-100).</param>
+            <returns>Кортеж со списком профилей и общим количеством.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserProfileService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить профиль по идентификатору пользователя.
+            </summary>
+            <param name="id">Идентификатор профиля пользователя.</param>
+            <returns>DTO профиля или null, если не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserProfileService.CreateAsync(WaterTransportService.Api.DTO.CreateUserProfileDto)">
+            <summary>
+            Создать профиль пользователя.
+            </summary>
+            <param name="dto">Данные для создания профиля.</param>
+            <remarks>
+            Метод не используется, так как профиль создается вместе с пользователем.
+            </remarks>
+            <returns>Всегда null.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserProfileService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateUserProfileDto)">
+            <summary>
+            Обновить профиль пользователя.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="dto">Данные для обновления профиля.</param>
+            <returns>Обновленный профиль или null, если профиль не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserProfileService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить профиль пользователя.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <returns>True, если удаление прошло успешно.</returns>
+        </member>
+        <member name="T:WaterTransportService.Api.Services.Users.UserService">
+            <summary>
+            Сервис управления пользователями.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.#ctor(AutoMapper.IMapper,WaterTransportService.Model.Repositories.EntitiesRepository.IUserRepository{System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.OldPassword,System.Guid},WaterTransportService.Model.Repositories.EntitiesRepository.IEntityRepository{WaterTransportService.Model.Entities.UserProfile,System.Guid},WaterTransportService.Infrastructure.PasswordHasher.IPasswordHasher,WaterTransportService.Authentication.Services.ITokenService)">
+            <summary>
+            Сервис управления пользователями.
+            </summary>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.GetAllAsync(System.Int32,System.Int32)">
+            <summary>
+            Получить список пользователей с пагинацией.
+            </summary>
+            <param name="page">Номер страницы (минимум 1).</param>
+            <param name="pageSize">Размер страницы (1-100).</param>
+            <returns>Кортеж из списка пользователей и общего количества.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.GetByIdAsync(System.Guid)">
+            <summary>
+            Получить пользователя по идентификатору.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <returns>DTO пользователя или null, если не найден.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.CreateAsync(WaterTransportService.Api.DTO.CreateUserDto)">
+            <summary>
+            Создать пользователя (только для роли admin).
+            </summary>
+            <param name="dto">Данные для создания пользователя.</param>
+            <returns>Созданный пользователь.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.UpdateAsync(System.Guid,WaterTransportService.Api.DTO.UpdateUserDto)">
+            <summary>
+            Обновить данные пользователя. При изменении пароля сохраняет хеш в историю.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="dto">Данные для обновления.</param>
+            <returns>Обновленный пользователь или null, если не найден.</returns>
+            <exception cref="T:WaterTransportService.Api.Exceptions.DuplicatePasswordException">Выбрасывается, если новый пароль совпадает с текущим или ранее использованными.</exception>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.DeleteAsync(System.Guid)">
+            <summary>
+            Удалить пользователя и отозвать все refresh токены.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <returns>True, если операция прошла успешно.</returns>
+        </member>
+        <member name="M:WaterTransportService.Api.Services.Users.UserService.GenerateTokenAsync(System.Guid,WaterTransportService.Authentication.DTO.UserDto)">
+            <summary>
+            Cоздать access/refresh токены для пользователя, сменившего роль.
+            </summary>
+            <param name="id">Идентификатор пользователя.</param>
+            <param name="dto">Данные для cмены роли.</param>
+            <returns>Токены доступа и данные пользователя.</returns>
+        </member>
+    </members>
+</doc>

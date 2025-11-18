@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "jB9zfY8TYNShlpppcAwvqeu6s/Nqyz9XZ3zIEbO5UKw=",
+  "Source": "WaterTransportService.Api",
+  "BasePath": "_content/WaterTransportService.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

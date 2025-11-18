@@ -1,0 +1,13 @@
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\bin\Debug\net8.0\WaterTransportService.Infrastructure.deps.json
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\bin\Debug\net8.0\WaterTransportService.Infrastructure.dll
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\bin\Debug\net8.0\WaterTransportService.Infrastructure.pdb
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.csproj.AssemblyReference.cache
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.AssemblyInfoInputs.cache
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.AssemblyInfo.cs
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.csproj.CoreCompileInputs.cache
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.sourcelink.json
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.dll
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\refint\WaterTransportService.Infrastructure.dll
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\WaterTransportService.Infrastructure.pdb
+D:\WaterTransport\Server\WaterTransportService.Infrastructure\obj\Debug\net8.0\ref\WaterTransportService.Infrastructure.dll
