@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -5,11 +6,8 @@ using System.Security.Cryptography;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
-namespace WaterTransportService.Api.Services.Auth;
+namespace WaterTransportService.Authentication.Services;
 
-/// <summary>
-/// Сервис для генерации, валидации и отзывов JWT/refresh токенов.
-/// </summary>
 public class TokenService(
     IConfiguration config,
     IEntityRepository<RefreshToken, Guid> refreshTokenRepo) : ITokenService
@@ -17,13 +15,6 @@ public class TokenService(
     private readonly IConfiguration _config = config;
     private readonly IEntityRepository<RefreshToken, Guid> _refreshTokenRepo = refreshTokenRepo;
 
-    /// <summary>
-    /// Сгенерировать JWT access токен с набором claims.
-    /// </summary>
-    /// <param name="phone">Телефон пользователя.</param>
-    /// <param name="role">Роль пользователя.</param>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    /// <returns>Строка JWT access токена.</returns>
     public string GenerateAccessToken(string phone, string role, Guid userId)
     {
         var issuer = _config["Jwt:Issuer"];
@@ -62,10 +53,6 @@ public class TokenService(
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    /// <summary>
-    /// Сгенерировать криптографически стойкий refresh токен.
-    /// </summary>
-    /// <returns>Строка refresh токена (Base64).</returns>
     public string GenerateRefreshToken()
     {
         var randomBytes = new byte[64];
@@ -74,12 +61,6 @@ public class TokenService(
         return Convert.ToBase64String(randomBytes);
     }
 
-    /// <summary>
-    /// Сохранить refresh токен пользователя (создать или обновить).
-    /// </summary>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    /// <param name="refreshToken">Значение refresh токена.</param>
-    /// <param name="expiresAt">Дата истечения токена.</param>
     public async Task SaveRefreshTokenAsync(Guid userId, string refreshToken, DateTime expiresAt)
     {
         RefreshToken? existingToken = null;
@@ -115,12 +96,6 @@ public class TokenService(
         }
     }
 
-    /// <summary>
-    /// Провалидировать refresh токен для пользователя.
-    /// </summary>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    /// <param name="refreshToken">Проверяемый refresh токен.</param>
-    /// <returns>Токен при валидности или null.</returns>
     public async Task<string?> ValidateRefreshTokenAsync(Guid userId, string refreshToken)
     {
         RefreshToken? storedToken = null;
@@ -143,10 +118,6 @@ public class TokenService(
             : null;
     }
 
-    /// <summary>
-    /// Отозвать refresh токен пользователя (удалить запись).
-    /// </summary>
-    /// <param name="userId">Идентификатор пользователя.</param>
     public async Task RevokeRefreshTokenAsync(Guid userId)
     {
         RefreshToken? token = null;
@@ -166,7 +137,4 @@ public class TokenService(
             await _refreshTokenRepo.DeleteAsync(token.Id);
         }
     }
-
-
-
 }

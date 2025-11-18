@@ -59,7 +59,7 @@ public class RentOrderOfferService(
         if (rentOrder is null) return null;
 
         // ѕровер€ем, что заказ в статусе ожидани€ откликов
-        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse 
+        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse
             && rentOrder.Status != RentOrderStatus.HasOffers)
             return null;
 
@@ -109,7 +109,7 @@ public class RentOrderOfferService(
     {
         // ѕолучаем заказ со всеми откликами
         var rentOrder = await _rentOrderRepository.GetByIdWithOffersAsync(rentOrderId);
-        
+
         if (rentOrder is null || rentOrder.Status != RentOrderStatus.HasOffers)
             return false;
 

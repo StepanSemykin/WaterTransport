@@ -24,6 +24,20 @@ public interface IImageService<TDto, TCreateDto, TUpdateDto>
     Task<TDto?> GetByIdAsync(Guid id);
 
     /// <summary>
+    /// Получить основное (primary) изображение сущности по идентификатору сущности (UserId, PortId, ShipId).
+    /// </summary>
+    /// <param name="entityId">Идентификатор сущности.</param>
+    /// <returns>DTO основного изображения или null, если не найдено.</returns>
+    Task<TDto?> GetPrimaryImageByEntityIdAsync(Guid entityId);
+
+    /// <summary>
+    /// Получить все изображения сущности по идентификатору сущности (UserId, PortId, ShipId).
+    /// </summary>
+    /// <param name="entityId">Идентификатор сущности.</param>
+    /// <returns>Список DTO изображений.</returns>
+    Task<IReadOnlyList<TDto>> GetAllImagesByEntityIdAsync(Guid entityId);
+
+    /// <summary>
     /// Создать новое изображение.
     /// </summary>
     /// <param name="dto">Данные для создания изображения.</param>

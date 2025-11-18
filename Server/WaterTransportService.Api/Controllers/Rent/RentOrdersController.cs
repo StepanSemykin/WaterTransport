@@ -71,7 +71,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     public async Task<ActionResult<RentOrderDto>> Create([FromBody] CreateRentOrderDto dto)
     {
         var created = await _service.CreateAsync(dto);
-        return created is null ? BadRequest("Unable to create order. Check user, ports, and ship type.") 
+        return created is null ? BadRequest("Unable to create order. Check user, ports, and ship type.")
             : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 

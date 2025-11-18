@@ -15,7 +15,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// Получить все отклики.
     /// </summary>
     /// <returns>Коллекция всех откликов.</returns>
-    public async Task<IEnumerable<RentOrderOffer>> GetAllAsync() => 
+    public async Task<IEnumerable<RentOrderOffer>> GetAllAsync() =>
         await _context.RentOrderOffers
             .Include(o => o.Partner)
             .Include(o => o.Ship)
@@ -28,7 +28,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// </summary>
     /// <param name="id">Идентификатор отклика.</param>
     /// <returns>Отклик или null, если не найден.</returns>
-    public async Task<RentOrderOffer?> GetByIdAsync(Guid id) => 
+    public async Task<RentOrderOffer?> GetByIdAsync(Guid id) =>
         await _context.RentOrderOffers
             .Include(o => o.Partner)
             .Include(o => o.Ship)

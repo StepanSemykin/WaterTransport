@@ -1,13 +1,6 @@
-п»їusing System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Api.DTO;
-
-public record UserDto(
-    //Guid Id,
-    string Phone,
-    //bool IsActive,
-    string? Role
-);
 
 public class CreateUserDto
 {
@@ -19,7 +12,7 @@ public class CreateUserDto
 
     public bool IsActive { get; set; } = true;
 
-    // РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ: СЂРѕР»Рё РїСЂРё СЃРѕР·РґР°РЅРёРё
+    // опционально: роли при создании
     public string? Role { get; set; }
 }
 
@@ -32,18 +25,7 @@ public class UpdateUserDto
 
     public string? Role { get; set; }
 
-    // Р•СЃР»Рё РїРµСЂРµРґР°РЅ вЂ” РѕР±РЅРѕРІРёРј РїР°СЂРѕР»СЊ
+    // Если передан — обновим пароль
     [MinLength(6)]
     public string? NewPassword { get; set; } = null!;
 }
-
-//public class UpdateUserRoleDto
-//{
-//    [Required, MaxLength(20)]
-//    public string Phone { get; set; } = default!;
-
-//    public bool IsActive { get; set; } = true;
-
-//    [Required]
-//    public string Role { get; set; } = default!;
-//}
