@@ -1,36 +1,44 @@
 import { useState, useEffect, useRef } from "react";
 
+import { useAuth } from "../../auth/AuthContext";
+import { apiFetch, apiFetchRaw } from "../../../api/api.js";
+
 import styles from "./AddShip.module.css";
 
 const SHIP_TYPES = [
-  { value: "катер", label: "Катер" },
-  { value: "теплоход", label: "Теплоход" },
-  { value: "яхта", label: "Яхта" },
-  { value: "лодка", label: "Лодка" },
-  { value: "катамаран", label: "Катамаран" }
+  { value: "катер", label: "Катер", id: 1 },
+  { value: "теплоход", label: "Теплоход", id: 2 },
+  { value: "яхта", label: "Яхта", id: 3 },
+  { value: "лодка", label: "Лодка", id: 4 },
+  { value: "катамаран", label: "Катамаран", id: 5 }
 ];
 
 const initialFormData = {
   name: "",
-  type: "",
+  shipTypeId: "",
   capacity: "",
-  description: "",
-  pricingType: "hour",
-  price: "",
-  length: "",
-  width: "",
-  speed: "",
-  year: "",
-  isActive: true,
   registrationNumber: "",
-  imageFile: null
+  yearOfManufacture: "",
+  maxSpeed: "",
+  width: "",
+  length: "",
+  description: "",
+  costPerHour: "",
+  imageFile: null,
 };
 
 export function AddShip({ isOpen, onClose, onSave }) {
+  const { ports = [], user } = useAuth();
   const [formData, setFormData] = useState(initialFormData);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (user?.phone) {
+      setFormData(prev => ({ ...prev, userPhone: user.phone }));
+    }
+  }, [user]);
 
   const resetForm = () => {
     if (previewUrl) {
@@ -115,10 +123,98 @@ export function AddShip({ isOpen, onClose, onSave }) {
     setFormData(prev => ({ ...prev, imageFile: null }));
   };
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   onSave(formData);
+  //   onClose();
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
-    onClose();
+
+    const selectedPort = ports.find((p) => p.title === formData.portTitle);
+    if (!selectedPort) {
+      alert("Не выбрана пристань");
+      return;
+    }
+
+    try {
+      const payload = {
+        name: formData.name,
+        shipTypeId: Number(formData.shipTypeId),
+        capacity: Number(formData.capacity),
+        registrationNumber: formData.registrationNumber || "",
+        yearOfManufacture: formData.yearOfManufacture
+          ? new Date(Number(formData.yearOfManufacture), 0, 1).toISOString()
+          : null,
+        maxSpeed: formData.maxSpeed ? Number(formData.maxSpeed) : null,
+        width: formData.width ? Number(formData.width) : null,
+        length: formData.length ? Number(formData.length) : null,
+        description: formData.description || null,
+        costPerHour: formData.costPerHour ? Number(formData.costPerHour) : null,
+        portDto: {
+          title: selectedPort.title,
+          portTypeId: selectedPort.portTypeId,
+          latitude: selectedPort.latitude,
+          longitude: selectedPort.longitude,
+          address: selectedPort.address,
+        },
+        userDto: {
+          phone: user?.phone,
+          role: user?.role
+        },
+      };
+
+      const shipRes = await apiFetch("/api/Ships", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+
+      if (!shipRes.ok) {
+        const text = await shipRes.text();
+        console.error("Failed to create ship:", text);
+        alert(`Ошибка при создании судна: ${text || shipRes.status}`);
+        return;
+      }
+
+      const createdShip = await shipRes.json();
+
+      // Ожидаем, что ShipDto содержит Id (Guid)
+      const shipName = createdShip.name;
+      if (!shipName) {
+        console.warn("Сервер вернул судно без Id, пропускаем загрузку изображения");
+      }
+
+      // 3. Если есть картинка и есть shipId — загружаем на /api/shipimages
+      if (formData.imageFile && shipName) {
+        const form = new FormData();
+        form.append("ShipName", shipName);
+        form.append("Image", formData.imageFile);
+        form.append("IsPrimary", "true");
+
+        // ВАЖНО: тут используем обычный fetch, чтобы не ставить Content-Type: application/json
+        const imgRes = await apiFetchRaw("/api/shipimages", {
+          method: "POST",
+          body: form,
+        });
+
+        if (!imgRes.ok) {
+          const txt = await imgRes.text();
+          console.error("Failed to upload ship image:", txt);
+          alert(`Судно создано, но не удалось загрузить фото: ${txt || imgRes.status}`);
+        }
+      }
+
+      // 4. Уведомляем родителя и закрываем модал
+      if (onSave) {
+        onSave(createdShip);
+      }
+      onClose();
+    } 
+    catch (err) {
+      console.error("Error while creating ship:", err);
+      alert("Произошла сетевая ошибка при создании судна");
+    }
   };
 
   if (!isOpen) return null;
@@ -151,15 +247,15 @@ export function AddShip({ isOpen, onClose, onSave }) {
                 <div className={styles["form-field"]}>
                   <label className={styles["form-label"]}>Тип</label>
                   <select
-                    name="type"
-                    value={formData.type}
+                    name="shipTypeId"
+                    value={formData.shipTypeId}
                     onChange={handleChange}
                     className={styles["form-select"]}
                     required
                   >
                     <option value="">Выберите тип</option>
                     {SHIP_TYPES.map((shipType) => (
-                      <option key={shipType.value} value={shipType.value}>
+                      <option key={shipType.id} value={shipType.id}>
                         {shipType.label}
                       </option>
                     ))}
@@ -181,7 +277,7 @@ export function AddShip({ isOpen, onClose, onSave }) {
                 </div>
               </div>
 
-              <div className={styles["form-field"]} style={{ marginTop: 16 }}>
+              <div className={styles["form-field"]}>
                 <label className={styles["form-label"]}>Описание</label>
                 <textarea
                   name="description"
@@ -192,7 +288,7 @@ export function AddShip({ isOpen, onClose, onSave }) {
                 />
               </div>
 
-              <div className={styles["form-field"]} style={{ marginTop: 12 }}>
+              <div className={styles["form-field"]}>
                 <label className={styles["form-label"]}>Фото</label>
 
                 <div
@@ -271,8 +367,8 @@ export function AddShip({ isOpen, onClose, onSave }) {
                   <label className={styles["form-label"]}>Год выпуска</label>
                   <input
                     type="number"
-                    name="year"
-                    value={formData.year}
+                    name="yearOfManufacture"
+                    value={formData.yearOfManufacture}
                     onChange={handleChange}
                     className={styles["form-input"]}
                     placeholder="гггг"
@@ -285,8 +381,8 @@ export function AddShip({ isOpen, onClose, onSave }) {
                   <label className={styles["form-label"]}>Скорость</label>
                   <input
                     type="number"
-                    name="speed"
-                    value={formData.speed}
+                    name="maxSpeed"
+                    value={formData.maxSpeed}
                     onChange={handleChange}
                     className={styles["form-input"]}
                     placeholder="км/ч"
@@ -317,8 +413,8 @@ export function AddShip({ isOpen, onClose, onSave }) {
                   <label className={styles["form-label"]}>Цена за час</label>
                   <input
                     type="number"
-                    name="price"
-                    value={formData.price}
+                    name="costPerHour"
+                    value={formData.costPerHour}
                     onChange={handleChange}
                     className={styles["form-input"]}
                     placeholder="0"
@@ -334,21 +430,25 @@ export function AddShip({ isOpen, onClose, onSave }) {
               <div className={styles["port-options"]}>
                 <div className={styles["form-field"]}>
                   <label className={styles["form-label"]}>Пристань, к которой привязано судно</label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
+                  <select
+                    name="portTitle"
+                    value={formData.portTitle}
                     onChange={handleChange}
-                    className={styles["form-input"]}
-                    placeholder="0"
-                    min="0"
+                    className={styles["form-select"]}
                     required
-                  />
+                  >
+                  <option value="">Выберите пристань</option>
+                    {ports.map((port) => (
+                      <option key={port.title} value={port.title}>
+                       {port.title}
+                      </option>
+                   ))}
+                 </select>
                 </div>
               </div>
             </div>
 
-            <div className={styles["switch-container"]}>
+            {/* <div className={styles["switch-container"]}>
               <span className={styles["switch-label"]}>Судно активно</span>
               <label className={styles["switch"]}>
                 <input
@@ -359,7 +459,7 @@ export function AddShip({ isOpen, onClose, onSave }) {
                 />
                 <span className={styles["slider"]}></span>
               </label>
-            </div>
+            </div> */}
           </div>
 
           <div className={styles["modal-footer"]}>
