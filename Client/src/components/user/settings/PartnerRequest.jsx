@@ -90,9 +90,6 @@ export default function PartnerRequestContent() {
         <Button variant="primary" onClick={handleOpenConfirm} disabled={loading}>
           {loading ? (<><Spinner as="span" animation="border" size="sm" /> Отправка...</>) : "Отправить запрос"}
         </Button>
-        <Button variant="outline-secondary" onClick={() => { setMessage(""); setError(""); setSuccess(""); }} disabled={loading}>
-          Отмена
-        </Button>
       </div>
 
       <Modal show={showConfirm} onHide={handleCloseConfirm} centered>
