@@ -49,8 +49,10 @@ export default function Auth () {
       if (value === "") {
         setValidation((v) => ({ ...v, phone: "" }));
         return;
-      }
-      else if (!/^[\d\s]*$/.test(value)) {
+      } 
+      // /^[+]?[\d\s]*$/
+      // /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,4}$/
+      else if (!/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,4}$/.test(value)) {
         setValidation((v) => ({ ...v, phone: "В номере телефона допустимы только цифры" }));
       } 
       else if (value.length > MAX_PHONE_LENGTH) {
@@ -170,7 +172,7 @@ export default function Auth () {
       <Container>
           <div className={styles["header"]}>
             <h1 className={styles["header-title"]}>AquaRent</h1>
-            <p className={styles["header-subtitle"]}>Аренда водного транспорта</p>
+            <p className={styles["header-subtitle"]}>Заказы водного транспорта</p>
           </div>
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>

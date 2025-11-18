@@ -5,6 +5,13 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship } from "lucide-react";
 import { Button, Container } from "react-bootstrap";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship, X } from "lucide-react";
+import { Button, Form, Dropdown  } from "react-bootstrap";
+
+import { useAuth } from "../components/auth/AuthContext";
 
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -41,21 +48,38 @@ function PortsBoundsUpdater({ bounds }) {
 
 export default function Index() {
   const navigate = useNavigate();
-  // const [activeTab, setActiveTab] = useState("rental");
   const [addReturnRoute, setAddReturnRoute] = useState(false);
   const [addWalkingTrip, setAddWalkingTrip] = useState(false);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [comment, setComment] = useState("");
-  const [vehicleType, setVehicleType] = useState("");
+  const [fromPortId, setFromPortId] = useState("");
+  const [toPortId, setToPortId] = useState("");
+  const { ports = [], portsLoading, shipTypes = [], shipTypesLoading } = useAuth();
+  const [shipTypeId, setShipTypeId] = useState("");
   const [walkDuration, setWalkDuration] = useState("");
   const [ports, setPorts] = useState([]);
   const [portsLoading, setPortsLoading] = useState(true);
   const [portsError, setPortsError] = useState("");
+
+  const [showFromDropdown, setShowFromDropdown] = useState(false);
+  const [showToDropdown, setShowToDropdown] = useState(false);
+
+  const [fromSearch, setFromSearch] = useState("");
+  const [toSearch, setToSearch] = useState("");
+
+  const availablePorts = Array.isArray(ports) ? ports : [];
+  const availableShipTypes = Array.isArray(shipTypes) ? shipTypes : [];
+
+  const filteredFromPorts = availablePorts.filter(port => 
+    port.title.toLowerCase().includes(fromSearch.toLowerCase())
+  );
+
+  const filteredToPorts = availablePorts.filter(port => 
+    port.title.toLowerCase().includes(toSearch.toLowerCase())
+  );
 
   const dec = (setter, value, min = 0) => () => setter(value > min ? value - 1 : min);
   const inc = (setter, value, max = 99) => () => setter(value < max ? value + 1 : max);
@@ -131,6 +155,22 @@ export default function Index() {
     if (!geoPorts.length) return "Порты не найдены";
     return "";
   }, [geoPorts.length, portsError, portsLoading]);
+  const fromDropdownRef = useRef(null);
+  const toDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (fromDropdownRef.current && !fromDropdownRef.current.contains(event.target)) {
+        setShowFromDropdown(false);
+      }
+      if (toDropdownRef.current && !toDropdownRef.current.contains(event.target)) {
+        setShowToDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className={styles["aquarent-page"]}>
@@ -213,8 +253,7 @@ export default function Index() {
       <section className={styles["form-wrapper"]}>
         <div className={styles["form-card"]}>
           <div className={`${styles["form-section"]} ${styles["form-section-two-col"]}`}>
-
-            <div className={styles["field"]}>
+            <div className={styles["field"]} ref={fromDropdownRef}>
               <label className={styles["field-label"]} htmlFor="from">Откуда</label>
               <div className={styles["input-wrapper"]}>
                 <MapPin className={styles["input-icon"]} />
@@ -222,26 +261,74 @@ export default function Index() {
                   id="from"
                   type="text"
                   className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                  placeholder="Пристань отправления"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
+                  placeholder="Введите пристань отправления"
+                  value={fromSearch}
+                  onChange={(e) => {
+                    setFromSearch(e.target.value);
+                    setShowFromDropdown(true);
+                  }}
+                  onFocus={() => setShowFromDropdown(true)}
                 />
+                {fromSearch && showFromDropdown && filteredFromPorts.length > 0 && (
+                  <ul className={styles["dropdown-list"]}>
+                    {filteredFromPorts.map((port) => (
+                      <li key={port.id} onClick={() => {
+                        setFromPortId(port.id);
+                        setFromSearch(port.title || port.name);
+                        setShowFromDropdown(false);
+                      }}>
+                        {port.title || port.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <button onClick={() => {
+                  setFromSearch("");
+                  setFromPortId("");
+                  setShowFromDropdown(false);
+                  }} className={styles["clear-button"]}>
+                <X />
+              </button>
               </div>
             </div>
 
             {!addWalkingTrip ? (
-              <div className={styles["field"]}>
+              <div className={styles["field"]} ref={toDropdownRef}>
                 <label className={styles["field-label"]} htmlFor="to">Куда</label>
                 <div className={styles["input-wrapper"]}>
                   <MapPin className={styles["input-icon"]} />
                   <input
-                    id="to"
-                    type="text"
-                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                    placeholder="Пристань прибытия"
-                    value={to}
-                    onChange={(e) => setTo(e.target.value)}
+                  id="to"
+                  type="text"
+                  className={`${styles["field-input"]} ${styles["with-icon"]}`}
+                  placeholder="Введите пристань прибытия"
+                  value={toSearch}
+                  onChange={(e) => {
+                    setToSearch(e.target.value);
+                    setShowToDropdown(true);
+                  }}
+                  onFocus={() => setShowToDropdown(true)}
                   />
+                  {toSearch && showToDropdown && filteredToPorts.length > 0 && (
+                    <ul className={styles["dropdown-list"]}>
+                      {filteredToPorts.map((port) => (
+                        <li key={port.id} onClick={() => {
+                          setToPortId(port.id);
+                          setToSearch(port.title || port.name);
+                          setShowToDropdown(false);
+                        }}>
+                          {port.title || port.name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button onClick={() => {
+                    setToSearch("");
+                    setToPortId("");
+                    setShowToDropdown(false);
+                    }} className={styles["clear-button"]}>
+                  <X />
+                  </button>
                 </div>
               </div>
             ) : (
@@ -365,7 +452,7 @@ export default function Index() {
           
           <div className={styles["form-grid-people"]}>
             <div className={styles["field"]}>
-              <label className={styles["field-label"]} htmlFor="adults">Взрослые</label>
+              <label className={styles["field-label"]} htmlFor="adults">Всего человек</label>
               <div className={styles["counter-wrapper"]}>
                 <button type="button" className={styles["counter-btn"]} aria-label="Минус взрослые" onClick={dec(setAdults, adults, 1)}>
                   <Minus size={16} />
@@ -383,7 +470,7 @@ export default function Index() {
                 </button>
               </div>
             </div>
-            <div className={styles["field"]}>
+            {/* <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="children">Дети</label>
               <div className={styles["counter-wrapper"]}>
                 <button type="button" className={styles["counter-btn"]} aria-label="Минус дети" onClick={dec(setChildren, children, 0)}>
@@ -401,7 +488,7 @@ export default function Index() {
                   <Plus size={16} />
                 </button>
               </div>
-            </div>
+            </div> */}
             <div className={`${styles["field"]} ${styles["field--comment"]}`}>
               <label className={styles["field-label"]} htmlFor="comment">Комментарий</label>
               <textarea
@@ -419,14 +506,28 @@ export default function Index() {
               <label className={styles["field-label"]} htmlFor="vehicle-type">Тип судна</label>
               <div className={styles["input-wrapper"]}>
                 <Ship className={styles["input-icon"]} />
-                <input
+                {/* <input
                   id="vehicle-type"
                   type="text"
                   className={`${styles["field-input"]} ${styles["with-icon"]} ${styles["transport-input"]}`}
                   placeholder="Яхта, катер ..."
                   value={vehicleType}
                   onChange={(e) => setVehicleType(e.target.value)}
-                />
+                /> */}
+                <select
+                  id="shipType"
+                  value={shipTypeId}
+                  onChange={(e) => setShipTypeId(e.target.value)}
+                  className={`${styles["field-input"]} ${styles["with-icon"]} ${styles["transport-input"]}`}
+                  disabled={shipTypesLoading}
+                >
+                  <option value="">{shipTypesLoading ? "Загрузка типов..." : "Выберите тип судна"}</option>
+                  {availableShipTypes.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title || t.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
