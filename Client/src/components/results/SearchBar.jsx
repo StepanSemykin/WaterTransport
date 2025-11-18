@@ -1,6 +1,7 @@
 import { Search } from 'lucide-react';
-import styles from './SearchBar.module.css';
 import { Form } from 'react-bootstrap';
+
+import styles from './SearchBar.module.css';
 
 export default function SearchBar() {
   return (

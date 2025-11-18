@@ -1,10 +1,16 @@
-import { useState, useMemo } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Home, User as UserIcon } from 'lucide-react';
+
+import { useSearch } from "../components/search/SearchContext";
 
 import Header from '../components/results/Header.jsx';
 import SearchBar from '../components/results/SearchBar.jsx';
 import FilterTabs from '../components/results/FilterTabs.jsx';
 import BoatCard from '../components/results/BoatCard.jsx';
+
 import styles from './Results.module.css';
 
 
@@ -69,6 +75,9 @@ export const boats = [
 
 
 export default function Results() {
+  const navigate = useNavigate();
+  const { results, loading, confirmResults, cancelResults } = useSearch();
+
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const filteredBoats = useMemo(() => {
@@ -76,11 +85,52 @@ export default function Results() {
     return boats.filter((boat) => boat.category === selectedCategory);
   }, [selectedCategory]);
 
+  useEffect(() => {
+    const canOpen = sessionStorage.getItem("canOpenResults") === "1";
+    if (!loading && (!results || !canOpen)) {
+      navigate("/", { replace: true });
+    }
+  }, [results, loading, navigate]);
+
+  if (loading) return <div className={styles.page}>Загрузка...</div>;
+  if (!results) return null; // мгновенный редирект уже выполнится в useEffect
+
+
   return (
     <div className={styles.page}>
       <Header />
 
-      <div className={styles.controls}>
+  
+      <Container>
+        <h3 className={styles.resultsTitle}>
+          Найдено: {Array.isArray(results?.items) ? results.items.length : 0}
+        </h3>
+
+        <div className={styles.actionsRow}>
+          <Button
+            variant="primary"
+            onClick={() => {
+              confirmResults();
+              // дальше что-то своё: перейти в личный кабинет, на оплату и т.д.
+              // navigate("/user");
+            }}
+          >
+            Подтвердить
+          </Button>
+
+          <Button
+            variant="outline-secondary"
+            onClick={() => {
+              cancelResults();
+              navigate("/"); // вернуться на главную
+            }}
+          >
+            Отменить
+          </Button>
+        </div>
+      </Container>
+
+      {/* <div className={styles.controls}>
         <Container>
           <div className={styles.controlsInner}>
             <SearchBar />
@@ -106,7 +156,7 @@ export default function Results() {
             </Col>
             ))}
         </Row>
-      </Container>
+      </Container> */}
 
     </div>
   );

@@ -1,24 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
-import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship } from "lucide-react";
-import { Button, Container } from "react-bootstrap";
-import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship, X } from "lucide-react";
-import { Button, Form, Dropdown  } from "react-bootstrap";
-
-import { useAuth } from "../components/auth/AuthContext";
+import { Button, Modal, Form, Dropdown  } from "react-bootstrap";
 
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
+import { useAuth } from "../components/auth/AuthContext";
+import { useSearch } from "../components/search/SearchContext";
+
 import { apiFetch } from "../api/api.js";
+
 import styles from "./HomePage.module.css";
 
 const PORTS_ENDPOINT = "/api/ports/all";
@@ -48,27 +46,47 @@ function PortsBoundsUpdater({ bounds }) {
 
 export default function Index() {
   const navigate = useNavigate();
+  const { performSearch, loading: searchLoading, results, locked } = useSearch();
+  const { ports = [], portsLoading, shipTypes = [], shipTypesLoading } = useAuth();
+
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorTitle, setErrorTitle] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const [addReturnRoute, setAddReturnRoute] = useState(false);
   const [addWalkingTrip, setAddWalkingTrip] = useState(false);
+  const [walkDuration, setWalkDuration] = useState("");
+
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [adults, setAdults] = useState(1);
-  const [children, setChildren] = useState(0);
+  const [dateReturn, setDateReturn] = useState("");
+  const [timeReturn, setTimeReturn] = useState("");
+
+  const [numPeople, setNumPeople] = useState(1);
   const [comment, setComment] = useState("");
   const [fromPortId, setFromPortId] = useState("");
   const [toPortId, setToPortId] = useState("");
-  const { ports = [], portsLoading, shipTypes = [], shipTypesLoading } = useAuth();
   const [shipTypeId, setShipTypeId] = useState("");
-  const [walkDuration, setWalkDuration] = useState("");
-  const [ports, setPorts] = useState([]);
-  const [portsLoading, setPortsLoading] = useState(true);
   const [portsError, setPortsError] = useState("");
 
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown] = useState(false);
-
   const [fromSearch, setFromSearch] = useState("");
   const [toSearch, setToSearch] = useState("");
+
+  const clearDate = () => setDate("");
+  const clearTime = () => setTime("");
+  const clearDateReturn = () => setDateReturn("");
+  const clearTimeReturn = () => setTimeReturn("");
+  const clearWalkDuration = () => setWalkDuration("");
+
+  const openError = (title, message) => {
+    setErrorTitle(title || "Ошибка");
+    setErrorMessage(message || "Произошла ошибка");
+    setShowErrorModal(true);
+  };
+
+  const canOpenResults = !!results && sessionStorage.getItem("canOpenResults") === "1";
 
   const availablePorts = Array.isArray(ports) ? ports : [];
   const availableShipTypes = Array.isArray(shipTypes) ? shipTypes : [];
@@ -84,43 +102,45 @@ export default function Index() {
   const dec = (setter, value, min = 0) => () => setter(value > min ? value - 1 : min);
   const inc = (setter, value, max = 99) => () => setter(value < max ? value + 1 : max);
 
-  useEffect(() => {
-    let isMounted = true;
+  // useEffect(() => {
+  //   let isMounted = true;
 
-    async function loadPorts() {
-      setPortsLoading(true);
-      setPortsError("");
+  //   async function loadPorts() {
+  //     portsLoading(true);
+  //     setPortsError("");
 
-      try {
-        const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
-        if (!res.ok) {
-          throw new Error(`Failed to load ports (${res.status})`);
-        }
+  //     try {
+  //       const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
+  //       if (!res.ok) {
+  //         throw new Error(`Failed to load ports (${res.status})`);
+  //       }
 
-        const data = await res.json();
-        if (!isMounted) return;
+  //       const data = await res.json();
+  //       if (!isMounted) return;
 
-        const list = Array.isArray(data?.items) ? data.items : [];
-        setPorts(list);
-      } catch (error) {
-        console.error("[HomePage] Unable to load ports", error);
-        if (isMounted) {
-          setPorts([]);
-          setPortsError("Не удалось загрузить порты");
-        }
-      } finally {
-        if (isMounted) {
-          setPortsLoading(false);
-        }
-      }
-    }
+  //       const list = Array.isArray(data?.items) ? data.items : [];
+  //       setPorts(list);
+  //     } 
+  //     catch (error) {
+  //       console.error("[HomePage] Unable to load ports", error);
+  //       if (isMounted) {
+  //         setPorts([]);
+  //         setPortsError("Не удалось загрузить порты");
+  //       }
+  //     } 
+  //     finally {
+  //       if (isMounted) {
+  //         portsLoading(false);
+  //       }
+  //     }
+  //   }
 
-    loadPorts();
+  //   loadPorts();
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []);
 
   const geoPorts = useMemo(() => {
     return ports
@@ -172,8 +192,80 @@ export default function Index() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  async function handleSearchClick(e) {
+    e?.preventDefault?.();
+
+    if (searchLoading) {
+      return; 
+    }
+
+    if (locked) {
+      openError("Активная заявка", "У вас уже есть активная заявка. Подтвердите её или отмените на странице результатов.");
+      return;
+    }
+
+    if (!fromPortId || (!addWalkingTrip && !toPortId) || !date || !time || (addWalkingTrip && !walkDuration) || shipTypeId === "") {
+      openError("Проверьте поля", "Пожалуйста, заполните все обязательные поля");
+      return;
+    }
+
+    const payload = {
+      fromPortId,
+      toPortId: addWalkingTrip ? null : toPortId,
+      date,
+      time,
+      numPeople,
+      comment: comment?.trim() || null,
+      shipTypeId: shipTypeId || null,
+      walkDuration: addWalkingTrip ? walkDuration : null // Исправляем логику
+    };
+
+    console.log('Поля формы:', {
+      fromPortId,
+      toPortId,
+      date,
+      time,
+      addWalkingTrip,
+      walkDuration,
+      shipTypeId,
+      numPeople,
+    });
+
+    try {
+      await performSearch(payload); // запрос к серверу + сохранение результатов в контекст
+      // navigate("/results"); // если хотите авто-переход — раскомментируйте:
+    } 
+    catch (e) {
+      // покажите ошибку пользователю
+      // setSearchError(e.message);
+      openError("Ошибка поиска", e?.message || "Не удалось выполнить поиск");
+    }
+    finally {
+    }
+  }
+
   return (
     <div className={styles["aquarent-page"]}>
+
+      <Modal
+        show={showErrorModal}
+        onHide={() => setShowErrorModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{errorTitle}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{errorMessage}</Modal.Body>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "0 16px 16px" }}>
+          <button
+            type="button"
+            className={styles["primary-button"]}
+            onClick={() => setShowErrorModal(false)}
+          >
+            ОК
+          </button>
+        </div>
+      </Modal>
       
       <header className={styles["header-wrapper"]}>
         <div className={styles["header-content"]}>
@@ -181,18 +273,18 @@ export default function Index() {
           <div className={styles["icon-group"]}>
             <Button 
               variant="light" 
-              className={styles["icon-button"]} 
-              aria-label="Профиль"
+              className={styles["notices-icon-button"]} 
+              aria-label="Уведомления"
             >
-              <Bell />
+              <Bell className={styles["notices-icon"]} />
             </Button>
             <Button 
               variant="light" 
               onClick={() => navigate("/user")}
-              className={styles["icon-button"]} 
+              className={styles["user-icon-button"]} 
               aria-label="Профиль"
             >
-              <UserIcon />
+              <UserIcon className={styles["user-icon"]}/>
             </Button>
           </div>
         </div>
@@ -282,13 +374,20 @@ export default function Index() {
                     ))}
                   </ul>
                 )}
-                <button onClick={() => {
-                  setFromSearch("");
-                  setFromPortId("");
-                  setShowFromDropdown(false);
-                  }} className={styles["clear-button"]}>
-                <X />
-              </button>
+                {fromSearch && (
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setFromSearch("");
+                      setFromPortId("");
+                      setShowFromDropdown(false);
+                      }} 
+                    className={styles["clear-button"]}
+                    aria-label="Очистить пристань отправления"
+                  >
+                    <X />
+                  </button>
+                )}
               </div>
             </div>
 
@@ -322,13 +421,20 @@ export default function Index() {
                       ))}
                     </ul>
                   )}
-                  <button onClick={() => {
-                    setToSearch("");
-                    setToPortId("");
-                    setShowToDropdown(false);
-                    }} className={styles["clear-button"]}>
-                  <X />
-                  </button>
+                  {toSearch && (
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setToSearch("");
+                        setToPortId("");
+                        setShowToDropdown(false);
+                        }} 
+                      className={styles["clear-button"]}
+                      aria-label="Очистить пристань прибытия"
+                    >
+                      <X />
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (
@@ -344,6 +450,16 @@ export default function Index() {
                     value={walkDuration}
                     onChange={(e) => setWalkDuration(e.target.value)}
                   />
+                  {walkDuration && (
+                  <button 
+                    type="button"
+                    onClick={clearWalkDuration}
+                    className={styles["clear-time-button"]}
+                    aria-label="Очистить длительность прогулки"
+                  >
+                    <X />
+                  </button>
+                )}
                 </div>
               </div>
             )}
@@ -389,6 +505,16 @@ export default function Index() {
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                 />
+                {date && (
+                  <button 
+                    type="button"
+                    onClick={clearDate}
+                    className={styles["clear-date-button"]}
+                    aria-label="Очистить дату поездки"
+                  >
+                    <X />
+                  </button>
+                )}
               </div>
             </div>
             <div className={styles["field"]}>
@@ -402,6 +528,16 @@ export default function Index() {
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
                 />
+                {time && (
+                  <button 
+                    type="button"
+                    onClick={clearTime}
+                    className={styles["clear-time-button"]}
+                    aria-label="Очистить время поездки"
+                  >
+                    <X />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -426,12 +562,22 @@ export default function Index() {
                 <div className={styles["input-wrapper"]}>
                   <Calendar className={styles["input-icon"]} />
                   <input
-                    id="date"
+                    id="dateReturn"
                     type="date"
                     className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    value={dateReturn}
+                    onChange={(e) => setDateReturn(e.target.value)}
                   />
+                  {dateReturn && (
+                    <button 
+                      type="button"
+                      onClick={clearDateReturn}
+                      className={styles["clear-date-button"]}
+                      aria-label="Очистить дату обратной поездки"
+                    >
+                      <X />
+                    </button>
+                  )}
                 </div>
               </div>
               <div className={styles["field"]}>
@@ -442,9 +588,19 @@ export default function Index() {
                     id="time"
                     type="time"
                     className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                    value={timeReturn}
+                    onChange={(e) => setTimeReturn(e.target.value)}
                   />
+                  {timeReturn && (
+                    <button 
+                      type="button"
+                      onClick={clearTimeReturn}
+                      className={styles["clear-time-button"]}
+                      aria-label="Очистить время обратной поездки"
+                    >
+                      <X />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>  
@@ -452,20 +608,28 @@ export default function Index() {
           
           <div className={styles["form-grid-people"]}>
             <div className={styles["field"]}>
-              <label className={styles["field-label"]} htmlFor="adults">Всего человек</label>
+              <label className={styles["field-label"]} htmlFor="numPeople">Всего человек</label>
               <div className={styles["counter-wrapper"]}>
-                <button type="button" className={styles["counter-btn"]} aria-label="Минус взрослые" onClick={dec(setAdults, adults, 1)}>
+                <button 
+                  type="button" 
+                  className={styles["counter-btn"]} 
+                  aria-label="Минус взрослые" 
+                  onClick={dec(setNumPeople, numPeople, 1)}>
                   <Minus size={16} />
                 </button>
                 <input
-                  id="adults"
+                  id="numPeople"
                   type="number"
                   className={`${styles["field-input"]} ${styles["counter-input"]}`}
-                  value={adults}
+                  value={numPeople}
                   min={1}
                   readOnly
                 />
-                <button type="button" className={styles["counter-btn"]} aria-label="Плюс взрослые" onClick={inc(setAdults, adults)}>
+                <button 
+                  type="button" 
+                  className={styles["counter-btn"]} 
+                  aria-label="Плюс взрослые" 
+                  onClick={inc(setNumPeople, numPeople)}>
                   <Plus size={16} />
                 </button>
               </div>
@@ -506,14 +670,6 @@ export default function Index() {
               <label className={styles["field-label"]} htmlFor="vehicle-type">Тип судна</label>
               <div className={styles["input-wrapper"]}>
                 <Ship className={styles["input-icon"]} />
-                {/* <input
-                  id="vehicle-type"
-                  type="text"
-                  className={`${styles["field-input"]} ${styles["with-icon"]} ${styles["transport-input"]}`}
-                  placeholder="Яхта, катер ..."
-                  value={vehicleType}
-                  onChange={(e) => setVehicleType(e.target.value)}
-                /> */}
                 <select
                   id="shipType"
                   value={shipTypeId}
@@ -533,9 +689,28 @@ export default function Index() {
           </div>
 
           <div className={styles["submit-row"]}>
-            <button type="button" className={styles["primary-button"]}>
-              Найти
-            </button>
+            <form className={styles["search-form"]} onSubmit={handleSearchClick}>
+              <div className={styles["actions-row"]}>
+                <button
+                  type="submit"
+                  className={styles["primary-button"]}
+                  disabled={portsLoading || searchLoading /* + ваша валидация */}
+                  aria-busy={searchLoading}
+                >
+                  {searchLoading ? "Ищем..." : "Найти"}
+                </button>
+
+                <button
+                  type="button"
+                  className={styles["secondary-button"]}
+                  onClick={() => navigate("/results")}
+                  disabled={!canOpenResults}
+                  title={canOpenResults ? "Перейти к результатам" : "Сначала выполните поиск"}
+                >
+                  К результатам
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </section>
