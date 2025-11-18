@@ -1,18 +1,29 @@
 import { useState, useEffect } from "react";
 
+import TripDetails from "./TripDetails.jsx";
+
 import styles from "./TripCard.module.css";
 
 export function TripCard({
   imageSrc = "",
   imageAlt = "",
   title = {},
-  status = "",
+  confirm = "",
   details = [],
   captain = {},
-  port = {}, 
+  portDeparture = {}, 
+  portArrival = {},
+  passengers = null,
   rating = "",
   actions = [],
+  onAction, 
+  isPartner = false,
+  onUpdateTripPrice,
+  ...tripRest
 }) {
+
+  const [showDetails, setShowDetails] = useState(false);
+
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
   );
@@ -26,104 +37,152 @@ export function TripCard({
   const visibleActions =
     windowWidth < 750 ? actions.slice(0, 1) : actions;
 
+  const tripData = {
+    imageSrc,
+    imageAlt,
+    title,
+    confirm,
+    details,
+    captain,
+    portDeparture,
+    portArrival,
+    passengers,
+    rating,
+    actions,
+    ...tripRest,
+  };
+
+  function handleActionClick(action) {
+    if (!action) return;
+
+    const actionKey = action.key ?? action.type;
+    const actionLabel = action.label ?? "";
+    const isDetails =
+      actionKey === "details" || /детал/i.test(actionLabel);
+
+    if (isDetails) {
+      setShowDetails(true);
+      action.onClick?.(tripData, action);
+      onAction?.(action, tripData);
+      return;
+    }
+
+    if (action.onClick) {
+      action.onClick(tripData, action);
+    } 
+    else {
+      onAction?.(action, tripData);
+    }
+  }  
+
   return (
-    <div className={styles["card"]}>
-      
-      <div className={styles["media-row"]}>
-        <img src={imageSrc} alt={imageAlt} className={styles["media"]} />
-        <div className={styles["content"]}>
-          <div className={styles["header"]}>
-            {title && (
-              <div className={styles["title"]}>
-                {title.iconSrc && (
-                  <img 
-                    src={title.iconSrc}
-                    alt={title.iconAlt}
-                    className={styles["title-icon"]}
-                  />
-                )}
-                <span className={styles["title-text"]}>{title.text}</span>
-              </div>
-            )}
-            <div className={styles["captain-port"]}>
-              {captain && (
-                <div className={styles["captain"]}>
-                  {captain.iconSrc && (
+    <>
+      <div className={styles["card"]}>
+        
+        <div className={styles["media-row"]}>
+          <img src={imageSrc} alt={imageAlt} className={styles["media"]} />
+          <div className={styles["content"]}>
+            <div className={styles["header"]}>
+              {title && (
+                <div className={styles["title"]}>
+                  {title.iconSrc && (
                     <img 
-                      src={captain.iconSrc}
-                      alt={captain.iconAlt}
-                      className={styles["captain-icon"]}
+                      src={title.iconSrc}
+                      alt={title.iconAlt}
+                      className={styles["title-icon"]}
                     />
                   )}
-                  <span className={styles["captain-text"]}>{captain.text}</span>
+                  <span className={styles["title-text"]}>{title.text}</span>
                 </div>
               )}
-              {port && (
-                <div className={styles["port"]}>
-                  {port.iconSrc && (
-                    <img
-                      src={port.iconSrc}
-                      alt={port.iconAlt}
-                      className={styles["port-icon"]}
-                    />
-                  )}
-                  <span className={styles["port-text"]}>{port.text}</span>
-                </div>
-              )}
-            </div>
-            <div className={styles["detail-group"]}>
-              {details.map((detail) => (
-                <div key={detail.text} className={styles["detail-line"]}>
-                  {detail.iconSrc && (
-                    <img
-                      src={detail.iconSrc}
-                      alt={detail.iconAlt ?? ""}
-                      className={styles["detail-icon"]}
-                    />
-                  )}
-                  <span>{detail["text"]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className={styles["meta"]}>
-            {status && <span className={styles["status"]}>{status}</span>}
-            {rating && (
-              <div className={styles["rating"]}>
-                {rating.map((icon, index) => (
-                  <img
-                    key={`${icon.src}-${index}`}
-                    src={icon.src}
-                    alt={icon.alt}
-                  />
+              <div className={styles["captain-port"]}>
+                {captain && (
+                  <div className={styles["captain"]}>
+                    {captain.iconSrc && (
+                      <img 
+                        src={captain.iconSrc}
+                        alt={captain.iconAlt}
+                        className={styles["captain-icon"]}
+                      />
+                    )}
+                    <span className={styles["captain-text"]}>{captain.text}</span>
+                  </div>
+                )}
+                {portDeparture && (
+                  <div className={styles["port"]}>
+                    {portDeparture.iconSrc && (
+                      <img
+                        src={portDeparture.iconSrc}
+                        alt={portDeparture.iconAlt}
+                        className={styles["port-icon"]}
+                      />
+                    )}
+                    <span className={styles["port-text"]}>{portDeparture.text}</span>
+                  </div>
+                )}
+              </div>
+              <div className={styles["detail-group"]}>
+                {details.map((detail) => (
+                  <div key={detail.text} className={styles["detail-line"]}>
+                    {detail.iconSrc && (
+                      <img
+                        src={detail.iconSrc}
+                        alt={detail.iconAlt ?? ""}
+                        className={styles["detail-icon"]}
+                      />
+                    )}
+                    <span>{detail["text"]}</span>
+                  </div>
                 ))}
               </div>
-            )}
+            </div>
+            <div className={styles["meta"]}>
+              {confirm && <span className={styles["confirm"]}>{confirm}</span>}
+              {rating && (
+                <div className={styles["rating"]}>
+                  {rating.map((icon, index) => (
+                    <img
+                      key={`${icon.src}-${index}`}
+                      src={icon.src}
+                      alt={icon.alt}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
-      <div className={styles["actions"]}>
-        {visibleActions.map((action, index) => (
-          <button
-            key={`${action.label ?? "icon"}-${index}`}
-            type="button"
-            className={`${styles["action-btn"]} ${
-              !action.label ? styles.actionIconOnly : ""
-            }`.trim()}
-            aria-label={action.ariaLabel ?? action.label}
-          >
-            {action.label && <span>{action.label}</span>}
-            {action.iconSrc && (
-              <img
-                src={action.iconSrc}
-                alt={action.iconAlt ?? action.ariaLabel ?? action.label ?? ""}
-                className={styles["action-icon"]}
-              />
-            )}
-          </button>
-        ))}
-      </div>
+        <div className={styles["actions"]}>
+          {visibleActions.map((action, index) => (
+            <button
+              key={`${action.label ?? "icon"}-${index}`}
+              type="button"
+              className={`${styles["action-btn"]} ${
+                !action.label ? styles.actionIconOnly : ""
+              }`.trim()}
+              aria-label={action.ariaLabel ?? action.label}
+              onClick={() => handleActionClick(action)}
+            >
+              {action.label && <span>{action.label}</span>}
+              {action.iconSrc && (
+                <img
+                  src={action.iconSrc}
+                  alt={action.iconAlt ?? action.ariaLabel ?? action.label ?? ""}
+                  className={styles["action-icon"]}
+                />
+              )}
+            </button>
+          ))}
+        </div>
 
-    </div>
+      </div>
+      <TripDetails
+        trip={tripData}
+        show={showDetails}
+        onClose={() => setShowDetails(false)}
+        isPartner={isPartner}
+        onUpdateTripPrice={onUpdateTripPrice}
+      />
+    </>
   );
 }

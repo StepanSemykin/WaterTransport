@@ -1,5 +1,6 @@
 import { Container } from "react-bootstrap";
 
+import { useAuth } from "../components/auth/AuthContext.jsx";
 import { StatsCard } from "../components/dashboards/StatsCard.jsx";
 import { AccountHeader } from "../components/account/AccountHeader.jsx";
 import { Navigation } from "../components/navigation/Navigation.jsx"
@@ -8,6 +9,7 @@ import UserOrders from "../components/user/orders/UserOrders.jsx";
 import UserShips from "../components/user/ships/UserShips.jsx";
 import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
+import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 
 import styles from "./User.module.css";
 
@@ -33,6 +35,7 @@ const USER = {
   lastName: "Иванов",
   email: "ivanov@ivanov.com",
   registred: "На сайте с 01.01.2025",
+  isPartner: true
 };
 
 const SHIPS = [
@@ -57,9 +60,11 @@ const UPCOMING_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-    status: "Подтверждено",
+    confirm: "Подтверждено",
+    status: "upcoming",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
@@ -75,8 +80,11 @@ const COMPLETED_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
+    confirm: "",
+    status: "completed",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "06.06.2025" },
       { text: "12:00" },
@@ -99,9 +107,11 @@ const POSSIBLE_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-    status: "Подтвердить",
+    confirm: "Подтвердить",
+    status: "possible",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "08.08.2025" },
       { text: "12:00" },
@@ -113,7 +123,7 @@ const POSSIBLE_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: "Учетная запись", icon: "Home" },
+  { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
   { key: "bookings", label: "Автоподтверждение бронирования", content: "Автоподтверждение бронирования", icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
@@ -126,25 +136,39 @@ const SUPPORT_ITEMS = [
 ];
 
 const USER_NAVIGATION = {
-  orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} possibleTrips={POSSIBLE_TRIPS}  /> },
+  orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} possibleTrips={POSSIBLE_TRIPS} isPartner={USER.isPartner}  /> },
   ships: {label: "Суда", component: <UserShips ships={SHIPS}/>},
   settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
   support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> },
 };
 
 export default function Partner() {
+  const { user, loading, refreshUser } = useAuth();
+
+  if (loading) {
+    return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
+  }
 
   return (
     <div className={styles["user-page"]}>
       
       <div className={styles["user-header"]}>
-        <AccountHeader {...USER} />
+        {/* <AccountHeader {...USER} /> */}
+        <AccountHeader
+          firstName={user.firstName ?? ""}
+          lastName={user.lastName ?? ""}
+          email={user.email ?? ""}
+          location={user.location ?? ""}
+        />
       </div>
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {STATS.map((stat) => (
-            <StatsCard key={stat.title} {...stat} />
+          {/* {STATS.map((stat) => (
+            <StatsCard key={stat.title} {...stat} /> */}
+
+          {(user.stats ?? []).map((stat) => (
+          <StatsCard key={stat.title} {...stat} />
           ))}
         </div>
 

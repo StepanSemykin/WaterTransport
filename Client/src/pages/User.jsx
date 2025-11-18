@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+
 import { Container } from "react-bootstrap";
 
+import { useAuth } from "../components/auth/AuthContext.jsx";
 import { StatsCard } from "../components/dashboards/StatsCard.jsx";
 import { AccountHeader } from "../components/account/AccountHeader.jsx";
 import { Navigation } from "../components/navigation/Navigation.jsx"
@@ -7,6 +10,8 @@ import { Navigation } from "../components/navigation/Navigation.jsx"
 import UserOrders from "../components/user/orders/UserOrders.jsx";
 import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
+import AccountSettings from "../components/user/settings/AccountSettings.jsx";
+import PartnerRequest from "../components/user/settings/PartnerRequest.jsx";
 
 import styles from "./User.module.css";
 
@@ -37,9 +42,12 @@ const UPCOMING_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-    status: "Не подтверждено",
+    confirm: "Подтверждено",
+    status: "upcoming",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    passengers: 8,
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
@@ -55,8 +63,12 @@ const COMPLETED_TRIPS = [
     imageSrc: YachtIcon,
     imageAlt: "Luxury Yacht Marina",
     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
+    confirm: "",
+    status: "completed",
     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-    port: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
+    passengers: 8,
     details: [
       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
       { text: "12:00" },
@@ -75,8 +87,9 @@ const COMPLETED_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: "Учетная запись", icon: "Home" },
+  { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
+  { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>, icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
 ];
 
@@ -93,22 +106,65 @@ const USER_NAVIGATION = {
 };
 
 export default function User() {
+  const { user, loading, refreshUser } = useAuth();
+
+  // useEffect(() => {
+  //   if (!user.firstName && !loading) {
+  //     refreshUser(true);
+  //   }
+  // }, [user.firstName, loading, refreshUser]);
+
+  if (loading) {
+    return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
+  }
 
   return (
     <div className={styles["user-page"]}>
       
       <div className={styles["user-header"]}>
-        <AccountHeader {...USER} />
+        {/* <AccountHeader {...USER} /> */}
+        <AccountHeader
+          firstName={user.firstName ?? ""}
+          lastName={user.lastName ?? ""}
+          email={user.email ?? ""}
+          location={user.location ?? ""}
+        />
       </div>
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {STATS.map((stat) => (
+          {/* {STATS.map((stat) => (
             <StatsCard key={stat.title} {...stat} />
-          ))}
+          ))} */}
+          {(user.stats ?? []).map((stat) => (
+          <StatsCard key={stat.title} {...stat} />
+        ))}
         </div>
 
-        <Navigation params={USER_NAVIGATION} />    
+        <Navigation
+          params={{
+            orders: {
+              label: "Заказы",
+              component: (
+                <UserOrders
+                  upcomingTrips={user.upcomingTrips ?? []}
+                  completedTrips={user.completedTrips ?? []}
+                />
+                // <UserOrders 
+                //   upcomingTrips={UPCOMING_TRIPS} 
+                //   completedTrips={COMPLETED_TRIPS} />
+              ),
+            },
+            settings: {
+              label: "Настройки",
+              component: <UserSettingsMenu items={SETTINGS_ITEMS} />,
+            },
+            support: {
+              label: "Поддержка",
+              component: <UserSupportMenu items={SUPPORT_ITEMS} />,
+            },
+          }}
+        />
       </Container>
       
     </div>

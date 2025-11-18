@@ -74,6 +74,7 @@
 
 .form-field {
   flex: 1 1 1 1;
+  margin-top: 16px;
 }
 
 .form-field, .form-field-fullwidth {
