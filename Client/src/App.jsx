@@ -35,6 +35,8 @@ import Auth from "./pages/Auth.jsx"
 import User from "./pages/User.jsx"
 import Partner from "./pages/Partner.jsx"
 import Support from "./pages/Support.jsx"
+import Results from "./pages/Results.jsx"
+import Calendar from "./pages/AvailabilityPage.jsx"
 
 import "./App.css"
 

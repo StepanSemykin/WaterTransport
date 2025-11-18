@@ -1,3 +1,10 @@
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
+import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship } from "lucide-react";
+import { Button, Container } from "react-bootstrap";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +13,38 @@ import { Button, Form, Dropdown  } from "react-bootstrap";
 
 import { useAuth } from "../components/auth/AuthContext";
 
+import "leaflet/dist/leaflet.css";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+import { apiFetch } from "../api/api.js";
 import styles from "./HomePage.module.css";
+
+const PORTS_ENDPOINT = "/api/ports/all";
+const DEFAULT_CENTER = [53.195873, 50.100193];
+const DEFAULT_ZOOM = 13;
+
+const defaultIcon = L.icon({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],      
+  iconAnchor: [12, 41],    
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+function PortsBoundsUpdater({ bounds }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!bounds) return;
+    map.fitBounds(bounds, { padding: [24, 24] });
+  }, [map, bounds]);
+
+  return null;
+}
 
 export default function Index() {
   const navigate = useNavigate();
@@ -22,6 +60,9 @@ export default function Index() {
   const { ports = [], portsLoading, shipTypes = [], shipTypesLoading } = useAuth();
   const [shipTypeId, setShipTypeId] = useState("");
   const [walkDuration, setWalkDuration] = useState("");
+  const [ports, setPorts] = useState([]);
+  const [portsLoading, setPortsLoading] = useState(true);
+  const [portsError, setPortsError] = useState("");
 
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown] = useState(false);
@@ -43,6 +84,77 @@ export default function Index() {
   const dec = (setter, value, min = 0) => () => setter(value > min ? value - 1 : min);
   const inc = (setter, value, max = 99) => () => setter(value < max ? value + 1 : max);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPorts() {
+      setPortsLoading(true);
+      setPortsError("");
+
+      try {
+        const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
+        if (!res.ok) {
+          throw new Error(`Failed to load ports (${res.status})`);
+        }
+
+        const data = await res.json();
+        if (!isMounted) return;
+
+        const list = Array.isArray(data?.items) ? data.items : [];
+        setPorts(list);
+      } catch (error) {
+        console.error("[HomePage] Unable to load ports", error);
+        if (isMounted) {
+          setPorts([]);
+          setPortsError("Не удалось загрузить порты");
+        }
+      } finally {
+        if (isMounted) {
+          setPortsLoading(false);
+        }
+      }
+    }
+
+    loadPorts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const geoPorts = useMemo(() => {
+    return ports
+      .map((port) => {
+        const latitude = Number.parseFloat(port?.latitude);
+        const longitude = Number.parseFloat(port?.longitude);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+          return null;
+        }
+
+        return { ...port, latitude, longitude };
+      })
+      .filter(Boolean);
+  }, [ports]);
+
+  const mapBounds = useMemo(() => {
+    if (!geoPorts.length) return null;
+
+    const latitudes = geoPorts.map((port) => port.latitude);
+    const longitudes = geoPorts.map((port) => port.longitude);
+
+    return [
+      [Math.min(...latitudes), Math.min(...longitudes)],
+      [Math.max(...latitudes), Math.max(...longitudes)],
+    ];
+  }, [geoPorts]);
+
+  const mapStatus = useMemo(() => {
+    if (portsLoading) return "Загружаем данные портов...";
+    if (portsError) return portsError;
+    if (!geoPorts.length) return "Порты не найдены";
+    return "";
+  }, [geoPorts.length, portsError, portsLoading]);
   const fromDropdownRef = useRef(null);
   const toDropdownRef = useRef(null);
 
@@ -88,10 +200,34 @@ export default function Index() {
 
       <section className={styles["map-section"]}>
         <div className={styles["map-container"]}>
-          <img
-            alt="Карта маршрута"
-            className={styles["map-image"]}
-          />
+          <MapContainer
+            center={DEFAULT_CENTER}
+            zoom={DEFAULT_ZOOM}
+            scrollWheelZoom
+            className={styles["map"]}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+
+            {mapBounds && <PortsBoundsUpdater bounds={mapBounds} />}
+
+            {geoPorts.map((port) => (
+              <Marker
+                key={port.id ?? `${port.latitude}-${port.longitude}`}
+                position={[port.latitude, port.longitude]}
+                icon={defaultIcon}
+              >
+                <Popup>
+                  <strong>{port.title ?? "Порт"}</strong>
+                  {port.address ? <div>{port.address}</div> : null}
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+
+          {mapStatus ? <div className={styles["map-status"]}>{mapStatus}</div> : null}
         </div>
       </section>
 
