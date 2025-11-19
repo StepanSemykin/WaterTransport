@@ -1,4 +1,4 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Exceptions;
@@ -12,7 +12,7 @@ using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
 namespace WaterTransportService.Api.Services.Users;
 
 /// <summary>
-/// Сервис управления пользователями.
+/// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
 /// </summary>
 public class UserService(
     IMapper mapper,
@@ -22,12 +22,18 @@ public class UserService(
     IPasswordHasher passwordHasher,
     ITokenService tokenService) : IUserService
 {
+    private readonly IUserRepository<Guid> _userRepo = userRepo;
+    private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
+    private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
+    private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly ITokenService _tokenService = tokenService;
+
     /// <summary>
-    /// Получить список пользователей с пагинацией.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="page">Номер страницы (минимум 1).</param>
-    /// <param name="pageSize">Размер страницы (1-100).</param>
-    /// <returns>Кортеж из списка пользователей и общего количества.</returns>
+    /// <param name="page">пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 1).</param>
+    /// <param name="pageSize">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (1-100).</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<(IReadOnlyList<User> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -47,10 +53,10 @@ public class UserService(
     }
 
     /// <summary>
-    /// Получить пользователя по идентификатору.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>DTO пользователя или null, если не найден.</returns>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>DTO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null, пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<AuthUserDto?> GetByIdAsync(Guid id)
     {
         var user = await userRepo.GetByIdAsync(id);
@@ -60,10 +66,10 @@ public class UserService(
     }
 
     /// <summary>
-    /// Создать пользователя (только для роли admin).
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ admin).
     /// </summary>
-    /// <param name="dto">Данные для создания пользователя.</param>
-    /// <returns>Созданный пользователь.</returns>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     [Authorize(Roles = "admin")]
     public async Task<AuthUserDto> CreateAsync(CreateUserDto dto)
     {
@@ -105,12 +111,12 @@ public class UserService(
     }
 
     /// <summary>
-    /// Обновить данные пользователя. При изменении пароля сохраняет хеш в историю.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный пользователь или null, если не найден.</returns>
-    /// <exception cref="DuplicatePasswordException">Выбрасывается, если новый пароль совпадает с текущим или ранее использованными.</exception>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ null, пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
+    /// <exception cref="DuplicatePasswordException">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</exception>
     public async Task<AuthUserDto?> UpdateAsync(Guid id, UpdateUserDto dto)
     {
         var user = await userRepo.GetByIdAsync(id);
@@ -130,13 +136,13 @@ public class UserService(
             {
                 if (passwordHasher.Verify(dto.NewPassword, oldPwd.Hash))
                 {
-                    throw new DuplicatePasswordException("Новый пароль не должен совпадать с ранее использованными паролями.");
+                    throw new DuplicatePasswordException("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
                 }
             }
 
             if (passwordHasher.Verify(dto.NewPassword, user.Hash))
             {
-                throw new DuplicatePasswordException("Новый пароль не должен совпадать с текущим паролем.");
+                throw new DuplicatePasswordException("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.");
             }
 
             var oldPassword = new OldPassword
@@ -160,10 +166,10 @@ public class UserService(
     }
 
     /// <summary>
-    /// Удалить пользователя и отозвать все refresh токены.
+    /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ refresh пїЅпїЅпїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>True, если операция прошла успешно.</returns>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <returns>True, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         await tokenService.RevokeRefreshTokenAsync(id);
@@ -171,11 +177,11 @@ public class UserService(
     }
 
     /// <summary>
-    /// Cоздать access/refresh токены для пользователя, сменившего роль.
+    /// CпїЅпїЅпїЅпїЅпїЅпїЅ access/refresh пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <param name="dto">Данные для cмены роли.</param>
-    /// <returns>Токены доступа и данные пользователя.</returns>
+    /// <param name="id">пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</param>
+    /// <param name="dto">пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ cпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ.</param>
+    /// <returns>пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ.</returns>
     public async Task<LoginResponseDto?> GenerateTokenAsync(Guid id, AuthUserDto dto)
     {
         var accessToken = tokenService.GenerateAccessToken(dto.Phone, dto.Role ?? "common", id);

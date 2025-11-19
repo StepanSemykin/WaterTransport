@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace WaterTransportService.Model.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -68,7 +69,7 @@ public class UserProfile : BaseEntity
     /// <summary>
     /// Коллекция изображений пользователя.
     /// </summary>
-    public ICollection<UserImage> UserImages { get; set; } = [];
+    public ICollection<UserImage> UserImages { get; set; } = new List<UserImage>();
 
     /// <summary>
     /// Краткое описание/о себе.

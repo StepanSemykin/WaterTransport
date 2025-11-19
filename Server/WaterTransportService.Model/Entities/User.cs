@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace WaterTransportService.Model.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,7 +12,7 @@ public class User : BaseEntity
 {
     /// <summary>
     /// Первичный GUID-идентификатор пользователя.
-    /// </summary
+    /// </summary>
     [Key]
     [Column("id", TypeName = "uuid")]
     public required Guid Id { get; set; }
@@ -64,37 +65,37 @@ public class User : BaseEntity
     /// <summary>
     /// Старые записи паролей пользователя.
     /// </summary>
-    public ICollection<OldPassword> OldPasswords { get; set; } = [];
+    public ICollection<OldPassword> OldPasswords { get; set; } = new List<OldPassword>();
 
     /// <summary>
     /// Бронирования, созданные пользователем.
     /// </summary>
-    public ICollection<RegularOrder> RegularOrders { get; set; } = [];
+    public ICollection<RegularOrder> RegularOrders { get; set; } = new List<RegularOrder>();
 
     /// <summary>
     /// Бронирования, созданные пользователем.
     /// </summary>
-    public ICollection<RentOrder> RentOrders { get; set; } = [];
+    public ICollection<RentOrder> RentOrders { get; set; } = new List<RentOrder>();
 
     /// <summary>
     /// Отзывы, оставленные пользователем (как автор).
     /// </summary>
-    public ICollection<Review> Reviews { get; set; } = [];
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
     /// <summary>
     /// Отзывы, полученные пользователем (как объект отзыва). 
     /// </summary>
-    public ICollection<Review> ReceivedReviews { get; set; } = [];
+    public ICollection<Review> ReceivedReviews { get; set; } = new List<Review>();
 
     /// <summary>
     /// Судна, принадлежащие пользователю.
     /// </summary>
-    public ICollection<Ship> Ships { get; set; } = [];
+    public ICollection<Ship> Ships { get; set; } = new List<Ship>();
 
     /// <summary>
     /// Календарные записи на регулярные рейсы, связанные с пользователем.
     /// </summary>
-    public ICollection<RegularCalendar> RegularCalendars { get; set; } = [];
+    public ICollection<RegularCalendar> RegularCalendars { get; set; } = new List<RegularCalendar>();
 
     /// <summary>
     /// Время создания аккаунта в UTC.

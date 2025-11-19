@@ -89,7 +89,6 @@ public class RentOrder
     /// Общая стоимость бронирования в рублях.
     /// </summary>
     [Column("total_price")]
-    [Required]
     public uint? TotalPrice { get; set; }
 
     /// <summary>
