@@ -1,23 +1,25 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
-
+using System.IdentityModel.Tokens.Jwt;
 namespace WaterTransportService.Api.Controllers.Rent;
 
 /// <summary>
-/// Контроллер для работы с откликами партнеров на заказы аренды.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕС‚РєР»РёРєР°РјРё РїР°СЂС‚РЅРµСЂРѕРІ РЅР° Р·Р°РєР°Р·С‹ Р°СЂРµРЅРґС‹.
 /// </summary>
 [ApiController]
-[Route("api/rent-orders/{rentOrderId}/[controller]")]
+[Route("api/rent-orders/[controller]")]
 public class OffersController(IRentOrderOfferService offerService) : ControllerBase
 {
     private readonly IRentOrderOfferService _offerService = offerService;
 
     /// <summary>
-    /// Получить все отклики для конкретного заказа аренды.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Список откликов.</returns>
+    /// <param name="rentOrderId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <returns>РЎРїРёСЃРѕРє РѕС‚РєР»РёРєРѕРІ.</returns>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetOffersByRentOrder(Guid rentOrderId)
     {
@@ -26,11 +28,11 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     }
 
     /// <summary>
-    /// Получить отклик по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕС‚РєР»РёРє РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <param name="id">Идентификатор отклика.</param>
-    /// <returns>Отклик или NotFound.</returns>
+    /// <param name="rentOrderId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>РћС‚РєР»РёРє РёР»Рё NotFound.</returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<RentOrderOfferDto>> GetOfferById(Guid rentOrderId, Guid id)
     {
@@ -41,30 +43,35 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     }
 
     /// <summary>
-    /// Создать новый отклик на заказ аренды (партнер откликается).
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РѕС‚РєР»РёРє РЅР° Р·Р°РєР°Р· Р°СЂРµРЅРґС‹ (РїР°СЂС‚РЅРµСЂ РѕС‚РєР»РёРєР°РµС‚СЃСЏ).
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <param name="dto">Данные для создания отклика.</param>
-    /// <returns>Созданный отклик.</returns>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ РѕС‚РєР»РёРє.</returns>
     [HttpPost]
-    public async Task<ActionResult<RentOrderOfferDto>> CreateOffer(Guid rentOrderId, [FromBody] CreateRentOrderOfferDto dto)
+    [Authorize]
+    public async Task<ActionResult<RentOrderOfferDto>> CreateOffer([FromBody] CreateRentOrderOfferDto dto)
     {
-        if (dto.RentOrderId != rentOrderId)
-            return BadRequest("RentOrderId mismatch");
 
-        var created = await _offerService.CreateOfferAsync(dto);
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            // Р’РѕР·РІСЂР°С‰Р°РµРј 401, РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµС‚ РІ claims РёР»Рё id РЅРµРІР°Р»РёРґРµРЅ
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var created = await _offerService.CreateOfferAsync(dto, userGuid);
         if (created is null)
             return BadRequest("Unable to create offer. Check order status, ship ownership, and requirements.");
 
-        return CreatedAtAction(nameof(GetOfferById), new { rentOrderId, id = created.Id }, created);
+        return CreatedAtAction(nameof(GetOfferById), new {id = created.Id }, created);
     }
 
     /// <summary>
-    /// Принять отклик (пользователь выбирает партнера).
+    /// РџСЂРёРЅСЏС‚СЊ РѕС‚РєР»РёРє (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІС‹Р±РёСЂР°РµС‚ РїР°СЂС‚РЅРµСЂР°).
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <param name="id">Идентификатор принимаемого отклика.</param>
-    /// <returns>NoContent при успехе.</returns>
+    /// <param name="rentOrderId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРёРЅРёРјР°РµРјРѕРіРѕ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>NoContent РїСЂРё СѓСЃРїРµС…Рµ.</returns>
     [HttpPost("{id}/accept")]
     public async Task<ActionResult> AcceptOffer(Guid rentOrderId, Guid id)
     {
@@ -76,11 +83,11 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     }
 
     /// <summary>
-    /// Удалить отклик.
+    /// РЈРґР°Р»РёС‚СЊ РѕС‚РєР»РёРє.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <param name="id">Идентификатор отклика для удаления.</param>
-    /// <returns>NoContent при успехе.</returns>
+    /// <param name="rentOrderId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚РєР»РёРєР° РґР»СЏ СѓРґР°Р»РµРЅРёСЏ.</param>
+    /// <returns>NoContent РїСЂРё СѓСЃРїРµС…Рµ.</returns>
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteOffer(Guid rentOrderId, Guid id)
     {

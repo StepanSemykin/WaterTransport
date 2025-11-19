@@ -360,7 +360,7 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("status");
 
-                    b.Property<long>("TotalPrice")
+                    b.Property<long?>("TotalPrice")
                         .HasColumnType("bigint")
                         .HasColumnName("total_price");
 

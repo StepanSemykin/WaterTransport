@@ -1,38 +1,41 @@
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.EntityFrameworkCore;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для портовых данных.
+/// Р РµРїРѕР·РёС‚РѕСЂРёР№ РґР»СЏ РїРѕСЂС‚РѕРІС‹С… РґР°РЅРЅС‹С….
 /// </summary>
 public class PortRepository(WaterTransportDbContext context) : IPortRepository<Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
-    /// Получить все порты.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РїРѕСЂС‚С‹.
     /// </summary>
     public async Task<IEnumerable<Port>> GetAllAsync() => await _context.Ports.ToListAsync();
 
     /// <summary>
-    /// Получить порт по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РїРѕСЂС‚ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     public async Task<Port?> GetByIdAsync(Guid id) => await _context.Ports.FindAsync(id);
 
     /// <summary>
-    /// Получить порт по названию.    
+    /// РџРѕР»СѓС‡РёС‚СЊ РїРѕСЂС‚ РїРѕ РЅР°Р·РІР°РЅРёСЋ.    
     /// </summary>  
-    public async Task<Port?> GetByTitleAsync(string title)
+    public async Task<Port?> GetByTitleAsync(string? title)
     {
+        if (string.IsNullOrWhiteSpace(title))
+            return null;
+
         var port = await _context.Ports.FirstOrDefaultAsync(u => u.Title == title);
 
         return port;
     }
 
     /// <summary>
-    /// Создать новый порт.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РїРѕСЂС‚.
     /// </summary>
     public async Task<Port> CreateAsync(Port entity)
     {
@@ -42,7 +45,7 @@ public class PortRepository(WaterTransportDbContext context) : IPortRepository<G
     }
 
     /// <summary>
-    /// Обновить порт.
+    /// РћР±РЅРѕРІРёС‚СЊ РїРѕСЂС‚.
     /// </summary>
     public async Task<bool> UpdateAsync(Port entity, Guid id)
     {
@@ -63,7 +66,7 @@ public class PortRepository(WaterTransportDbContext context) : IPortRepository<G
     }
 
     /// <summary>
-    /// Удалить порт.
+    /// РЈРґР°Р»РёС‚СЊ РїРѕСЂС‚.
     /// </summary>
     public async Task<bool> DeleteAsync(Guid id)
     {

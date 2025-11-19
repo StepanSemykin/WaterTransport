@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Api.DTO;
 
@@ -20,9 +20,6 @@ public class CreateRentOrderOfferDto
 {
     [Required]
     public required Guid RentOrderId { get; set; }
-
-    [Required]
-    public required Guid PartnerId { get; set; }
 
     [Required]
     public required Guid ShipId { get; set; }
