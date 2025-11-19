@@ -20,6 +20,7 @@ public class ShipService(
     private readonly IPortRepository<Guid> _portRepo = portRepo;
     private readonly IUserRepository<Guid> _userRepo = userRepo;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepo = shipTypeRepo;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить список всех судов с пагинацией.
@@ -41,7 +42,7 @@ public class ShipService(
     public async Task<ShipDto?> GetByIdAsync(Guid id)
     {
         var ship = await _repo.GetByIdAsync(id);
-        var shipDto = mapper.Map<ShipDto?>(ship);
+        var shipDto = _mapper.Map<ShipDto?>(ship);
 
         return ship is null ? null : shipDto;
     }
@@ -65,7 +66,7 @@ public class ShipService(
         var items = ordered
             .Skip(skip)
             .Take(pageSize)
-            .Select(s => mapper.Map<ShipDto>(s))
+            .Select(s => _mapper.Map<ShipDto>(s))
             .ToList();
 
         return (items, total);
@@ -76,11 +77,11 @@ public class ShipService(
     /// </summary>
     public async Task<ShipDto?> CreateAsync(CreateShipDto dto)
     {
-        var port = await _portRepo.GetByTitleAsync(dto.PortDto.Title);
+        var port = await _portRepo.GetByIdAsync(dto.PortId);
         if (port is null)
             return null;
 
-        var user = await _userRepo.GetByPhoneAsync(dto.UserDto.Phone);
+        var user = await _userRepo.GetByIdAsync(dto.UserId);
         if (user is null)
             return null;
 
@@ -109,7 +110,7 @@ public class ShipService(
         };
 
         var created = await _repo.CreateAsync(entity);
-        var createdDto = mapper.Map<ShipDto>(created);
+        var createdDto = _mapper.Map<ShipDto>(created);
 
         return createdDto;
     }
@@ -119,20 +120,9 @@ public class ShipService(
     /// </summary>
     public async Task<ShipDto?> UpdateAsync(Guid id, UpdateShipDto dto)
     {
-        //var port = mapper.Map<Port>(dto.PortDto);
-        //var user = mapper.Map<User>(dto.UserDto);
-        //if (port is null || user is null) return null;
-        var port = await _portRepo.GetByTitleAsync(dto.PortDto.Title);
-        if (port is null)
-            return null;
-
-        // 2. Найти пользователя по телефону
-        var user = await _userRepo.GetByPhoneAsync(dto.UserDto.Phone);
-        if (user is null)
-            return null;
-
         var entity = await _repo.GetByIdAsync(id);
         if (entity is null) return null;
+
         if (!string.IsNullOrWhiteSpace(dto.Name)) entity.Name = dto.Name;
         if (dto.ShipTypeId.HasValue) entity.ShipTypeId = dto.ShipTypeId.Value;
         if (dto.Capacity.HasValue) entity.Capacity = dto.Capacity.Value;
@@ -143,11 +133,23 @@ public class ShipService(
         if (dto.Length.HasValue) entity.Length = dto.Length.Value;
         if (!string.IsNullOrWhiteSpace(dto.Description)) entity.Description = dto.Description;
         if (dto.CostPerHour.HasValue) entity.CostPerHour = dto.CostPerHour.Value;
-        if (!string.IsNullOrWhiteSpace(dto.PortDto.Title)) entity.PortId = port.Id;
-        if (!string.IsNullOrWhiteSpace(dto.UserDto.Phone)) entity.UserId = user.Id;
+        
+        if (dto.PortId.HasValue)
+        {
+            var port = await _portRepo.GetByIdAsync(dto.PortId.Value);
+            if (port is null) return null;
+            entity.PortId = port.Id;
+        }
+
+        if (dto.UserId.HasValue)
+        {
+            var user = await _userRepo.GetByIdAsync(dto.UserId.Value);
+            if (user is null) return null;
+            entity.UserId = user.Id;
+        }
 
         var updated = await _repo.UpdateAsync(entity, id);
-        var updatedDto = mapper.Map<ShipDto>(updated);
+        var updatedDto = _mapper.Map<ShipDto>(entity);
 
         return updated ? updatedDto : null;
     }
@@ -163,7 +165,7 @@ public class ShipService(
         if (ship is null)
             return null;
 
-        var shipDto = mapper.Map<ShipDto>(ship);
+        var shipDto = _mapper.Map<ShipDto>(ship);
         return shipDto;
     }
 

@@ -11,40 +11,53 @@ public class Mapping : Profile
     public Mapping()
     {
         CreateMap<User, AuthUserDto>()
-            .ConstructUsing(u => new AuthUserDto(u.Phone, u.Role));
+            .ConstructUsing(u => new AuthUserDto(u.Id, u.Phone, u.Role));
         CreateMap<User, CreateUserDto>().ReverseMap();
         CreateMap<User, UpdateUserDto>().ReverseMap();
         CreateMap<UserProfile, UserProfileDto>().ReverseMap();
-        CreateMap<Port, PortDto>().ReverseMap();
+        
+        // Port mappings with ID
+        CreateMap<Port, PortDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
         CreateMap<Port, CreatePortDto>().ReverseMap();
         CreateMap<Port, UpdatePortDto>().ReverseMap();
-        CreateMap<Ship, ShipDto>().ReverseMap();
-        CreateMap<Ship, CreateShipDto>().ReverseMap();
-        CreateMap<Ship, UpdateShipDto>().ReverseMap();
+        
+        // Ship mappings with ID
+        CreateMap<Ship, ShipDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+        
         CreateMap<ShipType, ShipTypeDto>().ReverseMap();
         CreateMap<ShipType, CreateShipTypeDto>().ReverseMap();
         CreateMap<ShipType, UpdateShipTypeDto>().ReverseMap();
         
         // Image mappings
         CreateMap<ShipImage, ShipImageDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.ShipId, opt => opt.MapFrom(src => src.ShipId))
-            .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.ImagePath))
-            .ForMember(dest => dest.IsPrimary, opt => opt.MapFrom(src => src.IsPrimary))
-            .ForMember(dest => dest.UploadedAt, opt => opt.MapFrom(src => src.UploadedAt));
+            .ConstructUsing(src => new ShipImageDto(
+                src.Id,
+                src.ShipId,
+                src.ImagePath,
+                src.IsPrimary,
+                src.UploadedAt
+            ));
         
         CreateMap<PortImage, PortImageDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
-            .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.ImagePath))
-            .ForMember(dest => dest.IsPrimary, opt => opt.MapFrom(src => src.IsPrimary))
-            .ForMember(dest => dest.UploadedAt, opt => opt.MapFrom(src => src.UploadedAt));
+            .ConstructUsing(src => new PortImageDto(
+                src.Id,
+                src.PortId,
+                src.ImagePath,
+                src.IsPrimary,
+                src.UploadedAt
+            ));
         
         CreateMap<UserImage, UserImageDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserProfileId))
-            .ForMember(dest => dest.ImagePath, opt => opt.MapFrom(src => src.ImagePath))
-            .ForMember(dest => dest.IsPrimary, opt => opt.MapFrom(src => src.IsPrimary))
-            .ForMember(dest => dest.UploadedAt, opt => opt.MapFrom(src => src.UploadedAt));
+            .ConstructUsing(src => new UserImageDto(
+                src.Id,
+                src.UserProfileId,
+                src.ImagePath,
+                src.IsPrimary,
+                src.UploadedAt
+            ));
     }
 }

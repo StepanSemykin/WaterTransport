@@ -278,7 +278,7 @@ public static class DatabaseSeeder
                     Width = (ushort)Random.Shared.Next(2, 11),
                     Length = (ushort)Random.Shared.Next(6, 41),
                     Description = descriptions[Random.Shared.Next(descriptions.Length)],
-                    CostPerHour = (uint)Random.Shared.Next(3000, 50001) * 100,
+                    CostPerHour = (uint)(Random.Shared.Next(30, 501) * 100),
                     PortId = port.Id,
                     Port = port,
                     UserId = partner.Id,
