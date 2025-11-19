@@ -165,7 +165,7 @@ export function AddShip({ isOpen, onClose, onSave }) {
         },
       };
 
-      const shipRes = await apiFetch("/api/ships", {
+      const shipRes = await apiFetch("/api/Ships", {
         method: "POST",
         body: JSON.stringify(payload),
       });
