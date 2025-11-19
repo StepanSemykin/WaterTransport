@@ -35,6 +35,7 @@ const LOGIN_ENDPOINT = "/api/users/login";
 const USER_PROFILE_ENDPOINT = "/api/userprofiles/me";
 const LOGOUT_ENDPOINT = "/api/users/logout";
 const PORTS_ENDPOINT = "/api/ports/all";
+const SHIP_TYPES_ENDPOINT = "/api/shiptypes";
 const LOCATION = "/auth";
 
 export function AuthProvider({ children }) {
@@ -42,6 +43,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [ports, setPorts] = useState([]);
   const [portsLoading, setPortsLoading] = useState(true);
+  const [shipTypes, setShipTypes] = useState([]);
+  const [shipTypesLoading, setShipTypesLoading] = useState(true);
 
   const hasFetched = useRef(false);
   const inFlight = useRef(false);
@@ -49,17 +52,34 @@ export function AuthProvider({ children }) {
   async function loadPorts() {
     setPortsLoading(true);
     try {
-    const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
-    if (res.ok) {
-      const data = await res.json();
-      setPorts(Array.isArray(data.items) ? data.items : []);
-    }
+      const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        setPorts(Array.isArray(data.items) ? data.items : []);
+      }
     }
     catch (err) {
       console.warn("[AuthContext] ports load failed", err);
     } 
     finally {
       setPortsLoading(false);
+    }
+  }
+
+  async function loadShipTypes() {
+    setShipTypesLoading(true);
+    try {
+      const res = await apiFetch(SHIP_TYPES_ENDPOINT, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        setShipTypes(Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []));
+      }
+    } 
+    catch (err) {
+      console.warn("[AuthContext] ship types load failed", err);
+    } 
+    finally {
+      setShipTypesLoading(false);
     }
   }
 
@@ -71,7 +91,7 @@ export function AuthProvider({ children }) {
 
     try {
       const accountRes = await apiFetch(ME_ENDPOINT, { method: "GET" });
-      await loadPorts();
+      await Promise.all([loadPorts(), loadShipTypes()]);
 
       if (!accountRes.ok) {
         setUser(INITIAL_USER_STATE);
@@ -144,6 +164,8 @@ export function AuthProvider({ children }) {
       loading,
       ports,
       portsLoading,
+      shipTypes,
+      shipTypesLoading,
       refreshUser,
       logout,
       isAuthenticated: Boolean(user?.phone),
@@ -151,7 +173,7 @@ export function AuthProvider({ children }) {
       isCommon: user?.role === "common",
       isPartner: user?.role === "partner",
     }),
-    [user, loading, ports, portsLoading]
+    [user, loading, ports, portsLoading, shipTypes, shipTypesLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -162,196 +184,3 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
-
-// import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
-
-// import { apiFetch } from "../../api/api.js";
-
-// const AuthContext = createContext(null);
-
-// const INITIAL_USER_PROFILE = {
-//   nick: null,
-//   firstName: null,
-//   lastName: null,
-//   patronymic: null,
-//   email: null, 
-//   birthday: null,
-//   about: null, 
-//   location: null,
-//   upcomingTrips: [],
-//   completedTrips: [],
-//   stats: []
-// };
-
-// const INITIAL_USER_STATE = {
-//   phone: null
-// }
-
-// const GET_MY_PROFILE_ENDPOINT = "/api/users/profile";
-// const LOGOUT_ENDPOINT = "/api/users/logout";
-// const LOCATION = "/auth";
-
-// export function AuthProvider({ children }) {
-//   const [user, setUser] = useState(INITIAL_USER_STATE);
-//   const [loading, setLoading] = useState(true);
-
-//   // защита от дубликатов и повторных вызовов
-//   const hasFetched = useRef(false);
-//   const inFlight = useRef(false);
-
-//   async function refreshUser({ force = false } = {}) {
-//     if ((hasFetched.current || inFlight.current) && !force) return;
-
-//     inFlight.current = true;
-//     setLoading(true);
-//     try {
-//       const res = await apiFetch(GET_MY_PROFILE_ENDPOINT, { method: "GET" });
-
-//       if (res.ok) {
-//         const profile = await res.json();
-//         setUser(prev => ({ ...prev, ...profile }));
-//         hasFetched.current = true;            // <- помечаем как загружено
-//       } 
-//       else {
-//         setUser(INITIAL_USER_STATE);
-//         hasFetched.current = true;            // <- тоже считаем «завершили попытку»
-//       }
-//     } 
-//     catch (err) {
-//       console.error("Ошибка проверки авторизации:", err);
-//       setUser(INITIAL_USER_STATE);
-//       hasFetched.current = true;
-//     } 
-//     finally {
-//       inFlight.current = false;
-//       setLoading(false);
-//     }
-//   }
-
-//   async function logout() {
-//     try {
-//       await apiFetch(LOGOUT_ENDPOINT, { method: "POST" });
-//     } 
-//     finally {
-//       setUser(INITIAL_USER_STATE);
-//       hasFetched.current = false;             // <- позволим заново загрузить после логина
-//       window.location.href = LOCATION;
-//     }
-//   }
-
-//   // загрузить профиль ОДИН раз на маунт (StrictMode вызовет эффект дважды — guarded)
-//   useEffect(() => {
-//     refreshUser();
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, []);
-
-//   const value = useMemo(
-//     () => ({
-//       user,
-//       loading,
-//       refreshUser, // можно вызвать вручную: refreshUser({ force: true })
-//       logout,
-//       isAuthenticated: Boolean(user?.phone),
-//     }),
-//     [user, loading]
-//   );
-
-//   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-// }
-
-// export function useAuth() {
-//   const ctx = useContext(AuthContext);
-//   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-//   return ctx;
-// }
-
-// export function AuthProvider({ children }) {
-//   const [user, setUser] = useState(INITIAL_USER_STATE);
-//   const [loading, setLoading] = useState(true);
-//   const extrasLoaded = useRef(false);
-
-//   async function refreshUser( withExtras = false ) {
-//     try {
-//       const res = await apiFetch(GET_MY_PROFILE_ENDPOINT);
-//       if (res.ok) {
-//         setUser(INITIAL_USER_STATE);
-
-//         const profile = await res.json();
-
-//         let upcomingTrips = [];
-//         let completedTrips = [];
-//         let stats = [];
-
-//         // if (withExtras && !extrasLoaded.current) {
-//         //   const [upcomingTripsRes, completedTripsRes, statsRes] = await Promise.allSettled([
-//         //     apiFetch("/api/users/profile/upcoming"),
-//         //     apiFetch("/api/users/profile/completed"),
-//         //     apiFetch("/api/users/profile/stats"),
-//         //   ]);
-
-//         //   if (upcomingTripsRes.status === "fulfilled" && upcomingTripsRes.value.ok) {
-//         //     upcomingTrips = await upcomingTripsRes.value.json();
-//         //   }
-//         //   if (completedTripsRes.status === "fulfilled" && completedTripsRes.value.ok) {
-//         //     completedTrips = await completedTripsRes.value.json();
-//         //   }
-//         //   if (statsRes.status === "fulfilled" && statsRes.value.ok) {
-//         //     stats = await statsRes.value.json();
-//         //   }
-
-//         //   extrasLoaded.current = true;
-//         // }
-
-//         setUser((prev) => ({
-//         ...prev,
-//         ...profile,
-//         upcomingTrips: Array.isArray(upcomingTrips) && upcomingTrips.length
-//           ? upcomingTrips
-//           : prev.upcomingTrips,
-//         completedTrips: Array.isArray(completedTrips) && completedTrips.length
-//           ? completedTrips
-//           : prev.completedTrips,
-//         stats: Array.isArray(stats) && stats.length ? stats : prev.stats,
-//       }));
-
-//       } 
-//       else {
-//         setUser(INITIAL_USER_STATE);
-//       }
-//     } 
-//     catch (err) {
-//       console.error("Ошибка проверки авторизации:", err);
-//       setUser(INITIAL_USER_STATE);
-//     } 
-//     finally {
-//       setLoading(false);
-//     }
-//   }
-
-//   async function logout() {
-//     try {
-//       await apiFetch(LOGOUT_ENDPOINT, { method: "POST" });
-//     } 
-//     finally {
-//       setUser(INITIAL_USER_STATE);
-//       extrasLoaded.current = false;
-//       window.location.href = LOCATION;
-//     }
-//   }
-
-//   useEffect(() => {
-//     refreshUser();
-//   }, []);
-
-//   return (
-//     <AuthContext.Provider value={{ user, loading, refreshUser, logout }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// }
-
-// export function useAuth() {
-//   const ctx = useContext(AuthContext);
-//   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-//   return ctx;
-// }

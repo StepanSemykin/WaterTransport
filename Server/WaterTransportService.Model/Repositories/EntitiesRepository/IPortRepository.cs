@@ -17,7 +17,7 @@ public interface IPortRepository<Id>
     /// <summary>
     /// Получить порт по названию.
     /// </summary>
-    public Task<Port?> GetByTitleAsync(string title);
+    public Task<Port?> GetByTitleAsync(string? title);
 
     /// <summary>
     /// Создать порт.

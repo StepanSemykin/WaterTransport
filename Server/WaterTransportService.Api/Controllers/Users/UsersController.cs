@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Exceptions;
@@ -138,7 +139,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -146,7 +147,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -250,7 +251,8 @@ public class UsersController(IUserService userService, IAuthService authService)
                 });
         }
     }
-
+    }
+    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
     /// </summary>
@@ -294,7 +296,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -302,7 +304,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 

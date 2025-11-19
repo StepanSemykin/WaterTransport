@@ -229,7 +229,6 @@ export default function AccountSettings() {
           <Button
             variant="outline-secondary"
             onClick={() => {
-              // откат полей к текущему пользователю
               setForm({
                 nickname: user.nickname ?? "",
                 firstName: user.firstName ?? "",
@@ -245,6 +244,7 @@ export default function AccountSettings() {
               setSuccess("");
             }}
             disabled={saving}
+            class
           >
             Отменить
           </Button>

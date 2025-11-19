@@ -1,0 +1,55 @@
+.page {
+  min-height: 100vh;
+  background: #f8fafc; 
+}
+
+.controls {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  padding-top: 1rem;
+  padding-bottom: 0.75rem;
+}
+
+.controlsInner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.infoBar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.75rem 0;
+}
+
+.infoText {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cardsWrap {
+  padding: 1.5rem 1rem; 
+}
+
+@media (max-width: 576px) {
+  .controls {
+    padding-top: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .controlsInner {
+    gap: 0.5rem;
+  }
+
+  .infoText {
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .cardsWrap {
+    padding: 1rem 0.75rem;
+  }
+}

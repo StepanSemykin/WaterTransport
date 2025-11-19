@@ -1,4 +1,4 @@
-using WaterTransportService.Api.DTO;
+п»їusing WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Constants;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
@@ -7,7 +7,7 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
-/// Сервис для работы с откликами партнеров на заказы аренды.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕС‚РєР»РёРєР°РјРё РїР°СЂС‚РЅРµСЂРѕРІ РЅР° Р·Р°РєР°Р·С‹ Р°СЂРµРЅРґС‹.
 /// </summary>
 public class RentOrderOfferService(
     RentOrderOfferRepository offerRepository,
@@ -23,7 +23,7 @@ public class RentOrderOfferService(
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
-    /// Получить все отклики для конкретного заказа.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ Р·Р°РєР°Р·Р°.
     /// </summary>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
     {
@@ -32,7 +32,7 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Получить все отклики конкретного партнера.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId)
     {
@@ -41,7 +41,7 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Получить отклик по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕС‚РєР»РёРє РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)
     {
@@ -50,38 +50,43 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Создать новый отклик партнера на заказ.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РѕС‚РєР»РёРє РїР°СЂС‚РЅРµСЂР° РЅР° Р·Р°РєР°Р·.
     /// </summary>
-    public async Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto)
+    public async Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto, Guid partnerId)
     {
-        // Проверяем существование заказа с откликами
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ Р·Р°РєР°Р·Р° СЃ РѕС‚РєР»РёРєР°РјРё
         var rentOrder = await _rentOrderRepository.GetByIdWithOffersAsync(createDto.RentOrderId);
         if (rentOrder is null) return null;
 
-        // Проверяем, что заказ в статусе ожидания откликов
+<<<<<<< HEAD
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ Р·Р°РєР°Р· РІ СЃС‚Р°С‚СѓСЃРµ РѕР¶РёРґР°РЅРёСЏ РѕС‚РєР»РёРєРѕРІ
+        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse 
+=======
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse
+>>>>>>> a768748e47d99fdea5cd693a3296d7afe4f45240
             && rentOrder.Status != RentOrderStatus.HasOffers)
             return null;
 
-        // Проверяем существование партнера
-        var partner = await _userRepository.GetByIdAsync(createDto.PartnerId);
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РїР°СЂС‚РЅРµСЂР°
+        var partner = await _userRepository.GetByIdAsync(partnerId);
         if (partner is null) return null;
 
-        // Проверяем существование судна и что оно принадлежит партнеру
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃСѓРґРЅР° Рё С‡С‚Рѕ РѕРЅРѕ РїСЂРёРЅР°РґР»РµР¶РёС‚ РїР°СЂС‚РЅРµСЂСѓ
         var ship = await _shipRepository.GetByIdWithDetailsAsync(createDto.ShipId);
-        if (ship is null || ship.UserId != createDto.PartnerId) return null;
+        if (ship is null || ship.UserId != partnerId) return null;
 
-        // Проверяем соответствие требованиям заказа
+        // РџСЂРѕРІРµСЂСЏРµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ С‚СЂРµР±РѕРІР°РЅРёСЏРј Р·Р°РєР°Р·Р°
         if (!ValidateShipForOrder(ship, rentOrder))
             return null;
 
-        // Создаем отклик
+        // РЎРѕР·РґР°РµРј РѕС‚РєР»РёРє
         var offer = new RentOrderOffer
         {
             Id = Guid.NewGuid(),
             RentOrderId = createDto.RentOrderId,
             RentOrder = rentOrder,
-            PartnerId = createDto.PartnerId,
+            PartnerId = partnerId,
             Partner = partner,
             ShipId = createDto.ShipId,
             Ship = ship,
@@ -92,7 +97,7 @@ public class RentOrderOfferService(
 
         var created = await _offerRepository.CreateAsync(offer);
 
-        // Если это первый отклик, меняем статус заказа на HasOffers
+        // Р•СЃР»Рё СЌС‚Рѕ РїРµСЂРІС‹Р№ РѕС‚РєР»РёРє, РјРµРЅСЏРµРј СЃС‚Р°С‚СѓСЃ Р·Р°РєР°Р·Р° РЅР° HasOffers
         if (rentOrder.Status == RentOrderStatus.AwaitingPartnerResponse)
         {
             rentOrder.Status = RentOrderStatus.HasOffers;
@@ -103,33 +108,33 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Принять отклик партнера (пользователь выбирает партнера).
+    /// РџСЂРёРЅСЏС‚СЊ РѕС‚РєР»РёРє РїР°СЂС‚РЅРµСЂР° (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІС‹Р±РёСЂР°РµС‚ РїР°СЂС‚РЅРµСЂР°).
     /// </summary>
     public async Task<bool> AcceptOfferAsync(Guid rentOrderId, Guid offerId)
     {
-        // Получаем заказ со всеми откликами
+        // РџРѕР»СѓС‡Р°РµРј Р·Р°РєР°Р· СЃРѕ РІСЃРµРјРё РѕС‚РєР»РёРєР°РјРё
         var rentOrder = await _rentOrderRepository.GetByIdWithOffersAsync(rentOrderId);
 
         if (rentOrder is null || rentOrder.Status != RentOrderStatus.HasOffers)
             return false;
 
-        // Получаем принимаемый отклик
+        // РџРѕР»СѓС‡Р°РµРј РїСЂРёРЅРёРјР°РµРјС‹Р№ РѕС‚РєР»РёРє
         var acceptedOffer = rentOrder.Offers.FirstOrDefault(o => o.Id == offerId);
         if (acceptedOffer is null || acceptedOffer.Status != RentOrderOfferStatus.Pending)
             return false;
 
-        // Обновляем заказ
+        // РћР±РЅРѕРІР»СЏРµРј Р·Р°РєР°Р·
         rentOrder.PartnerId = acceptedOffer.PartnerId;
         rentOrder.ShipId = acceptedOffer.ShipId;
         rentOrder.TotalPrice = acceptedOffer.OfferedPrice;
         rentOrder.Status = RentOrderStatus.Agreed;
         rentOrder.OrderDate = DateTime.UtcNow;
 
-        // Обновляем принятый отклик
+        // РћР±РЅРѕРІР»СЏРµРј РїСЂРёРЅСЏС‚С‹Р№ РѕС‚РєР»РёРє
         acceptedOffer.Status = RentOrderOfferStatus.Accepted;
         acceptedOffer.RespondedAt = DateTime.UtcNow;
 
-        // Отклоняем все остальные отклики
+        // РћС‚РєР»РѕРЅСЏРµРј РІСЃРµ РѕСЃС‚Р°Р»СЊРЅС‹Рµ РѕС‚РєР»РёРєРё
         foreach (var offer in rentOrder.Offers.Where(o => o.Id != offerId))
         {
             offer.Status = RentOrderOfferStatus.Rejected;
@@ -141,7 +146,7 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Удалить отклик.
+    /// РЈРґР°Р»РёС‚СЊ РѕС‚РєР»РёРє.
     /// </summary>
     public async Task<bool> DeleteOfferAsync(Guid id)
     {
@@ -149,19 +154,19 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Проверить соответствие судна требованиям заказа.
+    /// РџСЂРѕРІРµСЂРёС‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ СЃСѓРґРЅР° С‚СЂРµР±РѕРІР°РЅРёСЏРј Р·Р°РєР°Р·Р°.
     /// </summary>
     private static bool ValidateShipForOrder(Ship ship, RentOrder rentOrder)
     {
-        // Проверка типа судна
+        // РџСЂРѕРІРµСЂРєР° С‚РёРїР° СЃСѓРґРЅР°
         if (ship.ShipType.Id != rentOrder.ShipTypeId)
             return false;
 
-        // Проверка порта отправления
+        // РџСЂРѕРІРµСЂРєР° РїРѕСЂС‚Р° РѕС‚РїСЂР°РІР»РµРЅРёСЏ
         if (ship.PortId != rentOrder.DeparturePortId)
             return false;
 
-        // Проверка вместимости
+        // РџСЂРѕРІРµСЂРєР° РІРјРµСЃС‚РёРјРѕСЃС‚Рё
         if (ship.Capacity < rentOrder.NumberOfPassengers)
             return false;
 
@@ -169,7 +174,7 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Преобразование сущности отклика в DTO.
+    /// РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ СЃСѓС‰РЅРѕСЃС‚Рё РѕС‚РєР»РёРєР° РІ DTO.
     /// </summary>
     private static RentOrderOfferDto MapToDto(RentOrderOffer offer) => new(
         offer.Id,

@@ -12,6 +12,7 @@ import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
 import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 import PartnerRequest from "../components/user/settings/PartnerRequest.jsx";
+import LogoutSettings from "../components/user/settings/LogOutSettings.jsx";
 
 import styles from "./User.module.css";
 
@@ -90,7 +91,7 @@ const SETTINGS_ITEMS = [
   { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
   { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>, icon: "Notifications" },
-  { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
+  { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />, icon: "Notifications" }
 ];
 
 const SUPPORT_ITEMS = [
@@ -146,13 +147,13 @@ export default function User() {
             orders: {
               label: "Заказы",
               component: (
-                // <UserOrders
-                //   upcomingTrips={user.upcomingTrips ?? []}
-                //   completedTrips={user.completedTrips ?? []}
-                // />
-                <UserOrders 
-                  upcomingTrips={UPCOMING_TRIPS} 
-                  completedTrips={COMPLETED_TRIPS} />
+                <UserOrders
+                  upcomingTrips={user.upcomingTrips ?? []}
+                  completedTrips={user.completedTrips ?? []}
+                />
+                // <UserOrders 
+                //   upcomingTrips={UPCOMING_TRIPS} 
+                //   completedTrips={COMPLETED_TRIPS} />
               ),
             },
             settings: {
