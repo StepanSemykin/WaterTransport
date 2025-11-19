@@ -1,17 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 
+import { Button } from "react-bootstrap";
+import { X, MapPin } from "lucide-react";
+
 import { useAuth } from "../../auth/AuthContext";
 import { apiFetch, apiFetchRaw } from "../../../api/api.js";
 
 import styles from "./AddShip.module.css";
 
-const SHIP_TYPES = [
-  { value: "катер", label: "Катер", id: 1 },
-  { value: "теплоход", label: "Теплоход", id: 2 },
-  { value: "яхта", label: "Яхта", id: 3 },
-  { value: "лодка", label: "Лодка", id: 4 },
-  { value: "катамаран", label: "Катамаран", id: 5 }
-];
+// const SHIP_TYPES = [
+//   { value: "катер", label: "Катер", id: 1 },
+//   { value: "теплоход", label: "Теплоход", id: 2 },
+//   { value: "яхта", label: "Яхта", id: 3 },
+//   { value: "лодка", label: "Лодка", id: 4 },
+//   { value: "катамаран", label: "Катамаран", id: 5 }
+// ];
 
 const initialFormData = {
   name: "",
@@ -25,14 +28,41 @@ const initialFormData = {
   description: "",
   costPerHour: "",
   imageFile: null,
+  portId: "",
 };
 
+const SHIPS_ENDPOINT = "/api/Ships";
+const SHIP_IMAGES_ENDPOINT = "/api/shipimages";
+
 export function AddShip({ isOpen, onClose, onSave }) {
-  const { ports = [], user } = useAuth();
+  const { ports = [], portsLoading, shipTypes = [], shipTypesLoading, user } = useAuth();
+
   const [formData, setFormData] = useState(initialFormData);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef(null);
+
+  const [portSearch, setPortSearch] = useState("");
+  const [showPortDropdown, setShowPortDropdown] = useState(false);
+  const portDropdownRef = useRef(null);
+
+  const availablePorts = Array.isArray(ports) ? ports : [];
+  const availableShipTypes = Array.isArray(shipTypes) ? shipTypes : [];
+
+  const filteredPorts = availablePorts.filter(port =>
+    (port.title || port.name || "").toLowerCase().includes(portSearch.toLowerCase())
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (portDropdownRef.current && !portDropdownRef.current.contains(event.target)) {
+        setShowPortDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (user?.phone) {
@@ -46,9 +76,12 @@ export function AddShip({ isOpen, onClose, onSave }) {
     }
     setPreviewUrl(null);
     setFormData(initialFormData);
+    setPortSearch("");
+    setShowPortDropdown(false);
     setIsDragging(false);
     if (inputRef.current) {
-      try { inputRef.current.value = ""; } catch {}
+      try { inputRef.current.value = ""; } 
+      catch {}
     }
   };
 
@@ -132,9 +165,14 @@ export function AddShip({ isOpen, onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const selectedPort = ports.find((p) => p.title === formData.portTitle);
-    if (!selectedPort) {
+    if (!formData.portId) {
       alert("Не выбрана пристань");
+      return;
+    }
+
+    const selectedPort = availablePorts.find(p => p.id === formData.portId);
+    if (!selectedPort) {
+      alert("Пристань не найдена");
       return;
     }
 
@@ -165,7 +203,7 @@ export function AddShip({ isOpen, onClose, onSave }) {
         },
       };
 
-      const shipRes = await apiFetch("/api/Ships", {
+      const shipRes = await apiFetch(SHIPS_ENDPOINT, {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -178,22 +216,15 @@ export function AddShip({ isOpen, onClose, onSave }) {
       }
 
       const createdShip = await shipRes.json();
-
-      // Ожидаем, что ShipDto содержит Id (Guid)
       const shipName = createdShip.name;
-      if (!shipName) {
-        console.warn("Сервер вернул судно без Id, пропускаем загрузку изображения");
-      }
 
-      // 3. Если есть картинка и есть shipId — загружаем на /api/shipimages
       if (formData.imageFile && shipName) {
         const form = new FormData();
         form.append("ShipName", shipName);
         form.append("Image", formData.imageFile);
         form.append("IsPrimary", "true");
 
-        // ВАЖНО: тут используем обычный fetch, чтобы не ставить Content-Type: application/json
-        const imgRes = await apiFetchRaw("/api/shipimages", {
+        const imgRes = await apiFetchRaw(SHIP_IMAGES_ENDPOINT, {
           method: "POST",
           body: form,
         });
@@ -205,7 +236,6 @@ export function AddShip({ isOpen, onClose, onSave }) {
         }
       }
 
-      // 4. Уведомляем родителя и закрываем модал
       if (onSave) {
         onSave(createdShip);
       }
@@ -250,13 +280,14 @@ export function AddShip({ isOpen, onClose, onSave }) {
                     name="shipTypeId"
                     value={formData.shipTypeId}
                     onChange={handleChange}
-                    className={styles["form-select"]}
+                    className={`${styles["form-input"]} ${styles["form-input-ship-type"]}`}
                     required
+                    disabled={shipTypesLoading}
                   >
-                    <option value="">Выберите тип</option>
-                    {SHIP_TYPES.map((shipType) => (
-                      <option key={shipType.id} value={shipType.id}>
-                        {shipType.label}
+                    <option value="">{shipTypesLoading ? "Загрузка типов..." : "Выберите тип"}</option>
+                    {availableShipTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.title || type.name}
                       </option>
                     ))}
                   </select>
@@ -428,22 +459,55 @@ export function AddShip({ isOpen, onClose, onSave }) {
             <div className={styles["form-section"]}>
               <h3 className={styles["section-title"]}>Пристань</h3>
               <div className={styles["port-options"]}>
-                <div className={styles["form-field"]}>
+                <div className={styles["form-field"]} ref={portDropdownRef}>
                   <label className={styles["form-label"]}>Пристань, к которой привязано судно</label>
-                  <select
-                    name="portTitle"
-                    value={formData.portTitle}
-                    onChange={handleChange}
-                    className={styles["form-select"]}
-                    required
-                  >
-                  <option value="">Выберите пристань</option>
-                    {ports.map((port) => (
-                      <option key={port.title} value={port.title}>
-                       {port.title}
-                      </option>
-                   ))}
-                 </select>
+                  <div className={styles["input-wrapper"]}>
+                    <MapPin className={styles["input-icon"]} />
+                    <input
+                      type="text"
+                      className={`${styles["form-input"]} ${styles["form-input-port"]} ${styles["with-icon"]} ${portSearch ? styles["with-clear"] : ""}`}
+                      placeholder={portsLoading ? "Загрузка пристаней..." : "Введите название пристани"}
+                      value={portSearch}
+                      onChange={(e) => {
+                        setPortSearch(e.target.value);
+                        setShowPortDropdown(true);
+                      }}
+                      onFocus={() => setShowPortDropdown(true)}
+                      disabled={portsLoading}
+                      required
+                    />
+                    {portSearch && (
+                      <button
+                        type="button"
+                        className={styles["clear-button"]}
+                        onClick={() => {
+                          setPortSearch("");
+                          setFormData(prev => ({ ...prev, portId: "" }));
+                          setShowPortDropdown(false);
+                        }}
+                        aria-label="Очистить"
+                      >
+                        <X />
+                      </button>
+                    )}
+                    {portSearch && showPortDropdown && filteredPorts.length > 0 && (
+                      <ul className={styles["dropdown-list"]}>
+                        {filteredPorts.map((port) => (
+                          <li
+                            key={port.id}
+                            className={styles["dropdown-item"]}
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, portId: port.id }));
+                              setPortSearch(port.title || port.name);
+                              setShowPortDropdown(false);
+                            }}
+                          >
+                            {port.title || port.name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -463,19 +527,21 @@ export function AddShip({ isOpen, onClose, onSave }) {
           </div>
 
           <div className={styles["modal-footer"]}>
-            <button
-              type="button"
+            <Button
+              variant="outline-secondary"
+              // type="button"
               onClick={onClose}
-              className={`${styles["button"]} ${styles["button-secondary"]}`}
+              // className={`${styles["button"]} ${styles["button-secondary"]}`}
             >
               Отмена
-            </button>
-            <button
-              type="submit"
-              className={`${styles["button"]} ${styles["button-primary"]}`}
+            </Button>
+            <Button
+              type="submit" 
+              variant="primary"
+              // className={`${styles["button"]} ${styles["button-primary"]}`}
             >
               Добавить судно
-            </button>
+            </Button>
           </div>
         </form>
       </div>

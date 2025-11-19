@@ -44,7 +44,7 @@ function PortsBoundsUpdater({ bounds }) {
   return null;
 }
 
-export default function Index() {
+export default function HomePage() {
   const navigate = useNavigate();
   const { performSearch, loading: searchLoading, results, locked } = useSearch();
   const { ports = [], portsLoading, shipTypes = [], shipTypesLoading } = useAuth();

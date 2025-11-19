@@ -10,6 +10,7 @@ import UserShips from "../components/user/ships/UserShips.jsx";
 import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
 import AccountSettings from "../components/user/settings/AccountSettings.jsx";
+import LogoutSettings from "../components/user/settings/LogOutSettings.jsx";
 
 import styles from "./User.module.css";
 
@@ -126,7 +127,7 @@ const SETTINGS_ITEMS = [
   { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
   { key: "bookings", label: "Автоподтверждение бронирования", content: "Автоподтверждение бронирования", icon: "Notifications" },
-  { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
+  { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />, icon: "Notifications" }
 ];
 
 const SUPPORT_ITEMS = [

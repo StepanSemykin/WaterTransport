@@ -31,11 +31,11 @@ export default function PartnerRequestContent() {
     setError("");
     setSuccess("");
     try {
-      const payload = {
-        message: message || null,
-        contactPhone: user?.phone || null,
-        contactEmail: user?.email || null,
-      };
+      // const payload = {
+      //   message: message || null,
+      //   contactPhone: user?.phone || null,
+      //   contactEmail: user?.email || null,
+      // };
 
       const res = await apiFetch("/api/users/become-partner", {
         method: "POST",
@@ -48,7 +48,8 @@ export default function PartnerRequestContent() {
         setMessage("");
         try {
           await refreshUser({ force: true });
-        } catch {}
+        } 
+        catch {}
       } 
       else {
         const txt = await res.text();
@@ -88,7 +89,13 @@ export default function PartnerRequestContent() {
 
       <div className={styles["button-confirm"]}>
         <Button variant="primary" onClick={handleOpenConfirm} disabled={loading}>
-          {loading ? (<><Spinner as="span" animation="border" size="sm" /> Отправка...</>) : "Отправить запрос"}
+          {loading ? (
+            <>
+            <Spinner as="span" animation="border" size="sm" /> Отправка...
+            </>
+          ) : (
+            "Отправить запрос"
+          )}
         </Button>
       </div>
 
@@ -106,7 +113,13 @@ export default function PartnerRequestContent() {
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseConfirm} disabled={loading}>Отмена</Button>
           <Button variant="primary" onClick={handleSendConfirmed} disabled={loading}>
-            {loading ? (<><Spinner as="span" animation="border" size="sm" /> Отправка...</>) : "Подтвердить и отправить"}
+            {loading ? (
+              <>
+              <Spinner as="span" animation="border" size="sm" /> Отправка...
+              </>
+            ) : (
+              "Подтвердить и отправить"
+            )}
           </Button>
         </Modal.Footer>
       </Modal>
