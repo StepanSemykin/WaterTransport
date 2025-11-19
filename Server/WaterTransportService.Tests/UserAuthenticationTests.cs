@@ -46,6 +46,7 @@ public class UserAuthenticationTests
     {
         // Arrange
         var registerDto = new RegisterDto("+79991234567", "password123");
+        var userId = Guid.NewGuid();
         var hashedPassword = "hashed_password";
         var accessToken = "access_token_123";
         var refreshToken = "refresh_token_456";
@@ -57,7 +58,7 @@ public class UserAuthenticationTests
             .Returns(hashedPassword);
 
         _mockUserRepo.Setup(x => x.CreateAsync(It.IsAny<User>()))
-            .ReturnsAsync((User u) => u);
+            .ReturnsAsync((User u) => { u.Id = userId; return u; });
 
         _mockUserProfileRepo.Setup(x => x.CreateAsync(It.IsAny<UserProfile>()))
             .ReturnsAsync((UserProfile p) => p);
@@ -71,7 +72,7 @@ public class UserAuthenticationTests
         _mockTokenService.Setup(x => x.SaveRefreshTokenAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<DateTime>()))
             .Returns(Task.CompletedTask);
 
-        var userDto = new UserDto(registerDto.Phone, "common");
+        var userDto = new UserDto(userId, registerDto.Phone, "common");
         _mockMapper.Setup(x => x.Map<UserDto>(It.IsAny<User>()))
             .Returns(userDto);
 
@@ -82,6 +83,7 @@ public class UserAuthenticationTests
         Assert.NotNull(result);
         Assert.Equal(accessToken, result.AccessToken);
         Assert.Equal(refreshToken, result.RefreshToken);
+        Assert.Equal(userId, result.User.Id);
         Assert.Equal(registerDto.Phone, result.User.Phone);
         Assert.Equal("common", result.User.Role);
 
@@ -126,6 +128,7 @@ public class UserAuthenticationTests
     {
         // Arrange
         var registerDto = new RegisterDto("+79991234567", "MySecurePassword123");
+        var userId = Guid.NewGuid();
         var hashedPassword = "securely_hashed_password";
 
         _mockUserRepo.Setup(x => x.GetByPhoneAsync(It.IsAny<string>()))
@@ -135,7 +138,7 @@ public class UserAuthenticationTests
             .Returns(hashedPassword);
 
         _mockUserRepo.Setup(x => x.CreateAsync(It.IsAny<User>()))
-            .ReturnsAsync((User u) => u);
+            .ReturnsAsync((User u) => { u.Id = userId; return u; });
 
         _mockUserProfileRepo.Setup(x => x.CreateAsync(It.IsAny<UserProfile>()))
             .ReturnsAsync((UserProfile p) => p);
@@ -147,7 +150,7 @@ public class UserAuthenticationTests
             .Returns("refresh");
 
         _mockMapper.Setup(x => x.Map<UserDto>(It.IsAny<User>()))
-            .Returns(new UserDto(registerDto.Phone, "common"));
+            .Returns(new UserDto(userId, registerDto.Phone, "common"));
 
         // Act
         await _authService.RegisterAsync(registerDto);
@@ -181,7 +184,7 @@ public class UserAuthenticationTests
 
         var accessToken = "access_token_123";
         var refreshToken = "refresh_token_456";
-        var userDto = new UserDto(user.Phone, user.Role);
+        var userDto = new UserDto(userId, user.Phone, user.Role);
 
         _mockUserRepo.Setup(x => x.GetByPhoneAsync(loginDto.Phone))
             .ReturnsAsync(user);
@@ -213,6 +216,7 @@ public class UserAuthenticationTests
         Assert.NotNull(result.Data);
         Assert.Equal(accessToken, result.Data.AccessToken);
         Assert.Equal(refreshToken, result.Data.RefreshToken);
+        Assert.Equal(userId, result.Data.User.Id);
         Assert.Equal(loginDto.Phone, result.Data.User.Phone);
 
         _mockUserRepo.Verify(x => x.UpdateAsync(It.Is<User>(u =>
@@ -390,7 +394,7 @@ public class UserAuthenticationTests
             .Returns("refresh");
 
         _mockMapper.Setup(x => x.Map<UserDto>(It.IsAny<User>()))
-            .Returns(new UserDto(user.Phone, "common"));
+            .Returns(new UserDto(userId, user.Phone, "common"));
 
         // Act
         var result = await _authService.LoginAsync(loginDto);

@@ -1,3 +1,4 @@
+using AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
@@ -12,12 +13,14 @@ public class UserImageService(
     IEntityRepository<UserImage, Guid> repo,
     IUserRepository<Guid> userRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
-    IFileStorageService fileStorageService) : IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>
+    IFileStorageService fileStorageService,
+    IMapper mapper) : IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>
 {
     private readonly IEntityRepository<UserImage, Guid> _repo = repo;
     private readonly IUserRepository<Guid> _userRepo = userRepo;
     private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// ѕолучить список всех изображений пользователей с пагинацией.
@@ -31,7 +34,7 @@ public class UserImageService(
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderByDescending(x => x.UploadedAt).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(x => _mapper.Map<UserImageDto>(x)).ToList();
         return (items, total);
     }
 
@@ -43,7 +46,7 @@ public class UserImageService(
     public async Task<UserImageDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
-        return e is null ? null : MapToDto(e);
+        return e is null ? null : _mapper.Map<UserImageDto>(e);
     }
 
     /// <summary>
@@ -56,7 +59,7 @@ public class UserImageService(
         if (_repo is not UserImageRepository imageRepo) return null;
 
         var primaryImage = await imageRepo.GetPrimaryByUserIdAsync(entityId);
-        return primaryImage == null ? null : MapToDto(primaryImage);
+        return primaryImage == null ? null : _mapper.Map<UserImageDto>(primaryImage);
     }
 
     /// <summary>
@@ -69,7 +72,7 @@ public class UserImageService(
         if (_repo is not UserImageRepository imageRepo) return Array.Empty<UserImageDto>();
 
         var images = await imageRepo.GetAllByUserIdAsync(entityId);
-        return images.Select(MapToDto).ToList();
+        return images.Select(x => _mapper.Map<UserImageDto>(x)).ToList();
     }
 
     /// <summary>
@@ -105,7 +108,7 @@ public class UserImageService(
             UserProfile = userProfile
         };
         var created = await _repo.CreateAsync(entity);
-        return MapToDto(created);
+        return _mapper.Map<UserImageDto>(created);
     }
 
     /// <summary>
@@ -136,7 +139,7 @@ public class UserImageService(
 
         if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
         var ok = await _repo.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+        return ok ? _mapper.Map<UserImageDto>(entity) : null;
     }
 
     /// <summary>
@@ -153,9 +156,4 @@ public class UserImageService(
 
         return await _repo.DeleteAsync(id);
     }
-
-    /// <summary>
-    /// ѕреобразовать сущность изображени€ пользовател€ в DTO.
-    /// </summary>
-    private static UserImageDto MapToDto(UserImage e) => new(e.Id, e.UserProfileId, e.ImagePath, e.IsPrimary, e.UploadedAt);
 }

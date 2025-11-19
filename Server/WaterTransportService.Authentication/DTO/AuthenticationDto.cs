@@ -26,6 +26,7 @@ public record RegisterDto(
 /// DTO пользователя для передачи клиенту.
 /// </summary>
 public record UserDto(
+    Guid Id,
     string Phone,
     string? Role
 );

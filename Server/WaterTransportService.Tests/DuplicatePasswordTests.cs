@@ -192,13 +192,14 @@ public class DuplicatePasswordTests
             .ReturnsAsync(true);
 
         _mockMapper.Setup(x => x.Map<AuthUserDto>(It.IsAny<User>()))
-            .Returns(new AuthUserDto(user.Phone, user.Role));
+            .Returns(new AuthUserDto(userId, user.Phone, user.Role));
 
         // Act
         var result = await _userService.UpdateAsync(userId, dto);
 
         // Assert
         Assert.NotNull(result);
+        Assert.Equal(userId, result.Id);
         Assert.Equal(user.Phone, result.Phone);
 
         // Verify old password was saved
@@ -302,13 +303,14 @@ public class DuplicatePasswordTests
             .ReturnsAsync(true);
 
         _mockMapper.Setup(x => x.Map<AuthUserDto>(It.IsAny<User>()))
-            .Returns(new AuthUserDto(dto.Phone!, user.Role));
+            .Returns(new AuthUserDto(userId, dto.Phone!, user.Role));
 
         // Act
         var result = await _userService.UpdateAsync(userId, dto);
 
         // Assert
         Assert.NotNull(result);
+        Assert.Equal(userId, result.Id);
         Assert.Equal(dto.Phone, result.Phone);
 
         // Verify password checks were not performed
