@@ -58,13 +58,8 @@ public class RentOrderOfferService(
         var rentOrder = await _rentOrderRepository.GetByIdWithOffersAsync(createDto.RentOrderId);
         if (rentOrder is null) return null;
 
-<<<<<<< HEAD
         // Проверяем, что заказ в статусе ожидания откликов
         if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse 
-=======
-        // ���������, ��� ����� � ������� �������� ��������
-        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse
->>>>>>> a768748e47d99fdea5cd693a3296d7afe4f45240
             && rentOrder.Status != RentOrderStatus.HasOffers)
             return null;
 

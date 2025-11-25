@@ -69,4 +69,9 @@ public class Port
     /// Коллекция изображений порта.
     /// </summary>
     public ICollection<PortImage> PortImages { get; set; } = [];
+
+    /// <summary>
+    /// Коллекция отзывов о порте.
+    /// </summary>
+    public ICollection<Review> Reviews { get; set; } = [];
 }
