@@ -5,9 +5,26 @@ import styles from "./TripCard.module.css";
 export function ShipCard({
   imageSrc = "",
   imageAlt = "",
+
+  nameIconSrc = "",
+  nameIconAlt = "",
+
+  id = "",
+  name = "",
+  capacity = "",
+  registrationNumber = "",
+  yearOfManufacture = "",
+  maxSpeed = "",
+  width = "",
+  length = "",
+  description = "",
+  costPerHour = "",
+  portId = "",
+  userId = "",
+
   title = {},
   status = "",
-  type = "",
+  type = {},
   details = [],
   rating = "",
   actions = [],
@@ -38,16 +55,16 @@ export function ShipCard({
 
         <div className={styles["content"]}>
           <div className={styles["header"]}>
-            {title && (
+            {name && (
               <div className={styles["title"]}>
-                {title.iconSrc && (
+                {name.iconSrc && (
                   <img 
-                    src={title.iconSrc}
-                    alt={title.iconAlt}
+                    src={name.iconSrc}
+                    alt={name.iconAlt}
                     className={styles["title-icon"]}
                   />
                 )}
-                <span className={styles["title-text"]}>{title.text}</span>
+                <span className={styles["title-text"]}>{name.text}</span>
               </div>
             )}
 

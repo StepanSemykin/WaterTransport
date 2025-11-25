@@ -25,6 +25,16 @@
   text-align: center;
 }
 
+.empty-message {
+  font-size: 18px;
+  color: #666;
+  text-align: center;
+}
+
+.user-card {
+  margin-bottom: 40px;
+}
+
 @media(max-width: 550px) {
   .user-section-title {
     font-size: 20px;

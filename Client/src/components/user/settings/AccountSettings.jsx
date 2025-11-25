@@ -244,7 +244,6 @@ export default function AccountSettings() {
               setSuccess("");
             }}
             disabled={saving}
-            class
           >
             Отменить
           </Button>
