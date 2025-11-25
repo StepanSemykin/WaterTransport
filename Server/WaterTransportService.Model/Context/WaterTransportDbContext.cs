@@ -128,6 +128,16 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .WithMany(s => s.Reviews)
                 .HasForeignKey(r => r.ShipId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasOne(r => r.Port)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.PortId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasOne(r => r.RentOrder)
+                .WithMany(ro => ro.Reviews)
+                .HasForeignKey(r => r.RentOrderId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<UserProfile>(b =>
