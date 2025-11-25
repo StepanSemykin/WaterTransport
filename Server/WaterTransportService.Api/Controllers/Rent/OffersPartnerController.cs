@@ -5,7 +5,7 @@ using WaterTransportService.Api.Services.Orders;
 namespace WaterTransportService.Api.Controllers.Rent;
 
 /// <summary>
-///  онтроллер дл€ партнеров - управление откликами на заказы аренды.
+///  онтроллер дл€ партнЄров - управление откликами на заказы аренды.
 /// </summary>
 [ApiController]
 [Route("api/partners/{partnerId}/[controller]")]

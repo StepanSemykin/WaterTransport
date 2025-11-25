@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WaterTransportService.Model.Entities;
 
 /// <summary>
-/// Отзыв пользователя о пользователе/судне.
+/// Отзыв пользователя о пользователе/судне/порте.
 /// </summary>
 [Table("reviews")]
 public class Review : BaseEntity
@@ -57,6 +57,32 @@ public class Review : BaseEntity
     public Ship? Ship { get; set; }
 
     /// <summary>
+    /// Идентификатор порта, к которому относится отзыв (если отзыв о порте).
+    /// </summary>
+    [Column("port_id", TypeName = "uuid")]
+    public Guid? PortId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на порт, к которому относится отзыв.
+    /// </summary>
+    [ForeignKey(nameof(PortId))]
+    [InverseProperty(nameof(Port.Reviews))]
+    public Port? Port { get; set; }
+
+    /// <summary>
+    /// Идентификатор заказа аренды, на основании которого оставлен отзыв.
+    /// Обязателен для отзывов на партнеров и суда.
+    /// </summary>
+    [Column("rent_order_id", TypeName = "uuid")]
+    public Guid? RentOrderId { get; set; }
+
+    /// <summary>
+    /// Навигационное свойство на заказ аренды.
+    /// </summary>
+    [ForeignKey(nameof(RentOrderId))]
+    public RentOrder? RentOrder { get; set; }
+
+    /// <summary>
     /// Текст отзыва.
     /// </summary>
     [Column("comment")]
@@ -79,7 +105,14 @@ public class Review : BaseEntity
     public new required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
+    /// Время последнего обновления отзыва в UTC.
+    /// </summary>
+    [Column("updated_at", TypeName = "timestamptz")]
+    public DateTime? UpdatedAt { get; set; }
+
+    /// <summary>
     /// Флаг активности записи. Если false — запись считается удалённой/неактивной.
     /// </summary>
+    [Column("is_active")]
     public bool IsActive { get; set; } = true;
 }

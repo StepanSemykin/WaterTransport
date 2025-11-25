@@ -18,14 +18,44 @@ public interface IReviewService
     Task<ReviewDto?> GetByIdAsync(Guid id);
 
     /// <summary>
-    /// Создать новый отзыв.
+    /// Получить все отзывы о конкретном пользователе-партнере.
     /// </summary>
-    Task<ReviewDto?> CreateAsync(CreateReviewDto dto);
+    Task<IReadOnlyList<ReviewDto>> GetReviewsByUserIdAsync(Guid userId);
 
     /// <summary>
-    /// Обновить отзыв.
+    /// Получить все отзывы о конкретном судне.
     /// </summary>
-    Task<ReviewDto?> UpdateAsync(Guid id, UpdateReviewDto dto);
+    Task<IReadOnlyList<ReviewDto>> GetReviewsByShipIdAsync(Guid shipId);
+
+    /// <summary>
+    /// Получить все отзывы о конкретном порте.
+    /// </summary>
+    Task<IReadOnlyList<ReviewDto>> GetReviewsByPortIdAsync(Guid portId);
+
+    /// <summary>
+    /// Получить средний рейтинг пользователя-партнера.
+    /// </summary>
+    Task<AverageRatingDto> GetAverageRatingForUserAsync(Guid userId);
+
+    /// <summary>
+    /// Получить средний рейтинг судна.
+    /// </summary>
+    Task<AverageRatingDto> GetAverageRatingForShipAsync(Guid shipId);
+
+    /// <summary>
+    /// Получить средний рейтинг порта.
+    /// </summary>
+    Task<AverageRatingDto> GetAverageRatingForPortAsync(Guid portId);
+
+    /// <summary>
+    /// Создать новый отзыв.
+    /// </summary>
+    Task<ReviewDto?> CreateAsync(CreateReviewDto dto, Guid authorId);
+
+    /// <summary>
+    /// Обновить существующий отзыв.
+    /// </summary>
+    Task<ReviewDto?> UpdateAsync(Guid id, UpdateReviewDto dto, Guid authorId);
 
     /// <summary>
     /// Удалить отзыв.
