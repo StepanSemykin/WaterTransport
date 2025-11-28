@@ -79,6 +79,7 @@ public class RentOrderService(
         return matchingOrders.Select(MapToDto);
     }
 
+
     /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
@@ -86,18 +87,22 @@ public class RentOrderService(
     {
         var user = await _userRepository.GetByIdAsync(userId);
         if (user is null) return null;
-
+        if (dto.Duration != null)
+        {
+            dto.RentalEndTime = dto.RentalStartTime + dto.Duration;
+        }
         // Проверяем существование порта отправления
-        var departurePort = await _portRepository.GetByTitleAsync(dto.DeparturePortTitle);
+        var departurePort = await _portRepository.GetByIdAsync(dto.DeparturePortId);
         if (departurePort is null) return null;
 
-  
         // Проверяем существование порта прибытия (если указан)
-       
-        var arrivalPort = await _portRepository.GetByTitleAsync(dto.ArrivalPortTitle);
-        
-        
-        
+        Port? arrivalPort = null;
+
+        if (dto.ArrivalPortId != null)
+        {
+            arrivalPort = await _portRepository.GetByIdAsync(dto.ArrivalPortId.Value);
+        }
+
 
         // Проверяем существование типа судна
         var shipType = await _shipTypeRepository.GetByIdAsync(dto.ShipTypeId);
@@ -110,7 +115,7 @@ public class RentOrderService(
             User = user,
             ShipTypeId = dto.ShipTypeId,
             ShipType = shipType,
-            DeparturePortId = departurePort.Id,
+            DeparturePortId = dto.DeparturePortId,
             DeparturePort = departurePort,
             ArrivalPortId = arrivalPort?.Id,
             ArrivalPort = arrivalPort,

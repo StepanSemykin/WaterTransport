@@ -23,6 +23,29 @@ public class RentOrderOfferService(
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
+    /// Получить все отклики для конкретного пользователя.
+    /// </summary>
+    public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByUser(Guid UserId)
+    {
+        // Получаем заказы, которые ожидают откликов
+        var availableOrders = await _rentOrderRepository.GetByStatusesAsync(
+            RentOrderStatus.AwaitingPartnerResponse,
+            RentOrderStatus.HasOffers);
+
+        // Фильтруем заказы где владелец наш пользователь
+        var matchingOrders = availableOrders.Where(order => order.UserId == UserId).ToList();
+
+        // В переменную orders записываем список id найденных заказов
+        var orders = matchingOrders.Select(o => o.Id).ToList();
+
+        // Получаем все отклики и фильтруем их по найденным id заказов
+        var allOffers = await _offerRepository.GetAllAsync();
+        var offersForUser = allOffers.Where(o => orders.Contains(o.RentOrderId));
+
+        return offersForUser.Select(MapToDto);
+    }
+
+    /// <summary>
     /// Получить все отклики для конкретного заказа.
     /// </summary>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
