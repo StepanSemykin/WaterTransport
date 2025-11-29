@@ -194,7 +194,7 @@ export default function HomePage() {
 
   async function handleSearchClick(e) {
     e?.preventDefault?.();
-
+    
     if (searchLoading) {
       return; 
     }
@@ -219,21 +219,27 @@ export default function HomePage() {
       shipTypeId: shipTypeId || null,
       walkDuration: addWalkingTrip ? walkDuration : null // Исправляем логику
     };
+    
+    console.log('Поля формы:', payload );
 
-    console.log('Поля формы:', {
-      fromPortId,
-      toPortId,
-      date,
-      time,
-      addWalkingTrip,
-      walkDuration,
-      shipTypeId,
-      numPeople,
-    });
+    const localDate = new Date(`${payload.date}T${payload.time}`);
+    const isoString = localDate.toISOString(); // всегда в UTC с "Z"
 
     try {
       await performSearch(payload); // запрос к серверу + сохранение результатов в контекст
       // navigate("/results"); // если хотите авто-переход — раскомментируйте:
+        const res = await apiFetch("/api/RentOrders", {
+        method: "POST",
+        body: JSON.stringify({
+          ShipTypeId: payload.shipTypeId,
+          departurePortId: payload.fromPortId,
+          arrivalPortTitle: payload.toPortId,
+          numberOfPassengers: payload.numPeople,
+          rentalStartTime: isoString,
+          duration: payload.walkDuration
+        }),
+      });
+      console.log(res);
     } 
     catch (e) {
       // покажите ошибку пользователю
@@ -709,7 +715,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   className={styles["secondary-button"]}
-                  onClick={() => navigate("/results")}
+                  onClick={() => navigate("/offerresults")}
                   disabled={!canOpenResults}
                   title={canOpenResults ? "Перейти к результатам" : "Сначала выполните поиск"}
                 >

@@ -26,9 +26,9 @@ public class CreateRentOrderDto
     public required ushort ShipTypeId { get; set; }
 
     [Required]
-    public required string DeparturePortTitle { get; set; }
+    public required Guid DeparturePortId { get; set; }
 
-    public string? ArrivalPortTitle { get; set; } = null;
+    public Guid? ArrivalPortId { get; set; } = null;
 
     [Required]
     public required ushort NumberOfPassengers { get; set; }
@@ -38,7 +38,7 @@ public class CreateRentOrderDto
 
     public DateTime? RentalEndTime { get; set; }
 
-    public DateTime? OrderDate { get; set; }
+    public TimeSpan? Duration { get; set; }
 
 }
 
