@@ -251,7 +251,6 @@ public class UsersController(IUserService userService, IAuthService authService)
                 });
         }
     }
-    }
     // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
@@ -426,6 +425,7 @@ public class UsersController(IUserService userService, IAuthService authService)
 
         return Ok(updated);
     }
+}
 
 
     //// GET api/users/profile/upcoming
@@ -463,4 +463,4 @@ public class UsersController(IUserService userService, IAuthService authService)
     //    var user = await _service.GetByIdAsync(userId);
     //    return user is null ? NotFound() : Ok(user);
     //}
-}
+

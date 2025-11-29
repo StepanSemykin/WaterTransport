@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace WaterTransportService.Api.DTO;
 
 public record UserProfileDto(
-    //Guid UserId,
+    Guid UserId,
     string? Nickname,
     string? FirstName,
     string? LastName,
@@ -12,8 +12,8 @@ public record UserProfileDto(
     DateTime? Birthday,
     string? About,
     string? Location
-//bool IsPublic
-//DateTime? UpdatedAt
+    //bool IsPublic
+    //DateTime? UpdatedAt
 );
 
 public class CreateUserProfileDto

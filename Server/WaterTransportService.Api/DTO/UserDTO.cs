@@ -21,7 +21,7 @@ public class UpdateUserDto
     [MaxLength(20)]
     public string? Phone { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public string? Role { get; set; }
 
