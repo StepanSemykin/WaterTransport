@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace WaterTransportService.Api.Controllers.Rent;
 
 /// <summary>
-/// ���������� ��� ���������� �������� ������.
+/// Контроллер для управления заказами аренды.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -16,12 +16,12 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     private readonly IRentOrderService _service = service;
 
     /// <summary>
-    /// �������� ������ ���� ������� ������ � ����������.
+    /// Получить список всех заказов аренды с пагинацией.
     /// </summary>
-    /// <param name="page">����� �������� (�� ��������� 1).</param>
-    /// <param name="pageSize">���������� ��������� �� �������� (�� ��������� 20, �������� 100).</param>
-    /// <returns>������ ������� ������ � ����������� � ���������.</returns>
-    /// <response code="200">������� ������� ������ ������� ������.</response>
+    /// <param name="page">Номер страницы (по умолчанию 1).</param>
+    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
+    /// <returns>Список заказов аренды и информацию о пагинации.</returns>
+    /// <response code="200">Успешно получен список заказов аренды.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -31,12 +31,12 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// �������� ����� ������ �� ��������������.
+    /// Получить заказ аренды по идентификатору.
     /// </summary>
-    /// <param name="id">���������� ������������� ������ ������.</param>
-    /// <returns>������ ������ ������.</returns>
-    /// <response code="200">����� ������ ������� ������.</response>
-    /// <response code="404">����� ������ �� ������.</response>
+    /// <param name="id">Уникальный идентификатор заказа аренды.</param>
+    /// <returns>Данные заказа аренды.</returns>
+    /// <response code="200">Заказ аренды успешно найден.</response>
+    /// <response code="404">Заказ аренды не найден.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,11 +47,11 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// �������� ��������� ������ ��� �������� (� ����������� �� �����, ���� ����� � �����������).
+    /// Получить доступные заказы для партнера (с фильтрацией по порту, типу судна и вместимости).
     /// </summary>
-    /// <param name="partnerId">������������� ��������.</param>
-    /// <returns>������ ��������� ������� ��� ��������.</returns>
-    /// <response code="200">������ ������� �������.</response>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Список доступных заказов для партнера.</returns>
+    /// <response code="200">Список успешно получен.</response>
     [HttpGet("available-for-partner/{partnerId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetAvailableForPartner(Guid partnerId)
@@ -61,12 +61,38 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// ������� ����� ����� ������.
+    /// получение заказов пользователя по статусу.
     /// </summary>
-    /// <param name="dto">������ ��� �������� ������ ������.</param>
-    /// <returns>��������� ����� ������.</returns>
-    /// <response code="201">����� ������ ������� ������.</response>
-    /// <response code="400">������������ ������.</response>
+    /// <param name="status">С каким статусом хотим получить заказы</param>
+    /// <returns>Созданный заказ аренды.</returns>
+    /// <response code="200">Заказы успешно найдены</response>
+    /// <response code="400">Неправильные данные.</response>
+    [HttpGet("get-for-user-by-status/status={status}")]
+    [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForUserByStatusAsync(string status)
+    {
+        // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            // Возвращаем 401, если пользователя нет в claims или id невалиден
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var orders = await _service.GetForUserByStatusAsync(status, userGuid);
+        return orders is null
+            ? BadRequest("Unable to create order. Check user, ports, and ship type.")
+            : Ok(orders);
+    }
+    /// <summary>
+    /// Создать новый заказ аренды.
+    /// </summary>
+    /// <param name="dto">Данные для создания заказа аренды.</param>
+    /// <returns>Созданный заказ аренды.</returns>
+    /// <response code="201">Заказ аренды успешно создан.</response>
+    /// <response code="400">Неправильные данные.</response>
     [HttpPost]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -87,14 +113,15 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
             : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
+
     /// <summary>
-    /// �������� ������������ ����� ������.
+    /// Обновить существующий заказ аренды.
     /// </summary>
-    /// <param name="id">���������� ������������� ������ ������.</param>
-    /// <param name="dto">������ ��� ����������.</param>
-    /// <returns>����������� ����� ������.</returns>
-    /// <response code="200">����� ������ ������� ��������.</response>
-    /// <response code="404">����� ������ �� ������.</response>
+    /// <param name="id">Уникальный идентификатор заказа аренды.</param>
+    /// <param name="dto">Данные для обновления.</param>
+    /// <returns>Обновленный заказ аренды.</returns>
+    /// <response code="200">Заказ аренды успешно обновлен.</response>
+    /// <response code="404">Заказ аренды не найден.</response>
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -105,12 +132,12 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// ��������� ������ (������������ ������������ ����������).
+    /// Завершить аренду (пользователь подтверждает завершение).
     /// </summary>
-    /// <param name="id">������������� ������ ������.</param>
-    /// <returns>NoContent ��� ������.</returns>
-    /// <response code="204">������ ������� ���������.</response>
-    /// <response code="400">���������� ��������� ������.</response>
+    /// <param name="id">Идентификатор заказа аренды.</param>
+    /// <returns>NoContent при успехе.</returns>
+    /// <response code="204">Аренда успешно завершена.</response>
+    /// <response code="400">Невозможно завершить аренду.</response>
     [HttpPost("{id:guid}/complete")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -121,12 +148,12 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// �������� ����� ������.
+    /// Отменить заказ аренды.
     /// </summary>
-    /// <param name="id">������������� ������ ������.</param>
-    /// <returns>NoContent ��� ������.</returns>
-    /// <response code="204">����� ������� �������.</response>
-    /// <response code="404">����� �� ������.</response>
+    /// <param name="id">Идентификатор заказа аренды.</param>
+    /// <returns>NoContent при успехе.</returns>
+    /// <response code="204">Заказ успешно отменен.</response>
+    /// <response code="404">Заказ не найден.</response>
     [HttpPost("{id:guid}/cancel")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -137,12 +164,12 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// ������� ����� ������.
+    /// Удалить заказ аренды.
     /// </summary>
-    /// <param name="id">���������� ������������� ������ ������.</param>
-    /// <returns>��������� ��������.</returns>
-    /// <response code="204">����� ������ ������� ������.</response>
-    /// <response code="404">����� ������ �� ������.</response>
+    /// <param name="id">Уникальный идентификатор заказа аренды.</param>
+    /// <returns>Результат операции.</returns>
+    /// <response code="204">Заказ аренды успешно удален.</response>
+    /// <response code="404">Заказ аренды не найден.</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

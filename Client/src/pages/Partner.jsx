@@ -171,9 +171,38 @@ export default function Partner() {
           {(user.stats ?? []).map((stat) => (
           <StatsCard key={stat.title} {...stat} />
           ))}
-        </div>
+        </div>  
 
-        <Navigation params={USER_NAVIGATION} />    
+        <Navigation
+          params={{
+            orders: {
+              label: "Заказы",
+              component: (
+                <UserOrders
+                  upcomingTrips={user.upcomingTrips ?? []}
+                  completedTrips={user.completedTrips ?? []}
+                />
+                // <UserOrders 
+                //   upcomingTrips={UPCOMING_TRIPS} 
+                //   completedTrips={COMPLETED_TRIPS} />
+              ),
+            },
+            ships: {
+              label: "Суда",
+              component: <UserShips ships={user.userShips ?? []} />,
+            },
+            settings: {
+              label: "Настройки",
+              component: <UserSettingsMenu items={SETTINGS_ITEMS} />,
+            },
+            support: {
+              label: "Поддержка",
+              component: <UserSupportMenu items={SUPPORT_ITEMS} />,
+            },
+          }}
+        />
+
+        {/* <Navigation params={USER_NAVIGATION} />     */}
       </Container>
       
     </div>

@@ -251,6 +251,7 @@ public class UsersController(IUserService userService, IAuthService authService)
                 });
         }
     }
+    
     // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.

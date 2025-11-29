@@ -28,6 +28,26 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     }
 
     /// <summary>
+    /// Получить все отклики для конкретного пользователя.
+    /// </summary>
+    /// <returns>Список откликов.</returns>
+    [HttpGet("foruser")]
+    public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetOffersByUser()
+    {
+        // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            // Возвращаем 401, если пользователя нет в claims или id невалиден
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var offers = await _offerService.GetOffersByUser(userGuid);
+        return Ok(offers);
+    }
+
+
+    /// <summary>
     /// Получить отклик по идентификатору.
     /// </summary>
     /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
@@ -78,6 +98,22 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
         var result = await _offerService.AcceptOfferAsync(rentOrderId, id);
         if (!result)
             return BadRequest("Unable to accept offer. Check order and offer status.");
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Отклонить отклик (пользователь отвергает партнера).
+    /// </summary>
+    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
+    /// <param name="id">Идентификатор отклика для отклонения.</param>
+    /// <returns>NoContent при успехе.</returns>
+    [HttpPost("{id}/reject")]
+    public async Task<ActionResult> RejectOffer(Guid id)
+    {
+        var result = await _offerService.RejectOfferAsync(id);
+        if (!result)
+            return BadRequest("Unable to reject offer. Check order and offer status.");
 
         return NoContent();
     }

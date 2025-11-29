@@ -15,6 +15,12 @@ public interface IRentOrderOfferService
     Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId);
 
     /// <summary>
+    /// Получить все отклики для конкретного для всех заказов пользователя.
+    /// </summary>
+    /// <returns>Коллекция откликов партнера.</returns>
+    Task<IEnumerable<RentOrderOfferDto>> GetOffersByUser(Guid userId);
+
+    /// <summary>
     /// Получить все отклики конкретного партнера.
     /// </summary>
     /// <param name="partnerId">Идентификатор партнера.</param>
@@ -49,4 +55,11 @@ public interface IRentOrderOfferService
     /// <param name="id">Идентификатор отклика.</param>
     /// <returns>True, если удаление успешно.</returns>
     Task<bool> DeleteOfferAsync(Guid id);
+
+    /// <summary>
+    /// Отклонить отклик.
+    /// </summary>
+    /// <param name="id">Идентификатор отклика.</param>
+    /// <returns>True, если отклонение успешно.</returns>
+    Task<bool> RejectOfferAsync(Guid id);
 }

@@ -39,7 +39,7 @@ export default function UserOrders({
           <section className={styles["user-section"]}>
             <h2 className={styles["user-section-title"]}>Заявки</h2>
             <div className={styles["user-empty"]}>
-              На данный момент у Вас нет заявок
+              На данный момент у вас нет заявок
             </div>
           </section>
         )
@@ -63,7 +63,7 @@ export default function UserOrders({
       ) : (
         <section className={styles["user-section"]}>
           <h2 className={styles["user-section-title"]}>Предстоящие</h2>
-          <div className={styles["user-empty"]}>На данный момент у Вас нет предстоящих заказов</div>
+          <div className={styles["user-empty"]}>На данный момент у вас нет предстоящих заказов</div>
         </section>
       )}
 
@@ -86,7 +86,7 @@ export default function UserOrders({
       ) : (
         <section className={styles["user-section"]}>
           <h2 className={styles["user-section-title"]}>Завершённые</h2>
-          <div className={styles["user-empty"]}>На данный момент у Вас нет завершённых заказов</div>
+          <div className={styles["user-empty"]}>На данный момент у вас нет завершённых заказов</div>
         </section>
       )}
 

@@ -3,18 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "react-bootstrap";
 import { X, MapPin } from "lucide-react";
 
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "../../auth/AuthContext.jsx";
 import { apiFetch, apiFetchRaw } from "../../../api/api.js";
 
-import styles from "./AddShip.module.css";
-
-// const SHIP_TYPES = [
-//   { value: "катер", label: "Катер", id: 1 },
-//   { value: "теплоход", label: "Теплоход", id: 2 },
-//   { value: "яхта", label: "Яхта", id: 3 },
-//   { value: "лодка", label: "Лодка", id: 4 },
-//   { value: "катамаран", label: "Катамаран", id: 5 }
-// ];
+import styles from "./AddShipModal.module.css";
 
 const initialFormData = {
   name: "",
@@ -34,7 +26,7 @@ const initialFormData = {
 const SHIPS_ENDPOINT = "/api/Ships";
 const SHIP_IMAGES_ENDPOINT = "/api/shipimages";
 
-export function AddShip({ isOpen, onClose, onSave }) {
+export function AddShipModal({ isOpen, onClose, onSave }) {
   const { ports = [], portsLoading, shipTypes = [], shipTypesLoading, user } = useAuth();
 
   const [formData, setFormData] = useState(initialFormData);
@@ -190,17 +182,8 @@ export function AddShip({ isOpen, onClose, onSave }) {
         length: formData.length ? Number(formData.length) : null,
         description: formData.description || null,
         costPerHour: formData.costPerHour ? Number(formData.costPerHour) : null,
-        portDto: {
-          title: selectedPort.title,
-          portTypeId: selectedPort.portTypeId,
-          latitude: selectedPort.latitude,
-          longitude: selectedPort.longitude,
-          address: selectedPort.address,
-        },
-        userDto: {
-          phone: user?.phone,
-          role: user?.role
-        },
+        portId: selectedPort.id ? selectedPort.id : null,
+        userId: user.id ? user.id : null,
       };
 
       const shipRes = await apiFetch(SHIPS_ENDPOINT, {
@@ -216,11 +199,11 @@ export function AddShip({ isOpen, onClose, onSave }) {
       }
 
       const createdShip = await shipRes.json();
-      const shipName = createdShip.name;
+      const shipId = createdShip.id;
 
-      if (formData.imageFile && shipName) {
+      if (formData.imageFile && shipId) {
         const form = new FormData();
-        form.append("ShipName", shipName);
+        form.append("ShipId", shipId);
         form.append("Image", formData.imageFile);
         form.append("IsPrimary", "true");
 
@@ -236,9 +219,7 @@ export function AddShip({ isOpen, onClose, onSave }) {
         }
       }
 
-      if (onSave) {
-        onSave(createdShip);
-      }
+      onSave && onSave(created);
       onClose();
     } 
     catch (err) {

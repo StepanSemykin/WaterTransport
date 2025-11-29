@@ -1,32 +1,32 @@
-namespace WaterTransportService.Model.Constants;
+п»їnamespace WaterTransportService.Model.Constants;
 
 /// <summary>
-/// Константы статусов заказа аренды.
+/// РљРѕРЅСЃС‚Р°РЅС‚С‹ СЃС‚Р°С‚СѓСЃРѕРІ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.
 /// </summary>
 public static class RentOrderStatus
 {
     /// <summary>
-    /// Ожидание откликов партнеров.
+    /// РћР¶РёРґР°РЅРёРµ РѕС‚РєР»РёРєРѕРІ РїР°СЂС‚РЅРµСЂРѕРІ.
     /// </summary>
     public const string AwaitingPartnerResponse = "AwaitingResponse";
 
     /// <summary>
-    /// Есть отклики от партнеров.
+    /// Р•СЃС‚СЊ РѕС‚РєР»РёРєРё РѕС‚ РїР°СЂС‚РЅРµСЂРѕРІ.
     /// </summary>
     public const string HasOffers = "HasOffers";
 
     /// <summary>
-    /// Пользователь выбрал партнера.
+    /// РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІС‹Р±СЂР°Р» РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
     public const string Agreed = "Agreed";
 
     /// <summary>
-    /// Аренда завершена.
+    /// РђСЂРµРЅРґР° Р·Р°РІРµСЂС€РµРЅР°.
     /// </summary>
     public const string Completed = "Completed";
 
     /// <summary>
-    /// Заказ отменен.
+    /// Р—Р°РєР°Р· РѕС‚РјРµРЅРµРЅ.
     /// </summary>
     public const string Cancelled = "Cancelled";
 }

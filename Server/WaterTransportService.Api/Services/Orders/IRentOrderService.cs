@@ -13,6 +13,11 @@ public interface IRentOrderService
     Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize);
 
     /// <summary>
+    /// Получить список всех заказов аренды пользотля о статусу.
+    /// </summary>
+    Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid id);
+
+    /// <summary>
     /// Получить заказ аренды по идентификатору.
     /// </summary>
     Task<RentOrderDto?> GetByIdAsync(Guid id);
@@ -47,3 +52,4 @@ public interface IRentOrderService
     /// </summary>
     Task<bool> DeleteAsync(Guid id);
 }
+
