@@ -102,7 +102,7 @@ export function ShipCard({
             )}
           </div>
 
-          <div className={styles["meta"]}>
+          {/* <div className={styles["meta"]}>
             {status && <span className={styles["confirm"]}>{status}</span>}
 
             {rating && Array.isArray(rating) && rating.length > 0 && (
@@ -117,7 +117,7 @@ export function ShipCard({
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 
