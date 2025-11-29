@@ -364,11 +364,14 @@ export default function HomePage() {
                 {fromSearch && showFromDropdown && filteredFromPorts.length > 0 && (
                   <ul className={styles["dropdown-list"]}>
                     {filteredFromPorts.map((port) => (
-                      <li key={port.id} onClick={() => {
-                        setFromPortId(port.id);
-                        setFromSearch(port.title || port.name);
-                        setShowFromDropdown(false);
-                      }}>
+                      <li 
+                        className={styles["dropdown-item"]}
+                        key={port.id} 
+                        onClick={() => {
+                          setFromPortId(port.id);
+                          setFromSearch(port.title || port.name);
+                          setShowFromDropdown(false);
+                        }}>
                         {port.title || port.name}
                       </li>
                     ))}
@@ -397,25 +400,28 @@ export default function HomePage() {
                 <div className={styles["input-wrapper"]}>
                   <MapPin className={styles["input-icon"]} />
                   <input
-                  id="to"
-                  type="text"
-                  className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                  placeholder="Введите пристань прибытия"
-                  value={toSearch}
-                  onChange={(e) => {
-                    setToSearch(e.target.value);
-                    setShowToDropdown(true);
-                  }}
-                  onFocus={() => setShowToDropdown(true)}
+                    id="to"
+                    type="text"
+                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
+                    placeholder="Введите пристань прибытия"
+                    value={toSearch}
+                    onChange={(e) => {
+                      setToSearch(e.target.value);
+                      setShowToDropdown(true);
+                    }}
+                    onFocus={() => setShowToDropdown(true)}
                   />
                   {toSearch && showToDropdown && filteredToPorts.length > 0 && (
                     <ul className={styles["dropdown-list"]}>
                       {filteredToPorts.map((port) => (
-                        <li key={port.id} onClick={() => {
-                          setToPortId(port.id);
-                          setToSearch(port.title || port.name);
-                          setShowToDropdown(false);
-                        }}>
+                        <li 
+                          className={styles["dropdown-item"]}
+                          key={port.id} 
+                          onClick={() => {
+                            setToPortId(port.id);
+                            setToSearch(port.title || port.name);
+                            setShowToDropdown(false);
+                          }}>
                           {port.title || port.name}
                         </li>
                       ))}
