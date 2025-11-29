@@ -103,6 +103,22 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     }
 
     /// <summary>
+    /// Отклонить отклик (пользователь отвергает партнера).
+    /// </summary>
+    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
+    /// <param name="id">Идентификатор отклика для отклонения.</param>
+    /// <returns>NoContent при успехе.</returns>
+    [HttpPost("{id}/reject")]
+    public async Task<ActionResult> RejectOffer(Guid id)
+    {
+        var result = await _offerService.RejectOfferAsync(id);
+        if (!result)
+            return BadRequest("Unable to reject offer. Check order and offer status.");
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Удалить отклик.
     /// </summary>
     /// <param name="rentOrderId">Идентификатор заказа аренды.</param>

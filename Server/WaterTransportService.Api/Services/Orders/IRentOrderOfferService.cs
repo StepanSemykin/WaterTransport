@@ -55,4 +55,11 @@ public interface IRentOrderOfferService
     /// <param name="id">Идентификатор отклика.</param>
     /// <returns>True, если удаление успешно.</returns>
     Task<bool> DeleteOfferAsync(Guid id);
+
+    /// <summary>
+    /// Отклонить отклик.
+    /// </summary>
+    /// <param name="id">Идентификатор отклика.</param>
+    /// <returns>True, если отклонение успешно.</returns>
+    Task<bool> RejectOfferAsync(Guid id);
 }

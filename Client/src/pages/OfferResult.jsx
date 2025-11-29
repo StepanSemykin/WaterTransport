@@ -1,9 +1,8 @@
-// src/pages/OrderResponsesPage.jsx
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Badge, Spinner } from "react-bootstrap";
 
 import Header from "../components/results/Header.jsx";
-import styles from "./OfferResult.module.css"; // 👈 новый файл со стилями
+import styles from "./OfferResult.module.css";
 
 const POLL_INTERVAL = 5000;
 
@@ -12,6 +11,50 @@ export default function OrderResponses() {
   const [loading, setLoading] = useState(true);
   const [polling, setPolling] = useState(true);
 
+  // Подтверждение отклика
+  async function handleApprove(offerId, rentOrderId) {
+    try {
+        const res = await fetch(`/api/rent-orders/Offers/${offerId}/accept?rentOrderId=${rentOrderId}`, {
+        method: "POST",
+        });
+
+        if (res.ok) {
+        setResponses((prev) =>
+            prev.map((r) =>
+            r.id === offerId ? { ...r, status: "approved" } : r
+            )
+        );
+        } else {
+        console.error("Ошибка подтверждения. Статус:", res.status);
+        }
+    } catch (err) {
+        console.error("Ошибка при подтверждении отклика:", err);
+    }
+    }
+
+  // Отклонение отклика
+    async function handleReject(offerId) {
+        try {
+            const res = await fetch(`/api/rent-orders/Offers/${offerId}/reject`, {
+                method: "POST",
+                });
+
+            if (res.ok) {
+            setResponses((prev) =>
+                prev.map((r) =>
+                r.id === offerId ? { ...r, status: "rejected" } : r
+                )
+            );
+            } else {
+            console.error("Ошибка отклонения. Статус:", res.status);
+            }
+        } catch (err) {
+            console.error("Ошибка при отклонении отклика:", err);
+        }
+    }
+
+
+  // Пуллинг откликов для текущего пользователя
   useEffect(() => {
     if (!polling) return;
 
@@ -19,33 +62,35 @@ export default function OrderResponses() {
     let intervalId;
 
     async function fetchResponses() {
-      try {
-        const res = await fetch("/api/rent-orders/Offers/foruser");
-
-        if (res.status === 200) {
-          const data = await res.json();
-          if (cancelled) return;
-
-          if (Array.isArray(data) && data.length > 0) {
-            setResponses((prev) => {
-              const map = new Map(prev.map((x) => [x.id, x]));
-              data.forEach((item) => map.set(item.id, item));
-              return Array.from(map.values()).sort(
-                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-              );
+        try {
+            const res = await fetch("/api/rent-orders/Offers/foruser", {
+            credentials: "include",
             });
-          }
+
+            if (cancelled) return;
+
+            if (res.status === 200) {
+            const data = await res.json();
+
+            if (Array.isArray(data)) {
+                // 🔥 Заменяем старые отклики полностью
+                setResponses(
+                data.sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                )
+                );
+            }
+            }
+        } catch (err) {
+            console.error("Ошибка при опросе откликов:", err);
+        } finally {
+            if (!cancelled) setLoading(false);
         }
-      } catch (err) {
-        console.error("Ошибка при опросе откликов:", err);
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
     }
 
+    // первый запрос сразу
     fetchResponses();
+    // последующие — каждые 5 секунд
     intervalId = setInterval(fetchResponses, POLL_INTERVAL);
 
     return () => {
@@ -131,6 +176,23 @@ export default function OrderResponses() {
                       >
                         {resp.status}
                       </Badge>
+                    </div>
+
+                    <div className={styles.actionsRow}>
+                      <button
+                        className={styles.approveButton}
+                        onClick={() => handleApprove(resp.id, resp.rentOrderId)}
+                        disabled={resp.status === "approved"}
+                      >
+                        Подтвердить
+                      </button>
+                      <button
+                        className={styles.rejectButton}
+                        onClick={() => handleReject(resp.id)}
+                        disabled={resp.status === "rejected"}
+                      >
+                        Отклонить
+                      </button>
                     </div>
                   </Card.Body>
                 </Card>

@@ -40,7 +40,7 @@ public class RentOrderOfferService(
 
         // Получаем все отклики и фильтруем их по найденным id заказов
         var allOffers = await _offerRepository.GetAllAsync();
-        var offersForUser = allOffers.Where(o => orders.Contains(o.RentOrderId));
+        var offersForUser = allOffers.Where(o => orders.Contains(o.RentOrderId) && o.Status == RentOrderOfferStatus.Pending);
 
         return offersForUser.Select(MapToDto);
     }
@@ -207,4 +207,23 @@ public class RentOrderOfferService(
         offer.CreatedAt,
         offer.RespondedAt
     );
+
+    /// <summary>
+    /// Отклонить отклик партнера.
+    /// </summary>
+    public async Task<bool> RejectOfferAsync(Guid offerId)
+    {
+
+        // Получаем отклик
+        var offer = await _offerRepository.GetByIdAsync(offerId);
+        if (offer is null || offer.Status != RentOrderOfferStatus.Pending)
+            return false;
+
+        // Отклоняем выбранный отклик
+        offer.Status = RentOrderOfferStatus.Rejected;
+        offer.RespondedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

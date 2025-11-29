@@ -87,3 +87,39 @@
 .statusBlock {
   margin-top: 8px;
 }
+
+.actionsRow {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.approveButton,
+.rejectButton {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 6px;
+  transition: 0.2s ease;
+  margin: 4px;
+}
+
+.approveButton {
+  background-color: #16a34a;
+  color: white;
+}
+
+.approveButton:hover {
+  background-color: #15803d;
+}
+
+.rejectButton {
+  background-color: #dc2626;
+  color: white;
+}
+
+.rejectButton:hover {
+  background-color: #b91c1c;
+}
