@@ -22,6 +22,9 @@ export default function TripDetails({
   const [reviewError, setReviewError] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
+  // console.log(trip.status);
+  // console.log(isPartner);
+
   useEffect(() => {
     setPrice(trip?.price ?? "");
     if (trip?.review) {
@@ -152,8 +155,8 @@ export default function TripDetails({
                   Пристань прибытия: {trip.portArrival.text}
                 </div>
               )}
-              {(trip?.details ?? []).map((detail) => (
-                <div key={detail.text} className={styles["trip-summary-line"]}>
+              {(trip?.details ?? []).map((detail, index) => (
+                <div key={index} className={styles["trip-summary-line"]}>
                   Дата: {detail.text}
                 </div>
               ))}
@@ -169,7 +172,7 @@ export default function TripDetails({
             Карта маршрута будет отображена здесь
           </div> */}
 
-          {trip.status == "upcoming" && (
+          {trip.status == "Agreed" && (
           <div className={styles["trip-actions"]}>
             <Button
               variant="outline-danger"
@@ -181,7 +184,7 @@ export default function TripDetails({
           </div>
           )}
 
-          {isPartner && trip.status == "possible" && (
+          {isPartner && (trip.status == "AwaitingResponse" || trip.status == "HasOffers") && (
             <Form onSubmit={handleSubmit} className={styles["trip-price-form"]}>
               <Form.Group controlId="tripPrice" className={styles["trip-price-input"]}>
                 <Form.Label>Цена поездки</Form.Label>
@@ -201,7 +204,7 @@ export default function TripDetails({
             </Form>
           )}
 
-          {trip?.status === "completed" && (
+          {trip.status === "Completed" && (
             <div className={styles["trip-review"]}>
               <h5>Отзыв о поездке</h5>
               {reviewError && <Alert variant="danger">{reviewError}</Alert>}

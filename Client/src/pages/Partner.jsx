@@ -144,11 +144,33 @@ const USER_NAVIGATION = {
 };
 
 export default function Partner() {
-  const { user, loading, refreshUser } = useAuth();
+    const {
+    user,
+    loading,
+    refreshUser,
+    upcomingTrips,
+    upcomingTripsLoading,
+    completedTrips,
+    completedTripsLoading,
+    possibleTrips,
+    possibleTripsLoading
+  } = useAuth();
 
   if (loading) {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
   }
+
+const ordersComponent = (
+    <UserOrders
+      upcomingTrips={upcomingTrips}
+      upcomingTripsLoading={upcomingTripsLoading}
+      completedTrips={completedTrips}
+      completedTripsLoading={completedTripsLoading}
+      possibleTrips={possibleTrips}
+      possibleTripsLoading={possibleTripsLoading}
+      isPartner={true}
+    />
+  );  
 
   return (
     <div className={styles["user-page"]}>
@@ -177,15 +199,10 @@ export default function Partner() {
           params={{
             orders: {
               label: "Заказы",
-              component: (
-                <UserOrders
-                  upcomingTrips={user.upcomingTrips ?? []}
-                  completedTrips={user.completedTrips ?? []}
-                />
+              component: ordersComponent,
                 // <UserOrders 
                 //   upcomingTrips={UPCOMING_TRIPS} 
                 //   completedTrips={COMPLETED_TRIPS} />
-              ),
             },
             ships: {
               label: "Суда",

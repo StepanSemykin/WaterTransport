@@ -107,7 +107,15 @@ const USER_NAVIGATION = {
 };
 
 export default function User() {
-  const { user, loading, refreshUser } = useAuth();
+  const {
+    user,
+    loading,
+    refreshUser,
+    upcomingTrips,
+    upcomingTripsLoading,
+    completedTrips,
+    completedTripsLoading
+  } = useAuth();
 
   // useEffect(() => {
   //   if (!user.firstName && !loading) {
@@ -119,11 +127,19 @@ export default function User() {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
   }
 
+const ordersComponent = (
+    <UserOrders
+      upcomingTrips={upcomingTrips}
+      upcomingTripsLoading={upcomingTripsLoading}
+      completedTrips={completedTrips}
+      completedTripsLoading={completedTripsLoading}
+      isParnter={false}
+    />
+  );
+
   return (
     <div className={styles["user-page"]}>
-      
       <div className={styles["user-header"]}>
-        {/* <AccountHeader {...USER} /> */}
         <AccountHeader
           firstName={user.firstName ?? ""}
           lastName={user.lastName ?? ""}
@@ -134,27 +150,16 @@ export default function User() {
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {/* {STATS.map((stat) => (
-            <StatsCard key={stat.title} {...stat} />
-          ))} */}
           {(user.stats ?? []).map((stat) => (
-          <StatsCard key={stat.title} {...stat} />
-        ))}
+            <StatsCard key={stat.title} {...stat} />
+          ))}
         </div>
 
         <Navigation
           params={{
             orders: {
               label: "Заказы",
-              component: (
-                <UserOrders
-                  upcomingTrips={user.upcomingTrips ?? []}
-                  completedTrips={user.completedTrips ?? []}
-                />
-                // <UserOrders 
-                //   upcomingTrips={UPCOMING_TRIPS} 
-                //   completedTrips={COMPLETED_TRIPS} />
-              ),
+              component: ordersComponent,
             },
             settings: {
               label: "Настройки",
@@ -167,7 +172,59 @@ export default function User() {
           }}
         />
       </Container>
-      
     </div>
   );
 }
+
+//   return (
+//     <div className={styles["user-page"]}>
+      
+//       <div className={styles["user-header"]}>
+//         {/* <AccountHeader {...USER} /> */}
+//         <AccountHeader
+//           firstName={user.firstName ?? ""}
+//           lastName={user.lastName ?? ""}
+//           email={user.email ?? ""}
+//           location={user.location ?? ""}
+//         />
+//       </div>
+
+//       <Container className={styles["user-container"]}>
+//         <div className={styles["user-stats"]}>
+//           {/* {STATS.map((stat) => (
+//             <StatsCard key={stat.title} {...stat} />
+//           ))} */}
+//           {(user.stats ?? []).map((stat) => (
+//           <StatsCard key={stat.title} {...stat} />
+//         ))}
+//         </div>
+
+//         <Navigation
+//           params={{
+//             orders: {
+//               label: "Заказы",
+//               component: (
+//                 <UserOrders
+//                   upcomingTrips={user.upcomingTrips ?? []}
+//                   completedTrips={user.completedTrips ?? []}
+//                 />
+//                 // <UserOrders 
+//                 //   upcomingTrips={UPCOMING_TRIPS} 
+//                 //   completedTrips={COMPLETED_TRIPS} />
+//               ),
+//             },
+//             settings: {
+//               label: "Настройки",
+//               component: <UserSettingsMenu items={SETTINGS_ITEMS} />,
+//             },
+//             support: {
+//               label: "Поддержка",
+//               component: <UserSupportMenu items={SUPPORT_ITEMS} />,
+//             },
+//           }}
+//         />
+//       </Container>
+      
+//     </div>
+//   );
+// }
