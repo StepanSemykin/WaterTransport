@@ -81,7 +81,6 @@ public class RentOrderService(
 
     public async Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid Id)
     {
-
         var result = await _rentOrderRepository.GetForUserByStatusesAsync(Id, status);
         return result.Select(MapToDto);
     }

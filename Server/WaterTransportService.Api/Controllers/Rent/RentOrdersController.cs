@@ -61,7 +61,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// получение заказов пользователя по статусу.
+    /// Получить заказы пользователя по статусу.
     /// </summary>
     /// <param name="status">С каким статусом хотим получить заказы</param>
     /// <returns>Созданный заказ аренды.</returns>
@@ -86,6 +86,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
             ? BadRequest("Unable to create order. Check user, ports, and ship type.")
             : Ok(orders);
     }
+
     /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
