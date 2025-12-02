@@ -38,6 +38,7 @@ public interface IRentOrderOfferService
     /// Создать новый отклик партнера на заказ.
     /// </summary>
     /// <param name="createDto">Данные для создания отклика.</param>
+    /// 
     /// <returns>Созданный отклик.</returns>
     Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto, Guid partnerId);
 

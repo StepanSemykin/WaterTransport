@@ -17,20 +17,17 @@ public class Mapping : Profile
         CreateMap<UserProfile, UserProfileDto>().ReverseMap();
         
         // Port mappings with ID
-        CreateMap<Port, PortDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+        CreateMap<Port, PortDto>().ReverseMap();
         CreateMap<Port, CreatePortDto>().ReverseMap();
         CreateMap<Port, UpdatePortDto>().ReverseMap();
         
         // Ship mappings with ID
-        CreateMap<Ship, ShipDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
-        
+        CreateMap<Ship, ShipDto>().ReverseMap();
         CreateMap<ShipType, ShipTypeDto>().ReverseMap();
         CreateMap<ShipType, CreateShipTypeDto>().ReverseMap();
         CreateMap<ShipType, UpdateShipTypeDto>().ReverseMap();
+
+        CreateMap<RentOrder, RentOrderDto>().ReverseMap();
         
         // Image mappings
         CreateMap<ShipImage, ShipImageDto>()
@@ -59,5 +56,7 @@ public class Mapping : Profile
                 src.IsPrimary,
                 src.UploadedAt
             ));
+
+
     }
 }

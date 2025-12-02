@@ -47,7 +47,12 @@ function PortsBoundsUpdater({ bounds }) {
 export default function HomePage() {
   const navigate = useNavigate();
   const { performSearch, loading: searchLoading, results, locked } = useSearch();
-  const { ports = [], portsLoading, shipTypes = [], shipTypesLoading } = useAuth();
+  const { 
+    ports = [], portsLoading, 
+    shipTypes = [], shipTypesLoading,
+    hasActiveOrder, loadActiveOrder,
+    role
+  } = useAuth();
 
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorTitle, setErrorTitle] = useState("");
@@ -74,6 +79,8 @@ export default function HomePage() {
   const [fromSearch, setFromSearch] = useState("");
   const [toSearch, setToSearch] = useState("");
 
+  const [rentOrderResponse, setRentOrderResponse] = useState(null);
+
   const clearDate = () => setDate("");
   const clearTime = () => setTime("");
   const clearDateReturn = () => setDateReturn("");
@@ -85,8 +92,6 @@ export default function HomePage() {
     setErrorMessage(message || "Произошла ошибка");
     setShowErrorModal(true);
   };
-
-  const canOpenResults = !!results && sessionStorage.getItem("canOpenResults") === "1";
 
   const availablePorts = Array.isArray(ports) ? ports : [];
   const availableShipTypes = Array.isArray(shipTypes) ? shipTypes : [];
@@ -102,6 +107,12 @@ export default function HomePage() {
   const dec = (setter, value, min = 0) => () => setter(value > min ? value - 1 : min);
   const inc = (setter, value, max = 99) => () => setter(value < max ? value + 1 : max);
 
+  useEffect(() => {
+    loadActiveOrder(role);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
+
+  const canOpenResults = hasActiveOrder;
   // useEffect(() => {
   //   let isMounted = true;
 
@@ -228,7 +239,7 @@ export default function HomePage() {
     try {
       await performSearch(payload); // запрос к серверу + сохранение результатов в контекст
       // navigate("/results"); // если хотите авто-переход — раскомментируйте:
-        const res = await apiFetch("/api/RentOrders", {
+      const res = await apiFetch("/api/RentOrders", {
         method: "POST",
         body: JSON.stringify({
           ShipTypeId: payload.shipTypeId,
@@ -239,7 +250,18 @@ export default function HomePage() {
           duration: payload.walkDuration
         }),
       });
-      console.log(res);
+
+      let data = null;
+      if (res?.ok) {
+        data = await res.json().catch(() => null);
+      }
+      setRentOrderResponse(data);
+      const newId = data?.id ?? data?.Id ?? null;
+      if (newId) {
+        sessionStorage.setItem("currentRentOrderId", String(newId));
+        sessionStorage.setItem("canOpenResults", "1");
+      }
+      console.log("RentOrder response:", data);
     } 
     catch (e) {
       // покажите ошибку пользователю

@@ -54,12 +54,14 @@ export default function UserOrders({
         ) : hasUpcoming ? (
           <div className={styles["user-card-list"]}>
             {upcomingTrips.map((trip, index) => (
-              <TripCard
-                key={index}
-                rentOrder={trip}
-                isPartner={isPartner}
-                onUpdateTripPrice={onUpdateTripPrice}
-              />
+              <div className={styles["user-card"]}>
+                <TripCard
+                  key={index}
+                  rentOrder={trip}
+                  isPartner={isPartner}
+                  onUpdateTripPrice={onUpdateTripPrice}
+                />
+              </div>
             ))}
           </div>
         ) : (

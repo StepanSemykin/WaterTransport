@@ -1,4 +1,5 @@
-﻿using WaterTransportService.Api.DTO;
+﻿using AutoMapper;
+using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Constants;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -13,13 +14,15 @@ public class RentOrderService(
     IEntityRepository<Ship, Guid> shipRepository,
     IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
-    IUserRepository<Guid> userRepository) : IRentOrderService
+    IUserRepository<Guid> userRepository,
+    IMapper mapper) : IRentOrderService
 {
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
     private readonly IEntityRepository<Ship, Guid> _shipRepository = shipRepository;
     private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить список всех заказов аренды с пагинацией.
@@ -30,7 +33,7 @@ public class RentOrderService(
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _rentOrderRepository.GetAllAsync()).OrderByDescending(x => x.CreatedAt).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(x => _mapper.Map<RentOrderDto>(x)).ToList();
         return (items, total);
     }
 
@@ -39,8 +42,25 @@ public class RentOrderService(
     /// </summary>
     public async Task<RentOrderDto?> GetByIdAsync(Guid id)
     {
-        var e = await _rentOrderRepository.GetByIdAsync(id);
-        return e is null ? null : MapToDto(e);
+        var rentOrder = await _rentOrderRepository.GetByIdAsync(id);
+        return rentOrder is null ? null : _mapper.Map<RentOrderDto>(rentOrder);
+    }
+
+    /// <summary>
+    /// Получить активный заказ аренды для пользователя.
+    /// </summary>
+    public async Task<RentOrderDto?> GetActiveOrderForUserAsync(Guid userId)
+    {
+        var activeStatuses = new[]
+        {
+            RentOrderStatus.AwaitingPartnerResponse,
+            RentOrderStatus.HasOffers
+        };
+
+        var orders = await _rentOrderRepository.GetForUserByStatusesAsync(userId, activeStatuses);
+        var activeOrder = orders.OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+
+        return activeOrder is null ? null : _mapper.Map<RentOrderDto>(activeOrder);
     }
 
     /// <summary>
@@ -76,13 +96,16 @@ public class RentOrderService(
             );
         });
 
-        return matchingOrders.Select(MapToDto);
+        return matchingOrders.Select(x => _mapper.Map<RentOrderDto>(x));
     }
 
+    /// <summary>
+    /// Получить заказ пользователя по статусу.
+    /// </summary>
     public async Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid Id)
     {
         var result = await _rentOrderRepository.GetForUserByStatusesAsync(Id, status);
-        return result.Select(MapToDto);
+        return result.Select(x => _mapper.Map<RentOrderDto>(x));
     }
 
     /// <summary>
@@ -132,7 +155,9 @@ public class RentOrderService(
         };
 
         var created = await _rentOrderRepository.CreateAsync(entity);
-        return MapToDto(created);
+        var createdDto = _mapper.Map<RentOrderDto>(created);
+
+        return createdDto;
     }
 
     /// <summary>
@@ -151,10 +176,11 @@ public class RentOrderService(
         if (dto.RentalEndTime.HasValue) entity.RentalEndTime = dto.RentalEndTime.Value;
         if (dto.OrderDate.HasValue) entity.OrderDate = dto.OrderDate.Value;
         if (!string.IsNullOrWhiteSpace(dto.Status)) entity.Status = dto.Status;
-        if (dto.CancelledAt.HasValue) entity.CancelledAt = dto.CancelledAt.Value;
+        //if (dto.CancelledAt.HasValue) entity.CancelledAt = dto.CancelledAt.Value;
 
         var ok = await _rentOrderRepository.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+
+        return ok ? _mapper.Map<RentOrderDto>(entity) : null;
     }
 
     /// <summary>
@@ -187,24 +213,4 @@ public class RentOrderService(
     /// Удалить заказ аренды.
     /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _rentOrderRepository.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность заказа аренды в DTO.
-    /// </summary>
-    private static RentOrderDto MapToDto(RentOrder e) => new(
-        e.Id,
-        e.UserId,
-        e.ShipTypeId,
-        e.DeparturePortId,
-        e.ArrivalPortId,
-        e.PartnerId,
-        e.ShipId,
-        e.TotalPrice,
-        e.NumberOfPassengers,
-        e.RentalStartTime,
-        e.RentalEndTime,
-        e.OrderDate,
-        e.Status,
-        e.CreatedAt,
-        e.CancelledAt);
 }

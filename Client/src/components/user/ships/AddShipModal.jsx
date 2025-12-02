@@ -219,7 +219,7 @@ export function AddShipModal({ isOpen, onClose, onSave }) {
         }
       }
 
-      onSave && onSave(created);
+      onSave && onSave(createdShip);
       onClose();
     } 
     catch (err) {
