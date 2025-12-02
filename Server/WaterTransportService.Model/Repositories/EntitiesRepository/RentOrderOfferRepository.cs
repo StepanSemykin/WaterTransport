@@ -37,9 +37,53 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .FirstOrDefaultAsync(o => o.Id == id);
 
     /// <summary>
+    /// Получить отклик с полными связанными данными по идентификатору.
+    /// </summary>
+    public async Task<RentOrderOffer?> GetByIdWithDetailsAsync(Guid id) =>
+        await _context.RentOrderOffers
+            .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipType)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+    /// <summary>
+    /// Получить все отклики для конкретного заказа с полными данными.
+    /// </summary>
+    public async Task<IEnumerable<RentOrderOffer>> GetByRentOrderIdWithDetailsAsync(Guid rentOrderId) =>
+        await _context.RentOrderOffers
+            .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipType)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
+            .Where(o => o.RentOrderId == rentOrderId)
+            .ToListAsync();
+
+    /// <summary>
+    /// Получить все отклики конкретного партнера с полными данными.
+    /// </summary>
+    public async Task<IEnumerable<RentOrderOffer>> GetByPartnerIdWithDetailsAsync(Guid partnerId) =>
+        await _context.RentOrderOffers
+            .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipType)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
+            .Where(o => o.PartnerId == partnerId)
+            .ToListAsync();
+
+    /// <summary>
+    /// Получить отклики для пользователя (на его заказы) с полными данными.
+    /// </summary>
+    public async Task<IEnumerable<RentOrderOffer>> GetOffersForUserOrdersWithDetailsAsync(Guid userId, string status) =>
+        await _context.RentOrderOffers
+            .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipType)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
+            .Include(o => o.RentOrder)
+            .Where(o => o.RentOrder.UserId == userId && o.Status == status)
+            .ToListAsync();
+
+    /// <summary>
     /// Создать новый отклик.
     /// </summary>
-    /// <param name="entity">Данные отклика для создания.</param>
+    /// <param name="entity">Отклик сущность для создания.</param>
     /// <returns>Созданный отклик.</returns>
     public async Task<RentOrderOffer> CreateAsync(RentOrderOffer entity)
     {
@@ -51,7 +95,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// <summary>
     /// Обновить отклик.
     /// </summary>
-    /// <param name="entity">Данные с новыми данными.</param>
+    /// <param name="entity">Отклик с новыми данными.</param>
     /// <param name="id">Идентификатор обновляемого отклика.</param>
     /// <returns>True, если обновление прошло успешно.</returns>
     public async Task<bool> UpdateAsync(RentOrderOffer entity, Guid id)

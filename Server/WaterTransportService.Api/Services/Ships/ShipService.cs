@@ -1,5 +1,4 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Identity;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -133,7 +132,7 @@ public class ShipService(
         if (dto.Length.HasValue) entity.Length = dto.Length.Value;
         if (!string.IsNullOrWhiteSpace(dto.Description)) entity.Description = dto.Description;
         if (dto.CostPerHour.HasValue) entity.CostPerHour = dto.CostPerHour.Value;
-        
+
         if (dto.PortId.HasValue)
         {
             var port = await _portRepo.GetByIdAsync(dto.PortId.Value);

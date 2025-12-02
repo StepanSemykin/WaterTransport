@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
-using System.IdentityModel.Tokens.Jwt;
 namespace WaterTransportService.Api.Controllers.Rent;
 
 /// <summary>
@@ -11,9 +10,10 @@ namespace WaterTransportService.Api.Controllers.Rent;
 /// </summary>
 [ApiController]
 [Route("api/rent-orders/[controller]")]
-public class OffersController(IRentOrderOfferService offerService) : ControllerBase
+public class OffersController(IRentOrderOfferService offerService, IRentOrderService orderService) : ControllerBase
 {
     private readonly IRentOrderOfferService _offerService = offerService;
+    private readonly IRentOrderService _orderService = orderService;
 
     /// <summary>
     /// Получить все отклики для конкретного заказа аренды.
@@ -21,6 +21,7 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
     /// <returns>Список откликов.</returns>
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetOffersByRentOrder(Guid rentOrderId)
     {
         var offers = await _offerService.GetOffersByRentOrderIdAsync(rentOrderId);
@@ -32,6 +33,7 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     /// </summary>
     /// <returns>Список откликов.</returns>
     [HttpGet("foruser")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetOffersByUser()
     {
         // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
@@ -46,7 +48,6 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
         return Ok(offers);
     }
 
-
     /// <summary>
     /// Получить отклик по идентификатору.
     /// </summary>
@@ -54,6 +55,7 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     /// <param name="id">Идентификатор отклика.</param>
     /// <returns>Отклик или NotFound.</returns>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<ActionResult<RentOrderOfferDto>> GetOfferById(Guid rentOrderId, Guid id)
     {
         var offer = await _offerService.GetOfferByIdAsync(id);
@@ -71,7 +73,6 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     [Authorize]
     public async Task<ActionResult<RentOrderOfferDto>> CreateOffer([FromBody] CreateRentOrderOfferDto dto)
     {
-
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
         {
@@ -83,7 +84,7 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
         if (created is null)
             return BadRequest("Unable to create offer. Check order status, ship ownership, and requirements.");
 
-        return CreatedAtAction(nameof(GetOfferById), new {id = created.Id }, created);
+        return CreatedAtAction(nameof(GetOfferById), new { rentOrderId = created.RentOrderId, id = created.Id }, created);
     }
 
     /// <summary>
@@ -93,8 +94,23 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     /// <param name="id">Идентификатор принимаемого отклика.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpPost("{id}/accept")]
+    [Authorize]
     public async Task<ActionResult> AcceptOffer(Guid rentOrderId, Guid id)
     {
+        // Проверка, что пользователь владеет заказом
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var order = await _orderService.GetByIdAsync(rentOrderId);
+        if (order is null)
+            return NotFound("Order not found");
+
+        if (order.UserId != userGuid)
+            return Forbid(); // 403 - пользователь не владеет этим заказом
+
         var result = await _offerService.AcceptOfferAsync(rentOrderId, id);
         if (!result)
             return BadRequest("Unable to accept offer. Check order and offer status.");
@@ -109,8 +125,27 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     /// <param name="id">Идентификатор отклика для отклонения.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpPost("{id}/reject")]
-    public async Task<ActionResult> RejectOffer(Guid id)
+    [Authorize]
+    public async Task<ActionResult> RejectOffer(Guid rentOrderId, Guid id)
     {
+        // Проверка, что пользователь владеет заказом
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var order = await _orderService.GetByIdAsync(rentOrderId);
+        if (order is null)
+            return NotFound("Order not found");
+
+        if (order.UserId != userGuid)
+            return Forbid();
+
+        var offer = await _offerService.GetOfferByIdAsync(id);
+        if (offer is null || offer.RentOrderId != rentOrderId)
+            return NotFound();
+
         var result = await _offerService.RejectOfferAsync(id);
         if (!result)
             return BadRequest("Unable to reject offer. Check order and offer status.");
@@ -125,11 +160,22 @@ public class OffersController(IRentOrderOfferService offerService) : ControllerB
     /// <param name="id">Идентификатор отклика для удаления.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<ActionResult> DeleteOffer(Guid rentOrderId, Guid id)
     {
+        // Проверка прав: партнер может удалить только свой отклик
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
         var offer = await _offerService.GetOfferByIdAsync(id);
         if (offer is null || offer.RentOrderId != rentOrderId)
             return NotFound();
+
+        if (offer.PartnerId != userGuid)
+            return Forbid(); // Партнер может удалить только свой отклик
 
         var result = await _offerService.DeleteOfferAsync(id);
         if (!result)

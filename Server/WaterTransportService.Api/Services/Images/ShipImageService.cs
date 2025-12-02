@@ -80,7 +80,7 @@ public class ShipImageService(
         {
             Id = newId,
             ShipId = ship.Id,
-            Ship = null!,
+            Ship = ship,
             ImagePath = imagePath,
             IsPrimary = dto.IsPrimary,
             UploadedAt = DateTime.UtcNow

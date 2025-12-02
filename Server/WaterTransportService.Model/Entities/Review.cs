@@ -108,7 +108,7 @@ public class Review : BaseEntity
     /// Время последнего обновления отзыва в UTC.
     /// </summary>
     [Column("updated_at", TypeName = "timestamptz")]
-    public DateTime? UpdatedAt { get; set; }
+    public new DateTime? UpdatedAt { get; set; }
 
     /// <summary>
     /// Флаг активности записи. Если false — запись считается удалённой/неактивной.

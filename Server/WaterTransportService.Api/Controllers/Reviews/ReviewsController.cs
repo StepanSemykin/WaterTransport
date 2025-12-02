@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Reviews;
 
@@ -152,7 +152,7 @@ public class ReviewsController(IReviewService service) : ControllerBase
         }
 
         var created = await _service.CreateAsync(dto, userId);
-        return created is null 
+        return created is null
             ? BadRequest("Unable to create review. Check order status, permissions, and target entity.")
             : CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
