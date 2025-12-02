@@ -32,39 +32,6 @@ public class Mapping : Profile
         CreateMap<Port, CreatePortDto>().ReverseMap();
         CreateMap<Port, UpdatePortDto>().ReverseMap();
 
-        CreateMap<RentOrder, RentOrderDto>().ReverseMap();
-
-        // Ship mappings with ID
-
-        CreateMap<Ship, ShipDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
-
-        // Ship with details mapping
-        CreateMap<Ship, ShipDetailsDto>()
-            .ConstructUsing(src => new ShipDetailsDto(
-                src.Id,
-                src.Name,
-                src.ShipTypeId,
-                src.ShipType != null ? src.ShipType.Name : string.Empty,
-                src.Capacity,
-                src.RegistrationNumber,
-                src.YearOfManufacture,
-                src.MaxSpeed,
-                src.Width,
-                src.Length,
-                src.Description,
-                src.CostPerHour,
-                src.PortId,
-                src.UserId,
-                src.ShipImages != null ? src.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null
-            ));
-
-        CreateMap<ShipType, ShipTypeDto>().ReverseMap();
-        CreateMap<ShipType, CreateShipTypeDto>().ReverseMap();
-        CreateMap<ShipType, UpdateShipTypeDto>().ReverseMap();
-
         // RentOrder mappings
         CreateMap<RentOrder, RentOrderDto>()
             .ConstructUsing(src => new RentOrderDto(
@@ -136,10 +103,39 @@ public class Mapping : Profile
                 src.RentalStartTime,
                 src.RentalEndTime,
                 src.OrderDate,
-                src.Status,
-                src.CreatedAt,
-                src.CancelledAt
+                src.Status
             ));
+
+        // Ship mappings with ID
+
+        CreateMap<Ship, ShipDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
+        // Ship with details mapping
+        CreateMap<Ship, ShipDetailsDto>()
+            .ConstructUsing(src => new ShipDetailsDto(
+                src.Id,
+                src.Name,
+                src.ShipTypeId,
+                src.ShipType != null ? src.ShipType.Name : string.Empty,
+                src.Capacity,
+                src.RegistrationNumber,
+                src.YearOfManufacture,
+                src.MaxSpeed,
+                src.Width,
+                src.Length,
+                src.Description,
+                src.CostPerHour,
+                src.PortId,
+                src.UserId,
+                src.ShipImages != null ? src.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null
+            ));
+
+        CreateMap<ShipType, ShipTypeDto>().ReverseMap();
+        CreateMap<ShipType, CreateShipTypeDto>().ReverseMap();
+        CreateMap<ShipType, UpdateShipTypeDto>().ReverseMap();
 
         // RentOrderOffer mappings
         CreateMap<RentOrderOffer, RentOrderOfferDto>()
@@ -209,7 +205,5 @@ public class Mapping : Profile
                 src.IsPrimary,
                 src.UploadedAt
             ));
-
-
     }
 }
