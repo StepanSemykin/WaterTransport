@@ -20,7 +20,10 @@ public class Mapping : Profile
         CreateMap<Port, CreatePortDto>().ReverseMap();
         CreateMap<Port, UpdatePortDto>().ReverseMap();
 
+        CreateMap<RentOrder, RentOrderDto>().ReverseMap();
+
         // Ship mappings with ID
+
         CreateMap<Ship, ShipDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))

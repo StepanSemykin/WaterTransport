@@ -121,6 +121,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <summary>
     /// Отклонить отклик (пользователь отвергает партнера).
     /// </summary>
+    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
     /// <param name="id">Идентификатор отклика для отклонения.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpPost("{id}/reject")]
