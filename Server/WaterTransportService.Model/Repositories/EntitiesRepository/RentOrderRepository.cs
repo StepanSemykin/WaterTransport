@@ -25,6 +25,78 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
     public async Task<RentOrder?> GetByIdAsync(Guid id) => await _context.RentOrders.FindAsync(id);
 
     /// <summary>
+    /// Получить заказ с полными связанными данными.
+    /// </summary>
+    public async Task<RentOrder?> GetByIdWithDetailsAsync(Guid id)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner).ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipImages)
+            .FirstOrDefaultAsync(ro => ro.Id == id);
+    }
+
+    /// <summary>
+    /// Получить все заказы с пагинацией и полными связанными данными.
+    /// </summary>
+    public async Task<(IEnumerable<RentOrder> Items, int Total)> GetAllWithDetailsAsync(int page, int pageSize)
+    {
+        var query = _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner).ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipImages)
+            .OrderByDescending(x => x.CreatedAt);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, total);
+    }
+
+    /// <summary>
+    /// Получить заказы по статусам с полными связанными данными.
+    /// </summary>
+    public async Task<IEnumerable<RentOrder>> GetByStatusesWithDetailsAsync(params string[] statuses)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Offers)
+            .Where(ro => statuses.Contains(ro.Status))
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Получить заказы пользователя по статусу с полными связанными данными.
+    /// </summary>
+    public async Task<IEnumerable<RentOrder>> GetForUserByStatusWithDetailsAsync(Guid userId, string status)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner).ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipImages)
+            .Where(ro => ro.UserId == userId && ro.Status == status)
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
     /// <param name="entity">Сущность заказа для создания.</param>

@@ -1,6 +1,5 @@
 using AutoMapper;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Model.Entities;
 using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
 
@@ -15,14 +14,18 @@ public class Mapping : Profile
         CreateMap<User, CreateUserDto>().ReverseMap();
         CreateMap<User, UpdateUserDto>().ReverseMap();
         CreateMap<UserProfile, UserProfileDto>().ReverseMap();
-        
+
         // Port mappings with ID
         CreateMap<Port, PortDto>().ReverseMap();
         CreateMap<Port, CreatePortDto>().ReverseMap();
         CreateMap<Port, UpdatePortDto>().ReverseMap();
-        
+
         // Ship mappings with ID
-        CreateMap<Ship, ShipDto>().ReverseMap();
+        CreateMap<Ship, ShipDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+
         CreateMap<ShipType, ShipTypeDto>().ReverseMap();
         CreateMap<ShipType, CreateShipTypeDto>().ReverseMap();
         CreateMap<ShipType, UpdateShipTypeDto>().ReverseMap();
@@ -38,7 +41,7 @@ public class Mapping : Profile
                 src.IsPrimary,
                 src.UploadedAt
             ));
-        
+
         CreateMap<PortImage, PortImageDto>()
             .ConstructUsing(src => new PortImageDto(
                 src.Id,
@@ -47,7 +50,7 @@ public class Mapping : Profile
                 src.IsPrimary,
                 src.UploadedAt
             ));
-        
+
         CreateMap<UserImage, UserImageDto>()
             .ConstructUsing(src => new UserImageDto(
                 src.Id,

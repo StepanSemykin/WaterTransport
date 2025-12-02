@@ -2,14 +2,23 @@
 
 namespace WaterTransportService.Api.DTO;
 
+/// <summary>
+/// Расширенный DTO для заказа аренды с вложенными объектами.
+/// </summary>
 public record RentOrderDto(
     Guid Id,
     Guid UserId,
+    UserProfileDto? UserProfile,
     ushort ShipTypeId,
+    string? ShipTypeName,
     Guid DeparturePortId,
+    PortDto? DeparturePort,
     Guid? ArrivalPortId,
+    PortDto? ArrivalPort,
     Guid? PartnerId,
+    UserProfileDto? PartnerProfile,
     Guid? ShipId,
+    ShipDetailsDto? Ship,
     uint? TotalPrice,
     ushort NumberOfPassengers,
     DateTime RentalStartTime,
@@ -18,6 +27,27 @@ public record RentOrderDto(
     string Status
     //DateTime CreatedAt,
     //DateTime? CancelledAt
+);
+
+/// <summary>
+/// DTO судна с основным изображением для заказа аренды.
+/// </summary>
+public record ShipDetailsDto(
+    Guid Id,
+    string Name,
+    ushort ShipTypeId,
+    string ShipTypeName,
+    ushort Capacity,
+    string RegistrationNumber,
+    DateTime? YearOfManufacture,
+    ushort? MaxSpeed,
+    ushort? Width,
+    ushort? Length,
+    string? Description,
+    uint? CostPerHour,
+    Guid PortId,
+    Guid UserId,
+    string? PrimaryImageUrl
 );
 
 public class CreateRentOrderDto

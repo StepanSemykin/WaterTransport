@@ -11,13 +11,11 @@ namespace WaterTransportService.Api.Services.Images;
 /// </summary>
 public class UserImageService(
     IEntityRepository<UserImage, Guid> repo,
-    IUserRepository<Guid> userRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
     IFileStorageService fileStorageService,
     IMapper mapper) : IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>
 {
     private readonly IEntityRepository<UserImage, Guid> _repo = repo;
-    private readonly IUserRepository<Guid> _userRepo = userRepo;
     private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
     private readonly IMapper _mapper = mapper;
@@ -85,12 +83,7 @@ public class UserImageService(
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
 
-        var user = await _userRepo.GetByIdAsync(dto.UserId);
-        if (user is null)
-            return null;
-
-        var userProfiles = await _userProfileRepo.GetAllAsync();
-        var userProfile = userProfiles.FirstOrDefault(up => up.UserId == user.Id);
+        var userProfile = await _userProfileRepo.GetByIdAsync(dto.UserId);
 
         if (userProfile is null)
             return null;
