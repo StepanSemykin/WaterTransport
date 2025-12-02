@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Query;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Exceptions;
@@ -251,7 +250,7 @@ public class UsersController(IUserService userService, IAuthService authService)
                 });
         }
     }
-    
+
     // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
@@ -429,39 +428,39 @@ public class UsersController(IUserService userService, IAuthService authService)
 }
 
 
-    //// GET api/users/profile/upcoming
-    //[Authorize]
-    //[HttpGet("profile/upcoming")]
-    //public async Task<ActionResult<UserDto>> GetMyUpcomingTrips()
-    //{
-    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+//// GET api/users/profile/upcoming
+//[Authorize]
+//[HttpGet("profile/upcoming")]
+//public async Task<ActionResult<UserDto>> GetMyUpcomingTrips()
+//{
+//    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+//    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
 
-    //    var user = await _service.GetByIdAsync(userId);
-    //    return user is null ? NotFound() : Ok(user);
-    //}
+//    var user = await _service.GetByIdAsync(userId);
+//    return user is null ? NotFound() : Ok(user);
+//}
 
-    //// GET api/users/profile/completed
-    //[Authorize]
-    //[HttpGet("profile/completed")]
-    //public async Task<ActionResult<UserDto>> GetMyCompletedTrips()
-    //{
-    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+//// GET api/users/profile/completed
+//[Authorize]
+//[HttpGet("profile/completed")]
+//public async Task<ActionResult<UserDto>> GetMyCompletedTrips()
+//{
+//    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+//    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
 
-    //    var user = await _service.GetByIdAsync(userId);
-    //    return user is null ? NotFound() : Ok(user);
-    //}
+//    var user = await _service.GetByIdAsync(userId);
+//    return user is null ? NotFound() : Ok(user);
+//}
 
-    //// GET api/users/profile/stats
-    //[Authorize]
-    //[HttpGet("profile/stats")]
-    //public async Task<ActionResult<UserDto>> GetMyStats()
-    //{
-    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
+//// GET api/users/profile/stats
+//[Authorize]
+//[HttpGet("profile/stats")]
+//public async Task<ActionResult<UserDto>> GetMyStats()
+//{
+//    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+//    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
 
-    //    var user = await _service.GetByIdAsync(userId);
-    //    return user is null ? NotFound() : Ok(user);
-    //}
+//    var user = await _service.GetByIdAsync(userId);
+//    return user is null ? NotFound() : Ok(user);
+//}
 

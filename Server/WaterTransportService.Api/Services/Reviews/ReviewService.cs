@@ -33,21 +33,21 @@ public class ReviewService(
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
-        
+
         var all = await _context.Reviews
             .Include(r => r.Author)
             .ThenInclude(a => a.UserProfile)
             .Where(r => r.IsActive)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
-        
+
         var total = all.Count;
         var items = all
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(MapToDto)
             .ToList();
-        
+
         return (items, total);
     }
 
@@ -60,7 +60,7 @@ public class ReviewService(
             .Include(r => r.Author)
             .ThenInclude(a => a.UserProfile)
             .FirstOrDefaultAsync(r => r.Id == id);
-        
+
         return review is null ? null : MapToDto(review);
     }
 
@@ -75,7 +75,7 @@ public class ReviewService(
             .Where(r => r.UserId == userId && r.IsActive)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
-        
+
         return reviews.Select(MapToDto).ToList();
     }
 
@@ -90,7 +90,7 @@ public class ReviewService(
             .Where(r => r.ShipId == shipId && r.IsActive)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
-        
+
         return reviews.Select(MapToDto).ToList();
     }
 
@@ -105,7 +105,7 @@ public class ReviewService(
             .Where(r => r.PortId == portId && r.IsActive)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
-        
+
         return reviews.Select(MapToDto).ToList();
     }
 
@@ -117,10 +117,10 @@ public class ReviewService(
         var reviews = await _context.Reviews
             .Where(r => r.UserId == userId && r.IsActive)
             .ToListAsync();
-        
+
         if (!reviews.Any())
             return new AverageRatingDto(0, 0);
-        
+
         var average = reviews.Average(r => r.Rating);
         return new AverageRatingDto(Math.Round(average, 2), reviews.Count);
     }
@@ -133,10 +133,10 @@ public class ReviewService(
         var reviews = await _context.Reviews
             .Where(r => r.ShipId == shipId && r.IsActive)
             .ToListAsync();
-        
+
         if (!reviews.Any())
             return new AverageRatingDto(0, 0);
-        
+
         var average = reviews.Average(r => r.Rating);
         return new AverageRatingDto(Math.Round(average, 2), reviews.Count);
     }
@@ -149,10 +149,10 @@ public class ReviewService(
         var reviews = await _context.Reviews
             .Where(r => r.PortId == portId && r.IsActive)
             .ToListAsync();
-        
+
         if (!reviews.Any())
             return new AverageRatingDto(0, 0);
-        
+
         var average = reviews.Average(r => r.Rating);
         return new AverageRatingDto(Math.Round(average, 2), reviews.Count);
     }
@@ -243,7 +243,7 @@ public class ReviewService(
         };
 
         var created = await _repo.CreateAsync(entity);
-        
+
         // Перезагружаем с навигационными свойствами
         var result = await _context.Reviews
             .Include(r => r.Author)
@@ -262,7 +262,7 @@ public class ReviewService(
             .Include(r => r.Author)
             .ThenInclude(a => a.UserProfile)
             .FirstOrDefaultAsync(r => r.Id == id);
-        
+
         if (entity is null)
             return null;
 
@@ -272,10 +272,10 @@ public class ReviewService(
 
         if (!string.IsNullOrWhiteSpace(dto.Comment))
             entity.Comment = dto.Comment;
-        
+
         if (dto.Rating.HasValue)
             entity.Rating = dto.Rating.Value;
-        
+
         if (dto.IsActive.HasValue)
             entity.IsActive = dto.IsActive.Value;
 
@@ -296,9 +296,9 @@ public class ReviewService(
     /// </summary>
     private static ReviewDto MapToDto(Review e)
     {
-        var authorName = e.Author?.UserProfile?.Nickname 
+        var authorName = e.Author?.UserProfile?.Nickname
             ?? $"{e.Author?.UserProfile?.FirstName} {e.Author?.UserProfile?.LastName}".Trim()
-            ?? e.Author?.Phone 
+            ?? e.Author?.Phone
             ?? "Аноним";
 
         return new ReviewDto(

@@ -27,22 +27,12 @@ public class RentOrderOfferService(
     /// </summary>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByUser(Guid UserId)
     {
-        // Получаем заказы, которые ожидают откликов
-        var availableOrders = await _rentOrderRepository.GetByStatusesAsync(
-            RentOrderStatus.AwaitingPartnerResponse,
-            RentOrderStatus.HasOffers);
+        // Получаем отклики с полными данными через репозиторий
+        var offers = await _offerRepository.GetOffersForUserOrdersWithDetailsAsync(
+            UserId,
+            RentOrderOfferStatus.Pending);
 
-        // Фильтруем заказы где владелец наш пользователь
-        var matchingOrders = availableOrders.Where(order => order.UserId == UserId).ToList();
-
-        // В переменную orders записываем список id найденных заказов
-        var orders = matchingOrders.Select(o => o.Id).ToList();
-
-        // Получаем все отклики и фильтруем их по найденным id заказов
-        var allOffers = await _offerRepository.GetAllAsync();
-        var offersForUser = allOffers.Where(o => orders.Contains(o.RentOrderId) && o.Status == RentOrderOfferStatus.Pending);
-
-        return offersForUser.Select(MapToDto);
+        return offers.Select(MapToDto);
     }
 
     /// <summary>
@@ -50,7 +40,7 @@ public class RentOrderOfferService(
     /// </summary>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
     {
-        var offers = await _offerRepository.GetByRentOrderIdAsync(rentOrderId);
+        var offers = await _offerRepository.GetByRentOrderIdWithDetailsAsync(rentOrderId);
         return offers.Select(MapToDto);
     }
 
@@ -59,7 +49,7 @@ public class RentOrderOfferService(
     /// </summary>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId)
     {
-        var offers = await _offerRepository.GetByPartnerIdAsync(partnerId);
+        var offers = await _offerRepository.GetByPartnerIdWithDetailsAsync(partnerId);
         return offers.Select(MapToDto);
     }
 
@@ -68,7 +58,7 @@ public class RentOrderOfferService(
     /// </summary>
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)
     {
-        var offer = await _offerRepository.GetByIdAsync(id);
+        var offer = await _offerRepository.GetByIdWithDetailsAsync(id);
         return offer is null ? null : MapToDto(offer);
     }
 
@@ -82,7 +72,7 @@ public class RentOrderOfferService(
         if (rentOrder is null) return null;
 
         // Проверяем, что заказ в статусе ожидания откликов
-        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse 
+        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse
             && rentOrder.Status != RentOrderStatus.HasOffers)
             return null;
 
@@ -122,7 +112,8 @@ public class RentOrderOfferService(
             await _context.SaveChangesAsync();
         }
 
-        return MapToDto(created);
+        // Перезагружаем с навигационными свойствами
+        return await GetOfferByIdAsync(created.Id);
     }
 
     /// <summary>
@@ -194,26 +185,72 @@ public class RentOrderOfferService(
     /// <summary>
     /// Преобразование сущности отклика в DTO.
     /// </summary>
-    private static RentOrderOfferDto MapToDto(RentOrderOffer offer) => new(
-        offer.Id,
-        offer.RentOrderId,
-        offer.PartnerId,
-        offer.Partner.UserProfile?.Nickname ?? offer.Partner.Phone,
-        offer.ShipId,
-        offer.Ship.Name,
-        offer.Ship.ShipType.Name,
-        offer.OfferedPrice,
-        offer.Status,
-        offer.CreatedAt,
-        offer.RespondedAt
-    );
+    private static RentOrderOfferDto MapToDto(RentOrderOffer offer)
+    {
+        return new RentOrderOfferDto(
+            offer.Id,
+            offer.RentOrderId,
+            offer.PartnerId,
+            MapUserProfileToDto(offer.Partner?.UserProfile),
+            offer.ShipId,
+            MapShipToDto(offer.Ship),
+            offer.OfferedPrice,
+            offer.Status,
+            offer.CreatedAt,
+            offer.RespondedAt
+        );
+    }
+
+    private static UserProfileDto? MapUserProfileToDto(UserProfile? profile)
+    {
+        if (profile is null) return null;
+
+        return new UserProfileDto(
+            profile.UserId,
+            profile.Nickname,
+            profile.FirstName,
+            profile.LastName,
+            profile.Patronymic,
+            profile.Email,
+            profile.Birthday,
+            profile.About,
+            profile.Location
+        );
+    }
+
+    private static ShipDetailsDto? MapShipToDto(Ship? ship)
+    {
+        if (ship is null) return null;
+
+        var primaryImage = ship.ShipImages?
+            .Where(img => img.IsPrimary)
+            .Select(img => img.ImagePath)
+            .FirstOrDefault();
+
+        return new ShipDetailsDto(
+            ship.Id,
+            ship.Name,
+            ship.ShipTypeId,
+            ship.ShipType?.Name ?? string.Empty,
+            ship.Capacity,
+            ship.RegistrationNumber,
+            ship.YearOfManufacture,
+            ship.MaxSpeed,
+            ship.Width,
+            ship.Length,
+            ship.Description,
+            ship.CostPerHour,
+            ship.PortId,
+            ship.UserId,
+            primaryImage
+        );
+    }
 
     /// <summary>
     /// Отклонить отклик партнера.
     /// </summary>
     public async Task<bool> RejectOfferAsync(Guid offerId)
     {
-
         // Получаем отклик
         var offer = await _offerRepository.GetByIdAsync(offerId);
         if (offer is null || offer.Status != RentOrderOfferStatus.Pending)
