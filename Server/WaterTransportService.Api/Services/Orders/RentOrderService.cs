@@ -1,4 +1,5 @@
-﻿using WaterTransportService.Api.DTO;
+﻿using AutoMapper;
+using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Constants;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -10,16 +11,18 @@ namespace WaterTransportService.Api.Services.Orders;
 /// </summary>
 public class RentOrderService(
     RentOrderRepository rentOrderRepository,
-    IEntityRepository<Ship, Guid> shipRepository,
+    ShipRepository shipRepository,
     IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
-    IUserRepository<Guid> userRepository) : IRentOrderService
+    IUserRepository<Guid> userRepository,
+    IMapper mapper) : IRentOrderService
 {
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
-    private readonly IEntityRepository<Ship, Guid> _shipRepository = shipRepository;
+    private readonly ShipRepository _shipRepository = shipRepository;
     private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить список всех заказов аренды с пагинацией.
@@ -31,7 +34,7 @@ public class RentOrderService(
 
         var (items, total) = await _rentOrderRepository.GetAllWithDetailsAsync(page, pageSize);
 
-        return (items.Select(MapToDto).ToList(), total);
+        return (_mapper.Map<List<RentOrderDto>>(items), total);
     }
 
     /// <summary>
@@ -40,18 +43,16 @@ public class RentOrderService(
     public async Task<RentOrderDto?> GetByIdAsync(Guid id)
     {
         var e = await _rentOrderRepository.GetByIdWithDetailsAsync(id);
-        return e is null ? null : MapToDto(e);
+        return e is null ? null : _mapper.Map<RentOrderDto>(e);
     }
 
     /// <summary>
-    /// Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+    /// Получить доступные заказы для партнера с подходящими суднами.
     /// </summary>
-    public async Task<IEnumerable<RentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId)
+    public async Task<IEnumerable<AvailableRentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId)
     {
-        // Получаем суда партнера через репозиторий
-        var partnerShips = (await _shipRepository.GetAllAsync())
-            .Where(s => s.UserId == partnerId)
-            .ToList();
+        // Получаем суда партнера с полными деталями через репозиторий
+        var partnerShips = (await _shipRepository.GetByUserIdWithDetailsAsync(partnerId)).ToList();
 
         if (partnerShips.Count == 0)
             return [];
@@ -61,28 +62,54 @@ public class RentOrderService(
             RentOrderStatus.AwaitingPartnerResponse,
             RentOrderStatus.HasOffers);
 
-        // Фильтруем заказы, на которые партнер может откликнуться
-        var matchingOrders = availableOrders.Where(order =>
+        // Формируем результат с подходящими суднами для каждого заказа
+        var result = new List<AvailableRentOrderDto>();
+
+        foreach (var order in availableOrders)
         {
             // Проверяем, что партнер еще не откликнулся на этот заказ
             if (order.Offers.Any(o => o.PartnerId == partnerId))
-                return false;
+                continue;
 
-            // Проверяем, что у партнера есть подходящее судно
-            return partnerShips.Any(ship =>
-                ship.ShipTypeId == order.ShipTypeId &&
-                ship.PortId == order.DeparturePortId &&
-                ship.Capacity >= order.NumberOfPassengers
-            );
-        });
+            // Находим подходящие суда для этого заказа
+            var matchingShips = partnerShips
+                .Where(ship =>
+                    ship.ShipTypeId == order.ShipTypeId &&
+                    ship.PortId == order.DeparturePortId &&
+                    ship.Capacity >= order.NumberOfPassengers)
+                .ToList();
 
-        return matchingOrders.Select(MapToDto);
+            // Добавляем заказ только если есть подходящие суда
+            if (matchingShips.Count > 0)
+            {
+                var orderDto = new AvailableRentOrderDto(
+                    order.Id,
+                    order.UserId,
+                    _mapper.Map<UserProfileDto>(order.User?.UserProfile),
+                    order.ShipTypeId,
+                    order.ShipType?.Name,
+                    order.DeparturePortId,
+                    _mapper.Map<PortDto>(order.DeparturePort),
+                    order.ArrivalPortId,
+                    _mapper.Map<PortDto>(order.ArrivalPort),
+                    order.NumberOfPassengers,
+                    order.RentalStartTime,
+                    order.RentalEndTime,
+                    order.Status,
+                    order.CreatedAt,
+                    _mapper.Map<List<ShipDetailsDto>>(matchingShips)
+                );
+                result.Add(orderDto);
+            }
+        }
+
+        return result;
     }
 
     public async Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid Id)
     {
         var result = await _rentOrderRepository.GetForUserByStatusWithDetailsAsync(Id, status);
-        return result.Select(MapToDto);
+        return _mapper.Map<List<RentOrderDto>>(result);
     }
 
     /// <summary>
@@ -194,93 +221,4 @@ public class RentOrderService(
     /// Удалить заказ аренды.
     /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _rentOrderRepository.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность заказа аренды в DTO.
-    /// </summary>
-    private static RentOrderDto MapToDto(RentOrder e)
-    {
-        return new RentOrderDto(
-            e.Id,
-            e.UserId,
-            MapUserProfileToDto(e.User?.UserProfile),
-            e.ShipTypeId,
-            e.ShipType?.Name,
-            e.DeparturePortId,
-            MapPortToDto(e.DeparturePort),
-            e.ArrivalPortId,
-            MapPortToDto(e.ArrivalPort),
-            e.PartnerId,
-            MapUserProfileToDto(e.Partner?.UserProfile),
-            e.ShipId,
-            MapShipToDto(e.Ship),
-            e.TotalPrice,
-            e.NumberOfPassengers,
-            e.RentalStartTime,
-            e.RentalEndTime,
-            e.OrderDate,
-            e.Status,
-            e.CreatedAt,
-            e.CancelledAt
-        );
-    }
-
-    private static UserProfileDto? MapUserProfileToDto(UserProfile? profile)
-    {
-        if (profile is null) return null;
-
-        return new UserProfileDto(
-            profile.UserId,
-            profile.Nickname,
-            profile.FirstName,
-            profile.LastName,
-            profile.Patronymic,
-            profile.Email,
-            profile.Birthday,
-            profile.About,
-            profile.Location
-        );
-    }
-
-    private static PortDto? MapPortToDto(Port? port)
-    {
-        if (port is null) return null;
-
-        return new PortDto(
-            port.Id,
-            port.Title,
-            port.PortTypeId,
-            port.Latitude,
-            port.Longitude,
-            port.Address
-        );
-    }
-
-    private static ShipDetailsDto? MapShipToDto(Ship? ship)
-    {
-        if (ship is null) return null;
-
-        var primaryImage = ship.ShipImages?
-            .Where(img => img.IsPrimary)
-            .Select(img => img.ImagePath)
-            .FirstOrDefault();
-
-        return new ShipDetailsDto(
-            ship.Id,
-            ship.Name,
-            ship.ShipTypeId,
-            ship.ShipType?.Name ?? string.Empty,
-            ship.Capacity,
-            ship.RegistrationNumber,
-            ship.YearOfManufacture,
-            ship.MaxSpeed,
-            ship.Width,
-            ship.Length,
-            ship.Description,
-            ship.CostPerHour,
-            ship.PortId,
-            ship.UserId,
-            primaryImage
-        );
-    }
 }

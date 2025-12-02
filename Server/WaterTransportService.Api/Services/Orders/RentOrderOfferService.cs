@@ -1,4 +1,5 @@
-﻿using WaterTransportService.Api.DTO;
+﻿using AutoMapper;
+using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Constants;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
@@ -14,13 +15,15 @@ public class RentOrderOfferService(
     RentOrderRepository rentOrderRepository,
     ShipRepository shipRepository,
     IUserRepository<Guid> userRepository,
-    WaterTransportDbContext context) : IRentOrderOfferService
+    WaterTransportDbContext context,
+    IMapper mapper) : IRentOrderOfferService
 {
     private readonly RentOrderOfferRepository _offerRepository = offerRepository;
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
     private readonly ShipRepository _shipRepository = shipRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
     private readonly WaterTransportDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить все отклики для конкретного пользователя.
@@ -29,10 +32,10 @@ public class RentOrderOfferService(
     {
         // Получаем отклики с полными данными через репозиторий
         var offers = await _offerRepository.GetOffersForUserOrdersWithDetailsAsync(
-            UserId,
+            UserId, 
             RentOrderOfferStatus.Pending);
 
-        return offers.Select(MapToDto);
+        return _mapper.Map<List<RentOrderOfferDto>>(offers);
     }
 
     /// <summary>
@@ -41,7 +44,7 @@ public class RentOrderOfferService(
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
     {
         var offers = await _offerRepository.GetByRentOrderIdWithDetailsAsync(rentOrderId);
-        return offers.Select(MapToDto);
+        return _mapper.Map<List<RentOrderOfferDto>>(offers);
     }
 
     /// <summary>
@@ -50,7 +53,7 @@ public class RentOrderOfferService(
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId)
     {
         var offers = await _offerRepository.GetByPartnerIdWithDetailsAsync(partnerId);
-        return offers.Select(MapToDto);
+        return _mapper.Map<List<RentOrderOfferDto>>(offers);
     }
 
     /// <summary>
@@ -59,7 +62,7 @@ public class RentOrderOfferService(
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)
     {
         var offer = await _offerRepository.GetByIdWithDetailsAsync(id);
-        return offer is null ? null : MapToDto(offer);
+        return offer is null ? null : _mapper.Map<RentOrderOfferDto>(offer);
     }
 
     /// <summary>
@@ -72,7 +75,7 @@ public class RentOrderOfferService(
         if (rentOrder is null) return null;
 
         // Проверяем, что заказ в статусе ожидания откликов
-        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse
+        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse 
             && rentOrder.Status != RentOrderStatus.HasOffers)
             return null;
 
@@ -180,70 +183,6 @@ public class RentOrderOfferService(
             return false;
 
         return true;
-    }
-
-    /// <summary>
-    /// Преобразование сущности отклика в DTO.
-    /// </summary>
-    private static RentOrderOfferDto MapToDto(RentOrderOffer offer)
-    {
-        return new RentOrderOfferDto(
-            offer.Id,
-            offer.RentOrderId,
-            offer.PartnerId,
-            MapUserProfileToDto(offer.Partner?.UserProfile),
-            offer.ShipId,
-            MapShipToDto(offer.Ship),
-            offer.OfferedPrice,
-            offer.Status,
-            offer.CreatedAt,
-            offer.RespondedAt
-        );
-    }
-
-    private static UserProfileDto? MapUserProfileToDto(UserProfile? profile)
-    {
-        if (profile is null) return null;
-
-        return new UserProfileDto(
-            profile.UserId,
-            profile.Nickname,
-            profile.FirstName,
-            profile.LastName,
-            profile.Patronymic,
-            profile.Email,
-            profile.Birthday,
-            profile.About,
-            profile.Location
-        );
-    }
-
-    private static ShipDetailsDto? MapShipToDto(Ship? ship)
-    {
-        if (ship is null) return null;
-
-        var primaryImage = ship.ShipImages?
-            .Where(img => img.IsPrimary)
-            .Select(img => img.ImagePath)
-            .FirstOrDefault();
-
-        return new ShipDetailsDto(
-            ship.Id,
-            ship.Name,
-            ship.ShipTypeId,
-            ship.ShipType?.Name ?? string.Empty,
-            ship.Capacity,
-            ship.RegistrationNumber,
-            ship.YearOfManufacture,
-            ship.MaxSpeed,
-            ship.Width,
-            ship.Length,
-            ship.Description,
-            ship.CostPerHour,
-            ship.PortId,
-            ship.UserId,
-            primaryImage
-        );
     }
 
     /// <summary>

@@ -46,14 +46,14 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить доступные заказы для партнера (с фильтрацией по порту, типу судна и вместимости).
+    /// Получить доступные заказы для партнера с подходящими суднами.
     /// </summary>
     /// <param name="partnerId">Идентификатор партнера.</param>
-    /// <returns>Список доступных заказов для партнера.</returns>
+    /// <returns>Список доступных заказов с подходящими суднами партнера.</returns>
     /// <response code="200">Список успешно получен.</response>
     [HttpGet("available-for-partner/{partnerId:guid}")]
-    [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetAvailableForPartner(Guid partnerId)
+    [ProducesResponseType(typeof(IEnumerable<AvailableRentOrderDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<AvailableRentOrderDto>>> GetAvailableForPartner(Guid partnerId)
     {
         var orders = await _service.GetAvailableOrdersForPartnerAsync(partnerId);
         return Ok(orders);
