@@ -16,8 +16,7 @@ public class Mapping : Profile
         CreateMap<UserProfile, UserProfileDto>().ReverseMap();
 
         // Port mappings with ID
-        CreateMap<Port, PortDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+        CreateMap<Port, PortDto>().ReverseMap();
         CreateMap<Port, CreatePortDto>().ReverseMap();
         CreateMap<Port, UpdatePortDto>().ReverseMap();
 
@@ -31,6 +30,8 @@ public class Mapping : Profile
         CreateMap<ShipType, CreateShipTypeDto>().ReverseMap();
         CreateMap<ShipType, UpdateShipTypeDto>().ReverseMap();
 
+        CreateMap<RentOrder, RentOrderDto>().ReverseMap();
+        
         // Image mappings
         CreateMap<ShipImage, ShipImageDto>()
             .ConstructUsing(src => new ShipImageDto(
@@ -58,5 +59,7 @@ public class Mapping : Profile
                 src.IsPrimary,
                 src.UploadedAt
             ));
+
+
     }
 }

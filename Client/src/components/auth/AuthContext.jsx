@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useCallback } from "react";
 
 import { apiFetch } from "../../api/api.js";
 
@@ -42,8 +42,14 @@ const SHIP_IMAGES_ENDPOINT = "/api/shipimages/file";
 const POSSIBLE_TRIPS_ENDPOINT = "/api/rentorders/available-for-partner";
 const UPCOMING_TRIPS_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Agreed";
 const COMPLETED_TRIPS_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Completed";
+const ACTIVE_ORDER_ENDPOINT = "/api/rentorders/active";
 
 const LOCATION = "/auth";
+
+const PARTNER_ROLE = "partner";
+const COMMON_ROLE = "common";
+
+const POLL_INTERVAL = 30000;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(INITIAL_USER_STATE);
@@ -58,12 +64,18 @@ export function AuthProvider({ children }) {
   const [userShips, setUserShips] = useState([]);
   const [userShipsLoading, setUserShipsLoading] = useState(false);
 
+  const [activeRentOrder, setActiveRentOrder] = useState(null);
+  const [hasActiveOrder, setHasActiveOrder] = useState(false);
+
   const [upcomingTrips, setUpcomingTrips] = useState([]);
   const [upcomingTripsLoading, setUpcomingTripsLoading] = useState(false);
   const [completedTrips, setCompletedTrips] = useState([]);
   const [completedTripsLoading, setCompletedTripsLoading] = useState(false);
   const [possibleTrips, setPossibleTrips] = useState([]);
   const [possibleTripsLoading, setPossibleTripsLoading] = useState(false);
+
+  const [upcomingPolling, setUpcomingPolling] = useState(true);
+  const [possiblePolling, setPossiblePolling] = useState(true);
 
   const hasFetched = useRef(false);
   const inFlight = useRef(false);
@@ -114,23 +126,6 @@ export function AuthProvider({ children }) {
         url,
       },
     ];
-
-    // try {
-    //   const res = await apiFetch(`${SHIP_IMAGES_ENDPOINT}/${shipId}`, { 
-    //     method: "GET" 
-    //   });
-      
-    //   if (res.ok) {
-    //     const data = await res.json();
-    //     return Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
-    //   }
-      
-    //   return [];
-    // } 
-    // catch (err) {
-    //   console.warn(`[AuthContext] Failed to load images for ship ${shipId}:`, err);
-    //   return [];
-    // }
   }
 
   async function loadAllShipImages(ships) {
@@ -185,6 +180,31 @@ export function AuthProvider({ children }) {
         setUserShipsLoading(false);
     }
   }
+
+ const loadActiveOrder = useCallback(async (role) => {
+    if (role === PARTNER_ROLE) {
+      setActiveRentOrder(null);
+      setHasActiveOrder(false);
+      return;
+    }
+    try {
+      const res = await apiFetch(ACTIVE_ORDER_ENDPOINT, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        setActiveRentOrder(data);
+        const id = data?.id ?? data?.Id ?? null;
+        setHasActiveOrder(Boolean(id));
+      } 
+      else {
+        setActiveRentOrder(null);
+        setHasActiveOrder(false);
+      }
+    } 
+    catch {
+      setActiveRentOrder(null);
+      setHasActiveOrder(false);
+    }
+  }, []);
 
   async function loadUpcomingTrips(userId) {
     if (!userId) {
@@ -263,6 +283,74 @@ export function AuthProvider({ children }) {
     }
   }
 
+  useEffect(() => {
+    if (!upcomingPolling || !user?.id) return;
+
+    let cancelled = false;
+    let intervalId;
+
+    async function pollUpcoming() {
+      try {
+        const res = await apiFetch(UPCOMING_TRIPS_ENDPOINT, { method: "GET" });
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+          setUpcomingTrips(items);
+        }
+      } 
+      catch (err) {
+        if (!cancelled) console.warn("[AuthContext] upcoming poll failed", err);
+      } 
+      finally {
+        if (!cancelled) setUpcomingTripsLoading(false);
+      }
+    }
+
+    setUpcomingTripsLoading(true);
+    pollUpcoming();
+    intervalId = setInterval(pollUpcoming, POLL_INTERVAL);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [upcomingPolling, user?.id]);
+
+  useEffect(() => {
+    if (!possiblePolling || user?.role !== "partner" || !user?.id) return;
+
+    let cancelled = false;
+    let intervalId;
+
+    async function pollPossible() {
+      try {
+        const res = await apiFetch(`${POSSIBLE_TRIPS_ENDPOINT}/${user.id}`, { method: "GET" });
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+          setPossibleTrips(items);
+        }
+      } 
+      catch (err) {
+        if (!cancelled) console.warn("[AuthContext] possible poll failed", err);
+      } 
+      finally {
+        if (!cancelled) setPossibleTripsLoading(false);
+      }
+    }
+
+    setPossibleTripsLoading(true);
+    pollPossible();
+    intervalId = setInterval(pollPossible, POLL_INTERVAL);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [possiblePolling, user?.role, user?.id]);
+
   async function refreshUser({ force = false } = {}) {
     if ((hasFetched.current || inFlight.current) && !force) return;
 
@@ -307,9 +395,13 @@ export function AuthProvider({ children }) {
         catch (profileErr) {
           console.warn("[AuthContext] Failed to fetch UserProfileDto:", profileErr);
         }
-        if (account.role === "partner") {
+        if (account.role === PARTNER_ROLE) {
           await loadUserShips(account.id);
           await loadPossibleTrips(account.id);
+          console.log(account.id);
+        }
+        else if (account.role === COMMON_ROLE) {
+          await loadActiveOrder(account.role);
           console.log(account.id);
         }
 
@@ -373,14 +465,31 @@ export function AuthProvider({ children }) {
       possibleTrips,
       possibleTripsLoading,
       loadPossibleTrips,
+      upcomingPolling,
+      setUpcomingPolling,
+      possiblePolling,
+      setPossiblePolling,
+      activeRentOrder,
+      hasActiveOrder,
+      loadActiveOrder,
       refreshUser,
       logout,
       isAuthenticated: Boolean(user?.phone),
       role: user?.role,
-      isCommon: user?.role === "common",
-      isPartner: user?.role === "partner",
+      isCommon: user?.role === COMMON_ROLE,
+      isPartner: user?.role === PARTNER_ROLE,
     }),
-    [user, loading, ports, portsLoading, shipTypes, shipTypesLoading, userShips, userShipsLoading, userShips, userShipsLoading]
+    [
+      user, loading, 
+      ports, portsLoading, 
+      shipTypes, shipTypesLoading, 
+      userShips, userShipsLoading, 
+      upcomingTrips, upcomingTripsLoading,
+      completedTrips, completedTripsLoading,
+      possibleTrips, possibleTripsLoading,
+      upcomingPolling, possiblePolling,
+      activeRentOrder, hasActiveOrder, loadActiveOrder
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

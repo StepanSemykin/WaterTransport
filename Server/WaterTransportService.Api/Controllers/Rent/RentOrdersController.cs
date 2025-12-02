@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+
 namespace WaterTransportService.Api.Controllers.Rent;
 
 /// <summary>
@@ -46,6 +49,27 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
+    /// Получить активный заказ аренды для текущего пользователя.
+    /// </summary>
+    /// <returns>Данные заказа аренды.</returns>
+    /// <response code="200">Активный заказ аренды успешно найден.</response>
+    /// <response code="404">Заказ аренды не найден (нет активного заказа).</response>
+    [HttpGet("active")]
+    [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RentOrderDto>> GetActiveOrder()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var activeOrder = await _service.GetActiveOrderForUserAsync(userGuid);
+        return activeOrder is null ? NotFound() : Ok(activeOrder);
+    }
+
+    /// <summary>
     /// Получить доступные заказы для партнера (с фильтрацией по порту, типу судна и вместимости).
     /// </summary>
     /// <param name="partnerId">Идентификатор партнера.</param>
@@ -70,7 +94,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForUserByStatusAsync(string status)
+    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForUserByStatus(string status)
     {
         // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
