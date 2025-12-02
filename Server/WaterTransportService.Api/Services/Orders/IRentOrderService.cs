@@ -13,19 +13,24 @@ public interface IRentOrderService
     Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize);
 
     /// <summary>
-    /// Получить список всех заказов аренды пользотля о статусу.
-    /// </summary>
-    Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid id);
-
-    /// <summary>
     /// Получить заказ аренды по идентификатору.
     /// </summary>
     Task<RentOrderDto?> GetByIdAsync(Guid id);
 
     /// <summary>
+    /// Получить активный заказ аренды для пользователя.
+    /// </summary>
+    Task<RentOrderDto?> GetActiveOrderForUserAsync(Guid userId);
+
+    /// <summary>
     /// Получить доступные заказы для партнера с подходящими суднами.
     /// </summary>
     Task<IEnumerable<AvailableRentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId);
+
+    /// <summary>
+    /// Получить список всех заказов аренды пользователя по статусу.
+    /// </summary>
+    Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid id);
 
     /// <summary>
     /// Создать новый заказ аренды.

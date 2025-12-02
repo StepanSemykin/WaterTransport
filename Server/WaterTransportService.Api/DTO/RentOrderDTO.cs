@@ -24,9 +24,9 @@ public record RentOrderDto(
     DateTime RentalStartTime,
     DateTime? RentalEndTime,
     DateTime? OrderDate,
-    string Status,
-    DateTime CreatedAt,
-    DateTime? CancelledAt
+    string Status
+    //DateTime CreatedAt,
+    //DateTime? CancelledAt
 );
 
 /// <summary>
@@ -104,5 +104,5 @@ public class UpdateRentOrderDto
     public DateTime? OrderDate { get; set; }
     [MaxLength(20)]
     public string? Status { get; set; }
-    public DateTime? CancelledAt { get; set; }
+    //public DateTime? CancelledAt { get; set; }
 }

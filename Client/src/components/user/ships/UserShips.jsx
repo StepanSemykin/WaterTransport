@@ -104,7 +104,10 @@ export default function UserShips() {
           ) : (
             <div className={styles["user-card-list"]}>
               {userShips.map((ship) => (
-                <div className={styles["user-card"]} key={ship.id} onClick={() => handleEditShip(ship)}>
+                <div 
+                  className={styles["user-card"]} 
+                  key={ship.id} 
+                  onClick={() => handleEditShip(ship)}>
                   <ShipCard {...formatShipForCard(ship)} />
               </div>
               ))}

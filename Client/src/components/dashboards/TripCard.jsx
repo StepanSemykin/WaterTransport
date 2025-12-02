@@ -24,7 +24,6 @@ export function TripCard({
   actions = [],
   onAction,
   isPartner = false,
-  onUpdateTripPrice,
   ...tripRest
 }) {
   const { ports, shipTypes, userShips } = useAuth();
@@ -99,6 +98,7 @@ export function TripCard({
       id: rentOrder.id,
       passengers: rentOrder.numberOfPassengers,
       status: rentOrder.status,
+      shipId: rentOrder.shipId,
       imageSrc: imageSrc ?? shipInfo.image,
       imageAlt: imageAlt ?? shipInfo.name,
       // заголовок — имя судна
@@ -139,8 +139,10 @@ export function TripCard({
   }
 
   const tripData = {
+    id: mapped.id,
     imageSrc: mapped.imageSrc ?? imageSrc,
     imageAlt: mapped.imageAlt ?? imageAlt,
+    shipId: mapped.shipId,
     title: mapped.title ?? title,
     confirm: mapped.confirm ?? confirm,
     details: mapped.details ?? details ?? [],
@@ -327,7 +329,6 @@ export function TripCard({
         show={showDetails}
         onClose={() => setShowDetails(false)}
         isPartner={isPartner}
-        onUpdateTripPrice={onUpdateTripPrice}
       />
     </>
   );
