@@ -70,6 +70,18 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
     }
 
     /// <summary>
+    /// Получить все суда пользователя с полными деталями (тип, изображения).
+    /// </summary>
+    public async Task<IEnumerable<Ship>> GetByUserIdWithDetailsAsync(Guid userId)
+    {
+        return await _context.Ships
+            .Include(s => s.ShipType)
+            .Include(s => s.ShipImages)
+            .Where(s => s.UserId == userId)
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Получить судно с типом и портом по идентификатору.
     /// </summary>
     /// <param name="id">Идентификатор судна.</param>

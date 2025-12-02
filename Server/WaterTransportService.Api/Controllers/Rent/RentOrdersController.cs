@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WaterTransportService.Api.Controllers.Rent;
 
@@ -26,6 +24,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="200">Успешно получен список заказов аренды.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [Authorize]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         var (items, total) = await _service.GetAllAsync(page, pageSize);
@@ -42,6 +41,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult<RentOrderDto>> GetById(Guid id)
     {
         var e = await _service.GetByIdAsync(id);
@@ -57,6 +57,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     [HttpGet("active")]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [Authorize]
     public async Task<ActionResult<RentOrderDto>> GetActiveOrder()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
@@ -73,11 +74,12 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// Получить доступные заказы для партнера (с фильтрацией по порту, типу судна и вместимости).
     /// </summary>
     /// <param name="partnerId">Идентификатор партнера.</param>
-    /// <returns>Список доступных заказов для партнера.</returns>
+    /// <returns>Список доступных заказов с подходящими суднами партнера.</returns>
     /// <response code="200">Список успешно получен.</response>
     [HttpGet("available-for-partner/{partnerId:guid}")]
-    [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetAvailableForPartner(Guid partnerId)
+    [ProducesResponseType(typeof(IEnumerable<AvailableRentOrderDto>), StatusCodes.Status200OK)]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<AvailableRentOrderDto>>> GetAvailableForPartner(Guid partnerId)
     {
         var orders = await _service.GetAvailableOrdersForPartnerAsync(partnerId);
         return Ok(orders);

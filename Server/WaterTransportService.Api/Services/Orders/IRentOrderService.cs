@@ -23,9 +23,9 @@ public interface IRentOrderService
     Task<RentOrderDto?> GetActiveOrderForUserAsync(Guid userId);
 
     /// <summary>
-    /// Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+    /// Получить доступные заказы для партнера с подходящими суднами.
     /// </summary>
-    Task<IEnumerable<RentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId);
+    Task<IEnumerable<AvailableRentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId);
 
     /// <summary>
     /// Получить список всех заказов аренды пользователя по статусу.

@@ -11,14 +11,14 @@ namespace WaterTransportService.Api.Services.Orders;
 /// </summary>
 public class RentOrderService(
     RentOrderRepository rentOrderRepository,
-    IEntityRepository<Ship, Guid> shipRepository,
+    ShipRepository shipRepository,
     IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
     IUserRepository<Guid> userRepository,
     IMapper mapper) : IRentOrderService
 {
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
-    private readonly IEntityRepository<Ship, Guid> _shipRepository = shipRepository;
+    private readonly ShipRepository _shipRepository = shipRepository;
     private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
@@ -31,10 +31,10 @@ public class RentOrderService(
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
-        var all = (await _rentOrderRepository.GetAllAsync()).OrderByDescending(x => x.CreatedAt).ToList();
-        var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(x => _mapper.Map<RentOrderDto>(x)).ToList();
-        return (items, total);
+
+        var (items, total) = await _rentOrderRepository.GetAllWithDetailsAsync(page, pageSize);
+
+        return (_mapper.Map<List<RentOrderDto>>(items), total);
     }
 
     /// <summary>
@@ -42,11 +42,12 @@ public class RentOrderService(
     /// </summary>
     public async Task<RentOrderDto?> GetByIdAsync(Guid id)
     {
-        var rentOrder = await _rentOrderRepository.GetByIdAsync(id);
-        return rentOrder is null ? null : _mapper.Map<RentOrderDto>(rentOrder);
+        var e = await _rentOrderRepository.GetByIdWithDetailsAsync(id);
+        return e is null ? null : _mapper.Map<RentOrderDto>(e);
     }
 
     /// <summary>
+    /// Получить доступные заказы для партнера с подходящими суднами.
     /// Получить активный заказ аренды для пользователя.
     /// </summary>
     public async Task<RentOrderDto?> GetActiveOrderForUserAsync(Guid userId)
@@ -66,12 +67,10 @@ public class RentOrderService(
     /// <summary>
     /// Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
     /// </summary>
-    public async Task<IEnumerable<RentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId)
+    public async Task<IEnumerable<AvailableRentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId)
     {
-        // Получаем суда партнера через репозиторий
-        var partnerShips = (await _shipRepository.GetAllAsync())
-            .Where(s => s.UserId == partnerId)
-            .ToList();
+        // Получаем суда партнера с полными деталями через репозиторий
+        var partnerShips = (await _shipRepository.GetByUserIdWithDetailsAsync(partnerId)).ToList();
 
         if (partnerShips.Count == 0)
             return [];
@@ -81,22 +80,48 @@ public class RentOrderService(
             RentOrderStatus.AwaitingPartnerResponse,
             RentOrderStatus.HasOffers);
 
-        // Фильтруем заказы, на которые партнер может откликнуться
-        var matchingOrders = availableOrders.Where(order =>
+        // Формируем результат с подходящими суднами для каждого заказа
+        var result = new List<AvailableRentOrderDto>();
+
+        foreach (var order in availableOrders)
         {
             // Проверяем, что партнер еще не откликнулся на этот заказ
             if (order.Offers.Any(o => o.PartnerId == partnerId))
-                return false;
+                continue;
 
-            // Проверяем, что у партнера есть подходящее судно
-            return partnerShips.Any(ship =>
-                ship.ShipType.Id == order.ShipTypeId &&
-                ship.PortId == order.DeparturePortId &&
-                ship.Capacity >= order.NumberOfPassengers
-            );
-        });
+            // Находим подходящие суда для этого заказа
+            var matchingShips = partnerShips
+                .Where(ship =>
+                    ship.ShipTypeId == order.ShipTypeId &&
+                    ship.PortId == order.DeparturePortId &&
+                    ship.Capacity >= order.NumberOfPassengers)
+                .ToList();
 
-        return matchingOrders.Select(x => _mapper.Map<RentOrderDto>(x));
+            // Добавляем заказ только если есть подходящие суда
+            if (matchingShips.Count > 0)
+            {
+                var orderDto = new AvailableRentOrderDto(
+                    order.Id,
+                    order.UserId,
+                    _mapper.Map<UserProfileDto>(order.User?.UserProfile),
+                    order.ShipTypeId,
+                    order.ShipType?.Name,
+                    order.DeparturePortId,
+                    _mapper.Map<PortDto>(order.DeparturePort),
+                    order.ArrivalPortId,
+                    _mapper.Map<PortDto>(order.ArrivalPort),
+                    order.NumberOfPassengers,
+                    order.RentalStartTime,
+                    order.RentalEndTime,
+                    order.Status,
+                    order.CreatedAt,
+                    _mapper.Map<List<ShipDetailsDto>>(matchingShips)
+                );
+                result.Add(orderDto);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -104,8 +129,8 @@ public class RentOrderService(
     /// </summary>
     public async Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid Id)
     {
-        var result = await _rentOrderRepository.GetForUserByStatusesAsync(Id, status);
-        return result.Select(x => _mapper.Map<RentOrderDto>(x));
+        var result = await _rentOrderRepository.GetForUserByStatusWithDetailsAsync(Id, status);
+        return _mapper.Map<List<RentOrderDto>>(result);
     }
 
     /// <summary>

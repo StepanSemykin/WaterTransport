@@ -30,6 +30,27 @@ public record RentOrderDto(
 );
 
 /// <summary>
+/// DTO для доступного заказа с подходящими суднами партнера.
+/// </summary>
+public record AvailableRentOrderDto(
+    Guid Id,
+    Guid UserId,
+    UserProfileDto? UserProfile,
+    ushort ShipTypeId,
+    string? ShipTypeName,
+    Guid DeparturePortId,
+    PortDto? DeparturePort,
+    Guid? ArrivalPortId,
+    PortDto? ArrivalPort,
+    ushort NumberOfPassengers,
+    DateTime RentalStartTime,
+    DateTime? RentalEndTime,
+    string Status,
+    DateTime CreatedAt,
+    List<ShipDetailsDto> MatchingShips  // Список подходящих судов партнера
+);
+
+/// <summary>
 /// DTO судна с основным изображением для заказа аренды.
 /// </summary>
 public record ShipDetailsDto(
