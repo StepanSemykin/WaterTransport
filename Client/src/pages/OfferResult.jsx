@@ -9,7 +9,7 @@ import Header from "../components/results/Header.jsx";
 
 import styles from "./OfferResult.module.css";
 
-const POLL_INTERVAL = 5000;
+const POLL_INTERVAL = 10000;
 
 const USER_OFFERS_ENDPOINT = "/api/rent-orders/offers/foruser";
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
@@ -52,11 +52,10 @@ export default function OrderResponses() {
       });
 
       if (res.ok) {
-      setResponses((prev) =>
-        prev.map((r) =>
-        r.id === offerId ? { ...r, status: "approved" } : r
-        )
-      );
+        setResponses((prev) =>
+          prev.map((r) =>
+          r.id === offerId ? { ...r, status: "approved" } : r
+          ));
       } 
       else {
         console.error("Ошибка подтверждения. Статус:", res.status);
@@ -189,7 +188,7 @@ export default function OrderResponses() {
               </Button>
             )}
             {polling ? (
-              <Badge bg="info">Автообновление каждые 5 секунд</Badge>
+              <Badge bg="info">Автообновление каждые 10 секунд</Badge>
             ) : (
               <Badge bg="secondary">Обновление остановлено</Badge>
             )}

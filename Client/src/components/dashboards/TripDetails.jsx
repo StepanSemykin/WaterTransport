@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 
+import { apiFetch } from "../../api/api.js";
+
 import styles from "./TripDetails.module.css";
+
+const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
 
 export default function TripDetails({
   trip,
   show,
   onClose,
   isPartner = false,
-  onUpdateTripPrice,
   onCancelTrip
 }) {
   const [price, setPrice] = useState("");
@@ -31,7 +34,8 @@ export default function TripDetails({
       setReviewRating(Number(trip.review.rating ?? 5));
       setReviewComment(trip.review.comment ?? "");
       setReviewSubmitted(true);
-    } else {
+    } 
+    else {
       setReviewRating(5);
       setReviewComment("");
       setReviewSubmitted(false);
@@ -42,22 +46,59 @@ export default function TripDetails({
     setPrice(trip?.price ?? "");
   }, [trip]);
 
+  async function sendPartnerOffer(rentOrderId, offerPrice, shipId) {
+    if (!rentOrderId) throw new Error("rentOrderId отсутствует");
+    const res = await apiFetch(OFFERS_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify({
+        rentOrderId,
+        shipId,
+        offeredPrice: Number(offerPrice)
+      })
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json().catch(() => ({}));
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!isPartner || typeof onUpdateTripPrice !== "function" || !trip) {
+    if (!isPartner || !trip) {
       onClose();
       return;
     }
 
     try {
       setSaving(true);
-      await onUpdateTripPrice(trip, price);
+      const rentOrderId = trip?.id ?? trip?.Id ?? trip?.rentOrderId;
+      const shipId = trip?.ShipId ?? trip?.shipId;
+      await sendPartnerOffer(rentOrderId, price, shipId);
+      // опционально: onUpdateTripPrice?.(trip, price);
       onClose();
     } 
     finally {
       setSaving(false);
     }
   }
+
+  // async function handleSubmit(event) {
+  //   event.preventDefault();
+  //   if (!isPartner || typeof onUpdateTripPrice !== "function" || !trip) {
+  //     onClose();
+  //     return;
+  //   }
+
+  //   try {
+  //     setSaving(true);
+  //     await onUpdateTripPrice(trip, price);
+  //     onClose();
+  //   } 
+  //   finally {
+  //     setSaving(false);
+  //   }
+  // }
 
   async function handleCancel() {                
     if (!trip) return;
@@ -70,7 +111,8 @@ export default function TripDetails({
       setCancelling(true);
       await onCancelTrip(trip);
       onClose();
-    } finally {
+    } 
+    finally {
       setCancelling(false);
     }
   }
@@ -85,13 +127,8 @@ export default function TripDetails({
     }
     setReviewLoading(true);
     try {
-      const token = localStorage.getItem("token") || "";
-      const res = await fetch(`/api/trips/${trip.id}/reviews`, {
+      const res = await apiFetch(`/api/trips/${trip.id}/reviews`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
         body: JSON.stringify({
           rating: reviewRating,
           comment: reviewComment
@@ -102,13 +139,16 @@ export default function TripDetails({
         const data = await res.json();
         setReviewSubmitted(true);
         // опционально: обновить trip в родителе через callback, если есть
-      } else {
+      } 
+      else {
         const txt = await res.text();
         setReviewError(txt || `Ошибка сервера: ${res.status}`);
       }
-    } catch (err) {
+    } 
+    catch (err) {
       setReviewError("Сетевая ошибка: " + err.message);
-    } finally {
+    } 
+    finally {
       setReviewLoading(false);
     }
   }
@@ -187,7 +227,7 @@ export default function TripDetails({
           {isPartner && (trip.status == "AwaitingResponse" || trip.status == "HasOffers") && (
             <Form onSubmit={handleSubmit} className={styles["trip-price-form"]}>
               <Form.Group controlId="tripPrice" className={styles["trip-price-input"]}>
-                <Form.Label>Цена поездки</Form.Label>
+                <Form.Label>Стоимость поездки</Form.Label>
                 <Form.Control
                   type="number"
                   min="0"
@@ -198,7 +238,10 @@ export default function TripDetails({
                 />
               </Form.Group>
 
-              <Button type="submit" variant="primary" disabled={saving || !price}>
+              <Button 
+                type="submit" 
+                variant="primary" 
+                disabled={saving || !price}>
                 {saving ? "Отправка..." : "Отправить предложение"}
               </Button>
             </Form>
@@ -213,10 +256,12 @@ export default function TripDetails({
                   <div className={styles["trip-review-rating"]}>Оценка: {reviewRating} / 5</div>
                   {reviewComment && <div className={styles["trip-review-comment"]}>{reviewComment}</div>}
                   <div className={styles["trip-review-edit"]}>
-                    <Button variant="outline-secondary" size="sm" onClick={() => {
-                      // разрешить редактирование — снять флаг submitted
-                      setReviewSubmitted(false);
-                    }}>
+                    <Button 
+                      variant="outline-secondary" 
+                      size="sm" 
+                      onClick={() => {
+                        setReviewSubmitted(false);
+                      }}>
                       Редактировать отзыв
                     </Button>
                   </div>
