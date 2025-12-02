@@ -134,6 +134,15 @@ public class RentOrderService(
     }
 
     /// <summary>
+    /// Получить заказ партнера по статусу.
+    /// </summary>
+    public async Task<IEnumerable<RentOrderDto>> GetForPartnerByStatusAsync(string status, Guid Id)
+    {
+        var result = await _rentOrderRepository.GetForPartnerByStatusWithDetailsAsync(Id, status);
+        return _mapper.Map<List<RentOrderDto>>(result);
+    }
+
+    /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
     public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto, Guid userId)

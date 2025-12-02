@@ -25,6 +25,13 @@ export default function TripDetails({
   const [reviewError, setReviewError] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
+  const [selectedShipId, setSelectedShipId] = useState(null);
+
+  const partnerCanSelectShip =
+    isPartner &&
+    Array.isArray(trip?.matchingShips) &&
+    trip.matchingShips.length > 0;
+
   // console.log(trip.status);
   // console.log(isPartner);
 
@@ -40,10 +47,16 @@ export default function TripDetails({
       setReviewComment("");
       setReviewSubmitted(false);
     }
-  }, [trip]);
 
-  useEffect(() => {
-    setPrice(trip?.price ?? "");
+    if (trip?.shipId || trip?.ShipId) {
+      setSelectedShipId(trip.shipId ?? trip.ShipId);
+    } 
+    else if (Array.isArray(trip?.matchingShips) && trip.matchingShips.length > 0) {
+      setSelectedShipId(trip.matchingShips[0].id);
+    }   
+    else {
+      setSelectedShipId(null);
+    }  
   }, [trip]);
 
   async function sendPartnerOffer(rentOrderId, offerPrice, shipId) {
@@ -73,12 +86,12 @@ export default function TripDetails({
     try {
       setSaving(true);
       const rentOrderId = trip?.id ?? trip?.Id ?? trip?.rentOrderId;
-      const shipId = trip?.ShipId ?? trip?.shipId;
+      const shipId =
+        selectedShipId ?? trip?.ShipId ?? trip?.shipId; // <=== вот здесь
+
       await sendPartnerOffer(rentOrderId, price, shipId);
-      // опционально: onUpdateTripPrice?.(trip, price);
       onClose();
-    } 
-    finally {
+    } finally {
       setSaving(false);
     }
   }
@@ -224,6 +237,47 @@ export default function TripDetails({
           </div>
           )}
 
+          {partnerCanSelectShip && (
+            <div className={styles["trip-ship-select"]}>
+              <h5>Выберите судно для предложения</h5>
+              <div className={styles["trip-ship-list"]}>
+                {trip.matchingShips.map((ship) => (
+                  <button
+                    key={ship.id}
+                    type="button"
+                    onClick={() => setSelectedShipId(ship.id)}
+                    className={`${styles["trip-ship-card"]} ${
+                      selectedShipId === ship.id
+                        ? styles["trip-ship-card--selected"]
+                        : ""
+                    }`.trim()}
+                  >
+                    {ship.primaryImageUrl && (
+                      <img
+                        src={ship.primaryImageUrl}
+                        alt={ship.name}
+                        className={styles["trip-ship-image"]}
+                      />
+                    )}
+                    <div className={styles["trip-ship-info"]}>
+                      <div className={styles["trip-ship-name"]}>{ship.name}</div>
+                      {ship.shipTypeName && (
+                        <div className={styles["trip-ship-type"]}>
+                          Тип: {ship.shipTypeName}
+                        </div>
+                      )}
+                      {ship.capacity && (
+                        <div className={styles["trip-ship-capacity"]}>
+                          Вместимость: {ship.capacity}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {isPartner && (trip.status == "AwaitingResponse" || trip.status == "HasOffers") && (
             <Form onSubmit={handleSubmit} className={styles["trip-price-form"]}>
               <Form.Group controlId="tripPrice" className={styles["trip-price-input"]}>
@@ -241,7 +295,7 @@ export default function TripDetails({
               <Button 
                 type="submit" 
                 variant="primary" 
-                disabled={saving || !price}>
+                disabled={saving || !price || !selectedShipId}>
                 {saving ? "Отправка..." : "Отправить предложение"}
               </Button>
             </Form>

@@ -33,6 +33,11 @@ public interface IRentOrderService
     Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid id);
 
     /// <summary>
+    /// Получить список всех заказов аренды партнера по статусу.
+    /// </summary>
+    Task<IEnumerable<RentOrderDto>> GetForPartnerByStatusAsync(string status, Guid Id);
+
+    /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
     Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto, Guid userId);

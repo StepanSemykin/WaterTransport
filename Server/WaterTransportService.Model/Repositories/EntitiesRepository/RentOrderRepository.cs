@@ -97,6 +97,27 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
     }
 
     /// <summary>
+    /// Получить заказы партнера по статусу с полными связанными данными.
+    /// </summary>
+    public async Task<IEnumerable<RentOrder>> GetForPartnerByStatusWithDetailsAsync(Guid partnerId, string status)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User)
+                .ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner)
+                .ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship)
+                .ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship)
+                .ThenInclude(s => s!.ShipImages)
+            .Where(ro => ro.PartnerId == partnerId && ro.Status == status)
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Создать новый заказ аренды.
     /// </summary>
     /// <param name="entity">Сущность заказа для создания.</param>

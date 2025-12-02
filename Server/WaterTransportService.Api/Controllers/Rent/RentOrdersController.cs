@@ -98,15 +98,38 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     [Authorize]
     public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForUserByStatus(string status)
     {
-        // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
         {
-            // Возвращаем 401, если пользователя нет в claims или id невалиден
             return Unauthorized(new { message = "User ID not found or invalid token" });
         }
 
         var orders = await _service.GetForUserByStatusAsync(status, userGuid);
+        return orders is null
+            ? BadRequest("Unable to create order. Check user, ports, and ship type.")
+            : Ok(orders);
+    }
+
+    /// <summary>
+    /// Получить заказы партнера по статусу.
+    /// </summary>
+    /// <param name="status">С каким статусом хотим получить заказы</param>
+    /// <returns>Созданный заказ аренды.</returns>
+    /// <response code="200">Заказы успешно найдены</response>
+    /// <response code="400">Неправильные данные.</response>
+    [HttpGet("get-for-partner-by-status/status={status}")]
+    [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForPartnerByStatus(string status)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var orders = await _service.GetForPartnerByStatusAsync(status, userGuid);
         return orders is null
             ? BadRequest("Unable to create order. Check user, ports, and ship type.")
             : Ok(orders);

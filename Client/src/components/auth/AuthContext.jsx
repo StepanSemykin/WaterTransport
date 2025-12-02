@@ -40,8 +40,10 @@ const SHIP_TYPES_ENDPOINT = "/api/shiptypes";
 const MY_SHIPS_ENDPOINT = "/api/ships/my-ships"; 
 const SHIP_IMAGES_ENDPOINT = "/api/shipimages/file";
 const POSSIBLE_TRIPS_ENDPOINT = "/api/rentorders/available-for-partner";
-const UPCOMING_TRIPS_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Agreed";
-const COMPLETED_TRIPS_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Completed";
+const UPCOMING_TRIPS_COMMON_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Agreed";
+const COMPLETED_TRIPS_COMMON_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Completed";
+const UPCOMING_TRIPS_PARTNER_ENDPOINT = "/api/rentorders/get-for-partner-by-status/status=Agreed";
+const COMPLETED_TRIPS_PARTNER_ENDPOINT = "/api/rentorders/get-for-partner-by-status/status=Completed";
 const ACTIVE_ORDER_ENDPOINT = "/api/rentorders/active";
 
 const LOCATION = "/auth";
@@ -206,14 +208,14 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  async function loadUpcomingTrips(userId) {
+  async function loadUpcomingTrips(userId, endpoint) {
     if (!userId) {
       setUpcomingTrips([]);
       return;
     }
     setUpcomingTripsLoading(true);
     try {
-      const res = await apiFetch(UPCOMING_TRIPS_ENDPOINT, { method: "GET" });
+      const res = await apiFetch(endpoint, { method: "GET" });
       if (res.ok) {
         const data = await res.json();
         console.log(data);
@@ -233,14 +235,14 @@ export function AuthProvider({ children }) {
   }
 
   // Загрузка завершенных поездок
-  async function loadCompletedTrips(userId) {
+  async function loadCompletedTrips(userId, endpoint) {
     if (!userId) {
       setCompletedTrips([]);
       return;
     }
     setCompletedTripsLoading(true);
     try {
-      const res = await apiFetch(COMPLETED_TRIPS_ENDPOINT, { method: "GET" });
+      const res = await apiFetch(endpoint, { method: "GET" });
       if (res.ok) {
         const data = await res.json();
         setCompletedTrips(Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []));
@@ -398,17 +400,21 @@ export function AuthProvider({ children }) {
         if (account.role === PARTNER_ROLE) {
           await loadUserShips(account.id);
           await loadPossibleTrips(account.id);
+          await loadUpcomingTrips(account.id, UPCOMING_TRIPS_PARTNER_ENDPOINT),
+          await loadCompletedTrips(account.id, COMPLETED_TRIPS_PARTNER_ENDPOINT),
           console.log(account.id);
         }
         else if (account.role === COMMON_ROLE) {
           await loadActiveOrder(account.role);
+          await loadUpcomingTrips(account.id, UPCOMING_TRIPS_COMMON_ENDPOINT),
+          await loadCompletedTrips(account.id, COMPLETED_TRIPS_COMMON_ENDPOINT),
           console.log(account.id);
         }
 
-        await Promise.all([
-          loadUpcomingTrips(account.id),
-          loadCompletedTrips(account.id),
-        ]);
+        // await Promise.all([
+        //   loadUpcomingTrips(account.id),
+        //   loadCompletedTrips(account.id),
+        // ]);
       }
 
       setUser((prev) => ({ ...prev, ...nextUser }));

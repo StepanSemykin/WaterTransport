@@ -106,6 +106,8 @@ public class Mapping : Profile
                 src.Status
             ));
 
+
+
         // Ship mappings with ID
 
         CreateMap<Ship, ShipDto>()

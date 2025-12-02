@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { useAuth } from "../auth/AuthContext.jsx";
+
 import TripDetails from "./TripDetails.jsx";
 
 import styles from "./TripCard.module.css";
@@ -92,33 +93,80 @@ export function TripCard({
   let mapped = {};
   if (rentOrder) {
     const { date, time } = formatDateTime(rentOrder.rentalStartTime);
-    const shipInfo = getShipData(rentOrder.shipId, rentOrder.shipTypeId);
+
+    const matchingShips = Array.isArray(rentOrder.matchingShips)
+      ? rentOrder.matchingShips.map((s) => ({
+          id: s.id,
+          name: s.name ?? "Судно",
+          shipTypeId: s.shipTypeId,
+          shipTypeName: s.shipTypeName,
+          capacity: s.capacity,
+          primaryImageUrl: s.primaryImageUrl
+            ? s.primaryImageUrl.replace(/\\/g, "/")
+            : "",
+          portId: s.portId,
+        }))
+      : [];
+
+    const primaryMatchingShip = matchingShips[0];
+
+    const shipInfo = primaryMatchingShip
+      ? {
+          name: primaryMatchingShip.name,
+          image: primaryMatchingShip.primaryImageUrl,
+        }
+      : getShipData(rentOrder.shipId, rentOrder.shipTypeId);
 
     mapped = {
       id: rentOrder.id,
       passengers: rentOrder.numberOfPassengers,
       status: rentOrder.status,
-      shipId: rentOrder.shipId,
+      shipId: rentOrder.shipId ?? primaryMatchingShip?.id ?? null,
+      matchingShips, // <=== вот это важно
+
       imageSrc: imageSrc ?? shipInfo.image,
       imageAlt: imageAlt ?? shipInfo.name,
-      // заголовок — имя судна
-      title: title ?? { iconSrc: WheelIcon, iconAlt: "Судно", text: shipInfo.name },
-      // порты — объекты с text, чтобы JSX не ломался
+
+      title:
+        title ??
+        {
+          iconSrc: WheelIcon,
+          iconAlt: "Судно",
+          text: shipInfo.name,
+        },
+
       portDeparture:
         portDeparture ??
         {
-          iconSrc: PortIcon, iconAlt: "Пристань", text: getPortName(rentOrder.departurePortId),
+          iconSrc: PortIcon,
+          iconAlt: "Пристань",
+          text:
+            getPortName(rentOrder.departurePortId) ||
+            rentOrder.departurePort?.title ||
+            "",
         },
+
       portArrival:
         portArrival ??
         (rentOrder.arrivalPortId
-          ? { text: getPortName(rentOrder.arrivalPortId) }
+          ? {
+              iconSrc: PortIcon,
+              iconAlt: "Пристань",
+              text:
+                getPortName(rentOrder.arrivalPortId) ||
+                rentOrder.arrivalPort?.title ||
+                "",
+            }
           : null),
+
       confirm:
         confirm ??
-        (rentOrder.status === "Agreed" ? "Подтверждено" : ""),
+        (rentOrder.status === "Agreed"
+          ? "Подтверждено"
+          : rentOrder.status === "AwaitingResponse"
+          ? "Ожидает"
+          : ""),
 
-      // детали: если не передали свои, показываем дата + время
       details:
         details && details.length
           ? details
@@ -132,10 +180,6 @@ export function TripCard({
           ? actions
           : [{ key: "details", label: "Посмотреть детали" }],
     };
-
-    // Для отладки:
-    // console.log("mapped.details", mapped.details);
-    // console.log("rentalStartTime raw:", rentOrder.rentalStartTime);
   }
 
   const tripData = {
@@ -154,6 +198,7 @@ export function TripCard({
     actions: mapped.actions ?? actions,
     status: mapped.status,
     rentOrder,
+    matchingShips: mapped.matchingShips ?? tripRest.matchingShips, // <===
     ...tripRest,
   };
 

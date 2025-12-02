@@ -3,18 +3,18 @@ import { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Badge, Spinner, Button } from "react-bootstrap";
 
 import { apiFetch } from "../api/api.js";
-import { useAuth } from "../components/auth/AuthContext.jsx"; 
+import { useAuth } from "../components/auth/AuthContext.jsx";
 
 import Header from "../components/results/Header.jsx";
 
 import styles from "./OfferResult.module.css";
 
-const POLL_INTERVAL = 10000;
+const POLL_INTERVAL = 10000; // 10 секунд
 
 const USER_OFFERS_ENDPOINT = "/api/rent-orders/offers/foruser";
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
 const RENT_ORDERS_ENDPOINT = "/api/rentorders";
-const ACCEPT_ENDPOINT = "accept?rentOrderId";
+const ACCEPT_ENDPOINT = "accept";
 const REJECT_ENDPOINT = "reject";
 const CANCEL_ENDPOINT = "cancel";
 
@@ -30,6 +30,7 @@ export default function OrderResponses() {
   const [cancelError, setCancelError] = useState("");
   const [cancelled, setCancelled] = useState(false);
 
+  // Берём rentOrderId из активного заказа в контексте
   useEffect(() => {
     if (!rentOrderId) {
       const ctxId = activeRentOrder?.id ?? activeRentOrder?.Id;
@@ -37,6 +38,7 @@ export default function OrderResponses() {
     }
   }, [activeRentOrder, rentOrderId]);
 
+  // Если не удалось — берём из первого отклика
   useEffect(() => {
     if (!rentOrderId && responses.length > 0) {
       const fromResp = responses[0]?.rentOrderId;
@@ -44,66 +46,92 @@ export default function OrderResponses() {
     }
   }, [responses, rentOrderId]);
 
-  // Подтверждение отклика
+  // ✅ Принять отклик (accept)
   async function handleApprove(offerId, rentOrderId) {
+    if (!offerId || !rentOrderId) return;
+
     try {
-      const res = await fetch(`${OFFERS_ENDPOINT}/${offerId}/${ACCEPT_ENDPOINT}=${rentOrderId}`, {
+      const url = `${OFFERS_ENDPOINT}/${offerId}/${ACCEPT_ENDPOINT}?rentOrderId=${encodeURIComponent(
+        rentOrderId
+      )}`;
+
+      const res = await apiFetch(url, {
         method: "POST",
       });
 
       if (res.ok) {
         setResponses((prev) =>
           prev.map((r) =>
-          r.id === offerId ? { ...r, status: "approved" } : r
-          ));
-      } 
-      else {
-        console.error("Ошибка подтверждения. Статус:", res.status);
+            r.id === offerId ? { ...r, status: "approved" } : r
+          )
+        );
+        // при желании можно остановить polling или перезагрузить активный заказ:
+        // setPolling(false);
+        // loadActiveOrder?.();
+      } else {
+        const txt = await res.text().catch(() => "");
+        console.error(
+          "Ошибка подтверждения. Статус:",
+          res.status,
+          txt || ""
+        );
       }
-    } 
-    catch (err) {
+    } catch (err) {
       console.error("Ошибка при подтверждении отклика:", err);
     }
   }
 
+  // ❌ Отклонить отклик (reject)
+  async function handleReject(offerId, rentOrderId) {
+    if (!offerId || !rentOrderId) return;
+
+    try {
+      const url = `${OFFERS_ENDPOINT}/${offerId}/${REJECT_ENDPOINT}?rentOrderId=${encodeURIComponent(
+        rentOrderId
+      )}`;
+
+      const res = await apiFetch(url, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        setResponses((prev) =>
+          prev.map((r) =>
+            r.id === offerId ? { ...r, status: "rejected" } : r
+          )
+        );
+      } else {
+        const txt = await res.text().catch(() => "");
+        console.error("Ошибка отклонения. Статус:", res.status, txt || "");
+      }
+    } catch (err) {
+      console.error("Ошибка при отклонении отклика:", err);
+    }
+  }
+
+  // Отмена заявки на аренду
   async function handleCancelOrder() {
     if (!rentOrderId) return;
-      setCanceling(true);
-      setCancelError("");
+    setCanceling(true);
+    setCancelError("");
+
     try {
-      const res = await apiFetch(`${RENT_ORDERS_ENDPOINT}/${encodeURIComponent(rentOrderId)}/${CANCEL_ENDPOINT}`, { method: "POST" });
+      const res = await apiFetch(
+        `${RENT_ORDERS_ENDPOINT}/${encodeURIComponent(
+          rentOrderId
+        )}/${CANCEL_ENDPOINT}`,
+        { method: "POST" }
+      );
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
       setPolling(false);
       setResponses([]);
       setCancelled(true);
-    } 
-    catch (err) {
+    } catch (err) {
       setCancelError(err?.message || "Не удалось отменить заявку");
-    } 
-    finally {
+    } finally {
       setCanceling(false);
-    }
-  }
-
-  // Отклонение отклика
-  async function handleReject(offerId) {
-    try {
-      const res = await apiFetch(`${OFFERS_ENDPOINT}/${offerId}/${REJECT_ENDPOINT}`, { method: "POST"});
-
-      if (res.ok) {
-        setResponses((prev) =>
-          prev.map((r) =>
-          r.id === offerId ? { ...r, status: "rejected" } : r
-          ));
-      } 
-      else {
-        console.error("Ошибка отклонения. Статус:", res.status);
-      }
-    } 
-    catch (err) {
-      console.error("Ошибка при отклонении отклика:", err);
     }
   }
 
@@ -111,41 +139,41 @@ export default function OrderResponses() {
   useEffect(() => {
     if (!polling) return;
 
-    let cancelled = false;
+    let cancelledFlag = false;
     let intervalId;
 
     async function fetchResponses() {
       try {
         const res = await apiFetch(USER_OFFERS_ENDPOINT, { method: "GET" });
 
-        if (cancelled) return;
+        if (cancelledFlag) return;
 
         if (res.status === 200) {
           const data = await res.json();
+          console.log(data);
 
           if (Array.isArray(data)) {
-            // 🔥 Заменяем старые отклики полностью
             setResponses(
-            data.sort(
-              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-            ));
+              data.sort(
+                (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+              )
+            );
           }
         }
-      } 
-      catch (err) {
+      } catch (err) {
         console.error("Ошибка при опросе откликов:", err);
-      } 
-      finally {
-        if (!cancelled) setLoading(false);
+      } finally {
+        if (!cancelledFlag) setLoading(false);
       }
     }
+
     // первый запрос сразу
     fetchResponses();
-    // последующие — каждые 5 секунд
+    // последующие — каждые POLL_INTERVAL мс
     intervalId = setInterval(fetchResponses, POLL_INTERVAL);
 
     return () => {
-      cancelled = true;
+      cancelledFlag = true;
       if (intervalId) clearInterval(intervalId);
     };
   }, [polling]);
@@ -182,13 +210,19 @@ export default function OrderResponses() {
                 size="sm"
                 onClick={handleCancelOrder}
                 disabled={!rentOrderId || canceling}
-                title={rentOrderId ? "Отменить текущую заявку" : "Идентификатор заявки не найден"}
+                title={
+                  rentOrderId
+                    ? "Отменить текущую заявку"
+                    : "Идентификатор заявки не найден"
+                }
               >
                 {canceling ? "Отмена..." : "Отменить заявку"}
               </Button>
             )}
             {polling ? (
-              <Badge bg="info">Автообновление каждые 10 секунд</Badge>
+              <Badge bg="info">
+                Автообновление каждые {POLL_INTERVAL / 1000} секунд
+              </Badge>
             ) : (
               <Badge bg="secondary">Обновление остановлено</Badge>
             )}
@@ -196,7 +230,11 @@ export default function OrderResponses() {
         </div>
 
         {cancelError && (
-          <div className="alert alert-danger" role="alert" style={{ marginBottom: 12 }}>
+          <div
+            className="alert alert-danger"
+            role="alert"
+            style={{ marginBottom: 12 }}
+          >
             {cancelError}
           </div>
         )}
@@ -256,14 +294,18 @@ export default function OrderResponses() {
                     <div className={styles.actionsRow}>
                       <button
                         className={styles.approveButton}
-                        onClick={() => handleApprove(resp.id, resp.rentOrderId)}
+                        onClick={() =>
+                          handleApprove(resp.id, resp.rentOrderId)
+                        }
                         disabled={resp.status === "approved"}
                       >
                         Подтвердить
                       </button>
                       <button
                         className={styles.rejectButton}
-                        onClick={() => handleReject(resp.id)}
+                        onClick={() =>
+                          handleReject(resp.id, resp.rentOrderId)
+                        }
                         disabled={resp.status === "rejected"}
                       >
                         Отклонить
@@ -288,6 +330,6 @@ function formatDate(value) {
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 }

@@ -244,7 +244,7 @@ export default function HomePage() {
         body: JSON.stringify({
           ShipTypeId: payload.shipTypeId,
           departurePortId: payload.fromPortId,
-          arrivalPortTitle: payload.toPortId,
+          arrivalPortId: payload.toPortId,
           numberOfPassengers: payload.numPeople,
           rentalStartTime: isoString,
           duration: payload.walkDuration
