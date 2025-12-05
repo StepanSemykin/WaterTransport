@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using WaterTransportService.Api;
+using WaterTransportService.Api.Caching;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Middleware;
 using WaterTransportService.Api.Services.Calendars;
@@ -30,6 +31,14 @@ builder.Services.AddCors(o => o.AddPolicy("Spa",
           .AllowAnyMethod()
           .AllowCredentials()
 ));
+
+// Configure Memory Cache with size limit
+builder.Services.AddMemoryCache(options =>
+{
+    options.SizeLimit = 100 * 1024 * 1024; // 100 MB
+    options.CompactionPercentage = 0.25; // Remove 25% when limit reached
+    options.ExpirationScanFrequency = TimeSpan.FromMinutes(1);
+});
 
 builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
@@ -136,8 +145,29 @@ builder.Services.AddScoped<IShipService, ShipService>();
 builder.Services.AddScoped<IRouteService, RouteService>();
 builder.Services.AddScoped<IRegularCalendarService, RegularCalendarService>();
 builder.Services.AddScoped<IRegularOrderService, RegularOrderService>();
-builder.Services.AddScoped<IRentOrderService, RentOrderService>();
-builder.Services.AddScoped<IRentOrderOfferService, RentOrderOfferService>();
+
+// Cache Service
+builder.Services.AddSingleton<WaterTransportService.Api.Caching.ICacheService, WaterTransportService.Api.Caching.CacheService>();
+
+// Rent Order Services with Caching (Decorator Pattern)
+builder.Services.AddScoped<RentOrderService>(); // Base service
+builder.Services.AddScoped<IRentOrderService>(provider =>
+{
+    var baseService = provider.GetRequiredService<RentOrderService>();
+    var cache = provider.GetRequiredService<WaterTransportService.Api.Caching.ICacheService>();
+    var logger = provider.GetRequiredService<ILogger<CachedRentOrderService>>();
+    return new CachedRentOrderService(baseService, cache, logger);
+});
+
+// Rent Order Offer Services with Caching (Decorator Pattern)
+builder.Services.AddScoped<RentOrderOfferService>(); // Base service
+builder.Services.AddScoped<IRentOrderOfferService>(provider =>
+{
+    var baseService = provider.GetRequiredService<RentOrderOfferService>();
+    var cache = provider.GetRequiredService<WaterTransportService.Api.Caching.ICacheService>();
+    var logger = provider.GetRequiredService<ILogger<CachedRentOrderOfferService>>();
+    return new CachedRentOrderOfferService(baseService, cache, logger);
+});
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
 builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto>, PortImageService>();
