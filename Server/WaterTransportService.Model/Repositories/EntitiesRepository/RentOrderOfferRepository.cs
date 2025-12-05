@@ -150,4 +150,22 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ThenInclude(s => s.ShipType)
             .Where(o => o.PartnerId == partnerId)
             .ToListAsync();
+
+    /// <summary>
+    /// Удалить все отклики для конкретного заказа аренды.
+    /// </summary>
+    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
+    /// <returns>Количество удаленных откликов.</returns>
+    public async Task<int> DeleteByRentOrderIdAsync(Guid rentOrderId)
+    {
+        var offers = await _context.RentOrderOffers
+            .Where(o => o.RentOrderId == rentOrderId)
+            .ToListAsync();
+
+        if (offers.Count == 0) return 0;
+
+        _context.RentOrderOffers.RemoveRange(offers);
+        await _context.SaveChangesAsync();
+        return offers.Count;
+    }
 }

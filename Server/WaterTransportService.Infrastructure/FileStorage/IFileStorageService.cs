@@ -45,4 +45,11 @@ public interface IFileStorageService
     /// <param name="imagePath">Относительный путь к изображению.</param>
     /// <returns>Строка Base64 с содержимым изображения или null, если файл не найден.</returns>
     Task<string?> GetImageAsBase64Async(string imagePath);
+
+    /// <summary>
+    /// Читает изображение по пути и возвращает его в формате Base64 вместе с MIME типом.
+    /// </summary>
+    /// <param name="imagePath">Относительный путь к изображению.</param>
+    /// <returns>Кортеж (Base64 строка, MIME тип) или (null, null), если файл не найден.</returns>
+    Task<(string? Base64, string? MimeType)> GetImageAsBase64WithMimeTypeAsync(string imagePath);
 }

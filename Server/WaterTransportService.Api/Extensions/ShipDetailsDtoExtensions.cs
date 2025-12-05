@@ -9,7 +9,7 @@ namespace WaterTransportService.Api.Extensions;
 public static class ShipDetailsDtoExtensions
 {
     /// <summary>
-    /// Обогащает ShipDetailsDto, загружая изображение в формате Base64.
+    /// Обогащает ShipDetailsDto, загружая изображение в формате Base64 вместе с MIME типом.
     /// </summary>
     public static async Task<ShipDetailsDto> WithBase64ImageAsync(
         this ShipDetailsDto dto,
@@ -18,7 +18,7 @@ public static class ShipDetailsDtoExtensions
         if (dto == null || string.IsNullOrWhiteSpace(dto.PrimaryImageUrl))
             return dto;
 
-        var base64 = await fileStorageService.GetImageAsBase64Async(dto.PrimaryImageUrl);
+        var (base64, mimeType) = await fileStorageService.GetImageAsBase64WithMimeTypeAsync(dto.PrimaryImageUrl);
 
         return new ShipDetailsDto(
             dto.Id,
@@ -35,7 +35,8 @@ public static class ShipDetailsDtoExtensions
             dto.CostPerHour,
             dto.PortId,
             dto.UserId,
-            base64 // Заменяем путь на Base64
+            base64, // Заменяем путь на Base64
+            mimeType // Добавляем MIME тип
         );
     }
 

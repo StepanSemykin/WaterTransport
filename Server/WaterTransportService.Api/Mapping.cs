@@ -96,7 +96,8 @@ public class Mapping : Profile
                     src.Ship.CostPerHour,
                     src.Ship.PortId,
                     src.Ship.UserId,
-                    src.Ship.ShipImages != null ? src.Ship.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null
+                    src.Ship.ShipImages != null ? src.Ship.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null,
+                    null // PrimaryImageMimeType will be populated later via WithBase64ImageAsync
                 ) : null,
                 src.TotalPrice,
                 src.NumberOfPassengers,
@@ -132,7 +133,8 @@ public class Mapping : Profile
                 src.CostPerHour,
                 src.PortId,
                 src.UserId,
-                src.ShipImages != null ? src.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null
+                src.ShipImages != null ? src.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null,
+                null // PrimaryImageMimeType will be populated later via WithBase64ImageAsync
             ));
 
         CreateMap<ShipType, ShipTypeDto>().ReverseMap();
@@ -172,7 +174,8 @@ public class Mapping : Profile
                     src.Ship.CostPerHour,
                     src.Ship.PortId,
                     src.Ship.UserId,
-                    src.Ship.ShipImages != null ? src.Ship.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null
+                    src.Ship.ShipImages != null ? src.Ship.ShipImages.Where(img => img.IsPrimary).Select(img => img.ImagePath).FirstOrDefault() : null,
+                    null // PrimaryImageMimeType will be populated later via WithBase64ImageAsync
                 ) : null,
                 src.OfferedPrice,
                 src.Status,

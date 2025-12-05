@@ -68,7 +68,8 @@ public record ShipDetailsDto(
     uint? CostPerHour,
     Guid PortId,
     Guid UserId,
-    string? PrimaryImageUrl
+    string? PrimaryImageUrl,
+    string? PrimaryImageMimeType
 );
 
 public class CreateRentOrderDto

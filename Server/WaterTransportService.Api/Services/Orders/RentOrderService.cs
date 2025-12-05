@@ -13,6 +13,7 @@ namespace WaterTransportService.Api.Services.Orders;
 /// </summary>
 public class RentOrderService(
     RentOrderRepository rentOrderRepository,
+    RentOrderOfferRepository rentOrderOfferRepository,
     ShipRepository shipRepository,
     IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
@@ -21,6 +22,7 @@ public class RentOrderService(
     IMapper mapper) : IRentOrderService
 {
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
+    private readonly RentOrderOfferRepository _rentOrderOfferRepository = rentOrderOfferRepository;
     private readonly ShipRepository _shipRepository = shipRepository;
     private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
@@ -287,11 +289,15 @@ public class RentOrderService(
 
     /// <summary>
     /// Отменить заказ аренды.
+    /// При отмене удаляются все отклики партнеров на этот заказ.
     /// </summary>
     public async Task<bool> CancelOrderAsync(Guid id)
     {
         var entity = await _rentOrderRepository.GetByIdAsync(id);
         if (entity is null) return false;
+
+        // Удаляем все отклики на этот заказ
+        await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
 
         entity.Status = RentOrderStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;
@@ -300,6 +306,13 @@ public class RentOrderService(
 
     /// <summary>
     /// Удалить заказ аренды.
+    /// При удалении удаляются все отклики партнеров на этот заказ.
     /// </summary>
-    public Task<bool> DeleteAsync(Guid id) => _rentOrderRepository.DeleteAsync(id);
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        // Удаляем все отклики на этот заказ
+        await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
+        
+        return await _rentOrderRepository.DeleteAsync(id);
+    }
 }
