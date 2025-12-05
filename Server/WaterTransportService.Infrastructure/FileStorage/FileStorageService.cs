@@ -142,4 +142,41 @@ public class FileStorageService : IFileStorageService
             return null;
         }
     }
+
+    public async Task<(string? Base64, string? MimeType)> GetImageAsBase64WithMimeTypeAsync(string imagePath)
+    {
+        if (string.IsNullOrWhiteSpace(imagePath))
+            return (null, null);
+
+        try
+        {
+            var fullPath = Path.IsPathRooted(imagePath)
+                ? imagePath
+                : Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, imagePath);
+
+            if (!File.Exists(fullPath))
+                return (null, null);
+
+            var bytes = await File.ReadAllBytesAsync(fullPath);
+            var base64 = Convert.ToBase64String(bytes);
+            
+            // Определяем MIME тип по расширению файла
+            var extension = Path.GetExtension(fullPath).ToLowerInvariant();
+            var mimeType = extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                _ => "application/octet-stream"
+            };
+
+            return (base64, mimeType);
+        }
+        catch
+        {
+            return (null, null);
+        }
+    }
 }
