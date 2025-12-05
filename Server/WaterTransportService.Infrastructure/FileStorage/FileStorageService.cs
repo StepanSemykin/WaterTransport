@@ -119,4 +119,27 @@ public class FileStorageService : IFileStorageService
 
         return true;
     }
+
+    public async Task<string?> GetImageAsBase64Async(string imagePath)
+    {
+        if (string.IsNullOrWhiteSpace(imagePath))
+            return null;
+
+        try
+        {
+            var fullPath = Path.IsPathRooted(imagePath)
+                ? imagePath
+                : Path.Combine(Directory.GetParent(_environment.ContentRootPath)?.FullName ?? _environment.ContentRootPath, imagePath);
+
+            if (!File.Exists(fullPath))
+                return null;
+
+            var bytes = await File.ReadAllBytesAsync(fullPath);
+            return Convert.ToBase64String(bytes);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

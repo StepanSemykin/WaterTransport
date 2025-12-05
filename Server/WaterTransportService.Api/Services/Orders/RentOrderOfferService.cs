@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Extensions;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Constants;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
@@ -16,6 +18,7 @@ public class RentOrderOfferService(
     ShipRepository shipRepository,
     IUserRepository<Guid> userRepository,
     WaterTransportDbContext context,
+    IFileStorageService fileStorageService,
     IMapper mapper) : IRentOrderOfferService
 {
     private readonly RentOrderOfferRepository _offerRepository = offerRepository;
@@ -23,6 +26,7 @@ public class RentOrderOfferService(
     private readonly ShipRepository _shipRepository = shipRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
     private readonly WaterTransportDbContext _context = context;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
@@ -35,7 +39,19 @@ public class RentOrderOfferService(
             UserId, 
             RentOrderOfferStatus.Pending);
 
-        return _mapper.Map<List<RentOrderOfferDto>>(offers);
+        var dtos = _mapper.Map<List<RentOrderOfferDto>>(offers);
+
+        // Обогащаем изображениями в Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return dtos;
     }
 
     /// <summary>
@@ -44,7 +60,19 @@ public class RentOrderOfferService(
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
     {
         var offers = await _offerRepository.GetByRentOrderIdWithDetailsAsync(rentOrderId);
-        return _mapper.Map<List<RentOrderOfferDto>>(offers);
+        var dtos = _mapper.Map<List<RentOrderOfferDto>>(offers);
+
+        // Обогащаем изображениями в Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return dtos;
     }
 
     /// <summary>
@@ -53,7 +81,19 @@ public class RentOrderOfferService(
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId)
     {
         var offers = await _offerRepository.GetByPartnerIdWithDetailsAsync(partnerId);
-        return _mapper.Map<List<RentOrderOfferDto>>(offers);
+        var dtos = _mapper.Map<List<RentOrderOfferDto>>(offers);
+
+        // Обогащаем изображениями в Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return dtos;
     }
 
     /// <summary>
@@ -62,7 +102,18 @@ public class RentOrderOfferService(
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)
     {
         var offer = await _offerRepository.GetByIdWithDetailsAsync(id);
-        return offer is null ? null : _mapper.Map<RentOrderOfferDto>(offer);
+        if (offer is null) return null;
+
+        var dto = _mapper.Map<RentOrderOfferDto>(offer);
+
+        // Обогащаем Ship изображением в Base64, если оно есть
+        if (dto.Ship != null)
+        {
+            var shipWithImage = await dto.Ship.WithBase64ImageAsync(_fileStorageService);
+            dto = dto with { Ship = shipWithImage };
+        }
+
+        return dto;
     }
 
     /// <summary>
