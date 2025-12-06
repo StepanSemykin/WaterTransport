@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 
@@ -64,8 +67,10 @@ export default function HomePage() {
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [dateReturn, setDateReturn] = useState("");
   const [timeReturn, setTimeReturn] = useState("");
+  const [showTimeReturnPicker, setShowTimeReturnPicker] = useState(false);
 
   const [numPeople, setNumPeople] = useState(1);
   const [comment, setComment] = useState("");
@@ -109,49 +114,9 @@ export default function HomePage() {
 
   useEffect(() => {
     loadActiveOrder(role);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role]);
 
   const canOpenResults = hasActiveOrder;
-  // useEffect(() => {
-  //   let isMounted = true;
-
-  //   async function loadPorts() {
-  //     portsLoading(true);
-  //     setPortsError("");
-
-  //     try {
-  //       const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
-  //       if (!res.ok) {
-  //         throw new Error(`Failed to load ports (${res.status})`);
-  //       }
-
-  //       const data = await res.json();
-  //       if (!isMounted) return;
-
-  //       const list = Array.isArray(data?.items) ? data.items : [];
-  //       setPorts(list);
-  //     } 
-  //     catch (error) {
-  //       console.error("[HomePage] Unable to load ports", error);
-  //       if (isMounted) {
-  //         setPorts([]);
-  //         setPortsError("Не удалось загрузить порты");
-  //       }
-  //     } 
-  //     finally {
-  //       if (isMounted) {
-  //         portsLoading(false);
-  //       }
-  //     }
-  //   }
-
-  //   loadPorts();
-
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, []);
 
   const geoPorts = useMemo(() => {
     return ports
@@ -257,20 +222,33 @@ export default function HomePage() {
       }
       setRentOrderResponse(data);
       const newId = data?.id ?? data?.Id ?? null;
-      if (newId) {
-        sessionStorage.setItem("currentRentOrderId", String(newId));
-        sessionStorage.setItem("canOpenResults", "1");
-      }
+      // if (newId) {
+      //   sessionStorage.setItem("currentRentOrderId", String(newId));
+      //   sessionStorage.setItem("canOpenResults", "1");
+      // }
       console.log("RentOrder response:", data);
     } 
     catch (e) {
-      // покажите ошибку пользователю
-      // setSearchError(e.message);
       openError("Ошибка поиска", e?.message || "Не удалось выполнить поиск");
     }
     finally {
     }
   }
+
+  const formatDateLocal = (d) => {
+    if (!d) return "";
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dd}`;
+  };
+
+  const formatTimeToString = (d) => {
+    if (!d) return "";
+    const h = String(d.getHours()).padStart(2, "0");
+    const m = String(d.getMinutes()).padStart(2, "0");
+    return `${h}:${m}`;
+  };
 
   return (
     <div className={styles["aquarent-page"]}>
@@ -284,7 +262,7 @@ export default function HomePage() {
           <Modal.Title>{errorTitle}</Modal.Title>
         </Modal.Header>
         <Modal.Body>{errorMessage}</Modal.Body>
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "0 16px 16px" }}>
+        <div className={styles["modal-footer"]}>
           <button
             type="button"
             className={styles["primary-button"]}
@@ -299,13 +277,13 @@ export default function HomePage() {
         <div className={styles["header-content"]}>
           <h1 className={styles["brand-title"]}>AquaRent</h1>
           <div className={styles["icon-group"]}>
-            <Button 
+            {/* <Button 
               variant="light" 
               className={styles["notices-icon-button"]} 
               aria-label="Уведомления"
             >
               <Bell className={styles["notices-icon"]} />
-            </Button>
+            </Button> */}
             <Button 
               variant="light" 
               onClick={() => navigate("/user")}
@@ -350,25 +328,6 @@ export default function HomePage() {
           {mapStatus ? <div className={styles["map-status"]}>{mapStatus}</div> : null}
         </div>
       </section>
-
-      {/* <section className={styles["tabs-wrapper"]}>
-        <div className={styles["tab-list"]}>
-          <button
-            type="button"
-            onClick={() => setActiveTab("rental")}
-            className={`${styles["tab-button"]} ${activeTab === "rental" ? styles["tab-button--active"] : ""}`.trim()}
-          >
-            Аренда
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("regular")}
-            className={`${styles["tab-button"]} ${activeTab === "regular" ? styles["tab-button--active"] : ""}`.trim()}
-          >
-            Регулярные рейсы
-          </button>
-        </div>
-      </section> */}
 
       <section className={styles["form-wrapper"]}>
         <div className={styles["form-card"]}>
@@ -497,21 +456,6 @@ export default function HomePage() {
                 </div>
               </div>
             )}
-
-            {/* <div className={styles["field"]}>
-              <label className={styles["field-label"]} htmlFor="to">Куда</label>
-              <div className={styles["input-wrapper"]}>
-                <MapPin className={styles["input-icon"]} />
-                <input
-                  id="to"
-                  type="text"
-                  className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                  placeholder="Пристань прибытия"
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                />
-              </div>
-            </div> */}
           </div>
 
           <div className={styles["form-checkbox"]}>
@@ -530,14 +474,18 @@ export default function HomePage() {
           <div className={`${styles["form-section"]} ${styles["form-section-date-time"]}`}>
             <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="date">Дата</label>
-              <div className={styles["input-wrapper"]}>
+              <div className={`${styles["input-wrapper"]} ${styles["datepicker-wrapper"]}`}>
                 <Calendar className={styles["input-icon"]} />
-                <input
+                <DatePicker
                   id="date"
-                  type="date"
+                  selected={date ? new Date(date) : null}
+                  onChange={(d) => setDate(formatDateLocal(d))}
+                  dateFormat="dd.MM.yyyy"
+                  placeholderText="Выберите дату"
                   className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  closeOnScroll
+                  minDate={new Date()}
+                  filterDate={(d) => d >= new Date()}
                 />
                 {date && (
                   <button 
@@ -553,7 +501,7 @@ export default function HomePage() {
             </div>
             <div className={styles["field"]}>
               <label className={styles["field-label"]} htmlFor="time">Время</label>
-              <div className={styles["input-wrapper"]}>
+              <div className={`${styles["input-wrapper"]} ${styles["timepicker-wrapper"]}`}>
                 <Clock className={styles["input-icon"]} />
                 <input
                   id="time"
@@ -561,7 +509,7 @@ export default function HomePage() {
                   className={`${styles["field-input"]} ${styles["with-icon"]}`}
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                />
+                /> 
                 {time && (
                   <button 
                     type="button"
@@ -593,14 +541,18 @@ export default function HomePage() {
             <div className={`${styles["form-section"]} ${styles["form-section-date-time"]}`}>
               <div className={styles["field"]}>
                 <label className={styles["field-label"]} htmlFor="date">Дата обратной поездки</label>
-                <div className={styles["input-wrapper"]}>
+                <div className={`${styles["input-wrapper"]} ${styles["datepicker-wrapper"]}`}>
                   <Calendar className={styles["input-icon"]} />
-                  <input
+                  <DatePicker
                     id="dateReturn"
-                    type="date"
+                    selected={dateReturn ? new Date(dateReturn) : null}
+                    onChange={(d) => setDateReturn(formatDateLocal(d))}
+                    dateFormat="dd.MM.yyyy"
+                    placeholderText="Выберите дату"
                     className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                    value={dateReturn}
-                    onChange={(e) => setDateReturn(e.target.value)}
+                    closeOnScroll
+                    minDate={new Date()}
+                    filterDate={(d) => d >= new Date()}
                   />
                   {dateReturn && (
                     <button 
@@ -657,6 +609,7 @@ export default function HomePage() {
                   className={`${styles["field-input"]} ${styles["counter-input"]}`}
                   value={numPeople}
                   min={1}
+                  max={99}
                   readOnly
                 />
                 <button 
@@ -668,25 +621,6 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
-            {/* <div className={styles["field"]}>
-              <label className={styles["field-label"]} htmlFor="children">Дети</label>
-              <div className={styles["counter-wrapper"]}>
-                <button type="button" className={styles["counter-btn"]} aria-label="Минус дети" onClick={dec(setChildren, children, 0)}>
-                  <Minus size={16} />
-                </button>
-                <input
-                  id="children"
-                  type="number"
-                  className={`${styles["field-input"]} ${styles["counter-input"]}`}
-                  value={children}
-                  min={0}
-                  readOnly
-                />
-                <button type="button" className={styles["counter-btn"]} aria-label="Плюс дети" onClick={inc(setChildren, children)}>
-                  <Plus size={16} />
-                </button>
-              </div>
-            </div> */}
             <div className={`${styles["field"]} ${styles["field--comment"]}`}>
               <label className={styles["field-label"]} htmlFor="comment">Комментарий</label>
               <textarea

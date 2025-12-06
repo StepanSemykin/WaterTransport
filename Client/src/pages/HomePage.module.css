@@ -49,30 +49,6 @@
   gap: 0.5rem;
 }
 
-/* .menu-button,
-.icon-button {
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-} */
-
-/* .user-icon-button, .notices-icon-button {
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-} */
-
 .user-icon-button, .notices-icon-button {
   border-radius: 50% !important;
   width: 44px !important;
@@ -85,11 +61,6 @@
   padding: 0 !important;
   box-shadow: none !important;
 }
-
-
-
-
-
 
 .dropdown-wrapper {
   position: relative;
@@ -176,31 +147,6 @@
   pointer-events: none;
   z-index: 1;
 }
-/* 
-.clear-button {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-}
-
-.clear-button:hover {
-  color: var(--color-accent);
-}
-
-.clear-button svg {
-  width: 18px;
-  height: 18px;
-} */
 
 .clear-button, .clear-date-button, .clear-time-button {
   position: absolute;
@@ -238,11 +184,6 @@
   height: 26px;
 }
 
-/* .clear-date-button, .clear-time-button {
-  padding: 40px;
-} */
-
-
 .clear-button:hover {
   color: var(--color-accent);
 }
@@ -265,32 +206,19 @@
   pointer-events: none;
   z-index: 1;
 }
-/* 
-.clear-button {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 4px;
+
+.modal-footer {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 16px 16px;
 }
 
-.clear-button:hover {
-  color: var(--color-accent);
+.datepicker-wrapper :global(.react-datepicker-wrapper),
+.datepicker-wrapper :global(.react-datepicker__input-container) {
+  width: 100%;
+  display: block;
 }
-
-.clear-button svg {
-  width: 18px;
-  height: 18px;
-} */
-
 
 .search-form {
   width: 80%;
@@ -326,47 +254,6 @@
   font-weight: 600;
   box-shadow: var(--shadow-sm);
 }
-/* 
-.tabs-wrapper {
-  margin: 1.5rem 0;
-  padding: 0 0.75rem;
-}
-
-.tab-list {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-}
-
-.tab-button {
-  height: 38px;
-  padding: 0 1.5rem;
-  border-radius: var(--radius-xs);
-  background: rgba(255, 255, 255, 0.5);
-  color: var(--color-text-muted);
-  font-size: 16px;
-  font-weight: 700;
-  transition: var(--transition);
-  border: none;
-  cursor: pointer;
-}
-
-.tab-button--active {
-  background: var(--color-white);
-  color: var(--color-text);
-  box-shadow: var(--shadow-md);
-} */
-
-
-
-
-
-
-
-
-
-
-
 
 .actions-row {
   display: flex;
@@ -395,19 +282,6 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 .form-wrapper {
   margin: 2rem auto 3rem;
@@ -548,11 +422,6 @@
 .counter-btn svg {
   color: var(--color-text-muted);
 }
-
-/* .field-input:hover,
-.field-textarea:hover {
-  background: #707070;
-} */
 
 .field-textarea { 
   resize: none; 

@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/ProgressCircle",
+  "private": true,
+  "main": "../cjs/ProgressCircle/index.js",
+  "module": "../esm/ProgressCircle/index.js",
+  "types": "../esm/ProgressCircle/index.d.ts"
+}

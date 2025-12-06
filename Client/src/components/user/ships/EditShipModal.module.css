@@ -181,13 +181,26 @@
   margin: 0;
 }
 
-.modal-footer {
+.footer {
   padding: 12px 20px;
   border-top: 1px solid #eee;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
   background: #fafafa;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.group {
+  display: flex;
+  gap: 8px;
 }
 
 .button {
@@ -362,6 +375,10 @@
 
 .form-row-fullwidth {
   width: 100%;
+}
+
+.input-ref {
+  display: "none";
 }
 
 @keyframes fadeIn {

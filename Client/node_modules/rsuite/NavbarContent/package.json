@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/NavbarContent",
+  "private": true,
+  "main": "../cjs/Navbar/NavbarContent.js",
+  "module": "../esm/Navbar/NavbarContent.js",
+  "types": "../esm/Navbar/NavbarContent.d.ts"
+}

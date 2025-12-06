@@ -183,7 +183,7 @@ export function AuthProvider({ children }) {
     }
   }
 
- const loadActiveOrder = useCallback(async (role) => {
+  const loadActiveOrder = useCallback(async (role) => {
     if (role === PARTNER_ROLE) {
       setActiveRentOrder(null);
       setHasActiveOrder(false);
@@ -293,7 +293,12 @@ export function AuthProvider({ children }) {
 
     async function pollUpcoming() {
       try {
-        const res = await apiFetch(UPCOMING_TRIPS_ENDPOINT, { method: "GET" });
+        const endpoint =
+          user?.role === PARTNER_ROLE
+            ? UPCOMING_TRIPS_PARTNER_ENDPOINT
+            : UPCOMING_TRIPS_COMMON_ENDPOINT;
+
+        const res = await apiFetch(endpoint, { method: "GET" });
         if (cancelled) return;
         if (res.ok) {
           const data = await res.json();

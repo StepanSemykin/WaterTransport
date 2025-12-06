@@ -153,6 +153,20 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
         return NoContent();
     }
 
+    [HttpGet]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetPendingOffers()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
+        {
+            return Unauthorized(new { message = "User ID not found or invalid token" });
+        }
+
+        var offers = await _offerService.GetPendingOffersAsync(userGuid);
+        return Ok(offers);
+    }
+
     /// <summary>
     /// Удалить отклик.
     /// </summary>

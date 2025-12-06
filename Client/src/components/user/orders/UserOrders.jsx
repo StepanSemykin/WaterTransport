@@ -1,4 +1,4 @@
-import { TripCard } from "../../dashboards/TripCard.jsx";
+import TripCard from "../../dashboards/TripCard.jsx";
 
 import styles from "./UserOrders.module.css";
 
@@ -21,6 +21,8 @@ export default function UserOrders({
   const emptyPossibleText = "На данный момент у вас нет заявок";
 
   // console.log(isPartner);
+
+  console.log(upcomingTrips);
 
   return (
     <div className="user-orders">
@@ -56,7 +58,7 @@ export default function UserOrders({
             {upcomingTrips.map((trip, index) => (
               <div className={styles["user-card"]}>
                 <TripCard
-                  key={index}
+                  key={`${trip.id ?? trip.tripId ?? "up"}-${index}`}
                   rentOrder={trip}
                   isPartner={isPartner}
                   onUpdateTripPrice={onUpdateTripPrice}
@@ -77,7 +79,7 @@ export default function UserOrders({
           <div className={styles["user-card-list"]}>
             {completedTrips.map((trip, index) => (
               <TripCard
-                key={index}
+                key={`${trip.id ?? trip.tripId ?? "up"}-${index}`}
                 rentOrder={trip}
                 isPartner={isPartner}
                 onUpdateTripPrice={onUpdateTripPrice}
@@ -88,81 +90,6 @@ export default function UserOrders({
           <div className={styles["user-empty"]}>{emptyCompletedText}</div>
         )}
       </section>
-
-      {/* {possibleTrips !== null && (
-        hasPossible ? (
-          <section className={styles["user-section"]}>
-            {(hasUpcoming || hasCompleted) && (
-              <div className={styles["user-divider"]} />
-            )}
-            <h2 className={styles["user-section-title"]}>Заявки</h2>
-            <div className={styles["user-card-list"]}>
-              {possibleTrips.map((trip) => (
-                // <TripCard key={trip.title} {...trip} />
-                <TripCard
-                  key={trip?.id ?? trip?.title ?? `possible-${index}`}
-                  {...trip}
-                  isPartner={isPartner}
-                  onUpdateTripPrice={onUpdateTripPrice}
-                />
-              ))}
-            </div>
-          </section>
-        ) : (
-          <section className={styles["user-section"]}>
-            <h2 className={styles["user-section-title"]}>Заявки</h2>
-            <div className={styles["user-empty"]}>
-              На данный момент у вас нет заявок
-            </div>
-          </section>
-        )
-      )}
-
-      {hasUpcoming ? (
-        <section className={styles["user-section"]}>
-          <h2 className={styles["user-section-title"]}>Предстоящие</h2>
-          <div className={styles["user-card-list"]}>
-            {upcomingTrips.map((trip) => (
-              // <TripCard key={trip.title} {...trip} />
-               <TripCard
-                key={trip?.id ?? trip?.title ?? `upcoming-${index}`}
-                {...trip}
-                isPartner={isPartner}
-                onUpdateTripPrice={onUpdateTripPrice}
-              />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section className={styles["user-section"]}>
-          <h2 className={styles["user-section-title"]}>Предстоящие</h2>
-          <div className={styles["user-empty"]}>На данный момент у вас нет предстоящих заказов</div>
-        </section>
-      )}
-
-      {hasCompleted ? (
-        <section className={styles["user-section"]}>
-          {hasUpcoming && <div className={styles["user-divider"]} />}
-          <h2 className={styles["user-section-title"]}>Завершённые</h2>
-          <div className={styles["user-card-list"]}>
-            {completedTrips.map((trip) => (
-              // <TripCard key={trip.title} {...trip} />
-              <TripCard
-                key={trip?.id ?? trip?.title ?? `completed-${index}`}
-                {...trip}
-                isPartner={isPartner}
-                onUpdateTripPrice={onUpdateTripPrice}
-              />
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section className={styles["user-section"]}>
-          <h2 className={styles["user-section-title"]}>Завершённые</h2>
-          <div className={styles["user-empty"]}>На данный момент у вас нет завершённых заказов</div>
-        </section>
-      )} */}
-
     </div>
   );
 }

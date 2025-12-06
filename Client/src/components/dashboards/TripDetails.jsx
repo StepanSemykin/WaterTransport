@@ -32,9 +32,6 @@ export default function TripDetails({
     Array.isArray(trip?.matchingShips) &&
     trip.matchingShips.length > 0;
 
-  // console.log(trip.status);
-  // console.log(isPartner);
-
   useEffect(() => {
     setPrice(trip?.price ?? "");
     if (trip?.review) {
@@ -87,7 +84,7 @@ export default function TripDetails({
       setSaving(true);
       const rentOrderId = trip?.id ?? trip?.Id ?? trip?.rentOrderId;
       const shipId =
-        selectedShipId ?? trip?.ShipId ?? trip?.shipId; // <=== вот здесь
+        selectedShipId ?? trip?.ShipId ?? trip?.shipId; 
 
       await sendPartnerOffer(rentOrderId, price, shipId);
       onClose();
@@ -95,23 +92,6 @@ export default function TripDetails({
       setSaving(false);
     }
   }
-
-  // async function handleSubmit(event) {
-  //   event.preventDefault();
-  //   if (!isPartner || typeof onUpdateTripPrice !== "function" || !trip) {
-  //     onClose();
-  //     return;
-  //   }
-
-  //   try {
-  //     setSaving(true);
-  //     await onUpdateTripPrice(trip, price);
-  //     onClose();
-  //   } 
-  //   finally {
-  //     setSaving(false);
-  //   }
-  // }
 
   async function handleCancel() {                
     if (!trip) return;
@@ -151,7 +131,6 @@ export default function TripDetails({
       if (res.ok) {
         const data = await res.json();
         setReviewSubmitted(true);
-        // опционально: обновить trip в родителе через callback, если есть
       } 
       else {
         const txt = await res.text();
@@ -179,15 +158,7 @@ export default function TripDetails({
           </div>
 
           <div className={styles["trip-summary"]}>
-            {/* {trip?.imageSrc && (
-              <img
-                src={trip.imageSrc}
-                alt={trip.imageAlt ?? ""}
-                className={styles["trip-summary-image"]}
-              />
-            )} */}
             <div className={styles["trip-summary-info"]}>
-              {/* {trip?.status && <span className={styles["trip-summary-status"]}>{trip.status}</span>} */}
               {trip?.title && (
                 <div className={styles["trip-summary-line"]}>
                   Судно: {trip.title.text}
@@ -208,11 +179,18 @@ export default function TripDetails({
                   Пристань прибытия: {trip.portArrival.text}
                 </div>
               )}
-              {(trip?.details ?? []).map((detail, index) => (
-                <div key={index} className={styles["trip-summary-line"]}>
-                  Дата: {detail.text}
-                </div>
-              ))}
+              {(() => {
+                const arr = Array.isArray(trip?.details) ? trip.details : [];
+                const parts = arr
+                  .map(d => (typeof d?.text === "string" ? d.text.trim() : ""))
+                  .filter(Boolean);
+                const dateTime = parts.join(", ");
+                return dateTime ? (
+                  <div className={styles["trip-summary-line"]}>
+                    Дата: {dateTime}
+                  </div>
+                ) : null;
+              })()}
               {trip?.passengers && (
                 <div className={styles["trip-summary-line"]}>
                   Всего пассажиров: {trip.passengers}
@@ -221,14 +199,10 @@ export default function TripDetails({
             </div>
           </div>
 
-          {/* <div className={styles["trip-map-placeholder"]}>
-            Карта маршрута будет отображена здесь
-          </div> */}
-
           {trip.status == "Agreed" && (
           <div className={styles["trip-actions"]}>
             <Button
-              variant="outline-danger"
+              variant="danger"
               onClick={handleCancel}
               disabled={cancelling}
             >
@@ -252,13 +226,6 @@ export default function TripDetails({
                         : ""
                     }`.trim()}
                   >
-                    {ship.primaryImageUrl && (
-                      <img
-                        src={ship.primaryImageUrl}
-                        alt={ship.name}
-                        className={styles["trip-ship-image"]}
-                      />
-                    )}
                     <div className={styles["trip-ship-info"]}>
                       <div className={styles["trip-ship-name"]}>{ship.name}</div>
                       {ship.shipTypeName && (

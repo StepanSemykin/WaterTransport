@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/PasswordStrengthMeter",
+  "private": true,
+  "main": "../cjs/PasswordStrengthMeter/index.js",
+  "module": "../esm/PasswordStrengthMeter/index.js",
+  "types": "../esm/PasswordStrengthMeter/index.d.ts"
+}

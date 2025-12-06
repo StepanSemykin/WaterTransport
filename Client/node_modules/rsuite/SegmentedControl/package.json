@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/SegmentedControl",
+  "private": true,
+  "main": "../cjs/SegmentedControl/index.js",
+  "module": "../esm/SegmentedControl/index.js",
+  "types": "../esm/SegmentedControl/index.d.ts"
+}

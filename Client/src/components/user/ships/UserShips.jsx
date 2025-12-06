@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
 
 import { useAuth } from "../../auth/AuthContext";
-import { ShipCard } from "../../dashboards/ShipCard.jsx";
 import { AddShipModal } from "./AddShipModal.jsx";
 import { EditShipModal } from "./EditShipModal.jsx";
 
-import styles from "../orders/UserOrders.module.css";
+import ShipCard from "../../dashboards/ShipCard.jsx";
+
+import styles from "./UserShips.module.css";
 
 // import YachtIcon from "../assets/yacht.jpg"
 // import DateIcon from "../assets/date.png"
@@ -73,12 +74,14 @@ export default function UserShips() {
   }
 
   return (
-    <div className="user-ships">
+    <div className={styles["user-ships"]}>
 
         <section className={styles["user-section"]}>
           <div className={styles["user-section-button"]}>
-            <button className={styles["add-button"]} 
-              onClick={() => setIsModalOpen(true)}>
+            <button 
+              className={styles["add-button"]} 
+              onClick={() => setIsModalOpen(true)}
+            >
               Добавить судно
             </button>
             <AddShipModal

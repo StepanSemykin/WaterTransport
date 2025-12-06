@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
+import { ArrowLeft, User as UserIcon, Home, ArrowDownUp } from 'lucide-react';
 import { Container, Row, Col, Card, Badge, Spinner, Button } from "react-bootstrap";
 
 import { apiFetch } from "../api/api.js";
 import { useAuth } from "../components/auth/AuthContext.jsx";
 
-import Header from "../components/results/Header.jsx";
+import ShipCard from "../components/dashboards/ShipCard.jsx"; 
+import ShipDetails from "../components/dashboards/ShipDetails.jsx";
 
 import styles from "./OfferResult.module.css";
+
+import PassengersIcon from "../assets/passengers.png";
+import ShipIcon from "../assets/ship.png";
 
 const POLL_INTERVAL = 10000; // 10 секунд
 
@@ -18,7 +24,17 @@ const ACCEPT_ENDPOINT = "accept";
 const REJECT_ENDPOINT = "reject";
 const CANCEL_ENDPOINT = "cancel";
 
-export default function OrderResponses() {
+const FORMAT_IMG = "base64";
+
+export default function OfferResult() {
+  const navigate = useNavigate();
+
+  const [showShipModal, setShowShipModal] = useState(false);
+  const [selectedShip, setSelectedShip] = useState(null);
+
+  const [selectedOfferId, setSelectedOfferId] = useState(null);
+  const [decisionLoading, setDecisionLoading] = useState(false);
+
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [polling, setPolling] = useState(true);
@@ -45,6 +61,67 @@ export default function OrderResponses() {
       if (fromResp) setRentOrderId(String(fromResp));
     }
   }, [responses, rentOrderId]);
+
+  function openShipModal(resp) {
+    setSelectedShip({
+      primaryImageUrl: resp?.ship?.primaryImageUrl?.url ?? resp?.ship?.primaryImageUrl ?? "",
+      primaryImageMimeType: resp?.ship?.primaryImageMimeType,
+      name: resp?.ship?.name ?? resp?.shipName,
+      shipTypeName: resp?.ship?.shipTypeName ?? resp?.shipTypeName,
+      capacity: resp?.ship?.capacity,
+      maxSpeed: resp?.ship?.maxSpeed,
+      yearOfManufacture: resp?.ship?.yearOfManufacture,
+      description: resp?.ship?.description
+    });
+    setSelectedOfferId(resp?.id ?? null);
+    setShowShipModal(true);
+  }
+
+  function closeShipModal() {
+    setShowShipModal(false);
+    setSelectedShip(null);
+    setSelectedOfferId(null);
+    setDecisionLoading(false);
+  }
+
+  async function handleApproveInModal() {
+    if (!selectedOfferId || !rentOrderId) return;
+    try {
+      setDecisionLoading(true);
+      await handleApprove(selectedOfferId, rentOrderId);
+      closeShipModal();
+    } 
+    finally {
+      setDecisionLoading(false);
+    }
+  }
+
+  async function handleRejectInModal() {
+    if (!selectedOfferId || !rentOrderId) return;
+    try {
+      setDecisionLoading(true);
+      await handleReject(selectedOfferId, rentOrderId);
+      closeShipModal();
+    } 
+    finally {
+      setDecisionLoading(false);
+    }
+  }
+
+  function mapOfferToTripCard(resp) {
+    return {
+      imageSrc: `data:${resp?.ship?.primaryImageMimeType};${FORMAT_IMG},${resp?.ship?.primaryImageUrl}`,
+      imageAlt: resp.ship.name || "Судно",
+      name: { iconSrc: ShipIcon, iconAlt: "судно", text: resp.ship.name || "Без названия" },
+      type: { iconSrc: ShipIcon, iconAlt: "судно", text: resp.ship.shipTypeName || "Не указан" },
+      details: [
+        { iconSrc: PassengersIcon, iconAlt: "пассажиры", text: `До ${resp.ship.capacity || 0} человек` }
+      ],
+      actions: [
+        { key: "details", label: "Посмотреть детали", onClick: () => openShipModal(resp) },
+      ],
+    };
+  }
 
   // ✅ Принять отклик (accept)
   async function handleApprove(offerId, rentOrderId) {
@@ -160,16 +237,16 @@ export default function OrderResponses() {
             );
           }
         }
-      } catch (err) {
+      } 
+      catch (err) {
         console.error("Ошибка при опросе откликов:", err);
-      } finally {
+      } 
+      finally {
         if (!cancelledFlag) setLoading(false);
       }
     }
 
-    // первый запрос сразу
     fetchResponses();
-    // последующие — каждые POLL_INTERVAL мс
     intervalId = setInterval(fetchResponses, POLL_INTERVAL);
 
     return () => {
@@ -180,9 +257,8 @@ export default function OrderResponses() {
 
   if (loading && responses.length === 0) {
     return (
-      <div className={styles.page}>
-        <Header />
-        <Container className={styles.loadingContainer}>
+      <div className={styles["page"]}>
+        <Container className={styles["loading-container"]}>
           <Spinner animation="border" size="sm" />
           <span>Загрузка откликов...</span>
         </Container>
@@ -191,34 +267,36 @@ export default function OrderResponses() {
   }
 
   return (
-    <div className={styles.page}>
-      <Header />
+    <div className={styles["page"]}>
 
-      <Container className={styles.container}>
-        <div className={styles.headerBlock}>
-          <h3 className={styles.title}>
-            Ожидание откликов{" "}
-            <span className={styles.subtitle}>({responses.length})</span>
-          </h3>
+      <header className={styles["header"]}>
+        <div className={styles["inner"]}>
+          <Button 
+            variant="light" 
+            onClick={() => navigate("/")}
+            className={styles["home-icon-button"]} 
+            aria-label="Домашняя страница"
+          >
+            <ArrowLeft className={styles["home-icon"]}/>
+          </Button>
 
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            {cancelled ? (
-              <Badge bg="danger">Заявка отменена</Badge>
-            ) : (
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={handleCancelOrder}
-                disabled={!rentOrderId || canceling}
-                title={
-                  rentOrderId
-                    ? "Отменить текущую заявку"
-                    : "Идентификатор заявки не найден"
-                }
-              >
-                {canceling ? "Отмена..." : "Отменить заявку"}
-              </Button>
-            )}
+          <h1 className={styles["title"]}>Результаты откликов</h1>
+
+          <Button 
+            variant="light" 
+            onClick={() => navigate("/user")}
+            className={styles["user-icon-button"]}
+            aria-label="Профиль"
+          >
+            <UserIcon className={styles["user-icon"]} />
+          </Button>
+        </div>
+      </header>
+
+      <Container className={styles["container"]}>
+        <div className={styles["header-block"]}>
+
+          <div className={["actions-header"]}>
             {polling ? (
               <Badge bg="info">
                 Автообновление каждые {POLL_INTERVAL / 1000} секунд
@@ -231,92 +309,78 @@ export default function OrderResponses() {
 
         {cancelError && (
           <div
-            className="alert alert-danger"
+            className={styles["alert"]}
             role="alert"
-            style={{ marginBottom: 12 }}
           >
             {cancelError}
           </div>
         )}
 
-        {loading && responses.length === 0 ? (
-          <div className={styles.loadingContainer}>
-            <Spinner animation="border" size="sm" />
-            <span>Загрузка откликов...</span>
-          </div>
-        ) : responses.length === 0 ? (
-          <p className={styles.emptyMessage}>
-            Пока нет откликов от партнёров.
-          </p>
-        ) : (
-          <Row xs={1} md={2} lg={3} className="g-3">
-            {responses.map((resp) => (
-              <Col key={resp.id}>
-                <Card className={styles.card}>
-                  <Card.Body>
-                    <div className={styles.cardHeader}>
-                      <div>
-                        <Card.Title className={styles.shipName}>
-                          {resp.shipName || "Судно без названия"}
-                        </Card.Title>
-                        <div className={styles.shipDetails}>
-                          {resp.shipTypeName} • Заказ #{resp.rentOrderId}
-                        </div>
-                      </div>
-                      <Badge bg="primary" className={styles.priceBadge}>
-                        {resp.offeredPrice?.toLocaleString("ru-RU") ?? 0} ₽
-                      </Badge>
-                    </div>
+          <section className={styles["results-section"]}>
 
-                    <div className={styles.partnerInfo}>
-                      Партнёр: <span>{resp.partnerName}</span>
-                    </div>
+            <div className={styles["results-header"]}>
+              <h2 className={styles["results-title"]}>Отклики</h2>
 
-                    <div className={styles.datesRow}>
-                      <span>Создан: {formatDate(resp.createdAt)}</span>
-                      <span>Ответ: {formatDate(resp.respondedAt)}</span>
-                    </div>
+              {cancelled ? (
+                <button
+                  className={styles["cancel-button"]}
+                >
+                  Заявка отменена
+                </button>  
+              ) : (
+                <button
+                  className={styles["cancel-button"]}
+                  onClick={handleCancelOrder}
+                  disabled={!rentOrderId || canceling}
+                  title={
+                    rentOrderId
+                      ? "Отменить текущую заявку"
+                      : "Идентификатор заявки не найден"
+                  }
+                >
+                  {canceling ? "Отмена..." : "Отменить заявку"}
+                </button>
+              )}
+            </div>
 
-                    <div className={styles.statusBlock}>
-                      <Badge
-                        bg={
-                          resp.status === "approved"
-                            ? "success"
-                            : resp.status === "rejected"
-                            ? "danger"
-                            : "secondary"
+            {loading && responses.length === 0 ? (
+              <div className={styles["loadingContainer"]}>
+                <Spinner animation="border" size="sm" />
+                <span>Загрузка откликов...</span>
+              </div>
+            ) : responses.length === 0 ? (
+              <div className={styles["results-empty"]}>
+                Пока нет откликов от партнёров.
+              </div>
+            ) : (
+              <div className={styles["results-card-list"]}>
+                {responses.map((resp) => {
+                  const card = mapOfferToTripCard(resp);
+                  return (
+                    <ShipCard
+                      key={resp.id}
+                      {...card}
+                      isPartner={false}
+                      onAction={(action) => {
+                        const key = typeof action === "string" ? action : action?.key;
+                        if (key === "details") {
+                          openShipModal(resp);
                         }
-                      >
-                        {resp.status}
-                      </Badge>
-                    </div>
-
-                    <div className={styles.actionsRow}>
-                      <button
-                        className={styles.approveButton}
-                        onClick={() =>
-                          handleApprove(resp.id, resp.rentOrderId)
-                        }
-                        disabled={resp.status === "approved"}
-                      >
-                        Подтвердить
-                      </button>
-                      <button
-                        className={styles.rejectButton}
-                        onClick={() =>
-                          handleReject(resp.id, resp.rentOrderId)
-                        }
-                        disabled={resp.status === "rejected"}
-                      >
-                        Отклонить
-                      </button>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        )}
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+        </section>
+        <ShipDetails
+          show={showShipModal}
+          ship={selectedShip}
+          onClose={closeShipModal}
+          onApprove={handleApproveInModal}
+          onReject={handleRejectInModal}
+          busy={decisionLoading}
+        />
       </Container>
     </div>
   );

@@ -127,8 +127,6 @@ import StarOffIcon from "../assets/star-off.png"
 
 const SETTINGS_ITEMS = [
   { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
-  { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
-  { key: "bookings", label: "Автоподтверждение бронирования", content: "Автоподтверждение бронирования", icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />, icon: "Notifications" }
 ];
 
@@ -177,48 +175,6 @@ export default function Partner() {
     />
   );  
 
-  // useEffect(() => {
-  //     if (!polling) return;
-  
-  //     let cancelled = false;
-  //     let intervalId;
-  
-  //     async function fetchResponses() {
-  //       try {
-  //         const res = await apiFetch("/api/rent-orders/offers/foruser", { method: "GET" });
-  
-  //         if (cancelled) return;
-  
-  //         if (res.status === 200) {
-  //           const data = await res.json();
-  
-  //           if (Array.isArray(data)) {
-  //             // 🔥 Заменяем старые отклики полностью
-  //             setResponses(
-  //             data.sort(
-  //               (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  //             ));
-  //           }
-  //         }
-  //       } 
-  //       catch (err) {
-  //         console.error("Ошибка при опросе откликов:", err);
-  //       } 
-  //       finally {
-  //         if (!cancelled) setLoading(false);
-  //       }
-  //     }
-  //     // первый запрос сразу
-  //     fetchResponses();
-  //     // последующие — каждые 5 секунд
-  //     intervalId = setInterval(fetchResponses, POLL_INTERVAL);
-  
-  //     return () => {
-  //       cancelled = true;
-  //       if (intervalId) clearInterval(intervalId);
-  //     };
-  //   }, [polling]);
-
   return (
     <div className={styles["user-page"]}>
       
@@ -265,8 +221,6 @@ export default function Partner() {
             },
           }}
         />
-
-        {/* <Navigation params={USER_NAVIGATION} />     */}
       </Container>
       
     </div>

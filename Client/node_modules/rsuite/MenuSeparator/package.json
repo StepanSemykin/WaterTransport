@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/MenuSeparator",
+  "private": true,
+  "main": "../cjs/Menu/MenuSeparator.js",
+  "module": "../esm/Menu/MenuSeparator.js",
+  "types": "../esm/Menu/MenuSeparator.d.ts"
+}

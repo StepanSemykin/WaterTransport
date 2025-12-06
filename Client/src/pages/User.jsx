@@ -89,7 +89,6 @@ const COMPLETED_TRIPS = [
 
 const SETTINGS_ITEMS = [
   { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
-  { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
   { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>, icon: "Notifications" },
   { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />, icon: "Notifications" }
 ];
@@ -100,28 +99,21 @@ const SUPPORT_ITEMS = [
   { key: "problem", label: "Сообщить о проблеме", content: "Сообщить о проблеме" }
 ];
 
-const USER_NAVIGATION = {
-  orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} /> },
-  settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
-  support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> }
-};
+// const USER_NAVIGATION = {
+//   orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} /> },
+//   settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
+//   support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> }
+// };
 
 export default function User() {
   const {
     user,
     loading,
-    refreshUser,
     upcomingTrips,
     upcomingTripsLoading,
     completedTrips,
     completedTripsLoading
   } = useAuth();
-
-  // useEffect(() => {
-  //   if (!user.firstName && !loading) {
-  //     refreshUser(true);
-  //   }
-  // }, [user.firstName, loading, refreshUser]);
 
   if (loading) {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
@@ -175,56 +167,3 @@ const ordersComponent = (
     </div>
   );
 }
-
-//   return (
-//     <div className={styles["user-page"]}>
-      
-//       <div className={styles["user-header"]}>
-//         {/* <AccountHeader {...USER} /> */}
-//         <AccountHeader
-//           firstName={user.firstName ?? ""}
-//           lastName={user.lastName ?? ""}
-//           email={user.email ?? ""}
-//           location={user.location ?? ""}
-//         />
-//       </div>
-
-//       <Container className={styles["user-container"]}>
-//         <div className={styles["user-stats"]}>
-//           {/* {STATS.map((stat) => (
-//             <StatsCard key={stat.title} {...stat} />
-//           ))} */}
-//           {(user.stats ?? []).map((stat) => (
-//           <StatsCard key={stat.title} {...stat} />
-//         ))}
-//         </div>
-
-//         <Navigation
-//           params={{
-//             orders: {
-//               label: "Заказы",
-//               component: (
-//                 <UserOrders
-//                   upcomingTrips={user.upcomingTrips ?? []}
-//                   completedTrips={user.completedTrips ?? []}
-//                 />
-//                 // <UserOrders 
-//                 //   upcomingTrips={UPCOMING_TRIPS} 
-//                 //   completedTrips={COMPLETED_TRIPS} />
-//               ),
-//             },
-//             settings: {
-//               label: "Настройки",
-//               component: <UserSettingsMenu items={SETTINGS_ITEMS} />,
-//             },
-//             support: {
-//               label: "Поддержка",
-//               component: <UserSupportMenu items={SUPPORT_ITEMS} />,
-//             },
-//           }}
-//         />
-//       </Container>
-      
-//     </div>
-//   );
-// }

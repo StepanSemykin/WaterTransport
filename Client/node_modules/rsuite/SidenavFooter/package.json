@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/SidenavFooter",
+  "private": true,
+  "main": "../cjs/Sidenav/SidenavFooter.js",
+  "module": "../esm/Sidenav/SidenavFooter.js",
+  "types": "../esm/Sidenav/SidenavFooter.d.ts"
+}

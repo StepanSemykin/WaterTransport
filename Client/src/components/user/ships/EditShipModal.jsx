@@ -173,7 +173,6 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     setFormData(prev => ({ ...prev, imageFile: null }));
   };
 
-
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -188,7 +187,6 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
         return;
       }
 
-      // alert("Судно успешно удалено");
       onSave && onSave(null);
       setShowDeleteConfirm(false);
       onClose();
@@ -418,9 +416,9 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
                           ref={inputRef}
                           type="file"
                           name="imageFile"
+                          className={styles["input-ref"]}
                           accept="image/*"
                           onChange={handleChange}
-                          style={{ display: "none" }}
                         />
                       </div>
                     </div>
@@ -600,31 +598,33 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
               )}
             </div>
 
-            <div className={styles["modal-footer"]}>
-              <Button
-              variant="danger"
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={isDeleting}
-              >
-                <Trash2 size={18} className="me-1" />
-                Удалить
-              </Button>
-              <Button
-                variant="outline-secondary"
-                onClick={onClose}
-                disabled={isDeleting}
-                // className={`${styles["button"]} ${styles["button-secondary"]}`}
-              >
-                Отмена
-              </Button>
-              <Button
-                type="submit" 
-                variant="primary"
-                disabled={isDeleting}
-                // className={`${styles["button"]} ${styles["button-primary"]}`}
-              >
-                Сохранить изменения
-              </Button>
+           <div className={styles["footer"]}>
+              <div className={styles["group"]}>
+                <Button
+                  type="submit" 
+                  variant="primary"
+                  disabled={isDeleting}
+                >
+                  Сохранить изменения
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 size={18} className="me-1" />
+                  Удалить
+                </Button>
+              </div>
+              <div className={styles["group"]}>
+                <Button
+                  variant="secondary"
+                  onClick={onClose}
+                  disabled={isDeleting}
+                >
+                  Отмена
+                </Button>
+              </div>  
             </div>
           </form>
         </div>

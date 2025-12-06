@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/Center",
+  "private": true,
+  "main": "../cjs/Center/index.js",
+  "module": "../esm/Center/index.js",
+  "types": "../esm/Center/index.d.ts"
+}
