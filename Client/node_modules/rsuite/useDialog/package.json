@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/useDialog",
+  "private": true,
+  "main": "../cjs/useDialog/index.js",
+  "module": "../esm/useDialog/index.js",
+  "types": "../esm/useDialog/index.d.ts"
+}

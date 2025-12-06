@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/FormStack",
+  "private": true,
+  "main": "../cjs/FormStack/index.js",
+  "module": "../esm/FormStack/index.js",
+  "types": "../esm/FormStack/index.d.ts"
+}

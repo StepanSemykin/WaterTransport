@@ -1,0 +1,65 @@
+.user-section {
+  margin-top: 20px;
+}
+
+.user-section-button {
+  display: flex;
+}
+
+.add-button {
+  border-radius: 20px;
+  font-size: 24px;
+  line-height: 1.2;
+  padding: 6px 16px;
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  margin-left: auto;
+  transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
+}
+
+.add-button:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.add-button:active:not(:disabled) {
+  filter: brightness(0.85);
+}
+
+.add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.user-empty {
+  margin-top: 20px;
+  font-size: 18px;
+  color: #6c757d;
+  text-align: center;
+}
+
+.empty-message {
+  font-size: 18px;
+  color: #666;
+  text-align: center;
+}
+
+.user-card {
+  margin-bottom: 40px;
+}
+
+
+
+@media(max-width: 550px) {
+  .user-section-title {
+    font-size: 20px;
+  }
+
+  .add-button {
+    padding: 6px 10px;
+    font-size: 16px;
+    border-radius: 14px;
+  }
+}

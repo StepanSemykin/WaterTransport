@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/PinInput",
+  "private": true,
+  "main": "../cjs/PinInput/index.js",
+  "module": "../esm/PinInput/index.js",
+  "types": "../esm/PinInput/index.d.ts"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/Kbd",
+  "private": true,
+  "main": "../cjs/Kbd/index.js",
+  "module": "../esm/Kbd/index.js",
+  "types": "../esm/Kbd/index.d.ts"
+}
