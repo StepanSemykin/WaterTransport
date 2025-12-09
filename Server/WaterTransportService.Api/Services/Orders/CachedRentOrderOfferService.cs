@@ -6,21 +6,14 @@ namespace WaterTransportService.Api.Services.Orders;
 /// <summary>
 /// Декоратор сервиса откликов на заказы аренды с кешированием.
 /// </summary>
-public class CachedRentOrderOfferService : IRentOrderOfferService
+public class CachedRentOrderOfferService(
+    IRentOrderOfferService innerService,
+    ICacheService cache,
+    ILogger<CachedRentOrderOfferService> logger) : IRentOrderOfferService
 {
-    private readonly IRentOrderOfferService _innerService;
-    private readonly ICacheService _cache;
-    private readonly ILogger<CachedRentOrderOfferService> _logger;
-
-    public CachedRentOrderOfferService(
-        IRentOrderOfferService innerService,
-        ICacheService cache,
-        ILogger<CachedRentOrderOfferService> logger)
-    {
-        _innerService = innerService;
-        _cache = cache;
-        _logger = logger;
-    }
+    private readonly IRentOrderOfferService _innerService = innerService;
+    private readonly ICacheService _cache = cache;
+    private readonly ILogger<CachedRentOrderOfferService> _logger = logger;
 
     #region Read Methods (с кешированием)
 
@@ -104,6 +97,26 @@ public class CachedRentOrderOfferService : IRentOrderOfferService
         return result;
     }
 
+    public async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
+    {
+        var cacheKey = CacheKeys.PartnerOrdersByStatus(partnerId, status);
+        
+        var cached = await _cache.GetAsync<List<RentOrderDto>>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+        
+        var result = (await _innerService.GetPartnerOrdersByStatusAsync(status, partnerId)).ToList();
+        
+        if (result.Count > 0)
+        {
+            await _cache.SetAsync(cacheKey, result, CacheTTL.PartnerOffers);
+        }
+        
+        return result;
+    }
+
     #endregion
 
     #region Write Methods (с инвалидацией кеша)
@@ -121,6 +134,9 @@ public class CachedRentOrderOfferService : IRentOrderOfferService
             
             // Инвалидируем кеши заявки (статус может измениться на "HasOffers")
             await _cache.RemoveAsync(CacheKeys.OrderById(result.RentOrderId));
+            
+            // Инвалидируем заказы партнера по статусу
+            await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(partnerId));
             
             // Нужно инвалидировать кеши заказа - запрашиваем его чтобы получить userId
             // (т.к. в DTO отклика нет вложенного RentOrder)
@@ -172,6 +188,9 @@ public class CachedRentOrderOfferService : IRentOrderOfferService
         {
             await InvalidateOfferCaches(offer);
             
+            // Инвалидируем заказы партнера по статусу
+            await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(offer.PartnerId));
+            
             _logger.LogInformation("Cache invalidated after rejecting offer {OfferId}", id);
         }
         
@@ -189,6 +208,9 @@ public class CachedRentOrderOfferService : IRentOrderOfferService
             
             // Инвалидируем кеши заявки (количество откликов изменилось)
             await _cache.RemoveAsync(CacheKeys.OrderById(offer.RentOrderId));
+            
+            // Инвалидируем заказы партнера по статусу
+            await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(offer.PartnerId));
             
             _logger.LogInformation("Cache invalidated after deleting offer {OfferId}", id);
         }
