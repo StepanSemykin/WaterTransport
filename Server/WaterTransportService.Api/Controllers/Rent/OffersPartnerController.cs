@@ -27,9 +27,16 @@ public class OffersPartnerController(IRentOrderOfferService offerService) : Cont
         return Ok(offers);
     }
 
+    /// <summary>
+    /// ѕолучить заказы партнера по кокретному статусу отклика.
+    /// </summary>
+    /// <param name="status">—татус отклика.</param>
+    /// <returns>—писок заказов, св€занных с партнером.</returns>
     [HttpGet("offers/status={status}")]
     [Authorize]
-    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetPendingPartnerOffers(string status)
+    [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetPartnerOrdersByStatus(string status)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userGuid))
@@ -37,12 +44,12 @@ public class OffersPartnerController(IRentOrderOfferService offerService) : Cont
             return Unauthorized(new { message = "User ID not found or invalid token" });
         }
 
-        var offers = await _offerService.GetPendingOffersByPartnerIdAsync(status, userGuid);
+        var offers = await _offerService.GetPartnerOrdersByStatusAsync(status, userGuid);
+        if (offers == null)
+        {
+            return NotFound();
+        }
 
         return Ok(offers);
     }
-
-
-
-
 }

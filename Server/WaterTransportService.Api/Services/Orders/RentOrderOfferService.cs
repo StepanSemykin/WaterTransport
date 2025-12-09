@@ -97,6 +97,30 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
+    /// Получить заказы партнера по кокретному статусу отклика.
+    /// </summary>
+    /// <param name="status">Статус отклика.</param>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Список заказов, связанных с партнером.</returns>
+    public async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
+    {
+        var orders = await _offerRepository.GetByStatusWithDetailsAsync(status, partnerId);
+        var dtos = _mapper.Map<List<RentOrderDto>>(orders);
+
+        // Обогащаем изображениями в Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return dtos;
+    }
+
+    /// <summary>
     /// Получить отклик по идентификатору.
     /// </summary>
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)

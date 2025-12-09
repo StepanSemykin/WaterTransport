@@ -28,6 +28,12 @@ public interface IRentOrderOfferService
     Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId);
 
     /// <summary>
+    /// Получить все отклики партнера по кокретному статусу.
+    /// </summary>
+    /// <returns>Коллекция откликов партнера с конкретным статусом.</returns>
+    Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId);
+
+    /// <summary>
     /// Получить отклик по идентификатору.
     /// </summary>
     /// <param name="id">Идентификатор отклика.</param>

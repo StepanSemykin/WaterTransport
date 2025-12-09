@@ -69,6 +69,26 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
+    /// Получить заказы аренды, для которых есть отклики с определенным статусом.
+    /// </summary>
+    /// <returns>Список заказов аренды.</returns>
+    public async Task<IEnumerable<RentOrder>> GetByStatusWithDetailsAsync(string status, Guid partnerId)
+    {
+        var offers = await _context.RentOrderOffers
+            .Where(o => o.Status == status && o.PartnerId == partnerId)
+            .ToListAsync();
+
+        var rentOrderIds = offers
+            .Select(o => o.RentOrderId)
+            .Distinct()
+            .ToList();
+
+        return await _context.RentOrders
+            .Where(ro => rentOrderIds.Contains(ro.Id))
+            .ToListAsync();
+    }
+
+    /// <summary>
     /// Получить отклики для пользователя (на его заказы) с полными данными.
     /// </summary>
     public async Task<IEnumerable<RentOrderOffer>> GetOffersForUserOrdersWithDetailsAsync(Guid userId, string status) =>
