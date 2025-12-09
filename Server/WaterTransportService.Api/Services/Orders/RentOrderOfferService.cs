@@ -97,12 +97,12 @@ public class RentOrderOfferService(
     }
 
     /// <summary>
-    /// Получить заказы партнера по кокретному статусу отклика.
+    /// Получить заказы партнера по конкретному статусу отклика.
     /// </summary>
     /// <param name="status">Статус отклика.</param>
     /// <param name="partnerId">Идентификатор партнера.</param>
     /// <returns>Список заказов, связанных с партнером.</returns>
-    public async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
+    public virtual async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
     {
         var orders = await _offerRepository.GetByStatusWithDetailsAsync(status, partnerId);
         var dtos = _mapper.Map<List<RentOrderDto>>(orders);

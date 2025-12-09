@@ -5,6 +5,7 @@ using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
+using WaterTransportService.Infrastructure.PasswordValidator;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
@@ -18,6 +19,7 @@ public class UserAuthenticationTests
     private readonly Mock<IUserRepository<Guid>> _mockUserRepo;
     private readonly Mock<IEntityRepository<UserProfile, Guid>> _mockUserProfileRepo;
     private readonly Mock<IPasswordHasher> _mockPasswordHasher;
+    private readonly Mock<IPasswordValidator> _mockPasswordValidator;
     private readonly Mock<ITokenService> _mockTokenService;
     private readonly Mock<IMapper> _mockMapper;
     private readonly AuthService _authService;
@@ -27,6 +29,7 @@ public class UserAuthenticationTests
         _mockUserRepo = new Mock<IUserRepository<Guid>>();
         _mockUserProfileRepo = new Mock<IEntityRepository<UserProfile, Guid>>();
         _mockPasswordHasher = new Mock<IPasswordHasher>();
+        _mockPasswordValidator = new Mock<IPasswordValidator>();
         _mockTokenService = new Mock<ITokenService>();
         _mockMapper = new Mock<IMapper>();
 
@@ -35,6 +38,7 @@ public class UserAuthenticationTests
             _mockUserRepo.Object,
             _mockUserProfileRepo.Object,
             _mockPasswordHasher.Object,
+            _mockPasswordValidator.Object,
             _mockTokenService.Object
         );
     }
@@ -53,6 +57,9 @@ public class UserAuthenticationTests
 
         _mockUserRepo.Setup(x => x.GetByPhoneAsync(registerDto.Phone))
             .ReturnsAsync((User?)null);
+
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(registerDto.Password))
+            .Returns(true);
 
         _mockPasswordHasher.Setup(x => x.Generate(registerDto.Password))
             .Returns(hashedPassword);
@@ -81,11 +88,13 @@ public class UserAuthenticationTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(accessToken, result.AccessToken);
-        Assert.Equal(refreshToken, result.RefreshToken);
-        Assert.Equal(userId, result.User.Id);
-        Assert.Equal(registerDto.Phone, result.User.Phone);
-        Assert.Equal("common", result.User.Role);
+        Assert.True(result.Success);
+        Assert.NotNull(result.Data);
+        Assert.Equal(accessToken, result.Data.AccessToken);
+        Assert.Equal(refreshToken, result.Data.RefreshToken);
+        Assert.Equal(userId, result.Data.User.Id);
+        Assert.Equal(registerDto.Phone, result.Data.User.Phone);
+        Assert.Equal("common", result.Data.User.Role);
 
         _mockUserRepo.Verify(x => x.CreateAsync(It.Is<User>(u =>
             u.Phone == registerDto.Phone &&
@@ -114,11 +123,16 @@ public class UserAuthenticationTests
         _mockUserRepo.Setup(x => x.GetByPhoneAsync(registerDto.Phone))
             .ReturnsAsync(existingUser);
 
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(registerDto.Password))
+            .Returns(true);
+
         // Act
         var result = await _authService.RegisterAsync(registerDto);
 
         // Assert
-        Assert.Null(result);
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.NotNull(result.Error);
         _mockUserRepo.Verify(x => x.CreateAsync(It.IsAny<User>()), Times.Never);
         _mockTokenService.Verify(x => x.GenerateAccessToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>()), Times.Never);
     }
@@ -133,6 +147,9 @@ public class UserAuthenticationTests
 
         _mockUserRepo.Setup(x => x.GetByPhoneAsync(It.IsAny<string>()))
             .ReturnsAsync((User?)null);
+
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(registerDto.Password))
+            .Returns(true);
 
         _mockPasswordHasher.Setup(x => x.Generate(registerDto.Password))
             .Returns(hashedPassword);
