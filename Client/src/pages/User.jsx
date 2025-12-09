@@ -13,6 +13,7 @@ import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
 import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 import PartnerRequest from "../components/user/settings/PartnerRequest.jsx";
 import LogoutSettings from "../components/user/settings/LogOutSettings.jsx";
+import ChangePassword from "../components/user/settings/ChangePassword.jsx";
 
 import styles from "./User.module.css";
 
@@ -88,9 +89,10 @@ const COMPLETED_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
-  { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>, icon: "Notifications" },
-  { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />, icon: "Notifications" }
+  { key: "account", label: "Учетная запись", content: <AccountSettings/> },
+  { key: "password", label: "Сменить пароль", content: <ChangePassword/>},
+  { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>},
+  { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />}
 ];
 
 const SUPPORT_ITEMS = [

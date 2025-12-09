@@ -249,9 +249,10 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
       // Если выбрано новое изображение, загружаем его
       if (formData.imageFile) {
         const form = new FormData();
-        form.append("ShipName", updatedShip.name);
+        // form.append("ShipName", updatedShip.name);
         form.append("Image", formData.imageFile);
         form.append("IsPrimary", "true");
+        console.log(ship);
 
         const imgRes = await apiFetchRaw(`${SHIP_IMAGES_ENDPOINT}/${ship.id}`, {
           method: "PUT",

@@ -18,6 +18,7 @@ using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Infrastructure.PasswordHasher;
+using WaterTransportService.Infrastructure.PasswordValidator;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -174,6 +175,7 @@ builder.Services.AddScoped<IImageService<PortImageDto, CreatePortImageDto, Updat
 builder.Services.AddScoped<IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto>, ShipImageService>();
 builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IPasswordValidator, PasswordValidator>();
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<Mapping>());
 

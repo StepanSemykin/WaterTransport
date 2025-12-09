@@ -1,6 +1,7 @@
 using AutoMapper;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Infrastructure.PasswordHasher;
+using WaterTransportService.Infrastructure.PasswordValidator;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
@@ -11,20 +12,27 @@ public class AuthService(
     IUserRepository<Guid> userRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
     IPasswordHasher passwordHasher,
+    IPasswordValidator passwordValidator,
     ITokenService tokenService) : IAuthService
 {
     private readonly IMapper _mapper = mapper;
     private readonly IUserRepository<Guid> _userRepo = userRepo;
     private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly IPasswordValidator _passwordValidator = passwordValidator;
     private readonly ITokenService _tokenService = tokenService;
 
-    public async Task<LoginResponseDto?> RegisterAsync(RegisterDto dto)
+    public async Task<RegisterResultDto?> RegisterAsync(RegisterDto dto)
     {
+        if (!_passwordValidator.IsPasswordValid(dto.Password))
+        {
+            return new RegisterResultDto(false, "Пароль не соответствует требованиям безопасности.");
+        }
+
         var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
         if (existingUser != null)
         {
-            return null;
+            return new RegisterResultDto(false, "Пользователь с таким телефоном уже существует.");
         }
 
         var user = new User
@@ -64,7 +72,7 @@ public class AuthService(
 
         var userDto = _mapper.Map<UserDto>(user);
 
-        return new LoginResponseDto(accessToken, refreshToken, userDto);
+        return new RegisterResultDto(true, null, new LoginResponseDto(accessToken, refreshToken, userDto));
     }
 
     public async Task<LoginResultDto?> LoginAsync(LoginDto dto)

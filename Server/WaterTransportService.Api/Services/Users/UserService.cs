@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Exceptions;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
+using WaterTransportService.Infrastructure.PasswordValidator;   
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
@@ -20,6 +22,7 @@ public class UserService(
     IEntityRepository<OldPassword, Guid> oldPasswordRepo,
     IEntityRepository<UserProfile, Guid> userProfileRepo,
     IPasswordHasher passwordHasher,
+    IPasswordValidator passwordValidator,
     ITokenService tokenService) : IUserService
 {
     private readonly IMapper _mapper = mapper;
@@ -27,6 +30,7 @@ public class UserService(
     private readonly IEntityRepository<OldPassword, Guid> _oldPasswordRepo = oldPasswordRepo;
     private readonly IEntityRepository<UserProfile, Guid> _userProfileRepo = userProfileRepo;
     private readonly IPasswordHasher _passwordHasher = passwordHasher;
+    private readonly IPasswordValidator _passwordValidator = passwordValidator;
     private readonly ITokenService _tokenService = tokenService;
 
     /// <summary>
@@ -127,8 +131,21 @@ public class UserService(
         if (dto.IsActive.HasValue) user.IsActive = dto.IsActive.Value;
         if (dto.Role is not null) user.Role = dto.Role;
 
+        // Проверка смены пароля
         if (!string.IsNullOrEmpty(dto.NewPassword))
         {
+            // Проверка текущего пароля
+            if (string.IsNullOrEmpty(dto.CurrentPassword) || !_passwordHasher.Verify(dto.CurrentPassword, user.Hash))
+            {
+                throw new ArgumentException("Текущий пароль неверен.");
+            }
+
+            // Валидация нового пароля
+            if (!_passwordValidator.IsPasswordValid(dto.NewPassword))
+            {
+                throw new ArgumentException("Пароль не соответствует требованиям безопасности.");
+            }
+
             // Проверяем, что новый пароль не совпадает с текущим
             if (_passwordHasher.Verify(dto.NewPassword, user.Hash))
             {
@@ -169,6 +186,7 @@ public class UserService(
 
         return ok ? userDto : null;
     }
+
 
     /// <summary>
     /// Удалить пользователя и отозвать его refresh токены.

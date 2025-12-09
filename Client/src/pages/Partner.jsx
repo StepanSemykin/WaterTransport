@@ -13,6 +13,7 @@ import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
 import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 import LogoutSettings from "../components/user/settings/LogOutSettings.jsx";
+import ChangePassword from "../components/user/settings/ChangePassword.jsx";
 
 import styles from "./User.module.css";
 
@@ -127,6 +128,7 @@ import StarOffIcon from "../assets/star-off.png"
 
 const SETTINGS_ITEMS = [
   { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
+  { key: "password", label: "Сменить пароль", content: <ChangePassword/>},
   { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />, icon: "Notifications" }
 ];
 
