@@ -155,6 +155,10 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
             // Возвращаем 401, если пользователя нет в claims или id невалиден
             return Unauthorized(new { message = "User ID not found or invalid token" });
         }
+        // Проверка есть ли пользователя активный заказ, если да -> ошибка
+        var activeOrder = await _service.GetActiveOrderForUserAsync(userGuid);
+
+        if (activeOrder is not null) return BadRequest("You already have an active rental order.");
 
         var created = await _service.CreateAsync(dto, userGuid);
         return created is null
