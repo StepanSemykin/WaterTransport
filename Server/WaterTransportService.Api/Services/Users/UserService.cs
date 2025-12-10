@@ -171,7 +171,6 @@ public class UserService(
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
-                User = user,
                 Hash = user.Hash,
                 CreatedAt = DateTime.UtcNow
             };

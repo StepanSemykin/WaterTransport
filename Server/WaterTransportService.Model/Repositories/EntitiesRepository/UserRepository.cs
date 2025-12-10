@@ -14,8 +14,10 @@ public class UserRepository(WaterTransportDbContext context) : IUserRepository<G
     /// <summary>
     /// Получить всех пользователей.
     /// </summary>
-    public async Task<IEnumerable<User>> GetAllAsync() => await _context.Users.ToListAsync();
-
+    public async Task<IEnumerable<User>> GetAllAsync() => await _context.Users
+            .Include(u => u.OldPasswords)
+            .AsNoTracking()
+            .ToListAsync();
     /// <summary>
     /// Получить пользователя по идентификатору.
     /// </summary>
