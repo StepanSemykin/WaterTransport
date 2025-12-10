@@ -102,10 +102,35 @@ public class RentOrderOfferService(
     /// <param name="status">Статус отклика.</param>
     /// <param name="partnerId">Идентификатор партнера.</param>
     /// <returns>Список заказов, связанных с партнером.</returns>
-    public virtual async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
+    public async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
     {
-        var orders = await _offerRepository.GetByStatusWithDetailsAsync(status, partnerId);
-        var dtos = _mapper.Map<List<RentOrderDto>>(orders);
+        //var offers = await _offerRepository.GetByPartnerIdWithDetailsAsync(partnerId);
+
+        var offers = await _offerRepository.GetByStatusWithDetailsAsync(status, partnerId);
+        //if (offers == null)
+        //{
+        //    return null;
+        //}
+
+        var newOrders = new List<RentOrder>();
+        var offersList = offers.ToList();
+        for (int i = 0; i < offersList.Count; i++)
+        {
+            var orderId = offersList[i].RentOrderId;
+            var order = await _rentOrderRepository.GetByIdWithDetailsAsync(orderId);
+            var newOrder = order;
+
+            newOrder.PartnerId = offersList[i].PartnerId;
+            newOrder.ShipId = offersList[i].ShipId;
+            //Console.WriteLine("Ship: " + offersList[i].Ship);
+            newOrder.Ship = offersList[i].Ship;
+            newOrder.TotalPrice = offersList[i].OfferedPrice;
+            newOrder.OrderDate = DateTime.UtcNow;
+
+            newOrders.Add(newOrder);
+        }
+
+        var dtos = _mapper.Map<List<RentOrderDto>>(newOrders);
 
         // Обогащаем изображениями в Base64
         for (int i = 0; i < dtos.Count; i++)

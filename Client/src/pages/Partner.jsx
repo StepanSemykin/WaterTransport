@@ -153,10 +153,14 @@ export default function Partner() {
     refreshUser,
     upcomingTrips,
     upcomingTripsLoading,
+    pendingTrips, 
+    pendingTripsLoading,
     completedTrips,
     completedTripsLoading,
     possibleTrips,
-    possibleTripsLoading
+    possibleTripsLoading,
+    rejectedTrips, 
+    rejectedTripsLoading,
   } = useAuth();
 
   const [polling, setPolling] = useState(true);
@@ -167,6 +171,10 @@ export default function Partner() {
 
   const ordersComponent = (
     <UserOrders
+      rejectedTrips={rejectedTrips}
+      rejectedTripsLoading={rejectedTripsLoading}
+      pendingTrips={pendingTrips}
+      pendingTripsLoading={pendingTripsLoading}
       upcomingTrips={upcomingTrips}
       upcomingTripsLoading={upcomingTripsLoading}
       completedTrips={completedTrips}

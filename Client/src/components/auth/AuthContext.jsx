@@ -44,6 +44,8 @@ const UPCOMING_TRIPS_COMMON_ENDPOINT = "/api/rentorders/get-for-user-by-status/s
 const COMPLETED_TRIPS_COMMON_ENDPOINT = "/api/rentorders/get-for-user-by-status/status=Completed";
 const UPCOMING_TRIPS_PARTNER_ENDPOINT = "/api/rentorders/get-for-partner-by-status/status=Agreed";
 const COMPLETED_TRIPS_PARTNER_ENDPOINT = "/api/rentorders/get-for-partner-by-status/status=Completed";
+const PENDING_TRIPS_PARTNER_ENDPOINT = "/api/offerspartner/offers/status=Pending";
+const REJECTED_TRIPS_PARTNER_ENDPOINT = "/api/offerspartner/offers/status=Rejected";
 const ACTIVE_ORDER_ENDPOINT = "/api/rentorders/active";
 
 const LOCATION = "/auth";
@@ -75,6 +77,10 @@ export function AuthProvider({ children }) {
   const [completedTripsLoading, setCompletedTripsLoading] = useState(false);
   const [possibleTrips, setPossibleTrips] = useState([]);
   const [possibleTripsLoading, setPossibleTripsLoading] = useState(false);
+  const [pendingTrips, setPendingTrips] = useState([]);
+  const [pendingTripsLoading, setPendingTripsLoading] = useState(false);
+  const [rejectedTrips, setRejectedTrips] = useState([]);
+  const [rejectedTripsLoading, setRejectedTripsLoading] = useState(false);
 
   const [upcomingPolling, setUpcomingPolling] = useState(true);
   const [possiblePolling, setPossiblePolling] = useState(true);
@@ -260,14 +266,14 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function loadPossibleTrips(userId) {
+  async function loadPossibleTrips(userId, endpoint) {
     if (!userId) {
       setPossibleTrips([]);
       return;
     }
     setPossibleTripsLoading(true);
     try {
-      const res = await apiFetch(`${POSSIBLE_TRIPS_ENDPOINT}/${userId}`, { method: "GET" });
+      const res = await apiFetch(`${endpoint}/${userId}`, { method: "GET" });
       if (res.ok) {
         const data = await res.json();
         setPossibleTrips(Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []));
@@ -285,24 +291,155 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function loadPendingTrips(userId, endpoint) {
+    if (!userId) {
+      setPendingTrips([]);
+      return;
+    }
+    setPendingTripsLoading(true);
+    try {
+      const res = await apiFetch(endpoint, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        setPendingTrips(Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []));
+        console.log(data);
+      } 
+      else {
+        setPendingTrips([]);
+      }
+    } 
+    catch (err) {
+      console.warn("[AuthContext] pending trips load failed", err);
+      setPendingTrips([]);
+    } 
+    finally {
+      setPendingTripsLoading(false);
+    }
+  }
+
+  async function loadRejectedTrips(userId, endpoint) {
+    if (!userId) {
+      setRejectedTrips([]);
+      return;
+    }
+    setRejectedTripsLoading(true);
+    try {
+      const res = await apiFetch(endpoint, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        setRejectedTrips(Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []));
+      } 
+      else {
+        setRejectedTrips([]);
+      }
+    } 
+    catch (err) {
+      console.warn("[AuthContext] rejected trips load failed", err);
+      setRejectedTrips([]);
+    } 
+    finally {
+      setRejectedTripsLoading(false);
+    }
+  }
+
+  // useEffect(() => {
+  //   if (!upcomingPolling || !user?.id) return;
+
+  //   let cancelled = false;
+  //   let intervalId;
+
+  //   async function pollUpcoming() {
+  //     try {
+  //       const endpoint =
+  //         user?.role === PARTNER_ROLE
+  //           ? UPCOMING_TRIPS_PARTNER_ENDPOINT
+  //           : UPCOMING_TRIPS_COMMON_ENDPOINT;
+
+  //       const res = await apiFetch(endpoint, { method: "GET" });
+  //       if (cancelled) return;
+  //       if (res.ok) {
+  //         const data = await res.json();
+  //         const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+  //         setUpcomingTrips(items);
+  //       }
+  //     } 
+  //     catch (err) {
+  //       if (!cancelled) console.warn("[AuthContext] upcoming poll failed", err);
+  //     } 
+  //     finally {
+  //       if (!cancelled) setUpcomingTripsLoading(false);
+  //     }
+  //   }
+
+  //   setUpcomingTripsLoading(true);
+  //   pollUpcoming();
+  //   intervalId = setInterval(pollUpcoming, POLL_INTERVAL);
+
+  //   return () => {
+  //     cancelled = true;
+  //     if (intervalId) clearInterval(intervalId);
+  //   };
+  // }, [upcomingPolling, user?.id]);
+
+  // useEffect(() => {
+  //   if (!possiblePolling || user?.role !== "partner" || !user?.id) return;
+
+  //   let cancelled = false;
+  //   let intervalId;
+
+  //   async function pollPossible() {
+  //     try {
+  //       const res = await apiFetch(`${POSSIBLE_TRIPS_ENDPOINT}/${user.id}`, { method: "GET" });
+  //       if (cancelled) return;
+  //       if (res.ok) {
+  //         const data = await res.json();
+  //         const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+  //         setPossibleTrips(items);
+  //       }
+  //     } 
+  //     catch (err) {
+  //       if (!cancelled) console.warn("[AuthContext] possible poll failed", err);
+  //     } 
+  //     finally {
+  //       if (!cancelled) setPossibleTripsLoading(false);
+  //     }
+  //   }
+
+  //   setPossibleTripsLoading(true);
+  //   pollPossible();
+  //   intervalId = setInterval(pollPossible, POLL_INTERVAL);
+
+  //   return () => {
+  //     cancelled = true;
+  //     if (intervalId) clearInterval(intervalId);
+  //   };
+  // }, [possiblePolling, user?.role, user?.id]);
+
   useEffect(() => {
-    if (!upcomingPolling || !user?.id) return;
+    if (!user?.id) return;
 
     let cancelled = false;
-    let intervalId;
+    let upcomingIntervalId;
+    let possibleIntervalId;
 
+    // ---------- ПОЛЛИНГ UPCOMING ----------
     async function pollUpcoming() {
       try {
         const endpoint =
-          user?.role === PARTNER_ROLE
+          user.role === PARTNER_ROLE
             ? UPCOMING_TRIPS_PARTNER_ENDPOINT
             : UPCOMING_TRIPS_COMMON_ENDPOINT;
 
         const res = await apiFetch(endpoint, { method: "GET" });
         if (cancelled) return;
+
         if (res.ok) {
           const data = await res.json();
-          const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+          const items = Array.isArray(data?.items)
+            ? data.items
+            : Array.isArray(data)
+            ? data
+            : [];
           setUpcomingTrips(items);
         }
       } 
@@ -314,29 +451,21 @@ export function AuthProvider({ children }) {
       }
     }
 
-    setUpcomingTripsLoading(true);
-    pollUpcoming();
-    intervalId = setInterval(pollUpcoming, POLL_INTERVAL);
-
-    return () => {
-      cancelled = true;
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [upcomingPolling, user?.id]);
-
-  useEffect(() => {
-    if (!possiblePolling || user?.role !== "partner" || !user?.id) return;
-
-    let cancelled = false;
-    let intervalId;
-
+    // ---------- ПОЛЛИНГ POSSIBLE ----------
     async function pollPossible() {
       try {
-        const res = await apiFetch(`${POSSIBLE_TRIPS_ENDPOINT}/${user.id}`, { method: "GET" });
+        const res = await apiFetch(`${POSSIBLE_TRIPS_ENDPOINT}/${user.id}`, {
+          method: "GET",
+        });
         if (cancelled) return;
+
         if (res.ok) {
           const data = await res.json();
-          const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : []);
+          const items = Array.isArray(data?.items)
+            ? data.items
+            : Array.isArray(data)
+            ? data
+            : [];
           setPossibleTrips(items);
         }
       } 
@@ -348,15 +477,26 @@ export function AuthProvider({ children }) {
       }
     }
 
-    setPossibleTripsLoading(true);
-    pollPossible();
-    intervalId = setInterval(pollPossible, POLL_INTERVAL);
+    // ---------- ЗАПУСК ПОЛЛИНГА ----------
+    if (upcomingPolling) {
+      setUpcomingTripsLoading(true);
+      pollUpcoming();
+      upcomingIntervalId = setInterval(pollUpcoming, POLL_INTERVAL);
+    }
 
+    if (possiblePolling && user.role === "partner") {
+      setPossibleTripsLoading(true);
+      pollPossible();
+      possibleIntervalId = setInterval(pollPossible, POLL_INTERVAL);
+    }
+
+    // ---------- CLEANUP ----------
     return () => {
       cancelled = true;
-      if (intervalId) clearInterval(intervalId);
+      if (upcomingIntervalId) clearInterval(upcomingIntervalId);
+      if (possibleIntervalId) clearInterval(possibleIntervalId);
     };
-  }, [possiblePolling, user?.role, user?.id]);
+  }, [user?.id, user?.role, upcomingPolling, possiblePolling]);
 
   async function refreshUser({ force = false } = {}) {
     if ((hasFetched.current || inFlight.current) && !force) return;
@@ -404,9 +544,11 @@ export function AuthProvider({ children }) {
         }
         if (account.role === PARTNER_ROLE) {
           await loadUserShips(account.id);
-          await loadPossibleTrips(account.id);
+          await loadPossibleTrips(account.id, POSSIBLE_TRIPS_ENDPOINT);
           await loadUpcomingTrips(account.id, UPCOMING_TRIPS_PARTNER_ENDPOINT),
           await loadCompletedTrips(account.id, COMPLETED_TRIPS_PARTNER_ENDPOINT),
+          await loadPendingTrips(account.id, PENDING_TRIPS_PARTNER_ENDPOINT),
+          await loadRejectedTrips(account.id, REJECTED_TRIPS_PARTNER_ENDPOINT),
           console.log(account.id);
         }
         else if (account.role === COMMON_ROLE) {
@@ -471,6 +613,12 @@ export function AuthProvider({ children }) {
       upcomingTripsLoading,
       completedTrips,
       completedTripsLoading,
+      pendingTrips,
+      pendingTripsLoading,
+      rejectedTrips,
+      rejectedTripsLoading,
+      loadRejectedTrips,
+      loadPendingTrips,
       loadUpcomingTrips,
       loadCompletedTrips,
       possibleTrips,
@@ -497,8 +645,10 @@ export function AuthProvider({ children }) {
       userShips, userShipsLoading, 
       upcomingTrips, upcomingTripsLoading,
       completedTrips, completedTripsLoading,
+      pendingTrips, pendingTripsLoading,
       possibleTrips, possibleTripsLoading,
       upcomingPolling, possiblePolling,
+      rejectedTrips, rejectedTripsLoading,
       activeRentOrder, hasActiveOrder, loadActiveOrder
     ]
   );

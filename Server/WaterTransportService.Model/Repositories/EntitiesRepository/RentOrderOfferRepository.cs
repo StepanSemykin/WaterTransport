@@ -69,23 +69,59 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// ѕолучить заказы аренды, дл€ которых есть отклики с определенным статусом.
+    /// ѕолучить отклики с определенным статусом.
     /// </summary>
-    /// <returns>—писок заказов аренды.</returns>
-    public async Task<IEnumerable<RentOrder>> GetByStatusWithDetailsAsync(string status, Guid partnerId)
+    /// <returns>—писок откликов.</returns>
+    public async Task<IEnumerable<RentOrderOffer>> GetByStatusWithDetailsAsync(string status, Guid partnerId)
     {
-        var offers = await _context.RentOrderOffers
+        return await _context.RentOrderOffers
+            .Include(o => o.Ship)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
             .Where(o => o.Status == status && o.PartnerId == partnerId)
             .ToListAsync();
 
-        var rentOrderIds = offers
-            .Select(o => o.RentOrderId)
-            .Distinct()
-            .ToList();
+        //var rentOrderIds = offers
+        //    .Select(o => o.RentOrderId)
+        //    .Distinct()
+        //    .ToList();
 
-        return await _context.RentOrders
-            .Where(ro => rentOrderIds.Contains(ro.Id))
-            .ToListAsync();
+        //Console.WriteLine("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        //Console.WriteLine(string.Join(", ", rentOrderIds));
+        //Console.WriteLine("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
+
+        //return await _context.RentOrders
+        //    .Include(ro => ro.DeparturePort)
+        //    .Include(ro => ro.ArrivalPort)
+        //    .Include(ro => ro.Ship)
+        //        .ThenInclude(s => s!.ShipType)
+        //    .Include(ro => ro.Ship)
+        //        .ThenInclude(s => s!.ShipImages)
+        //    .Where(ro => rentOrderIds.Contains(ro.Id))
+        //    .ToListAsync();
+
+        //return await _context.RentOrders
+        //    .Include(ro => ro.User)
+        //        .ThenInclude(u => u.UserProfile)
+        //    .Include(ro => ro.ShipType)
+        //    .Include(ro => ro.DeparturePort)
+        //    .Include(ro => ro.ArrivalPort)
+        //    .Include(ro => ro.Partner)
+        //        .ThenInclude(p => p!.UserProfile)
+        //    .Include(ro => ro.Ship)
+        //        .ThenInclude(s => s!.ShipType)
+        //    .Include(ro => ro.Ship)
+        //        .ThenInclude(s => s!.ShipImages)
+        //    .Where(ro => rentOrderIds.Contains(ro.Id))
+        //    .ToListAsync();
+
+        //return await _context.RentOrderOffers
+        //    .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
+        //    .Include(o => o.Ship).ThenInclude(s => s.ShipType)
+        //    .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
+        //    .Include(o => o.RentOrder)
+        //    .Where(ro => rentOrderIds.Contains(ro.Id))
+        //    .ToListAsync();
     }
 
     /// <summary>
