@@ -1,43 +1,217 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
+import { useAuth } from "../auth/AuthContext.jsx";
 import TripDetails from "./TripDetails.jsx";
 
 import styles from "./TripCard.module.css";
 
-export function TripCard({
-  imageSrc = "",
-  imageAlt = "",
-  title = {},
-  confirm = "",
-  details = [],
-  captain = {},
-  portDeparture = {}, 
-  portArrival = {},
-  passengers = null,
-  rating = "",
-  actions = [],
-  onAction, 
-  isPartner = false,
-  onUpdateTripPrice,
-  ...tripRest
-}) {
+import PortIcon from "../../assets/port.png";
+import WheelIcon from "../../assets/wheel.png";
+import DateIcon from "../../assets/date.png";
 
-  const [showDetails, setShowDetails] = useState(false);
+const FORMAT_IMG = "base64";
 
-  const [windowWidth, setWindowWidth] = useState(
+function useWindowWidth() {
+  const [width, setWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
   );
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
+    function handleResize() {
+      setWidth(window.innerWidth);
+    }
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const visibleActions =
-    windowWidth < 750 ? actions.slice(0, 1) : actions;
+  return width;
+}
 
-  const tripData = {
+function formatDateTime(dt) {
+  if (!dt) return { date: "", time: "" };
+
+  try {
+    const d = new Date(dt);
+    return {
+      date: d.toLocaleDateString("ru-RU", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+      time: d.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+  } catch {
+    return { date: "", time: "" };
+  }
+}
+
+function getPortNameById(ports, id) {
+  if (!id) return "";
+  const p = ports.find((x) => x.id === id);
+  return p?.title ?? "";
+}
+
+function buildDateDetails(details, rentalStartTime) {
+  if (Array.isArray(details) && details.length > 0) {
+    return details;
+  }
+
+  const { date, time } = formatDateTime(rentalStartTime);
+  return [
+    { iconSrc: DateIcon, iconAlt: "Дата", text: date },
+    { text: time },
+  ];
+}
+
+function buildConfirmLabel(confirm, status, isRejected, isPending) {
+  if (confirm) return confirm;
+
+  if (status === "Agreed") return "Подтверждено";
+  if (status === "AwaitingResponse") return "Ожидает";
+  if (status === "HasOffers" && isRejected) return "Отклонено";
+  if (status === "HasOffers" && isPending) return "Отправлено";
+
+  return "";
+}
+
+function buildTitle(title, shipInfo) {
+  if (title) return title;
+
+  return {
+    iconSrc: WheelIcon,
+    iconAlt: "Судно",
+    text: shipInfo?.name ?? "Судно",
+  };
+}
+
+function normalizeDetailsToText(detailsArray) {
+  const arr = Array.isArray(detailsArray) ? detailsArray : [];
+  const parts = arr
+    .map((d) => (typeof d?.text === "string" ? d.text.trim() : ""))
+    .filter(Boolean);
+  return parts.join(" ");
+}
+
+export default function TripCard({
+  rentOrder = null,
+  imageSrc,
+  imageAlt,
+  title,
+  confirm,
+  details,
+  captain,
+  portDeparture,
+  portArrival,
+  passengers,
+  rating = [],
+  actions = [],
+  onAction,
+  isPartner = false,
+  isPending = false,
+  isRejected = false,
+  ...tripRest
+}) {
+  const { ports } = useAuth();
+  const windowWidth = useWindowWidth();
+  const [showDetails, setShowDetails] = useState(false);
+
+  const tripData = useMemo(() => {
+    if (!rentOrder) {
+      const detailsArray = details ?? [];
+      const dateTimeText = normalizeDetailsToText(detailsArray);
+
+      return {
+        id: tripRest.id,
+        imageSrc,
+        imageAlt,
+        title,
+        confirm,
+        details: detailsArray,
+        captain,
+        portDeparture,
+        portArrival,
+        passengers,
+        rating,
+        actions,
+        status: tripRest.status,
+        rentOrder,
+        totalPrice,
+        dateTimeText,
+        ...tripRest,
+      };
+    }
+
+    const imageFromOrder = rentOrder?.ship?.primaryImageUrl
+      ? `data:${rentOrder?.ship?.primaryImageMimeType};${FORMAT_IMG},${rentOrder?.ship?.primaryImageUrl}`
+      : undefined;
+
+    const finalImageSrc = imageSrc ?? imageFromOrder;
+    const finalImageAlt = imageAlt ?? rentOrder?.ship?.name ?? "Судно";
+
+    const titleObj = buildTitle(title, rentOrder?.ship);
+
+    const portDepartureObj =
+      portDeparture ??
+      (rentOrder.departurePortId || rentOrder.departurePort
+        ? {
+            iconSrc: PortIcon,
+            iconAlt: "Пристань",
+            text:
+              getPortNameById(ports, rentOrder.departurePortId) ||
+              rentOrder.departurePort?.title ||
+              "",
+          }
+        : null);
+
+    const portArrivalObj =
+      portArrival ??
+      (rentOrder.arrivalPortId || rentOrder.arrivalPort
+        ? {
+            iconSrc: PortIcon,
+            iconAlt: "Пристань",
+            text:
+              getPortNameById(ports, rentOrder.arrivalPortId) ||
+              rentOrder.arrivalPort?.title ||
+              "",
+          }
+        : null);
+
+    const confirmLabel = buildConfirmLabel(confirm, rentOrder.status, isRejected, isPending);
+
+    const detailsArray = buildDateDetails(details, rentOrder.rentalStartTime);
+    const dateTimeText = normalizeDetailsToText(detailsArray);
+
+    const actionsArray =
+      Array.isArray(actions) && actions.length > 0
+        ? actions
+        : [{ key: "details", label: "Посмотреть детали" }];
+
+    return {
+      id: rentOrder.id,
+      passengers: rentOrder.numberOfPassengers ?? passengers,
+      status: rentOrder.status,
+      shipId: rentOrder.shipId ?? rentOrder.ship?.id ?? null,
+
+      imageSrc: finalImageSrc,
+      imageAlt: finalImageAlt,
+      title: titleObj,
+      confirm: confirmLabel,
+      details: detailsArray,
+      captain,
+      portDeparture: portDepartureObj,
+      portArrival: portArrivalObj,
+      rating,
+      actions: actionsArray,
+      rentOrder,
+      dateTimeText,
+      ...tripRest,
+    };
+  }, [
+    rentOrder,
     imageSrc,
     imageAlt,
     title,
@@ -49,96 +223,128 @@ export function TripCard({
     passengers,
     rating,
     actions,
-    ...tripRest,
-  };
+    ports,
+    tripRest,
+  ]);
+
+  const visibleActions = useMemo(() => {
+    const allActions = tripData.actions ?? [];
+    if (!allActions.length) return [];
+    return windowWidth < 750 ? allActions.slice(0, 1) : allActions;
+  }, [tripData.actions, windowWidth]);
 
   function handleActionClick(action) {
     if (!action) return;
 
-    const actionKey = action.key ?? action.type;
-    const actionLabel = action.label ?? "";
-    const isDetails =
-      actionKey === "details" || /детал/i.test(actionLabel);
+    const key = action.key ?? action.type;
+    const isDetails = key === "details";
 
     if (isDetails) {
       setShowDetails(true);
-      action.onClick?.(tripData, action);
-      onAction?.(action, tripData);
-      return;
     }
 
-    if (action.onClick) {
-      action.onClick(tripData, action);
-    } 
-    else {
-      onAction?.(action, tripData);
-    }
-  }  
+    action.onClick?.(tripData, action);
+    onAction?.(action, tripData);
+  }
 
   return (
-    <>
+    <div className={styles["container"]}>
       <div className={styles["card"]}>
-        
         <div className={styles["media-row"]}>
-          <img src={imageSrc} alt={imageAlt} className={styles["media"]} />
+          {tripData.imageSrc && (
+            <img
+              src={tripData.imageSrc}
+              alt={tripData.imageAlt}
+              className={styles["media"]}
+            />
+          )}
+
           <div className={styles["content"]}>
             <div className={styles["header"]}>
-              {title && (
+              {tripData.title && (
                 <div className={styles["title"]}>
-                  {title.iconSrc && (
-                    <img 
-                      src={title.iconSrc}
-                      alt={title.iconAlt}
+                  {tripData.title.iconSrc && (
+                    <img
+                      src={tripData.title.iconSrc}
+                      alt={tripData.title.iconAlt}
                       className={styles["title-icon"]}
                     />
                   )}
-                  <span className={styles["title-text"]}>{title.text}</span>
+                  <span className={styles["title-text"]}>
+                    {tripData.title.text}
+                  </span>
                 </div>
               )}
+
               <div className={styles["captain-port"]}>
-                {captain && (
+                {captain?.text && (
                   <div className={styles["captain"]}>
                     {captain.iconSrc && (
-                      <img 
+                      <img
                         src={captain.iconSrc}
                         alt={captain.iconAlt}
                         className={styles["captain-icon"]}
                       />
                     )}
-                    <span className={styles["captain-text"]}>{captain.text}</span>
+                    <span className={styles["captain-text"]}>
+                      {captain.text}
+                    </span>
                   </div>
                 )}
-                {portDeparture && (
+
+                {tripData.portDeparture?.text && (
                   <div className={styles["port"]}>
-                    {portDeparture.iconSrc && (
+                    {tripData.portDeparture.iconSrc && (
                       <img
-                        src={portDeparture.iconSrc}
-                        alt={portDeparture.iconAlt}
+                        src={tripData.portDeparture.iconSrc}
+                        alt={tripData.portDeparture.iconAlt}
                         className={styles["port-icon"]}
                       />
                     )}
-                    <span className={styles["port-text"]}>{portDeparture.text}</span>
+                    <span className={styles["port-text"]}>
+                      {tripData.portDeparture.text}
+                    </span>
+                  </div>
+                )}
+
+                {tripData.portArrival?.text && (
+                  <div className={styles["port"]}>
+                    {tripData.portArrival.iconSrc && (
+                      <img
+                        src={tripData.portArrival.iconSrc}
+                        alt={tripData.portArrival.iconAlt}
+                        className={styles["port-icon"]}
+                      />
+                    )}
+                    <span className={styles["port-text"]}>
+                      {tripData.portArrival.text}
+                    </span>
                   </div>
                 )}
               </div>
-              <div className={styles["detail-group"]}>
-                {details.map((detail) => (
-                  <div key={detail.text} className={styles["detail-line"]}>
-                    {detail.iconSrc && (
-                      <img
-                        src={detail.iconSrc}
-                        alt={detail.iconAlt ?? ""}
-                        className={styles["detail-icon"]}
-                      />
-                    )}
-                    <span>{detail["text"]}</span>
+
+              {tripData.dateTimeText && (
+                <div className={styles["detail-group"]}>
+                  <div className={styles["detail-line"]}>
+                    <img
+                      src={DateIcon}
+                      alt="Дата"
+                      className={styles["detail-icon"]}
+                    />
+                    <span>Дата: {tripData.dateTimeText}</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </div>
+
             <div className={styles["meta"]}>
-              {confirm && <span className={styles["confirm"]}>{confirm}</span>}
-              {rating && (
+              {tripData.confirm && (
+                <span className={styles["confirm"]}>
+                  {tripData.confirm}
+                </span>
+              )}
+
+              {Array.isArray(rating) && rating.length > 0 && (
                 <div className={styles["rating"]}>
                   {rating.map((icon, index) => (
                     <img
@@ -152,6 +358,7 @@ export function TripCard({
             </div>
           </div>
         </div>
+
         <div className={styles["actions"]}>
           {visibleActions.map((action, index) => (
             <button
@@ -167,22 +374,28 @@ export function TripCard({
               {action.iconSrc && (
                 <img
                   src={action.iconSrc}
-                  alt={action.iconAlt ?? action.ariaLabel ?? action.label ?? ""}
+                  alt={
+                    action.iconAlt ??
+                    action.ariaLabel ??
+                    action.label ??
+                    ""
+                  }
                   className={styles["action-icon"]}
                 />
               )}
             </button>
           ))}
         </div>
-
       </div>
+
       <TripDetails
         trip={tripData}
         show={showDetails}
         onClose={() => setShowDetails(false)}
         isPartner={isPartner}
-        onUpdateTripPrice={onUpdateTripPrice}
+        isPending={isPending}
+        isRejected={isRejected}
       />
-    </>
+    </div>
   );
 }

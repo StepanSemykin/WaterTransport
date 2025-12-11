@@ -1,0 +1,95 @@
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0; 
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  padding: 1rem; 
+}
+
+.user-icon-button, .home-icon-button {
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  color: #0f172a;
+}
+
+.title {
+  flex: 1;
+  font-size: 24px;
+  font-weight: 500;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 0;
+  text-align: center;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 20px;
+}
+
+.results-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.actions-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.results-title {
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.cancel-button {
+  border-radius: 30px;
+  font-size: 24px;
+  line-height: 1.2;
+  padding: 6px 16px;
+  color: rgb(0, 0, 0);
+  background-color: rgb(255, 255, 255);
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease;
+}
+
+.cancel-button:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+.cancel-button:active:not(:disabled) {
+  filter: brightness(0.85);
+}
+
+.cancel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.alert {
+  margin-bottom: 12 
+}

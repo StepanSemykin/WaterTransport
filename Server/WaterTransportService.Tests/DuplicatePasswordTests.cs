@@ -6,6 +6,7 @@ using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
+using WaterTransportService.Infrastructure.PasswordValidator;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
@@ -21,6 +22,7 @@ public class DuplicatePasswordTests
     private readonly Mock<IEntityRepository<OldPassword, Guid>> _mockOldPasswordRepo;
     private readonly Mock<IEntityRepository<UserProfile, Guid>> _mockUserProfileRepo;
     private readonly Mock<IPasswordHasher> _mockPasswordHasher;
+    private readonly Mock<IPasswordValidator> _mockPasswordValidator;
     private readonly Mock<ITokenService> _mockTokenService;
     private readonly Mock<IMapper> _mockMapper;
     private readonly UserService _userService;
@@ -31,6 +33,7 @@ public class DuplicatePasswordTests
         _mockOldPasswordRepo = new Mock<IEntityRepository<OldPassword, Guid>>();
         _mockUserProfileRepo = new Mock<IEntityRepository<UserProfile, Guid>>();
         _mockPasswordHasher = new Mock<IPasswordHasher>();
+        _mockPasswordValidator = new Mock<IPasswordValidator>();
         _mockTokenService = new Mock<ITokenService>();
         _mockMapper = new Mock<IMapper>();
 
@@ -40,6 +43,7 @@ public class DuplicatePasswordTests
             _mockOldPasswordRepo.Object,
             _mockUserProfileRepo.Object,
             _mockPasswordHasher.Object,
+            _mockPasswordValidator.Object,
             _mockTokenService.Object
         );
     }
@@ -62,7 +66,8 @@ public class DuplicatePasswordTests
 
         var dto = new UpdateUserDto
         {
-            NewPassword = "samePassword123"
+            NewPassword = "samePassword123",
+            CurrentPassword = "oldPassword123"
         };
 
         _mockUserRepo.Setup(x => x.GetByIdAsync(userId))
@@ -70,6 +75,12 @@ public class DuplicatePasswordTests
 
         _mockOldPasswordRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(new List<OldPassword>());
+
+        _mockPasswordHasher.Setup(x => x.Verify(dto.CurrentPassword, currentPasswordHash))
+            .Returns(true);
+
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
+            .Returns(true);
 
         // Текущий пароль совпадает с новым
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
@@ -112,7 +123,8 @@ public class DuplicatePasswordTests
 
         var dto = new UpdateUserDto
         {
-            NewPassword = "oldPassword123"
+            NewPassword = "oldPassword123",
+            CurrentPassword = "currentPassword123"
         };
 
         _mockUserRepo.Setup(x => x.GetByIdAsync(userId))
@@ -120,6 +132,12 @@ public class DuplicatePasswordTests
 
         _mockOldPasswordRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(new List<OldPassword> { oldPassword });
+
+        _mockPasswordHasher.Setup(x => x.Verify(dto.CurrentPassword, currentPasswordHash))
+            .Returns(true);
+
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
+            .Returns(true);
 
         // Новый пароль не совпадает с текущим
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
@@ -167,7 +185,8 @@ public class DuplicatePasswordTests
 
         var dto = new UpdateUserDto
         {
-            NewPassword = "newUniquePassword123"
+            NewPassword = "newUniquePassword123",
+            CurrentPassword = "currentPassword123"
         };
 
         _mockUserRepo.Setup(x => x.GetByIdAsync(userId))
@@ -175,6 +194,12 @@ public class DuplicatePasswordTests
 
         _mockOldPasswordRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(new List<OldPassword> { oldPassword });
+
+        _mockPasswordHasher.Setup(x => x.Verify(dto.CurrentPassword, currentPasswordHash))
+            .Returns(true);
+
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
+            .Returns(true);
 
         // Новый пароль не совпадает ни с текущим, ни со старым
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
@@ -192,13 +217,14 @@ public class DuplicatePasswordTests
             .ReturnsAsync(true);
 
         _mockMapper.Setup(x => x.Map<AuthUserDto>(It.IsAny<User>()))
-            .Returns(new AuthUserDto(user.Phone, user.Role));
+            .Returns(new AuthUserDto(userId, user.Phone, user.Role));
 
         // Act
         var result = await _userService.UpdateAsync(userId, dto);
 
         // Assert
         Assert.NotNull(result);
+        Assert.Equal(userId, result.Id);
         Assert.Equal(user.Phone, result.Phone);
 
         // Verify old password was saved
@@ -242,7 +268,8 @@ public class DuplicatePasswordTests
 
         var dto = new UpdateUserDto
         {
-            NewPassword = "matchesSecondOldPassword"
+            NewPassword = "matchesSecondOldPassword",
+            CurrentPassword = "currentPassword123"
         };
 
         _mockUserRepo.Setup(x => x.GetByIdAsync(userId))
@@ -250,6 +277,12 @@ public class DuplicatePasswordTests
 
         _mockOldPasswordRepo.Setup(x => x.GetAllAsync())
             .ReturnsAsync(oldPasswords);
+
+        _mockPasswordHasher.Setup(x => x.Verify(dto.CurrentPassword, currentPasswordHash))
+            .Returns(true);
+
+        _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
+            .Returns(true);
 
         // Не совпадает с текущим
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
@@ -302,13 +335,14 @@ public class DuplicatePasswordTests
             .ReturnsAsync(true);
 
         _mockMapper.Setup(x => x.Map<AuthUserDto>(It.IsAny<User>()))
-            .Returns(new AuthUserDto(dto.Phone!, user.Role));
+            .Returns(new AuthUserDto(userId, dto.Phone!, user.Role));
 
         // Act
         var result = await _userService.UpdateAsync(userId, dto);
 
         // Assert
         Assert.NotNull(result);
+        Assert.Equal(userId, result.Id);
         Assert.Equal(dto.Phone, result.Phone);
 
         // Verify password checks were not performed

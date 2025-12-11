@@ -89,7 +89,6 @@ public class RentOrder
     /// Общая стоимость бронирования в рублях.
     /// </summary>
     [Column("total_price")]
-    [Required]
     public uint? TotalPrice { get; set; }
 
     /// <summary>
@@ -143,4 +142,9 @@ public class RentOrder
     /// </summary>
     [Column("cancelled_at", TypeName = "timestamptz")]
     public DateTime? CancelledAt { get; set; }
+
+    /// <summary>
+    /// Коллекция отзывов, связанных с этим заказом.
+    /// </summary>
+    public ICollection<Review> Reviews { get; set; } = [];
 }

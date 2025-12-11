@@ -2,15 +2,33 @@ import { useState, useEffect } from "react";
 
 import styles from "./TripCard.module.css";
 
-export function ShipCard({
+export default function ShipCard({
   imageSrc = "",
   imageAlt = "",
+
+  nameIconSrc = "",
+  nameIconAlt = "",
+
+  id = "",
+  name = "",
+  capacity = "",
+  registrationNumber = "",
+  yearOfManufacture = "",
+  maxSpeed = "",
+  width = "",
+  length = "",
+  description = "",
+  costPerHour = "",
+  portId = "",
+  userId = "",
+
   title = {},
   status = "",
-  type = "",
+  type = {},
   details = [],
   rating = "",
   actions = [],
+  onAction,
 }) {
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 0
@@ -21,6 +39,21 @@ export function ShipCard({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  function handleActionClick(action) {
+    try {
+      if (action && typeof action.onClick === "function") {
+        action.onClick();         // вызываем колбэк действия, если передан
+        return;
+      }
+      const key = typeof action === "string" ? action : action?.key;
+      if (typeof onAction === "function") {
+        onAction(key || action, action); // иначе сообщаем наружу
+      }
+    } catch (e) {
+      console.warn("[ShipCard] action handler error:", e);
+    }
+  }
 
   const visibleActions = windowWidth < 750 ? actions.slice(0, 1) : actions;
 
@@ -38,16 +71,16 @@ export function ShipCard({
 
         <div className={styles["content"]}>
           <div className={styles["header"]}>
-            {title && (
+            {name && (
               <div className={styles["title"]}>
-                {title.iconSrc && (
+                {name.iconSrc && (
                   <img 
-                    src={title.iconSrc}
-                    alt={title.iconAlt}
+                    src={name.iconSrc}
+                    alt={name.iconAlt}
                     className={styles["title-icon"]}
                   />
                 )}
-                <span className={styles["title-text"]}>{title.text}</span>
+                <span className={styles["title-text"]}>{name.text}</span>
               </div>
             )}
 
@@ -85,7 +118,7 @@ export function ShipCard({
             )}
           </div>
 
-          <div className={styles["meta"]}>
+          {/* <div className={styles["meta"]}>
             {status && <span className={styles["confirm"]}>{status}</span>}
 
             {rating && Array.isArray(rating) && rating.length > 0 && (
@@ -100,11 +133,11 @@ export function ShipCard({
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 
-      {visibleActions.length > 0 && (
+      {/* {visibleActions.length > 0 && (
         <div className={styles["actions"]}>
           {visibleActions.map((action, index) => (
             <button
@@ -131,7 +164,33 @@ export function ShipCard({
             </button>
           ))}
         </div>
+      )} */}
+
+      {visibleActions.length > 0 && (
+        <div className={styles["actions"]}>
+          {visibleActions.map((action, index) => (
+            <button
+              key={`${action.label ?? "icon"}-${index}`}
+              type="button"
+              className={`${styles["action-btn"]} ${
+                !action.label ? styles["actionIconOnly"] : ""
+              }`.trim()}
+              aria-label={action.ariaLabel ?? action.label ?? "кнопка действия"}
+              onClick={() => handleActionClick(action)} // добавлено
+            >
+              {action.label && <span>{action.label}</span>}
+              {action.iconSrc && (
+                <img
+                  src={action.iconSrc}
+                  alt={action.iconAlt ?? action.ariaLabel ?? action.label ?? "иконка"}
+                  className={styles["action-icon"]}
+                />
+              )}
+            </button>
+          ))}
+        </div>
       )}
+
 
     </div>
   );

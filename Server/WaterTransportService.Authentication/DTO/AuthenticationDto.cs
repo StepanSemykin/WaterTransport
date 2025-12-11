@@ -10,7 +10,7 @@ public class LoginDto
     [Required, MaxLength(20)]
     public string Phone { get; set; } = default!;
     
-    [Required, MinLength(6)]
+    [Required, MinLength(8)]
     public string Password { get; set; } = default!;
 }
 
@@ -19,13 +19,31 @@ public class LoginDto
 /// </summary>
 public record RegisterDto(
     [Required, MaxLength(20)] string Phone,
-    [Required, MinLength(6)] string Password
+    [Required, MinLength(8)] string Password
 );
+
+/// <summary>
+/// DTO для ответа новому пользователю на попытку регистрации.
+/// </summary>
+public class RegisterResultDto
+{
+    public bool Success { get; set; }
+    public string? Error { get; set; }
+    public LoginResponseDto? Data { get; set; }
+
+    public RegisterResultDto(bool success, string? error = null, LoginResponseDto? data = null)
+    {
+        Success = success;
+        Error = error;
+        Data = data;
+    }
+}
 
 /// <summary>
 /// DTO пользователя для передачи клиенту.
 /// </summary>
 public record UserDto(
+    Guid Id,
     string Phone,
     string? Role
 );
@@ -83,3 +101,12 @@ public sealed record LoginResultDto(
     DateTimeOffset? LockedUntil = null,
     int? RemainingAttempts = null
 );
+
+/// <summary>
+/// DTO для изменения пароля пользователя.
+/// </summary>
+public class ChangePasswordDto
+{
+    public string CurrentPassword { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
+}

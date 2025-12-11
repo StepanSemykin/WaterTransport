@@ -1,0 +1,18 @@
+'use client';
+import { forwardRef as reactForwardRef } from 'react';
+/**
+ * A utility function to wrap components with `React.forwardRef`.
+ * It extends the type signature for better integration with custom components.
+ *
+ * @param component - The component to wrap, with `props` and `ref` types explicitly defined.
+ * @returns A forward-ref component with extended type inference.
+ */
+export function forwardRef(component, subcomponents) {
+  const forwardedComponent = /*#__PURE__*/reactForwardRef(component);
+
+  // Attach subcomponents if provided
+  if (subcomponents) {
+    Object.assign(forwardedComponent, subcomponents);
+  }
+  return forwardedComponent;
+}

@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/NavbarDrawer",
+  "private": true,
+  "main": "../cjs/Navbar/NavbarDrawer.js",
+  "module": "../esm/Navbar/NavbarDrawer.js",
+  "types": "../esm/Navbar/NavbarDrawer.d.ts"
+}

@@ -1,0 +1,273 @@
+*[class*=rs-],*[class*=rs-]::before, *[class*=rs-]::after{
+  box-sizing:border-box;
+}
+
+html{
+  -webkit-tap-highlight-color:transparent;
+  font-size:16px;
+}
+
+body{
+  font-family:var(--rs-font-family-base);
+  font-size:var(--rs-font-size-sm);
+  line-height:var(--rs-line-height-md);
+  color:var(--rs-text-primary);
+  background-color:var(--rs-body);
+}
+:root{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#f7f7fa;
+  --rs-gray-200:#e5e5ea;
+  --rs-gray-800:#343434;
+  --rs-gray-900:#121212;
+  --rs-color-red:#f44336;
+  --rs-red-500:#F44336;
+  --rs-body:var(--rs-gray-0);
+  --rs-text-primary:var(--rs-gray-800);
+  --rs-form-errormessage-text:var(--rs-color-red);
+  --rs-form-errormessage-bg:#fff;
+  --rs-form-errormessage-border:var(--rs-gray-200);
+}
+
+[data-theme=dark],
+.rs-theme-dark{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#e9ebf0;
+  --rs-gray-200:#a4a9b3;
+  --rs-gray-800:#1a1d24;
+  --rs-gray-900:#0f131a;
+  --rs-color-red:#f04f43;
+  --rs-red-500:#F04F43;
+  --rs-body:var(--rs-gray-900);
+  --rs-text-primary:var(--rs-gray-50);
+  --rs-form-errormessage-text:#fff;
+  --rs-form-errormessage-bg:var(--rs-color-red);
+  --rs-form-errormessage-border:var(--rs-color-red);
+}
+
+[data-theme=high-contrast],
+.rs-theme-high-contrast{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#e9ebf0;
+  --rs-gray-200:#a4a9b3;
+  --rs-gray-800:#1a1d24;
+  --rs-gray-900:#0f131a;
+  --rs-color-red:#bd1732;
+  --rs-red-500:#BD1732;
+  --rs-body:var(--rs-gray-900);
+  --rs-text-primary:var(--rs-gray-50);
+  --rs-form-errormessage-text:#fff;
+  --rs-form-errormessage-bg:var(--rs-red-500);
+  --rs-form-errormessage-border:var(--rs-red-500);
+}
+
+:root{
+  --rs-font-family-base:-apple-system, BlinkMacSystemFont, Arial, Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", STXihei, sans-serif;
+  --rs-font-size-xs:0.75rem;
+  --rs-font-size-sm:0.875rem;
+  --rs-line-height-md:calc(20 / 14);
+  --rs-spacing:0.25rem;
+  --rs-radius-md:0.375rem;
+  --rs-zindex-form-error-message:5;
+}
+
+@media (max-width: calc(576px - 1px)){
+  [data-visible-from=xs]{
+    display:none !important;
+  }
+}
+@media (min-width: 576px){
+  [data-hidden-from=xs]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(768px - 1px)){
+  [data-visible-from=sm]{
+    display:none !important;
+  }
+}
+@media (min-width: 768px){
+  [data-hidden-from=sm]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(992px - 1px)){
+  [data-visible-from=md]{
+    display:none !important;
+  }
+}
+@media (min-width: 992px){
+  [data-hidden-from=md]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(1200px - 1px)){
+  [data-visible-from=lg]{
+    display:none !important;
+  }
+}
+@media (min-width: 1200px){
+  [data-hidden-from=lg]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(1400px - 1px)){
+  [data-visible-from=xl]{
+    display:none !important;
+  }
+}
+@media (min-width: 1400px){
+  [data-hidden-from=xl]{
+    display:none !important;
+  }
+}
+@keyframes errorMessageSlideUpIn{
+  0%{
+    transform:translate3d(0, 2px, 0);
+    visibility:visible;
+  }
+  100%{
+    transform:translate3d(0, 0, 0);
+  }
+}
+@keyframes errorMessageSlideDownIn{
+  0%{
+    transform:translate3d(0, -2px, 0);
+    visibility:visible;
+  }
+  100%{
+    transform:translate3d(0, 0, 0);
+  }
+}
+@keyframes errorMessageSlideLeftIn{
+  0%{
+    transform:translate3d(-2px, 0, 0);
+    visibility:visible;
+  }
+  100%{
+    transform:translate3d(0, 0, 0);
+  }
+}
+@keyframes errorMessageSlideRightIn{
+  0%{
+    transform:translate3d(2px, 0, 0);
+    visibility:visible;
+  }
+  100%{
+    transform:translate3d(0, 0, 0);
+  }
+}
+:root{
+  --rs-form-errormessage-font-size:var(--rs-font-size-xs);
+  --rs-form-errormessage-line-height:1.25rem;
+  --rs-form-errormessage-triangle-gap:10px;
+}
+
+.rs-form-error-message{
+  position:absolute;
+  padding:3px 7px;
+  background-color:var(--rs-form-errormessage-bg);
+  border:1px solid var(--rs-form-errormessage-border);
+  border-radius:var(--rs-radius-md);
+  filter:drop-shadow(0 0 6px rgba(0, 0, 0, 0.1));
+  z-index:var(--rs-zindex-form-error-message);
+  color:var(--rs-form-errormessage-text);
+  font-size:var(--rs-form-errormessage-font-size);
+  line-height:var(--rs-form-errormessage-line-height);
+  display:none;
+  white-space:nowrap;
+}
+.rs-form-error-message-show{
+  display:block;
+  animation-duration:0.3s;
+  animation-timing-function:ease-out;
+}
+.rs-form-error-message-arrow::before, .rs-form-error-message-arrow::after{
+  content:"";
+  position:absolute;
+  border-color:transparent;
+  border-style:solid;
+}
+
+.rs-form-error-message-wrapper{
+  position:absolute;
+}
+.rs-form-error-message-wrapper[data-placement=static]{
+  --rs-form-errormessage-text:var(--rs-color-red);
+  --rs-form-errormessage-bg:transparent;
+  position:static;
+  margin-top:var(--rs-spacing);
+  display:block;
+  width:100%;
+}
+.rs-form-error-message-wrapper[data-placement=static] .rs-form-error-message{
+  position:static;
+  display:block;
+  width:100%;
+  white-space:normal;
+  word-wrap:break-word;
+  padding:0;
+  filter:none;
+  border:none;
+  border-radius:0;
+}
+.rs-form-error-message-wrapper[data-placement=static] .rs-form-error-message-show{
+  animation:none;
+}
+.rs-form-error-message-wrapper[data-placement=static] .rs-form-error-message-arrow{
+  display:none;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=bottom-end]){
+  bottom:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=bottom-end]) .rs-form-error-message{
+  top:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=bottom-end]) .rs-form-error-message-show{
+  animation-name:errorMessageSlideDownIn;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=bottom-end]) .rs-form-error-message-arrow::before, .rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=bottom-end]) .rs-form-error-message-arrow::after{
+  border-width:0 6px 6px;
+  border-bottom-color:var(--rs-form-errormessage-border);
+  top:-6px;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=bottom-end]) .rs-form-error-message-arrow::after{
+  top:-5px;
+  border-bottom-color:var(--rs-form-errormessage-bg);
+}
+.rs-form-error-message-wrapper:where([data-placement=top-start], [data-placement=top-end]){
+  top:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=top-start], [data-placement=top-end]) .rs-form-error-message{
+  bottom:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=top-start], [data-placement=top-end]) .rs-form-error-message-show{
+  animation-name:errorMessageSlideUpIn;
+}
+.rs-form-error-message-wrapper:where([data-placement=top-start], [data-placement=top-end]) .rs-form-error-message-arrow::before, .rs-form-error-message-wrapper:where([data-placement=top-start], [data-placement=top-end]) .rs-form-error-message-arrow::after{
+  border-width:6px 6px 0;
+  border-top-color:var(--rs-form-errormessage-border);
+  bottom:-6px;
+}
+.rs-form-error-message-wrapper:where([data-placement=top-start], [data-placement=top-end]) .rs-form-error-message-arrow::after{
+  bottom:-5px;
+  border-top-color:var(--rs-form-errormessage-bg);
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=top-start]){
+  inset-inline-start:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=top-start]) .rs-form-error-message{
+  inset-inline-start:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=top-start]) .rs-form-error-message-arrow::before, .rs-form-error-message-wrapper:where([data-placement=bottom-start], [data-placement=top-start]) .rs-form-error-message-arrow::after{
+  inset-inline-start:var(--rs-form-errormessage-triangle-gap);
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-end], [data-placement=top-end]){
+  inset-inline-end:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-end], [data-placement=top-end]) .rs-form-error-message{
+  inset-inline-end:0;
+}
+.rs-form-error-message-wrapper:where([data-placement=bottom-end], [data-placement=top-end]) .rs-form-error-message-arrow::before, .rs-form-error-message-wrapper:where([data-placement=bottom-end], [data-placement=top-end]) .rs-form-error-message-arrow::after{
+  inset-inline-end:var(--rs-form-errormessage-triangle-gap);
+}

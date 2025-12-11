@@ -1,4 +1,7 @@
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Extensions;
+using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Constants;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
@@ -6,113 +9,234 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
-/// Сервис для работы с заказами аренды.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р·Р°РєР°Р·Р°РјРё Р°СЂРµРЅРґС‹.
 /// </summary>
 public class RentOrderService(
     RentOrderRepository rentOrderRepository,
-    IEntityRepository<Ship, Guid> shipRepository,
+    RentOrderOfferRepository rentOrderOfferRepository,
+    ShipRepository shipRepository,
     IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
-    IUserRepository<Guid> userRepository) : IRentOrderService
+    IUserRepository<Guid> userRepository,
+    IFileStorageService fileStorageService,
+    IMapper mapper) : IRentOrderService
 {
     private readonly RentOrderRepository _rentOrderRepository = rentOrderRepository;
-    private readonly IEntityRepository<Ship, Guid> _shipRepository = shipRepository;
+    private readonly RentOrderOfferRepository _rentOrderOfferRepository = rentOrderOfferRepository;
+    private readonly ShipRepository _shipRepository = shipRepository;
     private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
+    private readonly IFileStorageService _fileStorageService = fileStorageService;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех заказов аренды с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… Р·Р°РєР°Р·РѕРІ Р°СЂРµРЅРґС‹ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
     public async Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
-        var all = (await _rentOrderRepository.GetAllAsync()).OrderByDescending(x => x.CreatedAt).ToList();
-        var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
-        return (items, total);
+
+        var (items, total) = await _rentOrderRepository.GetAllWithDetailsAsync(page, pageSize);
+        var dtos = _mapper.Map<List<RentOrderDto>>(items);
+
+        // РћР±РѕРіР°С‰Р°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РІ Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return (dtos, total);
     }
 
     /// <summary>
-    /// Получить заказ аренды по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     public async Task<RentOrderDto?> GetByIdAsync(Guid id)
     {
-        var e = await _rentOrderRepository.GetByIdAsync(id);
-        return e is null ? null : MapToDto(e);
+        var e = await _rentOrderRepository.GetByIdWithDetailsAsync(id);
+        if (e is null) return null;
+
+        var dto = _mapper.Map<RentOrderDto>(e);
+        
+        // РћР±РѕРіР°С‰Р°РµРј Ship РёР·РѕР±СЂР°Р¶РµРЅРёРµРј РІ Base64, РµСЃР»Рё РѕРЅРѕ РµСЃС‚СЊ
+        if (dto.Ship != null)
+        {
+            var shipWithImage = await dto.Ship.WithBase64ImageAsync(_fileStorageService);
+            dto = dto with { Ship = shipWithImage };
+        }
+
+        return dto;
     }
 
     /// <summary>
-    /// Получить доступные заказы для партнеров (фильтрация по порту и типу судна).
+    /// РџРѕР»СѓС‡РёС‚СЊ РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°РєР°Р·С‹ РґР»СЏ РїР°СЂС‚РЅРµСЂР° СЃ РїРѕРґС…РѕРґСЏС‰РёРјРё СЃСѓРґРЅР°РјРё.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р°РєС‚РёРІРЅС‹Р№ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹ РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    public async Task<IEnumerable<RentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId)
+    public async Task<RentOrderDto?> GetActiveOrderForUserAsync(Guid userId)
     {
-        // Получаем суда партнера через репозиторий
-        var partnerShips = (await _shipRepository.GetAllAsync())
-            .Where(s => s.UserId == partnerId)
-            .ToList();
+        var activeStatuses = new[]
+        {
+            RentOrderStatus.AwaitingPartnerResponse,
+            RentOrderStatus.HasOffers
+        };
+
+        var orders = await _rentOrderRepository.GetForUserByStatusesAsync(userId, activeStatuses);
+        var activeOrder = orders.OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+
+        return activeOrder is null ? null : _mapper.Map<RentOrderDto>(activeOrder);
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°РєР°Р·С‹ РґР»СЏ РїР°СЂС‚РЅРµСЂРѕРІ (С„РёР»СЊС‚СЂР°С†РёСЏ РїРѕ РїРѕСЂС‚Сѓ Рё С‚РёРїСѓ СЃСѓРґРЅР°).
+    /// </summary>
+    public async Task<IEnumerable<AvailableRentOrderDto>> GetAvailableOrdersForPartnerAsync(Guid partnerId)
+    {
+        // РџРѕР»СѓС‡Р°РµРј СЃСѓРґР° РїР°СЂС‚РЅРµСЂР° СЃ РїРѕР»РЅС‹РјРё РґРµС‚Р°Р»СЏРјРё С‡РµСЂРµР· СЂРµРїРѕР·РёС‚РѕСЂРёР№
+        var partnerShips = (await _shipRepository.GetByUserIdWithDetailsAsync(partnerId)).ToList();
 
         if (partnerShips.Count == 0)
             return [];
 
-        // Получаем заказы, которые ожидают откликов
+        // РџРѕР»СѓС‡Р°РµРј Р·Р°РєР°Р·С‹, РєРѕС‚РѕСЂС‹Рµ РѕР¶РёРґР°СЋС‚ РѕС‚РєР»РёРєРѕРІ
         var availableOrders = await _rentOrderRepository.GetByStatusesAsync(
             RentOrderStatus.AwaitingPartnerResponse,
             RentOrderStatus.HasOffers);
 
-        // Фильтруем заказы, на которые партнер может откликнуться
-        var matchingOrders = availableOrders.Where(order =>
+        // Р¤РѕСЂРјРёСЂСѓРµРј СЂРµР·СѓР»СЊС‚Р°С‚ СЃ РїРѕРґС…РѕРґСЏС‰РёРјРё СЃСѓРґРЅР°РјРё РґР»СЏ РєР°Р¶РґРѕРіРѕ Р·Р°РєР°Р·Р°
+        var result = new List<AvailableRentOrderDto>();
+
+        foreach (var order in availableOrders)
         {
-            // Проверяем, что партнер еще не откликнулся на этот заказ
+            // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїР°СЂС‚РЅРµСЂ РµС‰Рµ РЅРµ РѕС‚РєР»РёРєРЅСѓР»СЃСЏ РЅР° СЌС‚РѕС‚ Р·Р°РєР°Р·
             if (order.Offers.Any(o => o.PartnerId == partnerId))
-                return false;
+                continue;
 
-            // Проверяем, что у партнера есть подходящее судно
-            return partnerShips.Any(ship =>
-                ship.ShipType.Id == order.ShipTypeId &&
-                ship.PortId == order.DeparturePortId &&
-                ship.Capacity >= order.NumberOfPassengers
-            );
-        });
+            // РќР°С…РѕРґРёРј РїРѕРґС…РѕРґСЏС‰РёРµ СЃСѓРґР° РґР»СЏ СЌС‚РѕРіРѕ Р·Р°РєР°Р·Р°
+            var matchingShips = partnerShips
+                .Where(ship =>
+                    ship.ShipTypeId == order.ShipTypeId &&
+                    ship.PortId == order.DeparturePortId &&
+                    ship.Capacity >= order.NumberOfPassengers)
+                .ToList();
 
-        return matchingOrders.Select(MapToDto);
+            // Р”РѕР±Р°РІР»СЏРµРј Р·Р°РєР°Р· С‚РѕР»СЊРєРѕ РµСЃР»Рё РµСЃС‚СЊ РїРѕРґС…РѕРґСЏС‰РёРµ СЃСѓРґР°
+            if (matchingShips.Count > 0)
+            {
+                var mappedShips = _mapper.Map<List<ShipDetailsDto>>(matchingShips);
+                
+                // РћР±РѕРіР°С‰Р°РµРј СЃСѓРґР° РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РІ Base64
+                var shipsWithImages = await mappedShips.WithBase64ImagesAsync(_fileStorageService);
+
+                var orderDto = new AvailableRentOrderDto(
+                    order.Id,
+                    order.UserId,
+                    _mapper.Map<UserProfileDto>(order.User?.UserProfile),
+                    order.ShipTypeId,
+                    order.ShipType?.Name,
+                    order.DeparturePortId,
+                    _mapper.Map<PortDto>(order.DeparturePort),
+                    order.ArrivalPortId,
+                    _mapper.Map<PortDto>(order.ArrivalPort),
+                    order.NumberOfPassengers,
+                    order.RentalStartTime,
+                    order.RentalEndTime,
+                    order.Status,
+                    order.CreatedAt,
+                    shipsWithImages
+                );
+                result.Add(orderDto);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
-    /// Создать новый заказ аренды.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ СЃС‚Р°С‚СѓСЃСѓ.
     /// </summary>
-    public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto)
+    public async Task<IEnumerable<RentOrderDto>> GetForUserByStatusAsync(string status, Guid Id)
     {
-        var user = await _userRepository.GetByIdAsync(dto.UserId);
-        if (user is null) return null;
+        var result = await _rentOrderRepository.GetForUserByStatusWithDetailsAsync(Id, status);
+        var dtos = _mapper.Map<List<RentOrderDto>>(result);
 
-        // Проверяем существование порта отправления
+        // РћР±РѕРіР°С‰Р°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РІ Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return dtos;
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ.
+    /// </summary>
+    public async Task<IEnumerable<RentOrderDto>> GetForPartnerByStatusAsync(string status, Guid Id)
+    {
+        var result = await _rentOrderRepository.GetForPartnerByStatusWithDetailsAsync(Id, status);
+        var dtos = _mapper.Map<List<RentOrderDto>>(result);
+
+        // РћР±РѕРіР°С‰Р°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РІ Base64
+        for (int i = 0; i < dtos.Count; i++)
+        {
+            if (dtos[i].Ship != null)
+            {
+                var shipWithImage = await dtos[i].Ship!.WithBase64ImageAsync(_fileStorageService);
+                dtos[i] = dtos[i] with { Ship = shipWithImage };
+            }
+        }
+
+        return dtos;
+    }
+
+    /// <summary>
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
+    /// </summary>
+    public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto, Guid userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user is null) return null;
+        if (dto.Duration != null)
+        {
+            dto.RentalEndTime = dto.RentalStartTime + dto.Duration;
+        }
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РїРѕСЂС‚Р° РѕС‚РїСЂР°РІР»РµРЅРёСЏ
         var departurePort = await _portRepository.GetByIdAsync(dto.DeparturePortId);
         if (departurePort is null) return null;
 
-        // Проверяем существование порта прибытия (если указан)
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РїРѕСЂС‚Р° РїСЂРёР±С‹С‚РёСЏ (РµСЃР»Рё СѓРєР°Р·Р°РЅ)
         Port? arrivalPort = null;
-        if (dto.ArrivalPortId.HasValue)
+
+        if (dto.ArrivalPortId != null)
         {
             arrivalPort = await _portRepository.GetByIdAsync(dto.ArrivalPortId.Value);
-            if (arrivalPort is null) return null;
         }
 
-        // Проверяем существование типа судна
+
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ С‚РёРїР° СЃСѓРґРЅР°
         var shipType = await _shipTypeRepository.GetByIdAsync(dto.ShipTypeId);
         if (shipType is null) return null;
 
         var entity = new RentOrder
         {
             Id = Guid.NewGuid(),
-            UserId = dto.UserId,
+            UserId = userId,
             User = user,
             ShipTypeId = dto.ShipTypeId,
             ShipType = shipType,
             DeparturePortId = dto.DeparturePortId,
             DeparturePort = departurePort,
-            ArrivalPortId = dto.ArrivalPortId,
+            ArrivalPortId = arrivalPort?.Id,
             ArrivalPort = arrivalPort,
             NumberOfPassengers = dto.NumberOfPassengers,
             RentalStartTime = dto.RentalStartTime,
@@ -122,11 +246,13 @@ public class RentOrderService(
         };
 
         var created = await _rentOrderRepository.CreateAsync(entity);
-        return MapToDto(created);
+        var createdDto = _mapper.Map<RentOrderDto>(created);
+
+        return createdDto;
     }
 
     /// <summary>
-    /// Обновить существующий заказ аренды.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
     public async Task<RentOrderDto?> UpdateAsync(Guid id, UpdateRentOrderDto dto)
     {
@@ -141,14 +267,15 @@ public class RentOrderService(
         if (dto.RentalEndTime.HasValue) entity.RentalEndTime = dto.RentalEndTime.Value;
         if (dto.OrderDate.HasValue) entity.OrderDate = dto.OrderDate.Value;
         if (!string.IsNullOrWhiteSpace(dto.Status)) entity.Status = dto.Status;
-        if (dto.CancelledAt.HasValue) entity.CancelledAt = dto.CancelledAt.Value;
+        //if (dto.CancelledAt.HasValue) entity.CancelledAt = dto.CancelledAt.Value;
 
         var ok = await _rentOrderRepository.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+
+        return ok ? _mapper.Map<RentOrderDto>(entity) : null;
     }
 
     /// <summary>
-    /// Завершить аренду (пользователь подтверждает завершение).
+    /// Р—Р°РІРµСЂС€РёС‚СЊ Р°СЂРµРЅРґСѓ (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РїРѕРґС‚РІРµСЂР¶РґР°РµС‚ Р·Р°РІРµСЂС€РµРЅРёРµ).
     /// </summary>
     public async Task<bool> CompleteOrderAsync(Guid id)
     {
@@ -161,12 +288,16 @@ public class RentOrderService(
     }
 
     /// <summary>
-    /// Отменить заказ аренды.
+    /// РћС‚РјРµРЅРёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
+    /// РџСЂРё РѕС‚РјРµРЅРµ СѓРґР°Р»СЏСЋС‚СЃСЏ РІСЃРµ РѕС‚РєР»РёРєРё РїР°СЂС‚РЅРµСЂРѕРІ РЅР° СЌС‚РѕС‚ Р·Р°РєР°Р·.
     /// </summary>
     public async Task<bool> CancelOrderAsync(Guid id)
     {
         var entity = await _rentOrderRepository.GetByIdAsync(id);
         if (entity is null) return false;
+
+        // РЈРґР°Р»СЏРµРј РІСЃРµ РѕС‚РєР»РёРєРё РЅР° СЌС‚РѕС‚ Р·Р°РєР°Р·
+        await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
 
         entity.Status = RentOrderStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;
@@ -174,27 +305,14 @@ public class RentOrderService(
     }
 
     /// <summary>
-    /// Удалить заказ аренды.
+    /// РЈРґР°Р»РёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
+    /// РџСЂРё СѓРґР°Р»РµРЅРёРё СѓРґР°Р»СЏСЋС‚СЃСЏ РІСЃРµ РѕС‚РєР»РёРєРё РїР°СЂС‚РЅРµСЂРѕРІ РЅР° СЌС‚РѕС‚ Р·Р°РєР°Р·.
     /// </summary>
-    public Task<bool> DeleteAsync(Guid id) => _rentOrderRepository.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность заказа аренды в DTO.
-    /// </summary>
-    private static RentOrderDto MapToDto(RentOrder e) => new(
-        e.Id,
-        e.UserId,
-        e.ShipTypeId,
-        e.DeparturePortId,
-        e.ArrivalPortId,
-        e.PartnerId,
-        e.ShipId,
-        e.TotalPrice,
-        e.NumberOfPassengers,
-        e.RentalStartTime,
-        e.RentalEndTime,
-        e.OrderDate,
-        e.Status,
-        e.CreatedAt,
-        e.CancelledAt);
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        // РЈРґР°Р»СЏРµРј РІСЃРµ РѕС‚РєР»РёРєРё РЅР° СЌС‚РѕС‚ Р·Р°РєР°Р·
+        await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
+        
+        return await _rentOrderRepository.DeleteAsync(id);
+    }
 }

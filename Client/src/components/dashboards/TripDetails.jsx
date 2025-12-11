@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 
 import { Modal, Form, Button, Alert } from "react-bootstrap";
 
+import { apiFetch } from "../../api/api.js";
+
 import styles from "./TripDetails.module.css";
+
+const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
 
 export default function TripDetails({
   trip,
   show,
   onClose,
   isPartner = false,
-  onUpdateTripPrice,
+  isPending = false,
+  isRejected = false,
   onCancelTrip
 }) {
   const [price, setPrice] = useState("");
@@ -22,33 +27,72 @@ export default function TripDetails({
   const [reviewError, setReviewError] = useState("");
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
+  const [selectedShipId, setSelectedShipId] = useState(null);
+
+  const partnerCanSelectShip =
+    isPartner &&
+    Array.isArray(trip?.matchingShips) &&
+    trip.matchingShips.length > 0;
+
+  // console.log(trip.totalPrice);  
+
+  // console.log(trip.rentOrder);
   useEffect(() => {
     setPrice(trip?.price ?? "");
     if (trip?.review) {
       setReviewRating(Number(trip.review.rating ?? 5));
       setReviewComment(trip.review.comment ?? "");
       setReviewSubmitted(true);
-    } else {
+    } 
+    else {
       setReviewRating(5);
       setReviewComment("");
       setReviewSubmitted(false);
     }
+
+    const shipId = trip?.shipId ?? trip?.ShipId;
+    if (shipId) {
+      setSelectedShipId(shipId);
+    } 
+    else if (Array.isArray(trip?.rentOrder.matchingShips) && trip.rentOrder.matchingShips.length > 0) {
+      setSelectedShipId(trip.rentOrder.matchingShips[0].id);
+    }   
+    else {
+      setSelectedShipId(null);
+    }  
   }, [trip]);
 
-  useEffect(() => {
-    setPrice(trip?.price ?? "");
-  }, [trip]);
+  async function sendPartnerOffer(rentOrderId, offerPrice, shipId) {
+    if (!rentOrderId) throw new Error("rentOrderId отсутствует");
+    const res = await apiFetch(OFFERS_ENDPOINT, {
+      method: "POST",
+      body: JSON.stringify({
+        rentOrderId,
+        shipId,
+        offeredPrice: Number(offerPrice)
+      })
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+    return res.json().catch(() => ({}));
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!isPartner || typeof onUpdateTripPrice !== "function" || !trip) {
+    if (!isPartner || !trip) {
       onClose();
       return;
     }
 
     try {
       setSaving(true);
-      await onUpdateTripPrice(trip, price);
+      const rentOrderId = trip?.id ?? trip?.Id ?? trip?.rentOrderId;
+      const shipId =
+        selectedShipId ?? trip?.ShipId ?? trip?.shipId; 
+
+      await sendPartnerOffer(rentOrderId, price, shipId);
       onClose();
     } 
     finally {
@@ -67,7 +111,8 @@ export default function TripDetails({
       setCancelling(true);
       await onCancelTrip(trip);
       onClose();
-    } finally {
+    } 
+    finally {
       setCancelling(false);
     }
   }
@@ -82,13 +127,8 @@ export default function TripDetails({
     }
     setReviewLoading(true);
     try {
-      const token = localStorage.getItem("token") || "";
-      const res = await fetch(`/api/trips/${trip.id}/reviews`, {
+      const res = await apiFetch(`/api/trips/${trip.id}/reviews`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
         body: JSON.stringify({
           rating: reviewRating,
           comment: reviewComment
@@ -98,14 +138,16 @@ export default function TripDetails({
       if (res.ok) {
         const data = await res.json();
         setReviewSubmitted(true);
-        // опционально: обновить trip в родителе через callback, если есть
-      } else {
+      } 
+      else {
         const txt = await res.text();
         setReviewError(txt || `Ошибка сервера: ${res.status}`);
       }
-    } catch (err) {
+    } 
+    catch (err) {
       setReviewError("Сетевая ошибка: " + err.message);
-    } finally {
+    } 
+    finally {
       setReviewLoading(false);
     }
   }
@@ -123,15 +165,7 @@ export default function TripDetails({
           </div>
 
           <div className={styles["trip-summary"]}>
-            {/* {trip?.imageSrc && (
-              <img
-                src={trip.imageSrc}
-                alt={trip.imageAlt ?? ""}
-                className={styles["trip-summary-image"]}
-              />
-            )} */}
             <div className={styles["trip-summary-info"]}>
-              {/* {trip?.status && <span className={styles["trip-summary-status"]}>{trip.status}</span>} */}
               {trip?.title && (
                 <div className={styles["trip-summary-line"]}>
                   Судно: {trip.title.text}
@@ -152,27 +186,38 @@ export default function TripDetails({
                   Пристань прибытия: {trip.portArrival.text}
                 </div>
               )}
-              {(trip?.details ?? []).map((detail) => (
-                <div key={detail.text} className={styles["trip-summary-line"]}>
-                  Дата: {detail.text}
-                </div>
-              ))}
+              {(() => {
+                const arr = Array.isArray(trip?.details) ? trip.details : [];
+                const parts = arr
+                  .map(d => (typeof d?.text === "string" ? d.text.trim() : ""))
+                  .filter(Boolean);
+                const dateTime = parts.join(", ");
+                return dateTime ? (
+                  <div className={styles["trip-summary-line"]}>
+                    Дата: {dateTime}
+                  </div>
+                ) : null;
+              })()}
               {trip?.passengers && (
                 <div className={styles["trip-summary-line"]}>
                   Всего пассажиров: {trip.passengers}
                 </div>
               )}
+              {(() => {
+                const totalPrice = trip?.totalPrice || trip?.rentOrder?.totalPrice || trip?.price;
+                return totalPrice && (isPending || isRejected || trip.status == "Agreed") ? (
+                  <div className={styles["trip-summary-line"]}>
+                    Стоимость: {totalPrice}
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
 
-          {/* <div className={styles["trip-map-placeholder"]}>
-            Карта маршрута будет отображена здесь
-          </div> */}
-
-          {trip.status == "upcoming" && (
+          {trip.status == "Agreed" && (
           <div className={styles["trip-actions"]}>
             <Button
-              variant="outline-danger"
+              variant="danger"
               onClick={handleCancel}
               disabled={cancelling}
             >
@@ -181,10 +226,44 @@ export default function TripDetails({
           </div>
           )}
 
-          {isPartner && trip.status == "possible" && (
+          {partnerCanSelectShip && (
+            <div className={styles["trip-ship-select"]}>
+              <h5>Выберите судно для предложения</h5>
+              <div className={styles["trip-ship-list"]}>
+                {trip.matchingShips.map((ship) => (
+                  <button
+                    key={ship.id}
+                    type="button"
+                    onClick={() => setSelectedShipId(ship.id)}
+                    className={`${styles["trip-ship-card"]} ${
+                      selectedShipId === ship.id
+                        ? styles["trip-ship-card--selected"]
+                        : ""
+                    }`.trim()}
+                  >
+                    <div className={styles["trip-ship-info"]}>
+                      <div className={styles["trip-ship-name"]}>{ship.name}</div>
+                      {ship.shipTypeName && (
+                        <div className={styles["trip-ship-type"]}>
+                          Тип: {ship.shipTypeName}
+                        </div>
+                      )}
+                      {ship.capacity && (
+                        <div className={styles["trip-ship-capacity"]}>
+                          Вместимость: {ship.capacity}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {isPartner && !isPending && !isRejected && (trip.status == "AwaitingResponse" || trip.status == "HasOffers") && (
             <Form onSubmit={handleSubmit} className={styles["trip-price-form"]}>
               <Form.Group controlId="tripPrice" className={styles["trip-price-input"]}>
-                <Form.Label>Цена поездки</Form.Label>
+                <Form.Label>Стоимость поездки</Form.Label>
                 <Form.Control
                   type="number"
                   min="0"
@@ -195,13 +274,16 @@ export default function TripDetails({
                 />
               </Form.Group>
 
-              <Button type="submit" variant="primary" disabled={saving || !price}>
+              <Button 
+                type="submit" 
+                variant="primary" 
+                disabled={saving || !price || !selectedShipId}>
                 {saving ? "Отправка..." : "Отправить предложение"}
               </Button>
             </Form>
           )}
 
-          {trip?.status === "completed" && (
+          {trip.status === "Completed" && (
             <div className={styles["trip-review"]}>
               <h5>Отзыв о поездке</h5>
               {reviewError && <Alert variant="danger">{reviewError}</Alert>}
@@ -210,10 +292,12 @@ export default function TripDetails({
                   <div className={styles["trip-review-rating"]}>Оценка: {reviewRating} / 5</div>
                   {reviewComment && <div className={styles["trip-review-comment"]}>{reviewComment}</div>}
                   <div className={styles["trip-review-edit"]}>
-                    <Button variant="outline-secondary" size="sm" onClick={() => {
-                      // разрешить редактирование — снять флаг submitted
-                      setReviewSubmitted(false);
-                    }}>
+                    <Button 
+                      variant="outline-secondary" 
+                      size="sm" 
+                      onClick={() => {
+                        setReviewSubmitted(false);
+                      }}>
                       Редактировать отзыв
                     </Button>
                   </div>

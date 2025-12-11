@@ -1,52 +1,72 @@
-using WaterTransportService.Api.DTO;
+п»їusing WaterTransportService.Api.DTO;
 
 namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
-/// Интерфейс сервиса для работы с откликами партнеров на заказы аренды.
+/// РРЅС‚РµСЂС„РµР№СЃ СЃРµСЂРІРёСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕС‚РєР»РёРєР°РјРё РїР°СЂС‚РЅРµСЂРѕРІ РЅР° Р·Р°РєР°Р·С‹ Р°СЂРµРЅРґС‹.
 /// </summary>
 public interface IRentOrderOfferService
 {
     /// <summary>
-    /// Получить все отклики для конкретного заказа.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ Р·Р°РєР°Р·Р°.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Коллекция откликов.</returns>
+    /// <param name="rentOrderId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ РѕС‚РєР»РёРєРѕРІ.</returns>
     Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId);
 
     /// <summary>
-    /// Получить все отклики конкретного партнера.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РґР»СЏ РІСЃРµС… Р·Р°РєР°Р·РѕРІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="partnerId">Идентификатор партнера.</param>
-    /// <returns>Коллекция откликов партнера.</returns>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ РѕС‚РєР»РёРєРѕРІ РїР°СЂС‚РЅРµСЂР°.</returns>
+    Task<IEnumerable<RentOrderOfferDto>> GetOffersByUser(Guid userId);
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїР°СЂС‚РЅРµСЂР°.
+    /// </summary>
+    /// <param name="partnerId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїР°СЂС‚РЅРµСЂР°.</param>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ РѕС‚РєР»РёРєРѕРІ РїР°СЂС‚РЅРµСЂР°.</returns>
     Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId);
 
     /// <summary>
-    /// Получить отклик по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РїР°СЂС‚РЅРµСЂР° РїРѕ РєРѕРєСЂРµС‚РЅРѕРјСѓ СЃС‚Р°С‚СѓСЃСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор отклика.</param>
-    /// <returns>Отклик или null.</returns>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ РѕС‚РєР»РёРєРѕРІ РїР°СЂС‚РЅРµСЂР° СЃ РєРѕРЅРєСЂРµС‚РЅС‹Рј СЃС‚Р°С‚СѓСЃРѕРј.</returns>
+    Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId);
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕС‚РєР»РёРє РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
+    /// </summary>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>РћС‚РєР»РёРє РёР»Рё null.</returns>
     Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id);
 
     /// <summary>
-    /// Создать новый отклик партнера на заказ.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РѕС‚РєР»РёРє РїР°СЂС‚РЅРµСЂР° РЅР° Р·Р°РєР°Р·.
     /// </summary>
-    /// <param name="createDto">Данные для создания отклика.</param>
-    /// <returns>Созданный отклик.</returns>
-    Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto);
+    /// <param name="createDto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕС‚РєР»РёРєР°.</param>
+    /// <param name="partnerId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїР°СЂС‚РЅРµСЂР°.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ РѕС‚РєР»РёРє.</returns>
+    Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto, Guid partnerId);
 
     /// <summary>
-    /// Принять отклик партнера (пользователь выбирает партнера).
+    /// РџСЂРёРЅСЏС‚СЊ РѕС‚РєР»РёРє РїР°СЂС‚РЅРµСЂР° (РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІС‹Р±РёСЂР°РµС‚ РїР°СЂС‚РЅРµСЂР°).
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <param name="offerId">Идентификатор принимаемого отклика.</param>
-    /// <returns>True, если операция успешна.</returns>
+    /// <param name="rentOrderId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <param name="offerId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРёРЅРёРјР°РµРјРѕРіРѕ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>True, РµСЃР»Рё РѕРїРµСЂР°С†РёСЏ СѓСЃРїРµС€РЅР°.</returns>
     Task<bool> AcceptOfferAsync(Guid rentOrderId, Guid offerId);
 
     /// <summary>
-    /// Удалить отклик.
+    /// РЈРґР°Р»РёС‚СЊ РѕС‚РєР»РёРє.
     /// </summary>
-    /// <param name="id">Идентификатор отклика.</param>
-    /// <returns>True, если удаление успешно.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>True, РµСЃР»Рё СѓРґР°Р»РµРЅРёРµ СѓСЃРїРµС€РЅРѕ.</returns>
     Task<bool> DeleteOfferAsync(Guid id);
+
+    /// <summary>
+    /// РћС‚РєР»РѕРЅРёС‚СЊ РѕС‚РєР»РёРє.
+    /// </summary>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚РєР»РёРєР°.</param>
+    /// <returns>True, РµСЃР»Рё РѕС‚РєР»РѕРЅРµРЅРёРµ СѓСЃРїРµС€РЅРѕ.</returns>
+    Task<bool> RejectOfferAsync(Guid id);
 }

@@ -120,33 +120,37 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <response code="200">Регистрация успешна.</response>
     /// <response code="400">Пользователь уже существует или неверные данные.</response>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RegisterResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<LoginResponseDto>> Register([FromBody] RegisterDto dto)
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         var response = await authService.RegisterAsync(dto);
         if (response is null)
         {
             return BadRequest(new
             {
-                code = "USER_EXISTS",
-                message = "Аккаунт с таким номером телефона уже есть"
+                code = "SERVER_ERROR",
+                message = "Внутренняя ошибка сервера"
             });
         }
+        if (!response.Success)
+        {
+            return BadRequest(response);
+        }
 
-        HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
+        HttpContext.Response.Cookies.Append("AuthToken", response.Data.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
-        HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
+        HttpContext.Response.Cookies.Append("RefreshToken", response.Data.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -251,6 +255,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         }
     }
 
+    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
     /// </summary>
@@ -294,7 +299,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -302,7 +307,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.None,
+            SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -349,6 +354,37 @@ public class UsersController(IUserService userService, IAuthService authService)
         HttpContext.Response.Cookies.Delete("RefreshToken");
 
         return Ok(new { message = "Logged out successfully" });
+    }
+
+    [Authorize]
+    [HttpPost("change-password/{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ChangePassword(Guid id, [FromBody] ChangePasswordDto dto)
+    {
+        var updateDto = new UpdateUserDto
+        {
+            NewPassword = dto.NewPassword,
+            CurrentPassword = dto.CurrentPassword
+        };
+
+        try
+        {
+            var result = await userService.UpdateAsync(id, updateDto);
+            if (result is null)
+                return NotFound();
+
+            return NoContent();
+        }
+        catch (DuplicatePasswordException ex)
+        {
+            return BadRequest(new { code = "DUPLICATE_PASSWORD", message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { code = "INVALID_PASSWORD", message = ex.Message });
+        }
     }
 
     /// <summary>
@@ -424,41 +460,4 @@ public class UsersController(IUserService userService, IAuthService authService)
 
         return Ok(updated);
     }
-
-
-    //// GET api/users/profile/upcoming
-    //[Authorize]
-    //[HttpGet("profile/upcoming")]
-    //public async Task<ActionResult<UserDto>> GetMyUpcomingTrips()
-    //{
-    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
-
-    //    var user = await _service.GetByIdAsync(userId);
-    //    return user is null ? NotFound() : Ok(user);
-    //}
-
-    //// GET api/users/profile/completed
-    //[Authorize]
-    //[HttpGet("profile/completed")]
-    //public async Task<ActionResult<UserDto>> GetMyCompletedTrips()
-    //{
-    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
-
-    //    var user = await _service.GetByIdAsync(userId);
-    //    return user is null ? NotFound() : Ok(user);
-    //}
-
-    //// GET api/users/profile/stats
-    //[Authorize]
-    //[HttpGet("profile/stats")]
-    //public async Task<ActionResult<UserDto>> GetMyStats()
-    //{
-    //    var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
-    //    if (!Guid.TryParse(id, out var userId)) return Unauthorized();
-
-    //    var user = await _service.GetByIdAsync(userId);
-    //    return user is null ? NotFound() : Ok(user);
-    //}
 }

@@ -1,15 +1,17 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Api.DTO;
 
+/// <summary>
+/// Расширенный DTO отклика с полной информацией о партнере и судне.
+/// </summary>
 public record RentOrderOfferDto(
     Guid Id,
     Guid RentOrderId,
     Guid PartnerId,
-    string PartnerName,
+    UserProfileDto? PartnerProfile,
     Guid ShipId,
-    string ShipName,
-    string ShipTypeName,
+    ShipDetailsDto? Ship,
     uint OfferedPrice,
     string Status,
     DateTime CreatedAt,
@@ -20,9 +22,6 @@ public class CreateRentOrderOfferDto
 {
     [Required]
     public required Guid RentOrderId { get; set; }
-
-    [Required]
-    public required Guid PartnerId { get; set; }
 
     [Required]
     public required Guid ShipId { get; set; }

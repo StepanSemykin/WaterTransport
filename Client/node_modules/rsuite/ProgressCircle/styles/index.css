@@ -1,0 +1,170 @@
+*[class*=rs-],*[class*=rs-]::before, *[class*=rs-]::after{
+  box-sizing:border-box;
+}
+
+html{
+  -webkit-tap-highlight-color:transparent;
+  font-size:16px;
+}
+
+body{
+  font-family:var(--rs-font-family-base);
+  font-size:var(--rs-font-size-sm);
+  line-height:var(--rs-line-height-md);
+  color:var(--rs-text-primary);
+  background-color:var(--rs-body);
+}
+:root{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#f7f7fa;
+  --rs-gray-200:#e5e5ea;
+  --rs-gray-600:#717273;
+  --rs-gray-700:#575757;
+  --rs-gray-800:#343434;
+  --rs-gray-900:#121212;
+  --rs-primary-500:#3498ff;
+  --rs-color-red:#f44336;
+  --rs-color-green:#4caf50;
+  --rs-body:var(--rs-gray-0);
+  --rs-text-primary:var(--rs-gray-800);
+  --rs-text-secondary:var(--rs-gray-600);
+  --rs-progress-bg:var(--rs-gray-200);
+  --rs-progress-bar:var(--rs-primary-500);
+  --rs-progress-bar-success:var(--rs-color-green);
+  --rs-progress-bar-fail:var(--rs-color-red);
+}
+
+[data-theme=dark],
+.rs-theme-dark{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#e9ebf0;
+  --rs-gray-200:#a4a9b3;
+  --rs-gray-600:#3c3f43;
+  --rs-gray-700:#292d33;
+  --rs-gray-800:#1a1d24;
+  --rs-gray-900:#0f131a;
+  --rs-primary-500:#34c3ff;
+  --rs-color-red:#f04f43;
+  --rs-color-green:#58b15b;
+  --rs-body:var(--rs-gray-900);
+  --rs-text-primary:var(--rs-gray-50);
+  --rs-text-secondary:var(--rs-gray-200);
+  --rs-progress-bg:var(--rs-gray-700);
+  --rs-progress-bar:var(--rs-primary-500);
+  --rs-progress-bar-success:var(--rs-color-green);
+  --rs-progress-bar-fail:var(--rs-color-red);
+}
+
+[data-theme=high-contrast],
+.rs-theme-high-contrast{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#e9ebf0;
+  --rs-gray-200:#a4a9b3;
+  --rs-gray-600:#3c3f43;
+  --rs-gray-700:#292d33;
+  --rs-gray-800:#1a1d24;
+  --rs-gray-900:#0f131a;
+  --rs-primary-500:#ffff00;
+  --rs-color-red:#bd1732;
+  --rs-color-green:#0d822c;
+  --rs-body:var(--rs-gray-900);
+  --rs-text-primary:var(--rs-gray-50);
+  --rs-text-secondary:var(--rs-gray-200);
+  --rs-progress-bg:var(--rs-gray-700);
+  --rs-progress-bar:var(--rs-primary-500);
+  --rs-progress-bar-success:var(--rs-color-green);
+  --rs-progress-bar-fail:var(--rs-color-red);
+}
+
+:root{
+  --rs-font-family-base:-apple-system, BlinkMacSystemFont, Arial, Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", STXihei, sans-serif;
+  --rs-font-size-sm:0.875rem;
+  --rs-font-size-md:1rem;
+  --rs-line-height-md:calc(20 / 14);
+}
+
+@media (max-width: calc(576px - 1px)){
+  [data-visible-from=xs]{
+    display:none !important;
+  }
+}
+@media (min-width: 576px){
+  [data-hidden-from=xs]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(768px - 1px)){
+  [data-visible-from=sm]{
+    display:none !important;
+  }
+}
+@media (min-width: 768px){
+  [data-hidden-from=sm]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(992px - 1px)){
+  [data-visible-from=md]{
+    display:none !important;
+  }
+}
+@media (min-width: 992px){
+  [data-hidden-from=md]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(1200px - 1px)){
+  [data-visible-from=lg]{
+    display:none !important;
+  }
+}
+@media (min-width: 1200px){
+  [data-hidden-from=lg]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(1400px - 1px)){
+  [data-visible-from=xl]{
+    display:none !important;
+  }
+}
+@media (min-width: 1400px){
+  [data-hidden-from=xl]{
+    display:none !important;
+  }
+}
+.rs-progress-circle{
+  --rs-progress-font-size:var(--rs-font-size-md);
+  position:relative;
+  line-height:0;
+  width:100%;
+}
+.rs-progress-circle-info{
+  position:absolute;
+  width:100%;
+  height:100%;
+  font-size:var(--rs-progress-font-size);
+  color:var(--rs-text-secondary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.rs-progress-circle-trail{
+  stroke:var(--rs-progress-bg);
+}
+.rs-progress-circle-stroke{
+  stroke:var(--rs-progress-bar);
+  transition:stroke-dashoffset 0.3s ease, stroke-dasharray 0.2s ease-in-out, stroke 0.3s;
+}
+.rs-progress-circle-success .rs-progress-circle-info{
+  color:var(--rs-progress-bar-success);
+}
+.rs-progress-circle-success .rs-progress-circle-stroke{
+  stroke:var(--rs-progress-bar-success);
+}
+.rs-progress-circle-fail .rs-progress-circle-info{
+  color:var(--rs-progress-bar-fail);
+}
+.rs-progress-circle-fail .rs-progress-circle-stroke{
+  stroke:var(--rs-progress-bar-fail);
+}

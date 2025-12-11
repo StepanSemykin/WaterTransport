@@ -47,11 +47,11 @@ public static class DatabaseSeeder
 
         var commonUserData = new[]
         {
-            "+79001234567",
-            "+79001234568",
-            "+79001234569",
-            "+79001234570",
-            "+79001234571"
+            "79001234567",
+            "79001234568",
+            "79001234569",
+            "79001234570",
+            "79001234571"
         };
 
         foreach (var phone in commonUserData)
@@ -80,10 +80,10 @@ public static class DatabaseSeeder
 
         var partnerUserData = new[]
         {
-            "+79101234567",
-            "+79101234568",
-            "+79101234569",
-            "+79101234570"
+            "79101234567",
+            "79101234568",
+            "79101234569",
+            "79101234570"
         };
 
         foreach (var phone in partnerUserData)
@@ -149,75 +149,39 @@ public static class DatabaseSeeder
         {
             new() {
                 Id = Guid.NewGuid(),
-                Title = "Речной вокзал Москва",
+                Title = "Дебаркадер Старая пристань",
                 PortTypeId = 2,
                 PortType = riverineType!,
-                Latitude = 55.8088,
-                Longitude = 37.4863,
-                Address = "Ленинградское шоссе, 51, Москва"
+                Latitude = 53.202203,
+                Longitude = 50.097634,
+                Address = "Городской округ Самара, Ленинский район"
             },
             new() {
                 Id = Guid.NewGuid(),
-                Title = "Морской вокзал Сочи",
-                PortTypeId = 1,
-                PortType = marineType!,
-                Latitude = 43.5810,
-                Longitude = 39.7207,
-                Address = "Войкова, 1, Сочи"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Речной порт Санкт-Петербург",
+                Title = "Пристань ФАУ МО РФ ЦСКА",
                 PortTypeId = 2,
                 PortType = riverineType!,
-                Latitude = 59.9504,
-                Longitude = 30.4829,
-                Address = "Проспект Обуховской Обороны, 195, Санкт-Петербург"
+                Latitude = 53.205553,
+                Longitude = 50.105008,
+                Address = "Городской округ Самара, Ленинский район"
             },
             new() {
                 Id = Guid.NewGuid(),
-                Title = "Морской порт Владивосток",
-                PortTypeId = 1,
-                PortType = marineType!,
-                Latitude = 43.1155,
-                Longitude = 131.8855,
-                Address = "Нижнепортовая, 1, Владивосток"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Речной вокзал Нижний Новгород",
+                Title = "Речной вокзал Самара – причал СВП",
                 PortTypeId = 2,
                 PortType = riverineType!,
-                Latitude = 56.3274,
-                Longitude = 44.0063,
-                Address = "Нижне-Волжская набережная, 1, Нижний Новгород"
+                Latitude = 53.188515,
+                Longitude = 50.079847,
+                Address = "Городской округ Самара, Самарский район"
             },
             new() {
                 Id = Guid.NewGuid(),
-                Title = "Морской порт Новороссийск",
-                PortTypeId = 1,
-                PortType = marineType!,
-                Latitude = 44.7174,
-                Longitude = 37.7715,
-                Address = "Портовая, 14, Новороссийск"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Речной порт Казань",
+                Title = "Речной вокзал Самара – причал №1",
                 PortTypeId = 2,
                 PortType = riverineType!,
-                Latitude = 55.7906,
-                Longitude = 49.1207,
-                Address = "Девятаева, 1, Казань"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Яхт-клуб Стрелка",
-                PortTypeId = 6,
-                PortType = closedType!,
-                Latitude = 56.3152,
-                Longitude = 43.9924,
-                Address = "Стрелка, Нижний Новгород"
+                Latitude = 53.189053,
+                Longitude = 50.078383,
+                Address = "Городской округ Самара, Самарский район"
             }
         };
 
@@ -257,7 +221,6 @@ public static class DatabaseSeeder
 
         foreach (var partner in partnerUsers)
         {
-            // Каждый партнер имеет от 2 до 5 кораблей
             var shipsCount = Random.Shared.Next(2, 6);
 
             for (int i = 0; i < shipsCount; i++)
@@ -279,7 +242,7 @@ public static class DatabaseSeeder
                     Width = (ushort)Random.Shared.Next(2, 11),
                     Length = (ushort)Random.Shared.Next(6, 41),
                     Description = descriptions[Random.Shared.Next(descriptions.Length)],
-                    CostPerHour = (uint)Random.Shared.Next(3000, 50001) * 100, // От 3000 до 50000 рублей в час (в копейках)
+                    CostPerHour = (uint)(Random.Shared.Next(30, 501) * 100),
                     PortId = port.Id,
                     Port = port,
                     UserId = partner.Id,

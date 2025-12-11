@@ -27,9 +27,9 @@ export function AccountHeader({ firstName, lastName, email, location }) {
         </div>
 
         <div className={styles["user-actions"]}>
-          <Button variant="light" className={styles["user-icon-button"]}>
+          {/* <Button variant="light" className={styles["user-icon-button"]}>
             <Bell className={styles["user-icon"]} />
-          </Button>
+          </Button> */}
           <Button 
             variant="light" 
             onClick={() => navigate("/")}

@@ -1,0 +1,239 @@
+*[class*=rs-],*[class*=rs-]::before, *[class*=rs-]::after{
+  box-sizing:border-box;
+}
+
+html{
+  -webkit-tap-highlight-color:transparent;
+  font-size:16px;
+}
+
+body{
+  font-family:var(--rs-font-family-base);
+  font-size:var(--rs-font-size-sm);
+  line-height:var(--rs-line-height-md);
+  color:var(--rs-text-primary);
+  background-color:var(--rs-body);
+}
+:root{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#f7f7fa;
+  --rs-gray-200:#e5e5ea;
+  --rs-gray-600:#717273;
+  --rs-gray-700:#575757;
+  --rs-gray-800:#343434;
+  --rs-gray-900:#121212;
+  --rs-primary-50:#F2FAFF;
+  --rs-primary-500:#3498ff;
+  --rs-primary-900:#004299;
+  --rs-body:var(--rs-gray-0);
+  --rs-text-primary:var(--rs-gray-800);
+  --rs-list-bg:var(--rs-gray-0);
+  --rs-list-border:var(--rs-gray-200);
+  --rs-list-hover-bg:var(--rs-primary-50);
+  --rs-list-placeholder-bg:rgb(from var(--rs-primary-50) r g b / 50%);
+  --rs-list-placeholder-border:var(--rs-primary-500);
+}
+@supports not (color: rgb(from white r g b)){
+  :root{
+    --rs-list-placeholder-bg:rgba(#F2FAFF, 0.5);
+  }
+}
+
+[data-theme=dark],
+.rs-theme-dark{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#e9ebf0;
+  --rs-gray-200:#a4a9b3;
+  --rs-gray-600:#3c3f43;
+  --rs-gray-700:#292d33;
+  --rs-gray-800:#1a1d24;
+  --rs-gray-900:#0f131a;
+  --rs-primary-50:#F2FCFF;
+  --rs-primary-500:#34c3ff;
+  --rs-primary-900:#006199;
+  --rs-body:var(--rs-gray-900);
+  --rs-text-primary:var(--rs-gray-50);
+  --rs-list-bg:var(--rs-gray-900);
+  --rs-list-border:var(--rs-gray-700);
+  --rs-list-hover-bg:var(--rs-gray-600);
+  --rs-list-placeholder-bg:rgb(from var(--rs-primary-900) r g b / 20%);
+  --rs-list-placeholder-border:var(--rs-primary-500);
+}
+@supports not (color: rgb(from white r g b)){
+  [data-theme=dark],
+  .rs-theme-dark{
+    --rs-list-placeholder-bg:rgba(#006199, 0.2);
+  }
+}
+
+[data-theme=high-contrast],
+.rs-theme-high-contrast{
+  --rs-gray-0:#fff;
+  --rs-gray-50:#e9ebf0;
+  --rs-gray-200:#a4a9b3;
+  --rs-gray-600:#3c3f43;
+  --rs-gray-700:#292d33;
+  --rs-gray-800:#1a1d24;
+  --rs-gray-900:#0f131a;
+  --rs-primary-50:#fffef2;
+  --rs-primary-500:#ffff00;
+  --rs-primary-900:#8f9900;
+  --rs-body:var(--rs-gray-900);
+  --rs-text-primary:var(--rs-gray-50);
+  --rs-list-bg:transparent;
+  --rs-list-border:var(--rs-gray-700);
+  --rs-list-hover-bg:var(--rs-gray-600);
+  --rs-list-placeholder-bg:rgb(from var(--rs-primary-900) r g b / 20%);
+  --rs-list-placeholder-border:var(--rs-primary-500);
+}
+@supports not (color: rgb(from white r g b)){
+  [data-theme=high-contrast],
+  .rs-theme-high-contrast{
+    --rs-list-placeholder-bg:rgba(143, 153, 0, 0.2);
+  }
+}
+
+:root{
+  --rs-font-family-base:-apple-system, BlinkMacSystemFont, Arial, Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", STXihei, sans-serif;
+  --rs-font-size-sm:0.875rem;
+  --rs-line-height-md:calc(20 / 14);
+  --rs-radius-md:0.375rem;
+  --rs-shadow-color:rgb(0 0 0 / 10%);
+  --rs-shadow-sm:0 1px 3px 0 var(--rs-shadow-color), 0 1px 2px 0 var(--rs-shadow-color);
+  --rs-zindex-list-helper:99;
+  --rs-zindex-modal:1050;
+  --rs-zindex-drawer:1050;
+}
+
+@media (max-width: calc(576px - 1px)){
+  [data-visible-from=xs]{
+    display:none !important;
+  }
+}
+@media (min-width: 576px){
+  [data-hidden-from=xs]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(768px - 1px)){
+  [data-visible-from=sm]{
+    display:none !important;
+  }
+}
+@media (min-width: 768px){
+  [data-hidden-from=sm]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(992px - 1px)){
+  [data-visible-from=md]{
+    display:none !important;
+  }
+}
+@media (min-width: 992px){
+  [data-hidden-from=md]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(1200px - 1px)){
+  [data-visible-from=lg]{
+    display:none !important;
+  }
+}
+@media (min-width: 1200px){
+  [data-hidden-from=lg]{
+    display:none !important;
+  }
+}
+@media (max-width: calc(1400px - 1px)){
+  [data-visible-from=xl]{
+    display:none !important;
+  }
+}
+@media (min-width: 1400px){
+  [data-hidden-from=xl]{
+    display:none !important;
+  }
+}
+.rs-list{
+  --rs-list-border-width:1px;
+  position:relative;
+  overflow-x:hidden;
+  overflow-y:auto;
+}
+.rs-list[data-bordered=true]{
+  border-radius:var(--rs-radius-md);
+  border:var(--rs-list-border-width) solid var(--rs-list-border);
+}
+.rs-list[data-hover=true] .rs-list-item:hover{
+  background-color:var(--rs-list-hover-bg);
+}
+.rs-list[data-sortable=true] .rs-list-item{
+  cursor:move;
+  cursor:grab;
+}
+.rs-list[data-sortable=true] .rs-list-item-disabled, .rs-list[data-sortable=true] .rs-list-item-disabled:active{
+  cursor:not-allowed;
+}
+
+.rs-list-item{
+  position:relative;
+}
+.rs-list-item[data-bordered=true]{
+  padding-inline-start:20px;
+  padding-inline-end:20px;
+}
+.rs-list-item[data-size=lg]{
+  padding-top:20px;
+  padding-bottom:20px;
+}
+.rs-list-item[data-size=md]{
+  padding-top:13px;
+  padding-bottom:13px;
+}
+.rs-list-item[data-size=sm]{
+  padding-top:8px;
+  padding-bottom:8px;
+}
+.rs-list-item[data-size=xs]{
+  padding-top:2px;
+  padding-bottom:2px;
+}
+.rs-list-item,.rs-list-item-helper{
+  background-color:var(--rs-list-bg);
+}
+.rs-list-item-helper{
+  position:absolute;
+  box-shadow:var(--rs-shadow-sm);
+  width:calc(100% - 2px);
+  border-radius:var(--rs-radius-md);
+  top:0;
+  inset-inline-start:0;
+  z-index:var(--rs-zindex-list-helper);
+  border:none;
+  cursor:move;
+}
+.rs-modal-open .rs-list-item-helper{
+  z-index:calc(var(--rs-zindex-modal) + var(--rs-zindex-list-helper));
+}
+.rs-drawer-open .rs-list-item-helper{
+  z-index:calc(var(--rs-zindex-drawer) + var(--rs-zindex-list-helper));
+}
+.rs-list-item-holder{
+  background-color:var(--rs-list-placeholder-bg);
+  visibility:hidden;
+}
+.rs-list-item-holder::after{
+  content:"";
+  position:absolute;
+  visibility:visible;
+  top:var(--rs-list-border-width);
+  inset-inline-start:var(--rs-list-border-width);
+  width:calc(100% - 2 * var(--rs-list-border-width));
+  height:calc(100% - 2 * var(--rs-list-border-width));
+  border:var(--rs-list-border-width) var(--rs-list-placeholder-border) dashed;
+}
+
+.rs-list[data-divider=true] .rs-list-item + .rs-list-item{
+  border-top:var(--rs-list-border-width) solid var(--rs-list-border);
+}

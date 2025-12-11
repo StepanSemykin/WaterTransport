@@ -1,34 +1,127 @@
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.EntityFrameworkCore;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для работы с заказами аренды.
+/// Р РµРїРѕР·РёС‚РѕСЂРёР№ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ Р·Р°РєР°Р·Р°РјРё Р°СЂРµРЅРґС‹.
 /// </summary>
 public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepository<RentOrder, Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
-    /// Получить все заказы аренды.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ Р·Р°РєР°Р·С‹ Р°СЂРµРЅРґС‹.
     /// </summary>
-    /// <returns>Коллекция заказов аренды.</returns>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ Р·Р°РєР°Р·РѕРІ Р°СЂРµРЅРґС‹.</returns>
     public async Task<IEnumerable<RentOrder>> GetAllAsync() => await _context.RentOrders.ToListAsync();
 
     /// <summary>
-    /// Получить заказ аренды по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор заказа аренды.</param>
-    /// <returns>Заказ аренды или null, если не найден.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.</param>
+    /// <returns>Р—Р°РєР°Р· Р°СЂРµРЅРґС‹ РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ.</returns>
     public async Task<RentOrder?> GetByIdAsync(Guid id) => await _context.RentOrders.FindAsync(id);
 
     /// <summary>
-    /// Создать новый заказ аренды.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· СЃ РїРѕР»РЅС‹РјРё СЃРІСЏР·Р°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё.
     /// </summary>
-    /// <param name="entity">Сущность заказа для создания.</param>
-    /// <returns>Созданная сущность заказа.</returns>
+    public async Task<RentOrder?> GetByIdWithDetailsAsync(Guid id)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner).ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipImages)
+            .FirstOrDefaultAsync(ro => ro.Id == id);
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ Р·Р°РєР°Р·С‹ СЃ РїР°РіРёРЅР°С†РёРµР№ Рё РїРѕР»РЅС‹РјРё СЃРІСЏР·Р°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё.
+    /// </summary>
+    public async Task<(IEnumerable<RentOrder> Items, int Total)> GetAllWithDetailsAsync(int page, int pageSize)
+    {
+        var query = _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner).ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipImages)
+            .OrderByDescending(x => x.CreatedAt);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, total);
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р·С‹ РїРѕ СЃС‚Р°С‚СѓСЃР°Рј СЃ РїРѕР»РЅС‹РјРё СЃРІСЏР·Р°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё.
+    /// </summary>
+    public async Task<IEnumerable<RentOrder>> GetByStatusesWithDetailsAsync(params string[] statuses)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Offers)
+            .Where(ro => statuses.Contains(ro.Status))
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р·С‹ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ СЃС‚Р°С‚СѓСЃСѓ СЃ РїРѕР»РЅС‹РјРё СЃРІСЏР·Р°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё.
+    /// </summary>
+    public async Task<IEnumerable<RentOrder>> GetForUserByStatusWithDetailsAsync(Guid userId, string status)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User).ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner).ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship).ThenInclude(s => s!.ShipImages)
+            .Where(ro => ro.UserId == userId && ro.Status == status)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р·С‹ РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ СЃ РїРѕР»РЅС‹РјРё СЃРІСЏР·Р°РЅРЅС‹РјРё РґР°РЅРЅС‹РјРё.
+    /// </summary>
+    public async Task<IEnumerable<RentOrder>> GetForPartnerByStatusWithDetailsAsync(Guid partnerId, string status)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.User)
+                .ThenInclude(u => u.UserProfile)
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Partner)
+                .ThenInclude(p => p!.UserProfile)
+            .Include(ro => ro.Ship)
+                .ThenInclude(s => s!.ShipType)
+            .Include(ro => ro.Ship)
+                .ThenInclude(s => s!.ShipImages)
+            .Where(ro => ro.PartnerId == partnerId && ro.Status == status)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
+    /// </summary>
+    /// <param name="entity">РЎСѓС‰РЅРѕСЃС‚СЊ Р·Р°РєР°Р·Р° РґР»СЏ СЃРѕР·РґР°РЅРёСЏ.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅР°СЏ СЃСѓС‰РЅРѕСЃС‚СЊ Р·Р°РєР°Р·Р°.</returns>
     public async Task<RentOrder> CreateAsync(RentOrder entity)
     {
         _context.RentOrders.Add(entity);
@@ -37,11 +130,11 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
     }
 
     /// <summary>
-    /// Обновить заказ аренды.
+    /// РћР±РЅРѕРІРёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
-    /// <param name="entity">Сущность с новыми данными.</param>
-    /// <param name="id">Идентификатор обновляемого заказа.</param>
-    /// <returns>True, если обновление прошло успешно.</returns>
+    /// <param name="entity">РЎСѓС‰РЅРѕСЃС‚СЊ СЃ РЅРѕРІС‹РјРё РґР°РЅРЅС‹РјРё.</param>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±РЅРѕРІР»СЏРµРјРѕРіРѕ Р·Р°РєР°Р·Р°.</param>
+    /// <returns>True, РµСЃР»Рё РѕР±РЅРѕРІР»РµРЅРёРµ РїСЂРѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ.</returns>
     public async Task<bool> UpdateAsync(RentOrder entity, Guid id)
     {
         var old = await _context.RentOrders.FirstOrDefaultAsync(x => x.Id == id);
@@ -53,10 +146,10 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
     }
 
     /// <summary>
-    /// Удалить заказ аренды.
+    /// РЈРґР°Р»РёС‚СЊ Р·Р°РєР°Р· Р°СЂРµРЅРґС‹.
     /// </summary>
-    /// <param name="id">Идентификатор заказа для удаления.</param>
-    /// <returns>True, если удаление прошло успешно.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° РґР»СЏ СѓРґР°Р»РµРЅРёСЏ.</param>
+    /// <returns>True, РµСЃР»Рё СѓРґР°Р»РµРЅРёРµ РїСЂРѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var old = await GetByIdAsync(id);
@@ -67,10 +160,10 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
     }
 
     /// <summary>
-    /// Получить заказы по статусам с включением связанных данных.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р·С‹ РїРѕ СЃС‚Р°С‚СѓСЃР°Рј СЃ РІРєР»СЋС‡РµРЅРёРµРј СЃРІСЏР·Р°РЅРЅС‹С… РґР°РЅРЅС‹С….
     /// </summary>
-    /// <param name="statuses">Список статусов для фильтрации.</param>
-    /// <returns>Коллекция заказов с указанными статусами.</returns>
+    /// <param name="statuses">РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё.</param>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ Р·Р°РєР°Р·РѕРІ СЃ СѓРєР°Р·Р°РЅРЅС‹РјРё СЃС‚Р°С‚СѓСЃР°РјРё.</returns>
     public async Task<IEnumerable<RentOrder>> GetByStatusesAsync(params string[] statuses)
     {
         return await _context.RentOrders
@@ -83,10 +176,28 @@ public class RentOrderRepository(WaterTransportDbContext context) : IEntityRepos
     }
 
     /// <summary>
-    /// Получить заказ с откликами по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р·С‹ РїРѕ СЃС‚Р°С‚СѓСЃР°Рј СЃ РІРєР»СЋС‡РµРЅРёРµРј СЃРІСЏР·Р°РЅРЅС‹С… РґР°РЅРЅС‹С…. + c С„РёР»СЊС‚СЂРѕРј РїРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј.
     /// </summary>
-    /// <param name="id">Идентификатор заказа.</param>
-    /// <returns>Заказ с откликами или null.</returns>
+    /// <param name="statuses">РЎРїРёСЃРѕРє СЃС‚Р°С‚СѓСЃРѕРІ РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё.</param>
+    /// <param name="id">Id РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ </param>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ Р·Р°РєР°Р·РѕРІ СЃ СѓРєР°Р·Р°РЅРЅС‹РјРё СЃС‚Р°С‚СѓСЃР°РјРё.</returns>
+    public async Task<IEnumerable<RentOrder>> GetForUserByStatusesAsync(Guid id, params string[] statuses)
+    {
+        return await _context.RentOrders
+            .Include(ro => ro.ShipType)
+            .Include(ro => ro.DeparturePort)
+            .Include(ro => ro.ArrivalPort)
+            .Include(ro => ro.Offers)
+            .Where(ro => statuses.Contains(ro.Status))
+            .Where(ro => ro.UserId == id)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р· СЃ РѕС‚РєР»РёРєР°РјРё РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
+    /// </summary>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р°.</param>
+    /// <returns>Р—Р°РєР°Р· СЃ РѕС‚РєР»РёРєР°РјРё РёР»Рё null.</returns>
     public async Task<RentOrder?> GetByIdWithOffersAsync(Guid id)
     {
         return await _context.RentOrders

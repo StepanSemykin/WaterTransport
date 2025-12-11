@@ -360,7 +360,7 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("status");
 
-                    b.Property<long>("TotalPrice")
+                    b.Property<long?>("TotalPrice")
                         .HasColumnType("bigint")
                         .HasColumnName("total_price");
 
@@ -454,11 +454,20 @@ namespace WaterTransportService.Model.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid?>("PortId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("port_id");
 
                     b.Property<byte>("Rating")
                         .HasColumnType("smallint")
                         .HasColumnName("rating");
+
+                    b.Property<Guid?>("RentOrderId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rent_order_id");
 
                     b.Property<Guid?>("ShipId")
                         .HasColumnType("uuid")
@@ -475,6 +484,10 @@ namespace WaterTransportService.Model.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorId");
+
+                    b.HasIndex("PortId");
+
+                    b.HasIndex("RentOrderId");
 
                     b.HasIndex("ShipId");
 
@@ -1018,6 +1031,16 @@ namespace WaterTransportService.Model.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WaterTransportService.Model.Entities.Port", "Port")
+                        .WithMany("Reviews")
+                        .HasForeignKey("PortId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("WaterTransportService.Model.Entities.RentOrder", "RentOrder")
+                        .WithMany("Reviews")
+                        .HasForeignKey("RentOrderId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("WaterTransportService.Model.Entities.Ship", "Ship")
                         .WithMany("Reviews")
                         .HasForeignKey("ShipId")
@@ -1029,6 +1052,10 @@ namespace WaterTransportService.Model.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Author");
+
+                    b.Navigation("Port");
+
+                    b.Navigation("RentOrder");
 
                     b.Navigation("Ship");
 
@@ -1125,6 +1152,8 @@ namespace WaterTransportService.Model.Migrations
                 {
                     b.Navigation("PortImages");
 
+                    b.Navigation("Reviews");
+
                     b.Navigation("Ships");
                 });
 
@@ -1136,6 +1165,8 @@ namespace WaterTransportService.Model.Migrations
             modelBuilder.Entity("WaterTransportService.Model.Entities.RentOrder", b =>
                 {
                     b.Navigation("Offers");
+
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.Ship", b =>

@@ -18,6 +18,7 @@ public class PortImageService(
     private readonly IEntityRepository<PortImage, Guid> _repo = repo;
     private readonly IPortRepository<Guid> _portRepo = portRepo;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
+    private readonly IMapper _mapper = mapper;
 
     /// <summary>
     /// Получить список всех изображений портов с пагинацией.
@@ -31,7 +32,7 @@ public class PortImageService(
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
         var all = (await _repo.GetAllAsync()).OrderByDescending(x => x.UploadedAt).ToList();
         var total = all.Count;
-        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => mapper.Map<PortImageDto>(u)).ToList();
+        var items = all.Skip((page - 1) * pageSize).Take(pageSize).Select(u => _mapper.Map<PortImageDto>(u)).ToList();
         return (items, total);
     }
 
@@ -43,7 +44,7 @@ public class PortImageService(
     public async Task<PortImageDto?> GetByIdAsync(Guid id)
     {
         var portImage = await _repo.GetByIdAsync(id);
-        var portImageDto = mapper.Map<PortImageDto?>(portImage);
+        var portImageDto = _mapper.Map<PortImageDto?>(portImage);
 
         return portImage is null ? null : portImageDto;
     }
@@ -58,7 +59,7 @@ public class PortImageService(
         if (_repo is not PortImageRepository imageRepo) return null;
 
         var primaryImage = await imageRepo.GetPrimaryByPortIdAsync(entityId);
-        return primaryImage == null ? null : mapper.Map<PortImageDto>(primaryImage);
+        return primaryImage == null ? null : _mapper.Map<PortImageDto>(primaryImage);
     }
 
     /// <summary>
@@ -71,7 +72,7 @@ public class PortImageService(
         if (_repo is not PortImageRepository imageRepo) return Array.Empty<PortImageDto>();
 
         var images = await imageRepo.GetAllByPortIdAsync(entityId);
-        return images.Select(img => mapper.Map<PortImageDto>(img)).ToList();
+        return images.Select(img => _mapper.Map<PortImageDto>(img)).ToList();
     }
 
     /// <summary>
@@ -101,43 +102,71 @@ public class PortImageService(
             UploadedAt = DateTime.UtcNow
         };
         var created = await _repo.CreateAsync(entity);
-        var createdDto = mapper.Map<PortImageDto>(created);
+        var createdDto = _mapper.Map<PortImageDto>(created);
 
         return createdDto;
     }
 
     /// <summary>
-    /// Обновить изображение порта.
+    /// Обновить или установить основное (primary) изображение порта.
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленное изображение или null при ошибке.</returns>
+    /// <param name="id">Идентификатор порта (PortId).</param>
+    /// <param name="dto">Данные для обновления (новый файл изображения).</param>
+    /// <returns>Обновленное или созданное DTO изображения порта или null при ошибке валидации.</returns>
+    /// <remarks>
+    /// Метод работает с primary изображением порта:
+    /// - Если у порта уже есть primary изображение, оно будет заменено на новое (старое становится не primary).
+    /// - Если у порта нет primary изображения, создается новое с флагом IsPrimary = true.
+    /// - Старое primary изображение сохраняется на диске как обычное изображение (не primary).
+    /// - У порта может быть только одно primary изображение.
+    /// </remarks>
     public async Task<PortImageDto?> UpdateAsync(Guid id, UpdatePortImageDto dto)
     {
-        var entity = await _repo.GetByIdAsync(id);
-        if (entity is null) return null;
-
-        if (dto.Image != null)
+        // Проверяем, что передано изображение
+        if (dto.Image == null)
+            return null;
+        
+        if (!_fileStorageService.IsValidImage(dto.Image))
+            return null;
+        
+        // Проверяем существование порта
+        var port = await _portRepo.GetByIdAsync(id);
+        if (port is null)
+            return null;
+        
+        // Проверяем, есть ли репозиторий нужного типа
+        if (_repo is not PortImageRepository imageRepo)
+            return null;
+        
+        // Получаем текущее primary изображение порта
+        var currentPrimaryImage = await imageRepo.GetPrimaryByPortIdAsync(id);
+        
+        // Если у порта уже есть primary изображение
+        if (currentPrimaryImage != null)
         {
-            if (!_fileStorageService.IsValidImage(dto.Image))
-                return null;
-
-            var oldImagePath = entity.ImagePath;
-            var newImagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", entity.Id.ToString());
-            entity.ImagePath = newImagePath;
-
-            if (!string.Equals(oldImagePath, newImagePath, StringComparison.OrdinalIgnoreCase))
-            {
-                await _fileStorageService.DeleteImageAsync(oldImagePath);
-            }
+            // Сбрасываем флаг IsPrimary у старого изображения (файл остается на диске)
+            currentPrimaryImage.IsPrimary = false;
+            await _repo.UpdateAsync(currentPrimaryImage, currentPrimaryImage.Id);
         }
-
-        if (dto.IsPrimary.HasValue) entity.IsPrimary = dto.IsPrimary.Value;
-
-        var updated = await _repo.UpdateAsync(entity, id);
-        var updatedDto = mapper.Map<PortImageDto>(entity);
-
-        return updated ? updatedDto : null;
+        
+        // Создаем новое primary изображение
+        var newId = Guid.NewGuid();
+        var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", newId.ToString());
+        
+        var newPrimaryImage = new PortImage
+        {
+            Id = newId,
+            PortId = port.Id,
+            Port = port,
+            ImagePath = imagePath,
+            IsPrimary = true, // Новое изображение всегда primary
+            UploadedAt = DateTime.UtcNow
+        };
+        
+        var created = await _repo.CreateAsync(newPrimaryImage);
+        
+        var createdDto = _mapper.Map<PortImageDto>(created);
+        return createdDto;
     }
 
     /// <summary>

@@ -21,11 +21,14 @@ public class UpdateUserDto
     [MaxLength(20)]
     public string? Phone { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool? IsActive { get; set; } = true;
 
     public string? Role { get; set; }
 
     // Если передан — обновим пароль
-    [MinLength(6)]
+    [MinLength(8)]
     public string? NewPassword { get; set; } = null!;
+
+    [MinLength(8)]
+    public string? CurrentPassword { get; set; } = null!;
 }

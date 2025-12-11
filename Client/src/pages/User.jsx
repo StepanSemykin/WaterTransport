@@ -12,6 +12,8 @@ import UserSettingsMenu from "../components/user/settings/UserSettingsMenu.jsx";
 import UserSupportMenu from "../components/user/support/UserSupportMenu.jsx";
 import AccountSettings from "../components/user/settings/AccountSettings.jsx";
 import PartnerRequest from "../components/user/settings/PartnerRequest.jsx";
+import LogoutSettings from "../components/user/settings/LogOutSettings.jsx";
+import ChangePassword from "../components/user/settings/ChangePassword.jsx";
 
 import styles from "./User.module.css";
 
@@ -87,10 +89,10 @@ const COMPLETED_TRIPS = [
 ];
 
 const SETTINGS_ITEMS = [
-  { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
-  { key: "notifications", label: "Уведомления", content: "Уведомления", icon: "Notifications" },
-  { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>, icon: "Notifications" },
-  { key: "exit", label: "Выйти из аккаунта", content: "Выйти из аккаунта", icon: "Notifications" }
+  { key: "account", label: "Учетная запись", content: <AccountSettings/> },
+  { key: "password", label: "Сменить пароль", content: <ChangePassword/>},
+  { key: "partner", label: "Стать парнтером сервиса", content: <PartnerRequest/>},
+  { key: "exit", label: "Выйти из аккаунта", content: <LogoutSettings />}
 ];
 
 const SUPPORT_ITEMS = [
@@ -99,30 +101,39 @@ const SUPPORT_ITEMS = [
   { key: "problem", label: "Сообщить о проблеме", content: "Сообщить о проблеме" }
 ];
 
-const USER_NAVIGATION = {
-  orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} /> },
-  settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
-  support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> }
-};
+// const USER_NAVIGATION = {
+//   orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} /> },
+//   settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
+//   support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> }
+// };
 
 export default function User() {
-  const { user, loading, refreshUser } = useAuth();
-
-  // useEffect(() => {
-  //   if (!user.firstName && !loading) {
-  //     refreshUser(true);
-  //   }
-  // }, [user.firstName, loading, refreshUser]);
+  const {
+    user,
+    loading,
+    upcomingTrips,
+    upcomingTripsLoading,
+    completedTrips,
+    completedTripsLoading
+  } = useAuth();
 
   if (loading) {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
   }
 
+const ordersComponent = (
+    <UserOrders
+      upcomingTrips={upcomingTrips}
+      upcomingTripsLoading={upcomingTripsLoading}
+      completedTrips={completedTrips}
+      completedTripsLoading={completedTripsLoading}
+      isParnter={false}
+    />
+  );
+
   return (
     <div className={styles["user-page"]}>
-      
       <div className={styles["user-header"]}>
-        {/* <AccountHeader {...USER} /> */}
         <AccountHeader
           firstName={user.firstName ?? ""}
           lastName={user.lastName ?? ""}
@@ -133,27 +144,16 @@ export default function User() {
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {/* {STATS.map((stat) => (
-            <StatsCard key={stat.title} {...stat} />
-          ))} */}
           {(user.stats ?? []).map((stat) => (
-          <StatsCard key={stat.title} {...stat} />
-        ))}
+            <StatsCard key={stat.title} {...stat} />
+          ))}
         </div>
 
         <Navigation
           params={{
             orders: {
               label: "Заказы",
-              component: (
-                // <UserOrders
-                //   upcomingTrips={user.upcomingTrips ?? []}
-                //   completedTrips={user.completedTrips ?? []}
-                // />
-                <UserOrders 
-                  upcomingTrips={UPCOMING_TRIPS} 
-                  completedTrips={COMPLETED_TRIPS} />
-              ),
+              component: ordersComponent,
             },
             settings: {
               label: "Настройки",
@@ -166,7 +166,6 @@ export default function User() {
           }}
         />
       </Container>
-      
     </div>
   );
 }

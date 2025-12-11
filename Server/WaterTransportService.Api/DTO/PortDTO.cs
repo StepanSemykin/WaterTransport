@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace WaterTransportService.Api.DTO;
 
 public record PortDto(
-    //Guid Id,
+    Guid Id,
     string Title,
     ushort PortTypeId,
     double Latitude,

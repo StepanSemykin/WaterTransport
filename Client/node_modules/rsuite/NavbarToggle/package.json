@@ -1,0 +1,7 @@
+{
+  "name": "rsuite/NavbarToggle",
+  "private": true,
+  "main": "../cjs/Navbar/NavbarToggle.js",
+  "module": "../esm/Navbar/NavbarToggle.js",
+  "types": "../esm/Navbar/NavbarToggle.d.ts"
+}
