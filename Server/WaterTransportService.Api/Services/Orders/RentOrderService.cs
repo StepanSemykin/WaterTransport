@@ -297,6 +297,7 @@ public class RentOrderService(
         if (entity is null) return false;
 
         // Удаляем все отклики на этот заказ
+
         await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
 
         entity.Status = RentOrderStatus.Cancelled;

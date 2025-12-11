@@ -47,6 +47,8 @@ const COMPLETED_TRIPS_PARTNER_ENDPOINT = "/api/rentorders/get-for-partner-by-sta
 const PENDING_TRIPS_PARTNER_ENDPOINT = "/api/offerspartner/offers/status=Pending";
 const REJECTED_TRIPS_PARTNER_ENDPOINT = "/api/offerspartner/offers/status=Rejected";
 const ACTIVE_ORDER_ENDPOINT = "/api/rentorders/active";
+const USER_IMAGES_ENDPOINT = "/api/userimages/file";
+
 
 const LOCATION = "/auth";
 
@@ -58,6 +60,9 @@ const POLL_INTERVAL = 30000;
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(INITIAL_USER_STATE);
   const [loading, setLoading] = useState(true);
+
+  const [userImage, setUserImage] = useState(null);
+  const [userImageLoading, setUserImageLoading] = useState(false);
 
   const [ports, setPorts] = useState([]);
   const [portsLoading, setPortsLoading] = useState(true);
@@ -213,6 +218,37 @@ export function AuthProvider({ children }) {
       setHasActiveOrder(false);
     }
   }, []);
+
+  async function loadUserImage(userId) {
+    if (!userId) {
+      setUserImage(null);
+      return;
+    }
+    const url = `${USER_IMAGES_ENDPOINT}/${userId}`;
+    setUserImage(url);
+    // setUserImageLoading(true);
+    // try {
+    //   const res = await apiFetch(`${USER_IMAGES_ENDPOINT}/${userId}`, { method: "GET" });
+    //   if (res.ok) {
+    //     const data = await res.json();
+    //     console.log(data);
+    //     console.log(data.url);
+
+    //     const imageUrl = data?.url || data?.imageUrl || data?.path;
+    //     setUserImage(imageUrl);
+    //   } 
+    //   else {
+    //     setUserImage(null);
+    //   }
+    // } 
+    // catch (err) {
+    //   console.warn("[AuthContext] user image load failed", err);
+    //   setUserImage(null);
+    // } 
+    // finally {
+    //   setUserImageLoading(false);
+    // }
+  }
 
   async function loadUpcomingTrips(userId, endpoint) {
     if (!userId) {
@@ -542,6 +578,9 @@ export function AuthProvider({ children }) {
         catch (profileErr) {
           console.warn("[AuthContext] Failed to fetch UserProfileDto:", profileErr);
         }
+
+        await loadUserImage(account.id);
+
         if (account.role === PARTNER_ROLE) {
           await loadUserShips(account.id);
           await loadPossibleTrips(account.id, POSSIBLE_TRIPS_ENDPOINT);
@@ -600,6 +639,9 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       loading,
+      userImage,
+      userImageLoading,
+      loadUserImage,
       ports,
       portsLoading,
       shipTypes,
@@ -640,6 +682,7 @@ export function AuthProvider({ children }) {
     }),
     [
       user, loading, 
+      userImage, userImageLoading,
       ports, portsLoading, 
       shipTypes, shipTypesLoading, 
       userShips, userShipsLoading, 

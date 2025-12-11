@@ -195,6 +195,7 @@ export default function Partner() {
           lastName={user.lastName ?? ""}
           email={user.email ?? ""}
           location={user.location ?? ""}
+          userId={user?.id}
         />
       </div>
 
