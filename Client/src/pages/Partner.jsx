@@ -17,104 +17,6 @@ import ChangePassword from "../components/user/settings/ChangePassword.jsx";
 
 import styles from "./User.module.css";
 
-// const STATS = [
-//   { title: "Всего заказов", value: "10" },
-//   { title: "Рейтинг", value: "5.0" },
-//   { title: "Всего судов", value: "1" },
-// ];
-
-// const USER = {
-//   firstName: "Сергей",
-//   lastName: "Иванов",
-//   email: "ivanov@ivanov.com",
-//   registred: "На сайте с 01.01.2025",
-//   isPartner: true
-// };
-
-// const SHIPS = [
-//   {
-//     imageSrc: YachtIcon,
-//     imageAlt: "Luxury Yacht Marina",
-//     title: { iconSrc: ShipIcon, iconAlt: "судно", text: "Luxury Yacht Marina" },
-//     status: "Активно",
-//     type: { iconSrc: ShipIcon, iconAlt: "судно", text: "Яхта"},
-//     details: [
-//       { iconSrc: PassengersIcon, iconAlt: "пассажиры", text: "До 20 человек" }
-//     ],
-//     rating: 5.0,
-//     actions: [
-//       { label: "Посмотреть детали" }
-//     ],
-//   }
-// ]
-
-// const UPCOMING_TRIPS = [
-//   {
-//     imageSrc: YachtIcon,
-//     imageAlt: "Luxury Yacht Marina",
-//     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-//     confirm: "Подтверждено",
-//     status: "upcoming",
-//     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-//     portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
-//     portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
-//     details: [
-//       { iconSrc: DateIcon, iconAlt: "date", text: "07.07.2025" },
-//       { text: "12:00" },
-//     ],
-//     actions: [
-//       { label: "Посмотреть детали" }
-//     ],
-//   },
-// ];
-
-// const COMPLETED_TRIPS = [
-//   {
-//     imageSrc: YachtIcon,
-//     imageAlt: "Luxury Yacht Marina",
-//     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-//     confirm: "",
-//     status: "completed",
-//     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-//     portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
-//     portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
-//     details: [
-//       { iconSrc: DateIcon, iconAlt: "date", text: "06.06.2025" },
-//       { text: "12:00" },
-//     ],
-//     rating: [
-//       { src: StarOffIcon, alt: "Star Off" },
-//       { src: StarOffIcon, alt: "Star Off" },
-//       { src: StarOnIcon, alt: "Star On" },
-//       { src: StarOnIcon, alt: "Star On" },
-//       { src: StarOnIcon, alt: "Star On" }
-//     ],
-//     actions: [
-//       { label: "Посмотреть детали" }
-//     ],
-//   },
-// ];
-
-// const POSSIBLE_TRIPS = [
-//   {
-//     imageSrc: YachtIcon,
-//     imageAlt: "Luxury Yacht Marina",
-//     title: { iconSrc: ShipIcon, iconAlt:"ship", text: "Luxury Yacht Marina" },
-//     confirm: "Подтвердить",
-//     status: "possible",
-//     captain: { iconSrc: WheelIcon, iconAlt:"captain", text:"Сергей Иванов" },
-//     portDeparture: { iconSrc: PortIcon, iconAlt:"port", text:"Речной вокзал" },
-//     portArrival: { iconSrc: PortIcon, iconAlt:"port", text:"Причал №5" },
-//     details: [
-//       { iconSrc: DateIcon, iconAlt: "date", text: "08.08.2025" },
-//       { text: "12:00" },
-//     ],
-//     actions: [
-//       { label: "Посмотреть детали" }
-//     ],
-//   },
-// ];
-
 const SETTINGS_ITEMS = [
   { key: "account", label: "Учетная запись", content: <AccountSettings/>, icon: "Home" },
   { key: "password", label: "Сменить пароль", content: <ChangePassword/>},
@@ -131,6 +33,7 @@ export default function Partner() {
   const {
     user,
     loading,
+    userImage,
     upcomingTrips,
     upcomingTripsLoading,
     pendingTrips, 
@@ -142,8 +45,6 @@ export default function Partner() {
     rejectedTrips, 
     rejectedTripsLoading,
   } = useAuth();
-
-  const [polling, setPolling] = useState(true);
 
   if (loading) {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
@@ -175,6 +76,7 @@ export default function Partner() {
           email={user.email ?? ""}
           location={user.location ?? ""}
           userId={user?.id}
+          profileImage={userImage}
         />
       </div>
 

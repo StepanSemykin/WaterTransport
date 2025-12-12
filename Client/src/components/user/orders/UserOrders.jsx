@@ -28,14 +28,6 @@ export default function UserOrders({
   const emptyPendingText = "На данный момент у вас нет отправленных заявок";
   const emptyRejectedText = "На данный момент у вас нет отклоненных заявок";
 
-  // console.log(isPartner);
-
-  // console.log(upcomingTrips);
-  console.log("Pending");
-  console.log(pendingTrips);
-  console.log("Rejected");
-  console.log(rejectedTrips);
-
   return (
     <div className="user-orders">
 

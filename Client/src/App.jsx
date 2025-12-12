@@ -38,7 +38,7 @@ import Partner from "./pages/Partner.jsx"
 import Support from "./pages/Support.jsx"
 import Results from "./pages/Results.jsx"
 import Calendar from "./pages/AvailabilityPage.jsx"
-import OfferResults from "./pages/OfferResult.jsx";
+import OfferResult from "./pages/OfferResult.jsx";
 
 import "./App.css"
 
@@ -93,7 +93,7 @@ export default function App() {
               path="/results"
               element={
                 <RequireSearch>
-                  <Results />
+                  <OfferResult />
                 </RequireSearch>
               }
             />
@@ -105,14 +105,14 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
+            {/* <Route
               path="/offerresults"
               element={
                 <ProtectedRoute allowedRoles={["common"]}>
-                  <OfferResults />
+                  <OfferResult />
                 </ProtectedRoute>
               }
-            />
+            /> */}
             <Route
               path="/support"
               element={

@@ -596,7 +596,7 @@ useEffect(() => {
             </Form>
           )}
 
-          {trip.status === "Completed" && (
+          {trip.status === "Completed" && !isPartner && (
             <div className={styles["trip-review"]}>
               <h5>Отзыв о поездке</h5>
               {reviewError && <Alert variant="danger">{reviewError}</Alert>}

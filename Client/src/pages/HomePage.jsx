@@ -330,7 +330,7 @@ export default function HomePage() {
 
     try {
       await performSearch(payload); // запрос к серверу + сохранение результатов в контекст
-      // navigate("/results"); // если хотите авто-переход — раскомментируйте:
+      navigate("/results"); // если хотите авто-переход — раскомментируйте:
       const res = await apiFetch("/api/RentOrders", {
         method: "POST",
         body: JSON.stringify({
