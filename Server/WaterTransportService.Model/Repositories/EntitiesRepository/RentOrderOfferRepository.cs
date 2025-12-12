@@ -1,20 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для работы с откликами партнеров на заказы аренды.
+/// Ð ÐµÐ¿Ð¾Ð·Ð¸ÑÐ¾ÑÐ¸Ð¹ Ð´Ð»Ñ ÑÐ°Ð±Ð¾ÑÑ Ñ Ð¾ÑÐºÐ»Ð¸ÐºÐ°Ð¼Ð¸ Ð¿Ð°ÑÑÐ½ÐµÑÐ¾Ð² Ð½Ð° Ð·Ð°ÐºÐ°Ð·Ñ Ð°ÑÐµÐ½Ð´Ñ.
 /// </summary>
 public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntityRepository<RentOrderOffer, Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
-    /// Получить все отклики.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸.
     /// </summary>
-    /// <returns>Коллекция всех откликов.</returns>
+    /// <returns>ÐÐ¾Ð»Ð»ÐµÐºÑÐ¸Ñ Ð²ÑÐµÑ Ð¾ÑÐºÐ»Ð¸ÐºÐ¾Ð².</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetAllAsync() =>
         await _context.RentOrderOffers
             .Include(o => o.Partner)
@@ -24,10 +24,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить отклик по идентификатору.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð¾ÑÐºÐ»Ð¸Ðº Ð¿Ð¾ Ð¸Ð´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾ÑÑ.
     /// </summary>
-    /// <param name="id">Идентификатор отклика.</param>
-    /// <returns>Отклик или null, если не найден.</returns>
+    /// <param name="id">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð¾ÑÐºÐ»Ð¸ÐºÐ°.</param>
+    /// <returns>ÐÑÐºÐ»Ð¸Ðº Ð¸Ð»Ð¸ null, ÐµÑÐ»Ð¸ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½.</returns>
     public async Task<RentOrderOffer?> GetByIdAsync(Guid id) =>
         await _context.RentOrderOffers
             .Include(o => o.Partner)
@@ -37,7 +37,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .FirstOrDefaultAsync(o => o.Id == id);
 
     /// <summary>
-    /// Получить отклик с полными связанными данными по идентификатору.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð¾ÑÐºÐ»Ð¸Ðº Ñ Ð¿Ð¾Ð»Ð½ÑÐ¼Ð¸ ÑÐ²ÑÐ·Ð°Ð½Ð½ÑÐ¼Ð¸ Ð´Ð°Ð½Ð½ÑÐ¼Ð¸ Ð¿Ð¾ Ð¸Ð´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾ÑÑ.
     /// </summary>
     public async Task<RentOrderOffer?> GetByIdWithDetailsAsync(Guid id) =>
         await _context.RentOrderOffers
@@ -47,7 +47,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .FirstOrDefaultAsync(o => o.Id == id);
 
     /// <summary>
-    /// Получить все отклики для конкретного заказа с полными данными.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ Ð´Ð»Ñ ÐºÐ¾Ð½ÐºÑÐµÑÐ½Ð¾Ð³Ð¾ Ð·Ð°ÐºÐ°Ð·Ð° Ñ Ð¿Ð¾Ð»Ð½ÑÐ¼Ð¸ Ð´Ð°Ð½Ð½ÑÐ¼Ð¸.
     /// </summary>
     public async Task<IEnumerable<RentOrderOffer>> GetByRentOrderIdWithDetailsAsync(Guid rentOrderId) =>
         await _context.RentOrderOffers
@@ -58,7 +58,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить все отклики конкретного партнера с полными данными.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ ÐºÐ¾Ð½ÐºÑÐµÑÐ½Ð¾Ð³Ð¾ Ð¿Ð°ÑÑÐ½ÐµÑÐ° Ñ Ð¿Ð¾Ð»Ð½ÑÐ¼Ð¸ Ð´Ð°Ð½Ð½ÑÐ¼Ð¸.
     /// </summary>
     public async Task<IEnumerable<RentOrderOffer>> GetByPartnerIdWithDetailsAsync(Guid partnerId) =>
         await _context.RentOrderOffers
@@ -69,27 +69,20 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить заказы аренды, для которых есть отклики с определенным статусом.
+    /// Ïîëó÷èòü îòêëèêè ñ îïðåäåëåííûì ñòàòóñîì.
     /// </summary>
-    /// <returns>Список заказов аренды.</returns>
-    public async Task<IEnumerable<RentOrder>> GetByStatusWithDetailsAsync(string status, Guid partnerId)
+    /// <returns>Ñïèñîê îòêëèêîâ.</returns>
+    public async Task<IEnumerable<RentOrderOffer>> GetByStatusWithDetailsAsync(string status, Guid partnerId)
     {
-        var offers = await _context.RentOrderOffers
+        return await _context.RentOrderOffers
+            .Include(o => o.Ship)
+            .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
             .Where(o => o.Status == status && o.PartnerId == partnerId)
-            .ToListAsync();
-
-        var rentOrderIds = offers
-            .Select(o => o.RentOrderId)
-            .Distinct()
-            .ToList();
-
-        return await _context.RentOrders
-            .Where(ro => rentOrderIds.Contains(ro.Id))
             .ToListAsync();
     }
 
     /// <summary>
-    /// Получить отклики для пользователя (на его заказы) с полными данными.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ Ð´Ð»Ñ Ð¿Ð¾Ð»ÑÐ·Ð¾Ð²Ð°ÑÐµÐ»Ñ (Ð½Ð° ÐµÐ³Ð¾ Ð·Ð°ÐºÐ°Ð·Ñ) Ñ Ð¿Ð¾Ð»Ð½ÑÐ¼Ð¸ Ð´Ð°Ð½Ð½ÑÐ¼Ð¸.
     /// </summary>
     public async Task<IEnumerable<RentOrderOffer>> GetOffersForUserOrdersWithDetailsAsync(Guid userId, string status) =>
         await _context.RentOrderOffers
@@ -102,10 +95,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Создать новый отклик.
+    /// Ð¡Ð¾Ð·Ð´Ð°ÑÑ Ð½Ð¾Ð²ÑÐ¹ Ð¾ÑÐºÐ»Ð¸Ðº.
     /// </summary>
-    /// <param name="entity">Отклик сущность для создания.</param>
-    /// <returns>Созданный отклик.</returns>
+    /// <param name="entity">ÐÑÐºÐ»Ð¸Ðº ÑÑÑÐ½Ð¾ÑÑÑ Ð´Ð»Ñ ÑÐ¾Ð·Ð´Ð°Ð½Ð¸Ñ.</param>
+    /// <returns>Ð¡Ð¾Ð·Ð´Ð°Ð½Ð½ÑÐ¹ Ð¾ÑÐºÐ»Ð¸Ðº.</returns>
     public async Task<RentOrderOffer> CreateAsync(RentOrderOffer entity)
     {
         _context.RentOrderOffers.Add(entity);
@@ -114,11 +107,11 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     }
 
     /// <summary>
-    /// Обновить отклик.
+    /// ÐÐ±Ð½Ð¾Ð²Ð¸ÑÑ Ð¾ÑÐºÐ»Ð¸Ðº.
     /// </summary>
-    /// <param name="entity">Отклик с новыми данными.</param>
-    /// <param name="id">Идентификатор обновляемого отклика.</param>
-    /// <returns>True, если обновление прошло успешно.</returns>
+    /// <param name="entity">ÐÑÐºÐ»Ð¸Ðº Ñ Ð½Ð¾Ð²ÑÐ¼Ð¸ Ð´Ð°Ð½Ð½ÑÐ¼Ð¸.</param>
+    /// <param name="id">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÐµÐ¼Ð¾Ð³Ð¾ Ð¾ÑÐºÐ»Ð¸ÐºÐ°.</param>
+    /// <returns>True, ÐµÑÐ»Ð¸ Ð¾Ð±Ð½Ð¾Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿ÑÐ¾ÑÐ»Ð¾ ÑÑÐ¿ÐµÑÐ½Ð¾.</returns>
     public async Task<bool> UpdateAsync(RentOrderOffer entity, Guid id)
     {
         var old = await _context.RentOrderOffers.FirstOrDefaultAsync(x => x.Id == id);
@@ -130,10 +123,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     }
 
     /// <summary>
-    /// Удалить отклик.
+    /// Ð£Ð´Ð°Ð»Ð¸ÑÑ Ð¾ÑÐºÐ»Ð¸Ðº.
     /// </summary>
-    /// <param name="id">Идентификатор отклика для удаления.</param>
-    /// <returns>True, если удаление прошло успешно.</returns>
+    /// <param name="id">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð¾ÑÐºÐ»Ð¸ÐºÐ° Ð´Ð»Ñ ÑÐ´Ð°Ð»ÐµÐ½Ð¸Ñ.</param>
+    /// <returns>True, ÐµÑÐ»Ð¸ ÑÐ´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¿ÑÐ¾ÑÐ»Ð¾ ÑÑÐ¿ÐµÑÐ½Ð¾.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var old = await GetByIdAsync(id);
@@ -144,10 +137,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     }
 
     /// <summary>
-    /// Получить все отклики для конкретного заказа.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ Ð´Ð»Ñ ÐºÐ¾Ð½ÐºÑÐµÑÐ½Ð¾Ð³Ð¾ Ð·Ð°ÐºÐ°Ð·Ð°.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Коллекция откликов для заказа.</returns>
+    /// <param name="rentOrderId">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð·Ð°ÐºÐ°Ð·Ð° Ð°ÑÐµÐ½Ð´Ñ.</param>
+    /// <returns>ÐÐ¾Ð»Ð»ÐµÐºÑÐ¸Ñ Ð¾ÑÐºÐ»Ð¸ÐºÐ¾Ð² Ð´Ð»Ñ Ð·Ð°ÐºÐ°Ð·Ð°.</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetByRentOrderIdAsync(Guid rentOrderId) =>
         await _context.RentOrderOffers
             .Include(o => o.Partner)
@@ -160,10 +153,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить все отклики конкретного партнера.
+    /// ÐÐ¾Ð»ÑÑÐ¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ ÐºÐ¾Ð½ÐºÑÐµÑÐ½Ð¾Ð³Ð¾ Ð¿Ð°ÑÑÐ½ÐµÑÐ°.
     /// </summary>
-    /// <param name="partnerId">Идентификатор партнера.</param>
-    /// <returns>Коллекция откликов партнера.</returns>
+    /// <param name="partnerId">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð¿Ð°ÑÑÐ½ÐµÑÐ°.</param>
+    /// <returns>ÐÐ¾Ð»Ð»ÐµÐºÑÐ¸Ñ Ð¾ÑÐºÐ»Ð¸ÐºÐ¾Ð² Ð¿Ð°ÑÑÐ½ÐµÑÐ°.</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetByPartnerIdAsync(Guid partnerId) =>
         await _context.RentOrderOffers
             .Include(o => o.RentOrder)
@@ -173,10 +166,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Удалить все отклики для конкретного заказа аренды.
+    /// Ð£Ð´Ð°Ð»Ð¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ Ð´Ð»Ñ ÐºÐ¾Ð½ÐºÑÐµÑÐ½Ð¾Ð³Ð¾ Ð·Ð°ÐºÐ°Ð·Ð° Ð°ÑÐµÐ½Ð´Ñ.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Количество удаленных откликов.</returns>
+    /// <param name="rentOrderId">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð·Ð°ÐºÐ°Ð·Ð° Ð°ÑÐµÐ½Ð´Ñ.</param>
+    /// <returns>ÐÐ¾Ð»Ð¸ÑÐµÑÑÐ²Ð¾ ÑÐ´Ð°Ð»ÐµÐ½Ð½ÑÑ Ð¾ÑÐºÐ»Ð¸ÐºÐ¾Ð².</returns>
     public async Task<int> DeleteByRentOrderIdAsync(Guid rentOrderId)
     {
         var offers = await _context.RentOrderOffers
@@ -191,10 +184,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     }
 
     /// <summary>
-    /// Пометить все отклики для конкретного заказа аренды как Rejected.
+    /// ÐÐ¾Ð¼ÐµÑÐ¸ÑÑ Ð²ÑÐµ Ð¾ÑÐºÐ»Ð¸ÐºÐ¸ Ð´Ð»Ñ ÐºÐ¾Ð½ÐºÑÐµÑÐ½Ð¾Ð³Ð¾ Ð·Ð°ÐºÐ°Ð·Ð° Ð°ÑÐµÐ½Ð´Ñ ÐºÐ°Ðº Rejected.
     /// </summary>
-    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Количество обновлённых откликов.</returns>
+    /// <param name="rentOrderId">ÐÐ´ÐµÐ½ÑÐ¸ÑÐ¸ÐºÐ°ÑÐ¾Ñ Ð·Ð°ÐºÐ°Ð·Ð° Ð°ÑÐµÐ½Ð´Ñ.</param>
+    /// <returns>ÐÐ¾Ð»Ð¸ÑÐµÑÑÐ²Ð¾ Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÐ½Ð½ÑÑ Ð¾ÑÐºÐ»Ð¸ÐºÐ¾Ð².</returns>
     public async Task<int> RejectByRentOrderIdAsync(Guid rentOrderId)
     {
         var offers = await _context.RentOrderOffers

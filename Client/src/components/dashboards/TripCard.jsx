@@ -67,11 +67,13 @@ function buildDateDetails(details, rentalStartTime) {
   ];
 }
 
-function buildConfirmLabel(confirm, status) {
+function buildConfirmLabel(confirm, status, isRejected, isPending) {
   if (confirm) return confirm;
 
   if (status === "Agreed") return "Подтверждено";
   if (status === "AwaitingResponse") return "Ожидает";
+  if (status === "HasOffers" && isRejected) return "Отклонено";
+  if (status === "HasOffers" && isPending) return "Отправлено";
 
   return "";
 }
@@ -109,6 +111,8 @@ export default function TripCard({
   actions = [],
   onAction,
   isPartner = false,
+  isPending = false,
+  isRejected = false,
   ...tripRest
 }) {
   const { ports } = useAuth();
@@ -135,6 +139,7 @@ export default function TripCard({
         actions,
         status: tripRest.status,
         rentOrder,
+        totalPrice,
         dateTimeText,
         ...tripRest,
       };
@@ -175,7 +180,7 @@ export default function TripCard({
           }
         : null);
 
-    const confirmLabel = buildConfirmLabel(confirm, rentOrder.status);
+    const confirmLabel = buildConfirmLabel(confirm, rentOrder.status, isRejected, isPending);
 
     const detailsArray = buildDateDetails(details, rentOrder.rentalStartTime);
     const dateTimeText = normalizeDetailsToText(detailsArray);
@@ -388,6 +393,8 @@ export default function TripCard({
         show={showDetails}
         onClose={() => setShowDetails(false)}
         isPartner={isPartner}
+        isPending={isPending}
+        isRejected={isRejected}
       />
     </div>
   );

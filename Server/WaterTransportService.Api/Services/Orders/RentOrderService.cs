@@ -295,9 +295,9 @@ public class RentOrderService(
     {
         var entity = await _rentOrderRepository.GetByIdAsync(id);
         if (entity is null) return false;
-
         // Отменяем все отклики на этот заказ
         await _rentOrderOfferRepository.RejectByRentOrderIdAsync(id);
+
 
         entity.Status = RentOrderStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;

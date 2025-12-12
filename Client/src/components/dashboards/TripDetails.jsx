@@ -13,6 +13,8 @@ export default function TripDetails({
   show,
   onClose,
   isPartner = false,
+  isPending = false,
+  isRejected = false,
   onCancelTrip
 }) {
   const [price, setPrice] = useState("");
@@ -32,6 +34,9 @@ export default function TripDetails({
     Array.isArray(trip?.matchingShips) &&
     trip.matchingShips.length > 0;
 
+  // console.log(trip.totalPrice);  
+
+  // console.log(trip.rentOrder);
   useEffect(() => {
     setPrice(trip?.price ?? "");
     if (trip?.review) {
@@ -45,11 +50,12 @@ export default function TripDetails({
       setReviewSubmitted(false);
     }
 
-    if (trip?.shipId || trip?.ShipId) {
-      setSelectedShipId(trip.shipId ?? trip.ShipId);
+    const shipId = trip?.shipId ?? trip?.ShipId;
+    if (shipId) {
+      setSelectedShipId(shipId);
     } 
-    else if (Array.isArray(trip?.matchingShips) && trip.matchingShips.length > 0) {
-      setSelectedShipId(trip.matchingShips[0].id);
+    else if (Array.isArray(trip?.rentOrder.matchingShips) && trip.rentOrder.matchingShips.length > 0) {
+      setSelectedShipId(trip.rentOrder.matchingShips[0].id);
     }   
     else {
       setSelectedShipId(null);
@@ -88,7 +94,8 @@ export default function TripDetails({
 
       await sendPartnerOffer(rentOrderId, price, shipId);
       onClose();
-    } finally {
+    } 
+    finally {
       setSaving(false);
     }
   }
@@ -196,6 +203,14 @@ export default function TripDetails({
                   Всего пассажиров: {trip.passengers}
                 </div>
               )}
+              {(() => {
+                const totalPrice = trip?.totalPrice || trip?.rentOrder?.totalPrice || trip?.price;
+                return totalPrice && (isPending || isRejected || trip.status == "Agreed") ? (
+                  <div className={styles["trip-summary-line"]}>
+                    Стоимость: {totalPrice}
+                  </div>
+                ) : null;
+              })()}
             </div>
           </div>
 
@@ -245,7 +260,7 @@ export default function TripDetails({
             </div>
           )}
 
-          {isPartner && (trip.status == "AwaitingResponse" || trip.status == "HasOffers") && (
+          {isPartner && !isPending && !isRejected && (trip.status == "AwaitingResponse" || trip.status == "HasOffers") && (
             <Form onSubmit={handleSubmit} className={styles["trip-price-form"]}>
               <Form.Group controlId="tripPrice" className={styles["trip-price-input"]}>
                 <Form.Label>Стоимость поездки</Form.Label>
