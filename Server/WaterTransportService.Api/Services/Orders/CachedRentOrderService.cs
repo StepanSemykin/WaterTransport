@@ -16,8 +16,6 @@ public class CachedRentOrderService(
 
     #region Read Methods (с кешированием)
 
-    #region Read Methods (с кешированием)
-
     /// <summary>
     /// Получить список всех заказов аренды с пагинацией.
     /// Не кешируется, так как используется редко (в основном в админ-панели).
