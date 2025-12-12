@@ -78,7 +78,7 @@ export default function OfferResult() {
       description: resp?.ship?.description
     });
     setSelectedOfferId(resp?.id ?? null);
-    loadShipReviews(shipId);
+    loadShipReviews(resp.shipId);
     setShowShipModal(true);
   }
 

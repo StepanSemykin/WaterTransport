@@ -1,25 +1,26 @@
+import { useMemo, useRef, useEffect, useState } from "react";
+
+import { Modal, Form, Button, Alert } from "react-bootstrap";
+
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
 import { useAuth } from "../auth/AuthContext.jsx";
-import { useMemo, useRef } from "react";
-
-import { useEffect, useState } from "react";
-
-import { Modal, Form, Button, Alert } from "react-bootstrap";
 
 import { apiFetch } from "../../api/api.js";
 
 import styles from "./TripDetails.module.css";
 
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
 const TRIPS_ENDPOINT = "/api/trips";
 const RENT_ORDERS_ENDPOINT = "/api/rentorders";
+const REVIEWS_ENDPOINT = "/api/reviews";
+const PORT_IMAGES_ENDPOINT = "/api/PortImages/file";
 
 const DEFAULT_CENTER = [53.195873, 50.100193];
 
@@ -79,6 +80,8 @@ export default function TripDetails({
   isRejected = false,
   onCancelTrip
 }) {
+  const { ports = [], user } = useAuth();
+
   const [price, setPrice] = useState("");
   const [saving, setSaving] = useState(false);
   const [discontinued, setDiscontinued] = useState(false);
@@ -96,17 +99,14 @@ export default function TripDetails({
   const objectUrlsRef = useRef(new Set());
   const inFlightRef = useRef(new Set());
 
-useEffect(() => {
-  return () => {
-    for (const url of objectUrlsRef.current) {
-      try { URL.revokeObjectURL(url); } catch {}
-    }
-    objectUrlsRef.current.clear();
-  };
-}, []);
-
-
-  const { ports = [] } = useAuth();
+  useEffect(() => {
+    return () => {
+      for (const url of objectUrlsRef.current) {
+        try { URL.revokeObjectURL(url); } catch {}
+      }
+      objectUrlsRef.current.clear();
+    };
+  }, []);
 
   const depPortId = trip?.rentOrder?.departurePortId ?? trip?.departurePortId ?? trip?.DeparturePortId ?? null;
   const arrPortId = trip?.rentOrder?.arrivalPortId ?? trip?.arrivalPortId ?? trip?.ArrivalPortId ?? null;
@@ -179,7 +179,7 @@ useEffect(() => {
     }));
 
     try {
-      const res = await apiFetch(`/api/PortImages/file/${portId}`, { method: "GET" });
+      const res = await apiFetch(`${PORT_IMAGES_ENDPOINT}/${portId}`, { method: "GET" });
 
       if (res.status === 404) {
         setPortImages((prev) => ({
@@ -213,16 +213,17 @@ useEffect(() => {
         ...prev,
         [portId]: { url, loading: false, notFound: false },
       }));
-    } catch {
+    } 
+    catch {
       setPortImages((prev) => ({
         ...prev,
         [portId]: { url: null, loading: false, notFound: true },
       }));
-    } finally {
+    } 
+    finally {
       inFlightRef.current.delete(portId);
     }
   }
-
 
   async function sendPartnerOffer(rentOrderId, offerPrice, shipId) {
     if (!rentOrderId) throw new Error("rentOrderId отсутствует");
@@ -272,25 +273,29 @@ useEffect(() => {
     }
     setReviewLoading(true);
     try {
-      const res = await apiFetch(`${TRIPS_ENDPOINT}/${trip.id}/reviews`, {
+      const payload = {
+        shipId: trip?.shipId ?? trip?.ShipId ?? trip?.rentOrder?.shipId ?? null,
+        rentOrderId: trip?.rentOrder?.id ?? trip?.rentOrderId ?? trip?.id ?? null,
+        comment: reviewComment,
+        rating: reviewRating
+      };
+
+      const res = await apiFetch(REVIEWS_ENDPOINT, {
         method: "POST",
-        body: JSON.stringify({
-          rating: reviewRating,
-          comment: reviewComment
-        })
+        body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        const data = await res.json();
+        await res.json().catch(() => null);
         setReviewSubmitted(true);
       } 
       else {
-        const txt = await res.text();
+        const txt = await res.text().catch(() => "");
         setReviewError(txt || `Ошибка сервера: ${res.status}`);
       }
     } 
     catch (err) {
-      setReviewError("Сетевая ошибка: " + err.message);
+      setReviewError("Сетевая ошибка: " + (err?.message || err));
     } 
     finally {
       setReviewLoading(false);
@@ -336,7 +341,8 @@ useEffect(() => {
     catch (err) {
       console.error("cancel trip failed:", err);
       alert(err.message || "Не удалось отменить поездку");
-    } finally {
+    } 
+    finally {
       setDiscontinued(false);
     }
   }

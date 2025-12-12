@@ -44,7 +44,8 @@ function formatDateTime(dt) {
         minute: "2-digit",
       }),
     };
-  } catch {
+  } 
+  catch {
     return { date: "", time: "" };
   }
 }
@@ -72,8 +73,7 @@ function buildConfirmLabel(confirm, status, isRejected, isPending) {
 
   if (status === "Agreed") return "Подтверждено";
   if (status === "AwaitingResponse") return "Ожидает";
-  if (status === "Discontinued") return "Отклонено";
-  if (status === "HasOffers" && isRejected) return "Отклонено";
+  if ((status === "Discontinued") || (status === "HasOffers" && isRejected) || (status === "Cancelled")) return "Отклонено";
   if (status === "HasOffers" && isPending) return "Отправлено";
   if (status === "Completed") return "Завершено";
 
@@ -117,8 +117,6 @@ export default function TripCard({
   isRejected = false,
   ...tripRest
 }) {
-
-  console.log(confirm);
   const { ports } = useAuth();
   const windowWidth = useWindowWidth();
   const [showDetails, setShowDetails] = useState(false);
@@ -185,8 +183,6 @@ export default function TripCard({
         : null);
 
     const confirmLabel = buildConfirmLabel(confirm, rentOrder.status, isRejected, isPending);
-
-    console.log(rentOrder.status);
 
     const detailsArray = buildDateDetails(details, rentOrder.rentalStartTime);
     const dateTimeText = normalizeDetailsToText(detailsArray);

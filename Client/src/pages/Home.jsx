@@ -22,7 +22,6 @@ import { apiFetch } from "../api/api.js";
 
 import styles from "./Home.module.css";
 
-const PORTS_ENDPOINT = "/api/ports/all";
 const DEFAULT_CENTER = [53.195873, 50.100193];
 const DEFAULT_ZOOM = 13;
 
@@ -163,16 +162,17 @@ export default function Home() {
         ...prev,
         [portId]: { url, loading: false, notFound: false },
       }));
-    } catch {
+    } 
+    catch {
       setPortImages((prev) => ({
         ...prev,
         [portId]: { url: null, loading: false, notFound: true },
       }));
-    } finally {
+    } 
+    finally {
       inFlightRef.current.delete(portId);
     }
   }
-
 
   const selectAsFrom = (port) => {
     const id = port?.id;
@@ -311,7 +311,6 @@ export default function Home() {
       return;
     }
 
-
     const payload = {
       fromPortId,
       toPortId: addWalkingTrip ? null : toPortId,
@@ -330,7 +329,7 @@ export default function Home() {
 
     try {
       await performSearch(payload); // запрос к серверу + сохранение результатов в контекст
-      navigate("/results"); // если хотите авто-переход — раскомментируйте:
+      // navigate("/results"); // если хотите авто-переход — раскомментируйте:
       const res = await apiFetch("/api/RentOrders", {
         method: "POST",
         body: JSON.stringify({
@@ -349,16 +348,14 @@ export default function Home() {
       }
       setRentOrderResponse(data);
       const newId = data?.id ?? data?.Id ?? null;
-      // if (newId) {
-      //   sessionStorage.setItem("currentRentOrderId", String(newId));
-      //   sessionStorage.setItem("canOpenResults", "1");
-      // }
+      if (newId) {
+        sessionStorage.setItem("currentRentOrderId", String(newId));
+        sessionStorage.setItem("canOpenResults", "1");
+      }
       console.log("RentOrder response:", data);
     } 
     catch (e) {
       openError("Ошибка поиска", e?.message || "Не удалось выполнить поиск");
-    }
-    finally {
     }
   }
 
@@ -368,13 +365,6 @@ export default function Home() {
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${dd}`;
-  };
-
-  const formatTimeToString = (d) => {
-    if (!d) return "";
-    const h = String(d.getHours()).padStart(2, "0");
-    const m = String(d.getMinutes()).padStart(2, "0");
-    return `${h}:${m}`;
   };
 
   return (
@@ -439,13 +429,13 @@ export default function Home() {
             {mapBounds && <PortsBoundsUpdater bounds={mapBounds} />}
 
             {geoPorts.map((port) => {
-                const isFrom = !!fromPortId && port.id === fromPortId;
-                const isTo = !addWalkingTrip && !!toPortId && port.id === toPortId;
+              const isFrom = !!fromPortId && port.id === fromPortId;
+              const isTo = !addWalkingTrip && !!toPortId && port.id === toPortId;
 
-                const disableAsFrom = !addWalkingTrip && !!toPortId && port.id === toPortId;
-                const disableAsTo = addWalkingTrip || (!!fromPortId && port.id === fromPortId);
+              const disableAsFrom = !addWalkingTrip && !!toPortId && port.id === toPortId;
+              const disableAsTo = addWalkingTrip || (!!fromPortId && port.id === fromPortId);
 
-                const icon = isFrom ? fromPortIcon : isTo ? toPortIcon : defaultIcon;               
+              const icon = isFrom ? fromPortIcon : isTo ? toPortIcon : defaultIcon;               
 
               return (
                 <Marker
@@ -857,7 +847,7 @@ export default function Home() {
                 <button
                   type="submit"
                   className={styles["primary-button"]}
-                  disabled={portsLoading || searchLoading /* + ваша валидация */}
+                  disabled={portsLoading || searchLoading}
                   aria-busy={searchLoading}
                 >
                   {searchLoading ? "Ищем..." : "Найти"}
@@ -866,7 +856,7 @@ export default function Home() {
                 <button
                   type="button"
                   className={styles["secondary-button"]}
-                  onClick={() => navigate("/offerresults")}
+                  onClick={() => navigate("/results")}
                   disabled={!canOpenResults}
                   title={canOpenResults ? "Перейти к результатам" : "Сначала выполните поиск"}
                 >

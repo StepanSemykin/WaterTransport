@@ -13,18 +13,18 @@ import OfferResult from "./pages/OfferResult.jsx";
 
 import "./App.css"
 
-function RequireSearch({ children }) {
-  const location = useLocation();
-  const { results, loading } = useSearch();
-  const canOpen = sessionStorage.getItem("canOpenResults") === "1";
+// function RequireSearch({ children }) {
+//   const location = useLocation();
+//   const { results, loading } = useSearch();
+//   const canOpen = sessionStorage.getItem("canOpenResults") === "1";
 
-  if (loading) return null;
+//   if (loading) return null;
 
-  if (!results || !canOpen) {
-    return <Navigate to="/" replace state={{ from: location }} />;
-  }
-  return children;
-}
+//   if (!results || !canOpen) {
+//     return <Navigate to="/" replace state={{ from: location }} />;
+//   }
+//   return children;
+// }
 
 export default function App() {
   return (
@@ -63,27 +63,11 @@ export default function App() {
             <Route
               path="/results"
               element={
-                <RequireSearch>
+                <ProtectedRoute allowedRoles={["common"]}>
                   <OfferResult />
-                </RequireSearch>
+                </ProtectedRoute>
               }
             />
-            {/* <Route
-              path="/calendar"
-              element={
-                <ProtectedRoute allowedRoles={["common"]}>
-                  <Calendar />
-                </ProtectedRoute>
-              }
-            /> */}
-            {/* <Route
-              path="/offerresults"
-              element={
-                <ProtectedRoute allowedRoles={["common"]}>
-                  <OfferResult />
-                </ProtectedRoute>
-              }
-            /> */}
             <Route
               path="/support"
               element={

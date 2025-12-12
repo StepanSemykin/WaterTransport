@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 
-import { Button } from "react-bootstrap";
-import { X, MapPin, Edit, DollarSign, Calendar, Trash2 } from "lucide-react";
+import { Button, Spinner } from "react-bootstrap";
+import { X, MapPin, Edit, DollarSign, Calendar, Trash2, MessageSquare } from "lucide-react";
 
 import { useAuth } from "../../auth/AuthContext";
 
 import { apiFetch, apiFetchRaw } from "../../../api/api.js";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal.jsx";
+import ShipReviews from "./ShipReviews.jsx";
 
 import styles from "./EditShipModal.module.css";
 
-const SHIPS_ENDPOINT = "/api/Ships";
+const REVIEWS_ENDPOINT = "/api/reviews/ship";
+const SHIPS_ENDPOINT = "/api/ships";
 const SHIP_IMAGES_ENDPOINT = "/api/shipimages";
 
 export function EditShipModal({ isOpen, onClose, ship, onSave }) {
@@ -33,6 +35,9 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     imageFile: null,
     portId: "",
   });
+
+  const [shipReviews, setShipReviews] = useState([]);
+  const [shipReviewsLoading, setShipReviewsLoading] = useState(false);
 
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -60,6 +65,29 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  async function loadShipReviews(shipId) {
+    if (!shipId) return;
+    setShipReviewsLoading(true);
+    try {
+      const res = await apiFetch(`${REVIEWS_ENDPOINT}/${ship.id}`, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json().catch(() => null);
+        const items = Array.isArray(data) ? data : Array.isArray(data?.items) ? data.items : [];
+        setShipReviews(items);
+      } 
+      else {
+        setShipReviews([]);
+      }
+    } 
+    catch (err) {
+      console.warn("Failed to load ship reviews", err);
+      setShipReviews([]);
+    } 
+    finally {
+      setShipReviewsLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (ship && isOpen) {    
       const port = availablePorts.find(p => p.id === ship.portId);
@@ -67,6 +95,10 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
 
       console.log("Инициализация пристани:", portTitle);
       setPortSearch(portTitle);
+
+      if (ship.id) {
+        loadShipReviews(ship.id);
+      }
 
       const yearValue = ship.yearOfManufacture 
         ? new Date(ship.yearOfManufacture).getFullYear()
@@ -165,13 +197,13 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     if (file) handleFile(file);
   };
 
-  const handleRemoveImage = () => {
-    if (previewUrl && formData.imageFile) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    setPreviewUrl(ship?.primaryImage?.url || ship?.images?.[0]?.url || null);
-    setFormData(prev => ({ ...prev, imageFile: null }));
-  };
+  // const handleRemoveImage = () => {
+  //   if (previewUrl && formData.imageFile) {
+  //     URL.revokeObjectURL(previewUrl);
+  //   }
+  //   setPreviewUrl(ship?.primaryImage?.url || ship?.images?.[0]?.url || null);
+  //   setFormData(prev => ({ ...prev, imageFile: null }));
+  // };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -246,10 +278,8 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
 
       const updatedShip = await shipRes.json();
 
-      // Если выбрано новое изображение, загружаем его
       if (formData.imageFile) {
         const form = new FormData();
-        // form.append("ShipName", updatedShip.name);
         form.append("Image", formData.imageFile);
         form.append("IsPrimary", "true");
         console.log(ship);
@@ -281,6 +311,7 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     { id: "edit", label: "Редактирование", icon: Edit },
     { id: "pricing", label: "Ценообразование", icon: DollarSign },
     { id: "calendar", label: "Календарь доступности", icon: Calendar },
+    { id: "reviews", label: "Отзывы", icon: MessageSquare },
   ];
 
   return (
@@ -410,18 +441,6 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
                               alt="Предпросмотр"
                               className={styles["image-preview"]}
                             />
-                            {/* <div className={styles["preview-actions"]}>
-                              <button 
-                                type="button" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRemoveImage();
-                                }} 
-                                className={styles["button"]}
-                              >
-                                {formData.imageFile ? "Удалить фото" : "Выбрать другое фото"}
-                              </button>
-                            </div> */}
                           </div>
                         )}
 
@@ -609,6 +628,14 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
                   </div>
                 </div>
               )}
+
+              {activeTab === "reviews" && (
+                <div className={styles["tab-content"]}>
+                  <h3 className={styles["section-title"]}>Отзывы судна</h3>
+                  <ShipReviews shipReviews={shipReviews} shipReviewsLoading={shipReviewsLoading} />
+                </div>
+              )}
+
             </div>
 
            <div className={styles["footer"]}>
