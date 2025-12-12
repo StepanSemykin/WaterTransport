@@ -592,3 +592,25 @@
   fill: #ef4444;
 }
 
+.popup-image {
+  width: 100%;
+  max-width: 260px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+
+.popup-image-placeholder {
+  width: 100%;
+  max-width: 260px;
+  height: 140px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.04);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+

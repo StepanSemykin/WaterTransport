@@ -7,7 +7,7 @@ import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
 import { useAuth } from "../auth/AuthContext.jsx";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 import { useEffect, useState } from "react";
 
@@ -92,6 +92,20 @@ export default function TripDetails({
 
   const [selectedShipId, setSelectedShipId] = useState(null);
 
+  const [portImages, setPortImages] = useState({}); 
+  const objectUrlsRef = useRef(new Set());
+  const inFlightRef = useRef(new Set());
+
+useEffect(() => {
+  return () => {
+    for (const url of objectUrlsRef.current) {
+      try { URL.revokeObjectURL(url); } catch {}
+    }
+    objectUrlsRef.current.clear();
+  };
+}, []);
+
+
   const { ports = [] } = useAuth();
 
   const depPortId = trip?.rentOrder?.departurePortId ?? trip?.departurePortId ?? trip?.DeparturePortId ?? null;
@@ -150,6 +164,64 @@ export default function TripDetails({
   }, [trip]);
 
   const isWalkingTrip = !!trip?.rentOrder?.departurePortId && !trip?.rentOrder?.arrivalPortId;
+
+  async function ensurePortImageLoaded(portId) {
+    if (!portId) return;
+
+    if (portImages[portId]?.url || portImages[portId]?.notFound) return;
+    if (inFlightRef.current.has(portId)) return;
+
+    inFlightRef.current.add(portId);
+
+    setPortImages((prev) => ({
+      ...prev,
+      [portId]: { url: prev[portId]?.url ?? null, loading: true, notFound: false },
+    }));
+
+    try {
+      const res = await apiFetch(`/api/PortImages/file/${portId}`, { method: "GET" });
+
+      if (res.status === 404) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      if (!res.ok) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      objectUrlsRef.current.add(url);
+
+      setPortImages((prev) => ({
+        ...prev,
+        [portId]: { url, loading: false, notFound: false },
+      }));
+    } catch {
+      setPortImages((prev) => ({
+        ...prev,
+        [portId]: { url: null, loading: false, notFound: true },
+      }));
+    } finally {
+      inFlightRef.current.delete(portId);
+    }
+  }
 
 
   async function sendPartnerOffer(rentOrderId, offerPrice, shipId) {
@@ -293,28 +365,94 @@ export default function TripDetails({
                 {bounds && <FitBounds bounds={bounds} />}
 
                 {isWalkingTrip && depPos && (
-                  <Marker position={depPos} icon={walkPortIcon}>
+                  <Marker
+                    position={depPos}
+                    icon={walkPortIcon}
+                    eventHandlers={{
+                      popupopen: () => ensurePortImageLoaded(depPortId),
+                    }}
+                  >
                     <Popup>
                       <strong>Прогулочная поездка</strong>
                       <div>{depPort?.title ?? depPort?.name ?? "Пристань"}</div>
+
+                      {(() => {
+                        const st = portImages[depPortId];
+                        if (st?.loading) return <div className={styles["popup-image-placeholder"]}>Загрузка фото...</div>;
+                        if (st?.url) {
+                          return (
+                            <img
+                              className={styles["popup-image"]}
+                              src={st.url}
+                              alt={`Фото порта: ${depPort?.title ?? depPort?.name ?? ""}`}
+                              loading="lazy"
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
                     </Popup>
                   </Marker>
                 )}
 
                 {!isWalkingTrip && depPos && (
-                  <Marker position={depPos} icon={fromPortIcon}>
+                  <Marker
+                    position={depPos}
+                    icon={fromPortIcon}
+                    eventHandlers={{
+                      popupopen: () => ensurePortImageLoaded(depPortId),
+                    }}
+                  >
                     <Popup>
                       <strong>Отправление</strong>
                       <div>{depPort?.title ?? depPort?.name ?? "Пристань"}</div>
+
+                      {(() => {
+                        const st = portImages[depPortId];
+                        if (st?.loading) return <div className={styles["popup-image-placeholder"]}>Загрузка фото...</div>;
+                        if (st?.url) {
+                          return (
+                            <img
+                              className={styles["popup-image"]}
+                              src={st.url}
+                              alt={`Фото порта: ${depPort?.title ?? depPort?.name ?? ""}`}
+                              loading="lazy"
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
                     </Popup>
                   </Marker>
                 )}
 
                 {!isWalkingTrip && arrPos && (
-                  <Marker position={arrPos} icon={toPortIcon}>
+                  <Marker
+                    position={arrPos}
+                    icon={toPortIcon}
+                    eventHandlers={{
+                      popupopen: () => ensurePortImageLoaded(arrPortId),
+                    }}
+                  >
                     <Popup>
                       <strong>Прибытие</strong>
                       <div>{arrPort?.title ?? arrPort?.name ?? "Пристань"}</div>
+
+                      {(() => {
+                        const st = portImages[arrPortId];
+                        if (st?.loading) return <div className={styles["popup-image-placeholder"]}>Загрузка фото...</div>;
+                        if (st?.url) {
+                          return (
+                            <img
+                              className={styles["popup-image"]}
+                              src={st.url}
+                              alt={`Фото порта: ${arrPort?.title ?? arrPort?.name ?? ""}`}
+                              loading="lazy"
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
                     </Popup>
                   </Marker>
                 )}

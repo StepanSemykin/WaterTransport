@@ -103,6 +103,77 @@ export default function HomePage() {
   const [fromSearch, setFromSearch] = useState("");
   const [toSearch, setToSearch] = useState("");
 
+  const [portImages, setPortImages] = useState({}); 
+  const objectUrlsRef = useRef(new Set());
+  const inFlightRef = useRef(new Set());
+
+  useEffect(() => {
+    return () => {
+      for (const url of objectUrlsRef.current) {
+        try { URL.revokeObjectURL(url); } catch {}
+      }
+      objectUrlsRef.current.clear();
+    };
+  }, []);
+
+  async function ensurePortImageLoaded(portId) {
+    if (!portId) return;
+
+    if (portImages[portId]?.url || portImages[portId]?.notFound) return;
+    if (inFlightRef.current.has(portId)) return;
+
+    inFlightRef.current.add(portId);
+    setPortImages((prev) => ({
+      ...prev,
+      [portId]: { url: prev[portId]?.url ?? null, loading: true, notFound: false },
+    }));
+
+    try {
+      const res = await apiFetch(`/api/PortImages/file/${portId}`, { method: "GET" });
+
+      if (res.status === 404) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      if (!res.ok) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      objectUrlsRef.current.add(url);
+
+      setPortImages((prev) => ({
+        ...prev,
+        [portId]: { url, loading: false, notFound: false },
+      }));
+    } catch {
+      setPortImages((prev) => ({
+        ...prev,
+        [portId]: { url: null, loading: false, notFound: true },
+      }));
+    } finally {
+      inFlightRef.current.delete(portId);
+    }
+  }
+
+
   const selectAsFrom = (port) => {
     const id = port?.id;
     if (!id) return;
@@ -381,11 +452,31 @@ export default function HomePage() {
                   key={port.id ?? `${port.latitude}-${port.longitude}`}
                   position={[port.latitude, port.longitude]}
                   icon={icon}
+                  eventHandlers={{
+                    popupopen: () => ensurePortImageLoaded(port.id),
+                  }}
                 >
                   <Popup>
                     <div className={styles["popup"]}>
                       <strong className={styles["popup-title"]}>{port.title ?? port.name ?? "Порт"}</strong>
                       {port.address ? <div className={styles["popup-address"]}>{port.address}</div> : null}
+                      {(() => {
+                        const st = portImages[port.id];
+                        if (st?.loading) {
+                          return <div className={styles["popup-image-placeholder"]}>Загрузка фото...</div>;
+                        }
+                        if (st?.url) {
+                          return (
+                            <img
+                              className={styles["popup-image"]}
+                              src={st.url}
+                              alt={`Фото порта: ${port.title ?? port.name ?? ""}`}
+                              loading="lazy"
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
 
                       <div className={styles["popup-actions"]}>
                         <button
