@@ -20,6 +20,7 @@ const POLL_INTERVAL = 10000; // 10 секунд
 const USER_OFFERS_ENDPOINT = "/api/rent-orders/offers/foruser";
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
 const RENT_ORDERS_ENDPOINT = "/api/rentorders";
+const SHIP_REVIEWS_ENDPOINT = "/api/reviews/ship";
 const ACCEPT_ENDPOINT = "accept";
 const REJECT_ENDPOINT = "reject";
 const CANCEL_ENDPOINT = "cancel";
@@ -28,6 +29,9 @@ const FORMAT_IMG = "base64";
 
 export default function OfferResult() {
   const navigate = useNavigate();
+
+  const [shipReviews, setShipReviews] = useState([]);
+  const [shipReviewsLoading, setShipReviewsLoading] = useState(false);
 
   const [showShipModal, setShowShipModal] = useState(false);
   const [selectedShip, setSelectedShip] = useState(null);
@@ -74,6 +78,7 @@ export default function OfferResult() {
       description: resp?.ship?.description
     });
     setSelectedOfferId(resp?.id ?? null);
+    loadShipReviews(shipId);
     setShowShipModal(true);
   }
 
@@ -118,11 +123,31 @@ export default function OfferResult() {
         { iconSrc: CostIcon, iconAlt: "Стоимость", text: `Цена: ${resp.offeredPrice}` },
         // { iconSrc: PassengersIcon, iconAlt: "пассажиры", text: `До ${resp.ship.capacity || 0} человек` }
       ],
-      // confirm: resp.offeredPrice,
       actions: [
         { key: "details", label: "Посмотреть детали", onClick: () => openShipModal(resp) },
       ],
     };
+  }
+
+  async function loadShipReviews(shipId) {
+    if (!shipId) return;
+    setShipReviewsLoading(true);
+    try {
+      const res = await apiFetch(`${SHIP_REVIEWS_ENDPOINT}/${shipId}`, { method: "GET" });
+      if (res.ok) {
+        const data = await res.json();
+        setShipReviews(Array.isArray(data) ? data : []);
+      } 
+      else {
+        setShipReviews([]);
+      }
+    } 
+    catch {
+      setShipReviews([]);
+    } 
+    finally {
+      setShipReviewsLoading(false);
+    }
   }
 
   // ✅ Принять отклик (accept)
@@ -145,9 +170,10 @@ export default function OfferResult() {
           )
         );
         // при желании можно остановить polling или перезагрузить активный заказ:
-        // setPolling(false);
+        setPolling(false);
         // loadActiveOrder?.();
-      } else {
+      } 
+      else {
         const txt = await res.text().catch(() => "");
         console.error(
           "Ошибка подтверждения. Статус:",
@@ -155,7 +181,8 @@ export default function OfferResult() {
           txt || ""
         );
       }
-    } catch (err) {
+    } 
+    catch (err) {
       console.error("Ошибка при подтверждении отклика:", err);
     }
   }
@@ -378,6 +405,8 @@ export default function OfferResult() {
         <ShipDetails
           show={showShipModal}
           ship={selectedShip}
+          shipReviews={shipReviews}
+          shipReviewsLoading={shipReviewsLoading}
           onClose={closeShipModal}
           onApprove={handleApproveInModal}
           onReject={handleRejectInModal}

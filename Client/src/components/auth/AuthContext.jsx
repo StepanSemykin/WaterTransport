@@ -80,6 +80,7 @@ export function AuthProvider({ children }) {
   const [possiblePolling, setPossiblePolling] = useState(true);
   const [pendingPolling, setPendingPolling] = useState(true);
   const [rejectedPolling, setRejectedPolling] = useState(true);
+  const [completedPolling, setCompletedPolling] = useState(true);
 
   const hasFetched = useRef(false);
   const inFlight = useRef(false);
@@ -181,7 +182,7 @@ export function AuthProvider({ children }) {
       setUserShips([]);
     } 
     finally {
-        setUserShipsLoading(false);
+      setUserShipsLoading(false);
     }
   }
 
@@ -245,7 +246,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Загрузка завершенных поездок
   async function loadCompletedTrips(userId, endpoint) {
     if (!userId) {
       setCompletedTrips([]);
@@ -352,11 +352,11 @@ export function AuthProvider({ children }) {
 
     let cancelled = false;
     let upcomingIntervalId;
+    let completedIntervalId;
     let possibleIntervalId;
     let pendingIntervalId;
     let rejectedIntervalId;
 
-    // ---------- ПОЛЛИНГ UPCOMING ----------
     async function pollUpcoming() {
       try {
         const endpoint =
@@ -385,7 +385,6 @@ export function AuthProvider({ children }) {
       }
     }
 
-    // ---------- ПОЛЛИНГ POSSIBLE ----------
     async function pollPossible() {
       try {
         const res = await apiFetch(`${POSSIBLE_TRIPS_ENDPOINT}/${user.id}`, {
@@ -436,9 +435,13 @@ export function AuthProvider({ children }) {
       }
     }
 
-    // ---------- ПОЛЛИНГ REJECTED ----------
-    async function pollRejected(endpoint) {
+    async function pollRejected() {
       try {
+        const endpoint =
+          user.role === PARTNER_ROLE
+          ? REJECTED_TRIPS_PARTNER_ENDPOINT
+          : REJECTED_TRIPS_COMMON_ENDPOINT;
+
         const res = await apiFetch(endpoint, {
           method: "GET",
         });
@@ -462,7 +465,34 @@ export function AuthProvider({ children }) {
       }
     }
 
-    // ---------- ЗАПУСК ПОЛЛИНГА ----------
+    async function pollCompleted() {
+      try {
+        const endpoint =
+          user.role === PARTNER_ROLE
+            ? COMPLETED_TRIPS_PARTNER_ENDPOINT
+            : COMPLETED_TRIPS_COMMON_ENDPOINT;
+
+        const res = await apiFetch(endpoint, { method: "GET" });
+        if (cancelled) return;
+
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data?.items)
+            ? data.items
+            : Array.isArray(data)
+            ? data
+            : [];
+          setCompletedTrips(items);
+        }
+      } 
+      catch (err) {
+        if (!cancelled) console.warn("[AuthContext] completed poll failed", err);
+      } 
+      finally {
+        if (!cancelled) setCompletedTripsLoading(false);
+      }
+    }
+
     if (upcomingPolling) {
       setUpcomingTripsLoading(true);
       pollUpcoming();
@@ -481,26 +511,27 @@ export function AuthProvider({ children }) {
       pendingIntervalId = setInterval(pollPending, POLL_INTERVAL);
     }
 
-    if (rejectedPolling && user.role === PARTNER_ROLE) {
+    if (rejectedPolling) {
       setRejectedTripsLoading(true);
-      pollRejected(REJECTED_TRIPS_PARTNER_ENDPOINT);
+      pollRejected();
       rejectedIntervalId = setInterval(pollRejected, POLL_INTERVAL);
     }
-    else {
-      setRejectedTripsLoading(true);
-      pollRejected(REJECTED_TRIPS_COMMON_ENDPOINT);
-      rejectedIntervalId = setInterval(pollRejected, POLL_INTERVAL);
+
+    if (completedPolling) {
+      setCompletedTripsLoading(true);
+      pollCompleted();
+      completedIntervalId = setInterval(pollCompleted, POLL_INTERVAL);
     }
     
-    // ---------- CLEANUP ----------
     return () => {
       cancelled = true;
       if (upcomingIntervalId) clearInterval(upcomingIntervalId);
       if (possibleIntervalId) clearInterval(possibleIntervalId);
       if (pendingIntervalId) clearInterval(pendingIntervalId);
       if (rejectedIntervalId) clearInterval(rejectedIntervalId);
+      if (completedIntervalId) clearInterval(completedIntervalId);
     };
-  }, [user?.id, user?.role, upcomingPolling, possiblePolling, pendingPolling, rejectedPolling]);
+  }, [user?.id, user?.role, upcomingPolling, possiblePolling, pendingPolling, rejectedPolling, completedPolling]);
 
   async function refreshUser({ force = false } = {}) {
     if ((hasFetched.current || inFlight.current) && !force) return;
@@ -636,6 +667,8 @@ export function AuthProvider({ children }) {
       setPendingPolling,
       rejectedPolling,
       setRejectedPolling,
+      completedPolling,
+      setCompletedPolling,
       activeRentOrder,
       hasActiveOrder,
       loadActiveOrder,
@@ -657,7 +690,7 @@ export function AuthProvider({ children }) {
       pendingTrips, pendingTripsLoading,
       possibleTrips, possibleTripsLoading,
       upcomingPolling, possiblePolling,
-      pendingPolling, rejectedPolling,
+      pendingPolling, rejectedPolling, completedPolling,
       rejectedTrips, rejectedTripsLoading,
       activeRentOrder, hasActiveOrder, loadActiveOrder
     ]
