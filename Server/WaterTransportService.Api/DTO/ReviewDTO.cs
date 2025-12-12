@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+п»їusing System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Api.DTO;
 
@@ -11,7 +11,7 @@ public record ReviewDto(
     Guid? PortId,
     Guid? RentOrderId,
     string? Comment,
-    byte Rating,
+    float Rating,
     DateTime CreatedAt,
     DateTime? UpdatedAt,
     bool IsActive
@@ -20,64 +20,64 @@ public record ReviewDto(
 public class CreateReviewDto
 {
     /// <summary>
-    /// Идентификатор пользователя, на которого оставляется отзыв (партнер).
-    /// Обязателен только для отзывов на партнеров.
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ, РЅР° РєРѕС‚РѕСЂРѕРіРѕ РѕСЃС‚Р°РІР»СЏРµС‚СЃСЏ РѕС‚Р·С‹РІ (РїР°СЂС‚РЅРµСЂ).
+    /// РћР±СЏР·Р°С‚РµР»РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РѕС‚Р·С‹РІРѕРІ РЅР° РїР°СЂС‚РЅРµСЂРѕРІ.
     /// </summary>
     public Guid? UserId { get; set; }
 
     /// <summary>
-    /// Идентификатор судна, на которое оставляется отзыв.
-    /// Обязателен только для отзывов на суда.
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°, РЅР° РєРѕС‚РѕСЂРѕРµ РѕСЃС‚Р°РІР»СЏРµС‚СЃСЏ РѕС‚Р·С‹РІ.
+    /// РћР±СЏР·Р°С‚РµР»РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РѕС‚Р·С‹РІРѕРІ РЅР° СЃСѓРґР°.
     /// </summary>
     public Guid? ShipId { get; set; }
 
     /// <summary>
-    /// Идентификатор порта, на который оставляется отзыв.
-    /// Обязателен только для отзывов на порты.
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°, РЅР° РєРѕС‚РѕСЂС‹Р№ РѕСЃС‚Р°РІР»СЏРµС‚СЃСЏ РѕС‚Р·С‹РІ.
+    /// РћР±СЏР·Р°С‚РµР»РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ РѕС‚Р·С‹РІРѕРІ РЅР° РїРѕСЂС‚С‹.
     /// </summary>
     public Guid? PortId { get; set; }
 
     /// <summary>
-    /// Идентификатор заказа аренды.
-    /// Обязателен для отзывов на партнеров и суда.
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·Р°РєР°Р·Р° Р°СЂРµРЅРґС‹.
+    /// РћР±СЏР·Р°С‚РµР»РµРЅ РґР»СЏ РѕС‚Р·С‹РІРѕРІ РЅР° РїР°СЂС‚РЅРµСЂРѕРІ Рё СЃСѓРґР°.
     /// </summary>
     public Guid? RentOrderId { get; set; }
 
     /// <summary>
-    /// Текст отзыва.
+    /// РўРµРєСЃС‚ РѕС‚Р·С‹РІР°.
     /// </summary>
     [MaxLength(1000)]
     public string? Comment { get; set; }
 
     /// <summary>
-    /// Рейтинг от 0 до 5.
+    /// Р РµР№С‚РёРЅРі РѕС‚ 0 РґРѕ 5.
     /// </summary>
     [Required, Range(0, 5)]
-    public required byte Rating { get; set; }
+    public required float Rating { get; set; }
 }
 
 public class UpdateReviewDto
 {
     /// <summary>
-    /// Обновленный текст отзыва.
+    /// РћР±РЅРѕРІР»РµРЅРЅС‹Р№ С‚РµРєСЃС‚ РѕС‚Р·С‹РІР°.
     /// </summary>
     [MaxLength(1000)]
     public string? Comment { get; set; }
 
     /// <summary>
-    /// Обновленный рейтинг от 0 до 5.
+    /// РћР±РЅРѕРІР»РµРЅРЅС‹Р№ СЂРµР№С‚РёРЅРі РѕС‚ 0 РґРѕ 5.
     /// </summary>
     [Range(0, 5)]
-    public byte? Rating { get; set; }
+    public float? Rating { get; set; }
 
     /// <summary>
-    /// Флаг активности (для модерации администратором).
+    /// Р¤Р»Р°Рі Р°РєС‚РёРІРЅРѕСЃС‚Рё (РґР»СЏ РјРѕРґРµСЂР°С†РёРё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРј).
     /// </summary>
     public bool? IsActive { get; set; }
 }
 
 /// <summary>
-/// DTO для получения среднего рейтинга сущности.
+/// DTO РґР»СЏ РїРѕР»СѓС‡РµРЅРёСЏ СЃСЂРµРґРЅРµРіРѕ СЂРµР№С‚РёРЅРіР° СЃСѓС‰РЅРѕСЃС‚Рё.
 /// </summary>
 public record AverageRatingDto(
     double AverageRating,
