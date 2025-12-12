@@ -180,25 +180,25 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Инициализация синтетических данных
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<WaterTransportDbContext>();
-        var passwordHasher = services.GetRequiredService<IPasswordHasher>();
 
         await context.Database.MigrateAsync();
 
-        var testPasswordHash = passwordHasher.Generate("123456");
-
-        await DatabaseSeeder.SeedAsync(context, testPasswordHash);
+        // Раскомментируйте для заполнения тестовыми данными
+        //var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+        //var testPasswordHash = passwordHasher.Generate("123456");
+        //await DatabaseSeeder.SeedAsync(context, testPasswordHash);
+        //logger.LogInformation("Тестовые данные загружены.");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Произошла ошибка при инициализации базы данных.");
+        Console.WriteLine($"Ошибка инициализации базы данных: {ex.Message}");
+        throw;
     }
 }
 

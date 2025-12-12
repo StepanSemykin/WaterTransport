@@ -5,6 +5,8 @@ namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
 /// Декоратор сервиса откликов на заказы аренды с кешированием.
+/// Оборачивает базовый сервис откликов, добавляя слой кеширования для оптимизации производительности.
+/// Автоматически инвалидирует устаревшие данные при изменениях откликов.
 /// </summary>
 public class CachedRentOrderOfferService(
     IRentOrderOfferService innerService,
@@ -15,6 +17,12 @@ public class CachedRentOrderOfferService(
 
     #region Read Methods (с кешированием)
 
+    /// <summary>
+    /// Получить все отклики для конкретного заказа аренды.
+    /// Результат кешируется на время, определенное в CacheTTL.OrderOffers.
+    /// </summary>
+    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
+    /// <returns>Коллекция откликов на заказ.</returns>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
     {
         var cacheKey = CacheKeys.OffersByOrderId(rentOrderId);
@@ -35,6 +43,13 @@ public class CachedRentOrderOfferService(
         return result;
     }
 
+    /// <summary>
+    /// Получить все отклики для заказов пользователя со статусом "Pending".
+    /// Используется для получения ожидающих рассмотрения откликов на заказы пользователя.
+    /// Результат кешируется на время, определенное в CacheTTL.OrderOffers.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <returns>Коллекция ожидающих откликов.</returns>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByUser(Guid userId)
     {
         var cacheKey = CacheKeys.OffersForUserOrdersByStatus(userId, "Pending");
@@ -55,6 +70,12 @@ public class CachedRentOrderOfferService(
         return result;
     }
 
+    /// <summary>
+    /// Получить все отклики конкретного партнера.
+    /// Результат кешируется на время, определенное в CacheTTL.PartnerOffers.
+    /// </summary>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Коллекция всех откликов партнера.</returns>
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId)
     {
         var cacheKey = CacheKeys.OffersByPartnerId(partnerId);
@@ -75,6 +96,12 @@ public class CachedRentOrderOfferService(
         return result;
     }
 
+    /// <summary>
+    /// Получить отклик по идентификатору.
+    /// Результат кешируется на время, определенное в CacheTTL.OrderOffers.
+    /// </summary>
+    /// <param name="id">Идентификатор отклика.</param>
+    /// <returns>Отклик или null, если не найден.</returns>
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)
     {
         var cacheKey = CacheKeys.OfferById(id);
@@ -95,6 +122,14 @@ public class CachedRentOrderOfferService(
         return result;
     }
 
+    /// <summary>
+    /// Получить заказы партнера по статусу отклика.
+    /// Возвращает заказы, на которые партнер откликнулся с указанным статусом.
+    /// Результат кешируется на время, определенное в CacheTTL.PartnerOffers.
+    /// </summary>
+    /// <param name="status">Статус отклика (например, "Pending", "Accepted", "Rejected").</param>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Список заказов с откликами в указанном статусе.</returns>
     public async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
     {
         var cacheKey = CacheKeys.PartnerOrdersByStatus(partnerId, status);
@@ -119,6 +154,17 @@ public class CachedRentOrderOfferService(
 
     #region Write Methods (с инвалидацией кеша)
 
+    /// <summary>
+    /// Создать новый отклик партнера на заказ аренды.
+    /// При создании инвалидируются:
+    /// - Все кеши откликов (по заказу, партнеру, пользователю)
+    /// - Доступные заявки для партнера
+    /// - Кеш заказа (статус может измениться на "HasOffers")
+    /// - Заказы партнера по статусу
+    /// </summary>
+    /// <param name="createDto">Данные для создания отклика.</param>
+    /// <param name="partnerId">Идентификатор партнера, создающего отклик.</param>
+    /// <returns>Созданный отклик или null в случае ошибки.</returns>
     public async Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto, Guid partnerId)
     {
         var result = await _innerService.CreateOfferAsync(createDto, partnerId);
@@ -143,6 +189,18 @@ public class CachedRentOrderOfferService(
         return result;
     }
 
+    /// <summary>
+    /// Принять отклик партнера (пользователь выбирает партнера).
+    /// При принятии инвалидируются:
+    /// - Все кеши откликов (все отклики на заказ становятся неактуальными)
+    /// - Кеш заказа (статус изменяется на "Agreed")
+    /// - Доступные заявки (заказ больше не доступен)
+    /// - Заказы партнера по статусу
+    /// - Отклики на заказы пользователя
+    /// </summary>
+    /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
+    /// <param name="offerId">Идентификатор принимаемого отклика.</param>
+    /// <returns>True, если операция выполнена успешно.</returns>
     public async Task<bool> AcceptOfferAsync(Guid rentOrderId, Guid offerId)
     {
         var offer = await _innerService.GetOfferByIdAsync(offerId);
@@ -171,6 +229,14 @@ public class CachedRentOrderOfferService(
         return success;
     }
 
+    /// <summary>
+    /// Отклонить отклик партнера.
+    /// При отклонении инвалидируются:
+    /// - Все кеши откликов (по заказу, партнеру, пользователю)
+    /// - Заказы партнера по статусу
+    /// </summary>
+    /// <param name="id">Идентификатор отклика.</param>
+    /// <returns>True, если операция выполнена успешно.</returns>
     public async Task<bool> RejectOfferAsync(Guid id)
     {
         var offer = await _innerService.GetOfferByIdAsync(id);
@@ -187,6 +253,15 @@ public class CachedRentOrderOfferService(
         return success;
     }
 
+    /// <summary>
+    /// Удалить отклик.
+    /// При удалении инвалидируются:
+    /// - Все кеши откликов (по заказу, партнеру, пользователю)
+    /// - Кеш заказа (количество откликов изменилось)
+    /// - Заказы партнера по статусу
+    /// </summary>
+    /// <param name="id">Идентификатор отклика.</param>
+    /// <returns>True, если операция выполнена успешно.</returns>
     public async Task<bool> DeleteOfferAsync(Guid id)
     {
         var offer = await _innerService.GetOfferByIdAsync(id);
@@ -212,7 +287,13 @@ public class CachedRentOrderOfferService(
 
     /// <summary>
     /// Инвалидировать все кеши, связанные с откликом.
+    /// Удаляет:
+    /// - Кеш конкретного отклика по ID
+    /// - Все отклики на заказ (GetOffersByRentOrderIdAsync)
+    /// - Все отклики партнера (GetOffersByPartnerIdAsync)
+    /// - Отклики на заказы пользователя (GetOffersByUser)
     /// </summary>
+    /// <param name="offer">Отклик, для которого нужно инвалидировать кеши.</param>
     private async Task InvalidateOfferCaches(RentOrderOfferDto offer)
     {
         // 1. Кеш конкретного отклика
