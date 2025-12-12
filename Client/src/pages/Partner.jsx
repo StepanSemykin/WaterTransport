@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { Container } from "react-bootstrap";
 
 import { useAuth } from "../components/auth/AuthContext.jsx";
@@ -77,6 +75,7 @@ export default function Partner() {
           location={user.location ?? ""}
           userId={user?.id}
           profileImage={userImage}
+          isPartner={user?.role === "partner"}
         />
       </div>
 

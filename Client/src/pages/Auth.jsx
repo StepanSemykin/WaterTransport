@@ -425,7 +425,6 @@ export default function Auth () {
                         </button>
                       </div>
 
-                      {/* Индикатор силы пароля — только при регистрации */}
                       {formData.password && (
                         <div style={{ marginTop: "4px" }}>
                           <div

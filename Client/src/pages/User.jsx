@@ -140,6 +140,7 @@ const ordersComponent = (
           location={user.location ?? ""}
           userId={user?.id}
           profileImage={userImage}
+          isPartner={user?.role === "partner"}
         />
       </div>
 

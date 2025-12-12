@@ -19,7 +19,8 @@ export function AccountHeader({
   email, 
   location, 
   profileImage,
-  userId
+  userId,
+  isPartner = false
 }) {
 
   const navigate = useNavigate();
@@ -113,13 +114,15 @@ export function AccountHeader({
           </div>
 
           <div className={styles["user-actions"]}>
-            <Button 
+            {!isPartner && (
+             <Button 
               variant="light" 
               onClick={() => navigate("/")}
               className={styles["user-icon-button"]}
             >
               <Home className={styles["user-icon"]} />
-            </Button>
+            </Button> 
+            )}
 
             <LogOut
               variant="light"
