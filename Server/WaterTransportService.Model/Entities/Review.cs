@@ -36,12 +36,6 @@ public class Review : BaseEntity
     [Column("user_id", TypeName = "uuid")]
     public Guid? UserId { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство на пользователя, к которому относится отзыв.
-    /// </summary>
-    [ForeignKey(nameof(UserId))]
-    [InverseProperty(nameof(User.ReceivedReviews))]
-    public User? User { get; set; }
 
     /// <summary>
     /// Идентификатор судна, к которому относится отзыв (если отзыв о судне).
@@ -49,12 +43,6 @@ public class Review : BaseEntity
     [Column("ship_id", TypeName = "uuid")]
     public Guid? ShipId { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство на судно, к которому относится отзыв.
-    /// </summary>
-    [ForeignKey(nameof(ShipId))]
-    [InverseProperty(nameof(Ship.Reviews))]
-    public Ship? Ship { get; set; }
 
     /// <summary>
     /// Идентификатор порта, к которому относится отзыв (если отзыв о порте).
@@ -62,12 +50,6 @@ public class Review : BaseEntity
     [Column("port_id", TypeName = "uuid")]
     public Guid? PortId { get; set; }
 
-    /// <summary>
-    /// Навигационное свойство на порт, к которому относится отзыв.
-    /// </summary>
-    [ForeignKey(nameof(PortId))]
-    [InverseProperty(nameof(Port.Reviews))]
-    public Port? Port { get; set; }
 
     /// <summary>
     /// Идентификатор заказа аренды, на основании которого оставлен отзыв.

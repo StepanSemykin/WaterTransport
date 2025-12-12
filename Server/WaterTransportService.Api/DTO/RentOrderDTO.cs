@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Api.DTO;
 

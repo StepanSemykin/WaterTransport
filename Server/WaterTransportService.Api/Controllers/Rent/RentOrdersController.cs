@@ -217,6 +217,22 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     }
 
     /// <summary>
+    /// Прекращёный заказ аренды.
+    /// </summary>
+    /// <param name="id">Идентификатор заказа аренды.</param>
+    /// <returns>NoContent при успехе.</returns>
+    /// <response code="204">Заказ успешно отменен.</response>
+    /// <response code="404">Заказ не найден.</response>
+    [HttpPost("{id:guid}/discontinued")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DiscontinuedOrder(Guid id)
+    {
+        var ok = await _service.DiscontinuedOrderAsync(id);
+        return ok ? NoContent() : NotFound();
+    }
+
+    /// <summary>
     /// Удалить заказ аренды.
     /// </summary>
     /// <param name="id">Уникальный идентификатор заказа аренды.</param>
