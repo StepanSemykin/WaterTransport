@@ -386,7 +386,12 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
 
                       <div
                         className={`${styles["dropzone"]} ${isDragging ? styles["dropzone-active"] : ""}`}
-                        onClick={() => inputRef.current?.click()}
+                        // onClick={() => inputRef.current?.click()}
+                        onClick={() => {
+                          if (!previewUrl) {
+                            inputRef.current?.click();
+                          }
+                        }}
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         onDrop={handleDrop}
@@ -405,11 +410,18 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
                               alt="Предпросмотр"
                               className={styles["image-preview"]}
                             />
-                            <div className={styles["preview-actions"]}>
-                              <button type="button" onClick={handleRemoveImage} className={styles["button"]}>
-                                {formData.imageFile ? "Удалить новое фото" : "Изменить фото"}
+                            {/* <div className={styles["preview-actions"]}>
+                              <button 
+                                type="button" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveImage();
+                                }} 
+                                className={styles["button"]}
+                              >
+                                {formData.imageFile ? "Удалить фото" : "Выбрать другое фото"}
                               </button>
-                            </div>
+                            </div> */}
                           </div>
                         )}
 
@@ -417,7 +429,7 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
                           ref={inputRef}
                           type="file"
                           name="imageFile"
-                          className={styles["input-ref"]}
+                          className={styles["preview-actions"]}
                           accept="image/*"
                           onChange={handleChange}
                         />

@@ -185,15 +185,8 @@
   padding: 12px 20px;
   border-top: 1px solid #eee;
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
   background: #fafafa;
-}
-
-.footer {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
   gap: 8px;
   width: 100%;
 }
@@ -276,8 +269,7 @@
 }
 
 .preview-actions {
-  display: flex;
-  gap: 12px;
+  margin-top: 10px;
 }
 
 .input-wrapper {

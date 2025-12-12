@@ -9,20 +9,32 @@ export default function UserOrders({
   completedTripsLoading = false,
   possibleTrips = null,
   possibleTripsLoading = false,
+  pendingTrips = null,
+  pendingTripsLoading = false,
+  rejectedTrips = null,
+  rejectedTripsLoading = null,
   isPartner = false,
   onUpdateTripPrice,
 }) {
   const hasUpcoming = !upcomingTripsLoading && Array.isArray(upcomingTrips) && upcomingTrips.length > 0;
   const hasCompleted = !completedTripsLoading && Array.isArray(completedTrips) && completedTrips.length > 0;
   const hasPossible = !possibleTripsLoading && Array.isArray(possibleTrips) && possibleTrips.length > 0;
+  const hasPending = !pendingTripsLoading && Array.isArray(pendingTrips) && pendingTrips.length > 0;
+  const hasRejected = !rejectedTripsLoading && Array.isArray(rejectedTrips) && rejectedTrips.length > 0;
 
   const emptyUpcomingText = "На данный момент у вас нет предстоящих заказов";
   const emptyCompletedText = "На данный момент у вас нет завершённых заказов";
   const emptyPossibleText = "На данный момент у вас нет заявок";
+  const emptyPendingText = "На данный момент у вас нет отправленных заявок";
+  const emptyRejectedText = "На данный момент у вас нет отклоненных заявок";
 
   // console.log(isPartner);
 
-  console.log(upcomingTrips);
+  // console.log(upcomingTrips);
+  console.log("Pending");
+  console.log(pendingTrips);
+  console.log("Rejected");
+  console.log(rejectedTrips);
 
   return (
     <div className="user-orders">
@@ -45,6 +57,52 @@ export default function UserOrders({
             </div>
           ) : (
             <div className={styles["user-empty"]}>{emptyPossibleText}</div>
+          )}
+        </section>
+      )}
+
+      {pendingTrips !== null && (
+        <section className={styles["user-section"]}>
+          <h2 className={styles["user-section-title"]}>Отправленные заявки</h2>
+          {pendingTripsLoading ? (
+            <div className={styles["user-empty"]}>Загрузка…</div>
+          ) : hasPending ? (
+            <div className={styles["user-card-list"]}>
+              {pendingTrips.map((trip, index) => (
+                <TripCard
+                  key={`${trip.id ?? trip.tripId ?? "pending"}-${index}`}
+                  rentOrder={trip}
+                  isPartner={isPartner}
+                  isPending={true}
+                  onUpdateTripPrice={onUpdateTripPrice}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles["user-empty"]}>{emptyPendingText}</div>
+          )}
+        </section>
+      )}
+
+      {rejectedTrips !== null && (
+        <section className={styles["user-section"]}>
+          <h2 className={styles["user-section-title"]}>Отклоненные заявки</h2>
+          {rejectedTripsLoading ? (
+            <div className={styles["user-empty"]}>Загрузка…</div>
+          ) : hasRejected ? (
+            <div className={styles["user-card-list"]}>
+              {rejectedTrips.map((trip, index) => (
+                <TripCard
+                  key={`${trip.id ?? trip.tripId ?? "reject"}-${index}`}
+                  rentOrder={trip}
+                  isPartner={isPartner}
+                  isRejected={true}
+                  onUpdateTripPrice={onUpdateTripPrice}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles["user-empty"]}>{emptyRejectedText}</div>
           )}
         </section>
       )}
