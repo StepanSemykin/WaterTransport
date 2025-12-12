@@ -115,7 +115,9 @@ export default function User() {
     upcomingTrips,
     upcomingTripsLoading,
     completedTrips,
-    completedTripsLoading
+    completedTripsLoading,
+    rejectedTrips, 
+    rejectedTripsLoading,
   } = useAuth();
 
   console.log("User image");
@@ -127,6 +129,8 @@ export default function User() {
 
 const ordersComponent = (
     <UserOrders
+      rejectedTrips={rejectedTrips}
+      rejectedTripsLoading={rejectedTripsLoading}
       upcomingTrips={upcomingTrips}
       upcomingTripsLoading={upcomingTripsLoading}
       completedTrips={completedTrips}

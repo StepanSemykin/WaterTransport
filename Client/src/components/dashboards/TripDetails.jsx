@@ -7,6 +7,8 @@ import { apiFetch } from "../../api/api.js";
 import styles from "./TripDetails.module.css";
 
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
+const TRIPS_ENDPOINT = "/api/trips";
+const RENT_ORDERS_ENDPOINT = "/api/rentorders";
 
 export default function TripDetails({
   trip,
@@ -19,7 +21,8 @@ export default function TripDetails({
 }) {
   const [price, setPrice] = useState("");
   const [saving, setSaving] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
+  const [discontinued, setDiscontinued] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
@@ -34,9 +37,6 @@ export default function TripDetails({
     Array.isArray(trip?.matchingShips) &&
     trip.matchingShips.length > 0;
 
-  // console.log(trip.totalPrice);  
-
-  // console.log(trip.rentOrder);
   useEffect(() => {
     setPrice(trip?.price ?? "");
     if (trip?.review) {
@@ -100,23 +100,6 @@ export default function TripDetails({
     }
   }
 
-  async function handleCancel() {                
-    if (!trip) return;
-    if (typeof onCancelTrip !== "function") {
-      onClose();
-      return;
-    }
-
-    try {
-      setCancelling(true);
-      await onCancelTrip(trip);
-      onClose();
-    } 
-    finally {
-      setCancelling(false);
-    }
-  }
-
   async function handleSubmitReview(e) {
     e && e.preventDefault();
     if (!trip) return;
@@ -127,7 +110,7 @@ export default function TripDetails({
     }
     setReviewLoading(true);
     try {
-      const res = await apiFetch(`/api/trips/${trip.id}/reviews`, {
+      const res = await apiFetch(`${TRIPS_ENDPOINT}/${trip.id}/reviews`, {
         method: "POST",
         body: JSON.stringify({
           rating: reviewRating,
@@ -149,6 +132,50 @@ export default function TripDetails({
     } 
     finally {
       setReviewLoading(false);
+    }
+  }
+
+  async function handleFinishTrip() {
+    if (!trip?.id) return;
+    setCompleted(true);
+    try {
+      const res = await apiFetch(`${RENT_ORDERS_ENDPOINT}/${trip.id}/complete`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(txt || `Ошибка ${res.status}`);
+      }
+      onClose();
+    } 
+    catch (err) {
+      console.error("finish trip failed:", err);
+      alert(err.message || "Не удалось завершить поездку");
+    } 
+    finally {
+      setCompleted(false);
+    }
+  }
+
+  async function handleDiscontinue() {
+    if (!trip?.id) return;
+      setDiscontinued(true);
+    try {
+      const res = await apiFetch(`${RENT_ORDERS_ENDPOINT}/${trip.id}/discontinued`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(txt || `Ошибка ${res.status}`);
+      }
+      onCancelTrip?.(trip.id);
+      onClose();
+    } 
+    catch (err) {
+      console.error("cancel trip failed:", err);
+      alert(err.message || "Не удалось отменить поездку");
+    } finally {
+      setDiscontinued(false);
     }
   }
 
@@ -215,15 +242,26 @@ export default function TripDetails({
           </div>
 
           {trip.status == "Agreed" && (
-          <div className={styles["trip-actions"]}>
-            <Button
-              variant="danger"
-              onClick={handleCancel}
-              disabled={cancelling}
-            >
-              {cancelling ? "Отмена..." : "Отменить поездку"}
-            </Button>
-          </div>
+            <div className={styles["trip-actions"]}>
+              <Button
+                type="submit"
+                variant="danger"
+                onClick={handleDiscontinue}
+                disabled={discontinued}
+              >
+                {discontinued ? "Отмена..." : "Отменить поездку"}
+              </Button>
+              {!isPartner && (
+                <Button
+                  type="submit" 
+                  variant="primary" 
+                  onClick={handleFinishTrip}
+                  disabled={completed}
+                >
+                  {completed ? "Завершение.." : "Завершить поездку"}
+                </Button>
+              )}
+            </div>
           )}
 
           {partnerCanSelectShip && (
@@ -328,7 +366,11 @@ export default function TripDetails({
                   </Form.Group>
 
                   <div className={styles["trip-review-button"]}>
-                    <Button type="submit" variant="primary" disabled={reviewLoading}>
+                    <Button 
+                      type="submit" 
+                      variant="primary" 
+                      disabled={reviewLoading}
+                    >
                       {reviewLoading ? "Сохраняем..." : "Отправить отзыв"}
                     </Button>
                     <Button variant="secondary" onClick={() => { setReviewRating(5); setReviewComment(""); }} disabled={reviewLoading}>

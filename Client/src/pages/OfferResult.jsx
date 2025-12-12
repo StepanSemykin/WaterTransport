@@ -12,8 +12,8 @@ import ShipDetails from "../components/dashboards/ShipDetails.jsx";
 
 import styles from "./OfferResult.module.css";
 
-import PassengersIcon from "../assets/passengers.png";
 import ShipIcon from "../assets/ship.png";
+import CostIcon from "../assets/cost.png";
 
 const POLL_INTERVAL = 10000; // 10 секунд
 
@@ -115,8 +115,10 @@ export default function OfferResult() {
       name: { iconSrc: ShipIcon, iconAlt: "судно", text: resp.ship.name || "Без названия" },
       type: { iconSrc: ShipIcon, iconAlt: "судно", text: resp.ship.shipTypeName || "Не указан" },
       details: [
-        { iconSrc: PassengersIcon, iconAlt: "пассажиры", text: `До ${resp.ship.capacity || 0} человек` }
+        { iconSrc: CostIcon, iconAlt: "Стоимость", text: `Цена: ${resp.offeredPrice}` },
+        // { iconSrc: PassengersIcon, iconAlt: "пассажиры", text: `До ${resp.ship.capacity || 0} человек` }
       ],
+      // confirm: resp.offeredPrice,
       actions: [
         { key: "details", label: "Посмотреть детали", onClick: () => openShipModal(resp) },
       ],
@@ -384,16 +386,4 @@ export default function OfferResult() {
       </Container>
     </div>
   );
-}
-
-// ⏱ Форматирование даты
-function formatDate(value) {
-  if (!value) return "—";
-  return new Date(value).toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
