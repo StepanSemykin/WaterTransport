@@ -101,12 +101,6 @@ const SUPPORT_ITEMS = [
   { key: "problem", label: "Сообщить о проблеме", content: "Сообщить о проблеме" }
 ];
 
-// const USER_NAVIGATION = {
-//   orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} /> },
-//   settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
-//   support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> }
-// };
-
 export default function User() {
   const {
     user,
@@ -119,9 +113,6 @@ export default function User() {
     rejectedTrips, 
     rejectedTripsLoading,
   } = useAuth();
-
-  console.log("User image");
-  console.log(userImage);
 
   if (loading) {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
