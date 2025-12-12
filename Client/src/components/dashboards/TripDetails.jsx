@@ -1,3 +1,14 @@
+import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+
+import { useAuth } from "../auth/AuthContext.jsx";
+import { useMemo } from "react";
+
 import { useEffect, useState } from "react";
 
 import { Modal, Form, Button, Alert } from "react-bootstrap";
@@ -9,6 +20,55 @@ import styles from "./TripDetails.module.css";
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
 const TRIPS_ENDPOINT = "/api/trips";
 const RENT_ORDERS_ENDPOINT = "/api/rentorders";
+
+const DEFAULT_CENTER = [53.195873, 50.100193];
+
+const defaultIcon = L.icon({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],      
+  iconAnchor: [12, 41],    
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+const makePinDivIcon = ({ className }) =>
+  L.divIcon({
+    className: "",
+    html: `
+      <div class="${className}">
+        <svg width="25" height="41" viewBox="0 0 25 41" aria-hidden="true">
+          <path d="M12.5 0C5.6 0 0 5.6 0 12.5 0 22 12.5 41 12.5 41S25 22 25 12.5C25 5.6 19.4 0 12.5 0Z"/>
+          <circle cx="12.5" cy="12.5" r="4"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+  });
+
+const walkPortIcon = defaultIcon;
+
+const fromPortIcon = makePinDivIcon({
+  className: "marker-pin marker-pin--from",
+});
+
+const toPortIcon = makePinDivIcon({
+  className: "marker-pin marker-pin--to",
+});
+
+function FitBounds({ bounds }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!bounds) return;
+    map.fitBounds(bounds, { padding: [24, 24] });
+  }, [map, bounds]);
+
+  return null;
+}
 
 export default function TripDetails({
   trip,
@@ -31,6 +91,33 @@ export default function TripDetails({
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
   const [selectedShipId, setSelectedShipId] = useState(null);
+
+  const { ports = [] } = useAuth();
+
+  const depPortId = trip?.rentOrder?.departurePortId ?? trip?.departurePortId ?? trip?.DeparturePortId ?? null;
+  const arrPortId = trip?.rentOrder?.arrivalPortId ?? trip?.arrivalPortId ?? trip?.ArrivalPortId ?? null;
+
+  const depPort = useMemo(() => ports.find(p => p.id === depPortId) ?? null, [ports, depPortId]);
+  const arrPort = useMemo(() => ports.find(p => p.id === arrPortId) ?? null, [ports, arrPortId]);
+
+  const depPos = useMemo(() => {
+    const lat = Number.parseFloat(depPort?.latitude);
+    const lon = Number.parseFloat(depPort?.longitude);
+    return Number.isFinite(lat) && Number.isFinite(lon) ? [lat, lon] : null;
+  }, [depPort]);
+
+  const arrPos = useMemo(() => {
+    const lat = Number.parseFloat(arrPort?.latitude);
+    const lon = Number.parseFloat(arrPort?.longitude);
+    return Number.isFinite(lat) && Number.isFinite(lon) ? [lat, lon] : null;
+  }, [arrPort]);
+
+  const mapCenter = depPos || arrPos || DEFAULT_CENTER;
+
+  const bounds = useMemo(() => {
+    if (depPos && arrPos) return [depPos, arrPos];
+    return depPos ? [depPos, depPos] : arrPos ? [arrPos, arrPos] : null;
+  }, [depPos, arrPos]);
 
   const partnerCanSelectShip =
     isPartner &&
@@ -61,6 +148,9 @@ export default function TripDetails({
       setSelectedShipId(null);
     }  
   }, [trip]);
+
+  const isWalkingTrip = !!trip?.rentOrder?.departurePortId && !trip?.rentOrder?.arrivalPortId;
+
 
   async function sendPartnerOffer(rentOrderId, offerPrice, shipId) {
     if (!rentOrderId) throw new Error("rentOrderId отсутствует");
@@ -187,9 +277,56 @@ export default function TripDetails({
 
       <Modal.Body>
         <div className={styles["trip-modal-body"]}>
-          <div className={styles["trip-map-placeholder"]}>
-            Карта маршрута будет отображена здесь
-          </div>
+          {(depPos || arrPos) ? (
+            <div className={styles["trip-map"]}>
+              <MapContainer
+                center={mapCenter}
+                zoom={13}
+                scrollWheelZoom={true}
+                className={styles["trip-map-inner"]}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+
+                {bounds && <FitBounds bounds={bounds} />}
+
+                {isWalkingTrip && depPos && (
+                  <Marker position={depPos} icon={walkPortIcon}>
+                    <Popup>
+                      <strong>Прогулочная поездка</strong>
+                      <div>{depPort?.title ?? depPort?.name ?? "Пристань"}</div>
+                    </Popup>
+                  </Marker>
+                )}
+
+                {!isWalkingTrip && depPos && (
+                  <Marker position={depPos} icon={fromPortIcon}>
+                    <Popup>
+                      <strong>Отправление</strong>
+                      <div>{depPort?.title ?? depPort?.name ?? "Пристань"}</div>
+                    </Popup>
+                  </Marker>
+                )}
+
+                {!isWalkingTrip && arrPos && (
+                  <Marker position={arrPos} icon={toPortIcon}>
+                    <Popup>
+                      <strong>Прибытие</strong>
+                      <div>{arrPort?.title ?? arrPort?.name ?? "Пристань"}</div>
+                    </Popup>
+                  </Marker>
+                )}
+
+              </MapContainer>
+            </div>
+          ) : (
+            <div className={styles["trip-map-placeholder"]}>
+              Нет координат пристаней для отображения маршрута
+            </div>
+          )}
+
 
           <div className={styles["trip-summary"]}>
             <div className={styles["trip-summary-info"]}>

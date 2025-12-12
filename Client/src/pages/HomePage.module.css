@@ -518,3 +518,77 @@
     width: 100%;
   }
 }
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.popup-title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.popup-address {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.popup-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.popup-button {
+  flex: 1;
+  border: 2px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 12px;
+}
+
+.popup-button:hover:not(:disabled) {
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.popup-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+:global(.marker-pin) {
+  width: 25px;
+  height: 41px;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25));
+}
+
+:global(.marker-pin svg) {
+  width: 25px;
+  height: 41px;
+  display: block;
+}
+
+:global(.marker-pin svg path) {
+  fill: var(--color-accent);
+}
+
+:global(.marker-pin svg circle) {
+  fill: #ffffff;
+}
+
+:global(.marker-pin--from svg path) {
+  fill: #22c55e;
+}
+
+:global(.marker-pin--to svg path) {
+  fill: #ef4444;
+}
+
