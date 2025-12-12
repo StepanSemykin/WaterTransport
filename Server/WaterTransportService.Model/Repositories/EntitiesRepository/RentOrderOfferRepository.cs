@@ -96,6 +96,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
             .Include(o => o.Ship).ThenInclude(s => s.ShipType)
             .Include(o => o.Ship).ThenInclude(s => s.ShipImages)
+            .Include(o => o.Ship).ThenInclude(s => s.Reviews)
             .Include(o => o.RentOrder)
             .Where(o => o.RentOrder.UserId == userId && o.Status == status)
             .ToListAsync();

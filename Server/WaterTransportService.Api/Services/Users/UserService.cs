@@ -96,7 +96,6 @@ public class UserService(
         var profile = new UserProfile
         {
             UserId = user.Id,
-            User = user,
             Nickname = null,
             FirstName = null,
             LastName = null,
