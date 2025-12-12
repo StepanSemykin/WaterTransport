@@ -29,4 +29,9 @@ public static class RentOrderStatus
     /// Заказ отменен.
     /// </summary>
     public const string Cancelled = "Cancelled";
+
+    /// <summary>
+    /// Заказ прекращён.
+    /// </summary>
+    public const string Discontinued = "Discontinued";
 }

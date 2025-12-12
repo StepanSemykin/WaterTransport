@@ -1,11 +1,11 @@
-using WaterTransportService.Api.Caching;
+п»їusing WaterTransportService.Api.Caching;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Constants;
 
 namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
-/// Декоратор сервиса заказов аренды с кешированием.
+/// Р”РµРєРѕСЂР°С‚РѕСЂ СЃРµСЂРІРёСЃР° Р·Р°РєР°Р·РѕРІ Р°СЂРµРЅРґС‹ СЃ РєРµС€РёСЂРѕРІР°РЅРёРµРј.
 /// </summary>
 public class CachedRentOrderService : IRentOrderService
 {
@@ -23,11 +23,11 @@ public class CachedRentOrderService : IRentOrderService
         _logger = logger;
     }
 
-    #region Read Methods (с кешированием)
+    #region Read Methods (СЃ РєРµС€РёСЂРѕРІР°РЅРёРµРј)
 
     public async Task<(IReadOnlyList<RentOrderDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
-        // GetAllAsync не кешируем (редко используется, в основном в админке)
+        // GetAllAsync РЅРµ РєРµС€РёСЂСѓРµРј (СЂРµРґРєРѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РІ РѕСЃРЅРѕРІРЅРѕРј РІ Р°РґРјРёРЅРєРµ)
         return await _innerService.GetAllAsync(page, pageSize);
     }
 
@@ -135,7 +135,7 @@ public class CachedRentOrderService : IRentOrderService
 
     #endregion
 
-    #region Write Methods (с инвалидацией кеша)
+    #region Write Methods (СЃ РёРЅРІР°Р»РёРґР°С†РёРµР№ РєРµС€Р°)
 
     public async Task<RentOrderDto?> CreateAsync(CreateRentOrderDto dto, Guid userId)
     {
@@ -143,11 +143,11 @@ public class CachedRentOrderService : IRentOrderService
         
         if (result != null)
         {
-            // Инвалидируем кеши:
-            // 1. Все доступные заявки для всех партнеров
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РєРµС€Рё:
+            // 1. Р’СЃРµ РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё РґР»СЏ РІСЃРµС… РїР°СЂС‚РЅРµСЂРѕРІ
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
             
-            // 2. Все кеши пользователя
+            // 2. Р’СЃРµ РєРµС€Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
             await _cache.RemoveByPrefixAsync(CacheKeys.AllUserOrdersPrefix(userId));
             
             _logger.LogInformation("Cache invalidated after creating order {OrderId} for user {UserId}", 
@@ -195,12 +195,29 @@ public class CachedRentOrderService : IRentOrderService
         {
             await InvalidateOrderCaches(order);
             
-            // Дополнительно инвалидируем доступные заявки (заявка больше не доступна)
+            // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РёРЅРІР°Р»РёРґРёСЂСѓРµРј РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё (Р·Р°СЏРІРєР° Р±РѕР»СЊС€Рµ РЅРµ РґРѕСЃС‚СѓРїРЅР°)
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
             
             _logger.LogInformation("Cache invalidated after cancelling order {OrderId}", id);
         }
         
+        return success;
+    }
+    public async Task<bool> DiscontinuedOrderAsync(Guid id)
+    {
+        var order = await _innerService.GetByIdAsync(id);
+        var success = await _innerService.DiscontinuedOrderAsync(id);
+
+        if (success && order != null)
+        {
+            await InvalidateOrderCaches(order);
+
+            // Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РёРЅРІР°Р»РёРґРёСЂСѓРµРј РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё (Р·Р°СЏРІРєР° Р±РѕР»СЊС€Рµ РЅРµ РґРѕСЃС‚СѓРїРЅР°)
+            await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
+
+            _logger.LogInformation("Cache invalidated after cancelling order {OrderId}", id);
+        }
+
         return success;
     }
 
@@ -213,7 +230,7 @@ public class CachedRentOrderService : IRentOrderService
         {
             await InvalidateOrderCaches(order);
             
-            // Инвалидируем доступные заявки
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
             
             _logger.LogInformation("Cache invalidated after deleting order {OrderId}", id);
@@ -227,23 +244,23 @@ public class CachedRentOrderService : IRentOrderService
     #region Private Helpers
 
     /// <summary>
-    /// Инвалидировать все кеши, связанные с заявкой.
+    /// РРЅРІР°Р»РёРґРёСЂРѕРІР°С‚СЊ РІСЃРµ РєРµС€Рё, СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ Р·Р°СЏРІРєРѕР№.
     /// </summary>
     private async Task InvalidateOrderCaches(RentOrderDto order)
     {
-        // 1. Кеш конкретной заявки
+        // 1. РљРµС€ РєРѕРЅРєСЂРµС‚РЅРѕР№ Р·Р°СЏРІРєРё
         await _cache.RemoveAsync(CacheKeys.OrderById(order.Id));
         
-        // 2. Все кеши пользователя
+        // 2. Р’СЃРµ РєРµС€Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
         await _cache.RemoveByPrefixAsync(CacheKeys.AllUserOrdersPrefix(order.UserId));
         
-        // 3. Если есть партнер - его кеши
+        // 3. Р•СЃР»Рё РµСЃС‚СЊ РїР°СЂС‚РЅРµСЂ - РµРіРѕ РєРµС€Рё
         if (order.PartnerId.HasValue)
         {
             await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(order.PartnerId.Value));
         }
         
-        // 4. Если статус "ожидает откликов" - инвалидируем доступные заявки
+        // 4. Р•СЃР»Рё СЃС‚Р°С‚СѓСЃ "РѕР¶РёРґР°РµС‚ РѕС‚РєР»РёРєРѕРІ" - РёРЅРІР°Р»РёРґРёСЂСѓРµРј РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё
         if (order.Status == RentOrderStatus.AwaitingPartnerResponse || 
             order.Status == RentOrderStatus.HasOffers)
         {
