@@ -47,11 +47,11 @@ public static class DatabaseSeeder
 
         var commonUserData = new[]
         {
-            "79001234567",
-            "79001234568",
-            "79001234569",
-            "79001234570",
-            "79001234571"
+            "+79001234567",
+            "+79001234568",
+            "+79001234569",
+            "+79001234570",
+            "+79001234571"
         };
 
         foreach (var phone in commonUserData)
@@ -80,10 +80,10 @@ public static class DatabaseSeeder
 
         var partnerUserData = new[]
         {
-            "79101234567",
-            "79101234568",
-            "79101234569",
-            "79101234570"
+            "+79101234567",
+            "+79101234568",
+            "+79101234569",
+            "+79101234570"
         };
 
         foreach (var phone in partnerUserData)

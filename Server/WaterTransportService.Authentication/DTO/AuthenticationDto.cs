@@ -1,21 +1,21 @@
-using System.ComponentModel.DataAnnotations;
+п»їusing System.ComponentModel.DataAnnotations;
 
 namespace WaterTransportService.Authentication.DTO;
 
 /// <summary>
-/// DTO для входа пользователя.
+/// DTO РґР»СЏ РІС…РѕРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
 /// </summary>
 public class LoginDto
 {
     [Required, MaxLength(20)]
     public string Phone { get; set; } = default!;
-    
+
     [Required, MinLength(8)]
     public string Password { get; set; } = default!;
 }
 
 /// <summary>
-/// DTO для регистрации нового пользователя.
+/// DTO РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё РЅРѕРІРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
 /// </summary>
 public record RegisterDto(
     [Required, MaxLength(20)] string Phone,
@@ -23,7 +23,7 @@ public record RegisterDto(
 );
 
 /// <summary>
-/// DTO для ответа новому пользователю на попытку регистрации.
+/// DTO РґР»СЏ РѕС‚РІРµС‚Р° РЅРѕРІРѕРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ РЅР° РїРѕРїС‹С‚РєСѓ СЂРµРіРёСЃС‚СЂР°С†РёРё.
 /// </summary>
 public class RegisterResultDto
 {
@@ -40,7 +40,7 @@ public class RegisterResultDto
 }
 
 /// <summary>
-/// DTO пользователя для передачи клиенту.
+/// DTO РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РґР»СЏ РїРµСЂРµРґР°С‡Рё РєР»РёРµРЅС‚Сѓ.
 /// </summary>
 public record UserDto(
     Guid Id,
@@ -49,7 +49,7 @@ public record UserDto(
 );
 
 /// <summary>
-/// DTO ответа при успешной аутентификации.
+/// DTO РѕС‚РІРµС‚Р° РїСЂРё СѓСЃРїРµС€РЅРѕР№ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё.
 /// </summary>
 public record LoginResponseDto(
     string AccessToken,
@@ -58,7 +58,7 @@ public record LoginResponseDto(
 );
 
 /// <summary>
-/// DTO ответа при обновлении токенов.
+/// DTO РѕС‚РІРµС‚Р° РїСЂРё РѕР±РЅРѕРІР»РµРЅРёРё С‚РѕРєРµРЅРѕРІ.
 /// </summary>
 public record RefreshTokenResponseDto(
     string AccessToken,
@@ -66,33 +66,33 @@ public record RefreshTokenResponseDto(
 );
 
 /// <summary>
-/// Причины неудачной аутентификации.
+/// РџСЂРёС‡РёРЅС‹ РЅРµСѓРґР°С‡РЅРѕР№ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё.
 /// </summary>
 public enum LoginFailureReason
 {
     /// <summary>
-    /// Пользователь не найден.
+    /// РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ.
     /// </summary>
     NotFound,
-    
+
     /// <summary>
-    /// Учетная запись неактивна.
+    /// РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ РЅРµР°РєС‚РёРІРЅР°.
     /// </summary>
     Inactive,
-    
+
     /// <summary>
-    /// Учетная запись заблокирована.
+    /// РЈС‡РµС‚РЅР°СЏ Р·Р°РїРёСЃСЊ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅР°.
     /// </summary>
     Locked,
-    
+
     /// <summary>
-    /// Неверный пароль.
+    /// РќРµРІРµСЂРЅС‹Р№ РїР°СЂРѕР»СЊ.
     /// </summary>
     InvalidPassword
 }
 
 /// <summary>
-/// DTO результата попытки входа.
+/// DTO СЂРµР·СѓР»СЊС‚Р°С‚Р° РїРѕРїС‹С‚РєРё РІС…РѕРґР°.
 /// </summary>
 public sealed record LoginResultDto(
     bool Success,
@@ -103,7 +103,7 @@ public sealed record LoginResultDto(
 );
 
 /// <summary>
-/// DTO для изменения пароля пользователя.
+/// DTO РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РїР°СЂРѕР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
 /// </summary>
 public class ChangePasswordDto
 {

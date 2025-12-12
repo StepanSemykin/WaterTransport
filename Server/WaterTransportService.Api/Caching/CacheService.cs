@@ -1,46 +1,46 @@
-using Microsoft.Extensions.Caching.Memory;
+п»їusing Microsoft.Extensions.Caching.Memory;
 
 namespace WaterTransportService.Api.Caching;
 
 /// <summary>
-/// Сервис для работы с кешем с поддержкой инвалидации по префиксам.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РєРµС€РµРј СЃ РїРѕРґРґРµСЂР¶РєРѕР№ РёРЅРІР°Р»РёРґР°С†РёРё РїРѕ РїСЂРµС„РёРєСЃР°Рј.
 /// </summary>
 public interface ICacheService
 {
     /// <summary>
-    /// Получить данные из кеша.
+    /// РџРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РёР· РєРµС€Р°.
     /// </summary>
     Task<T?> GetAsync<T>(string key) where T : class;
-    
+
     /// <summary>
-    /// Сохранить данные в кеш.
+    /// РЎРѕС…СЂР°РЅРёС‚СЊ РґР°РЅРЅС‹Рµ РІ РєРµС€.
     /// </summary>
     Task SetAsync<T>(string key, T value, TimeSpan expiration) where T : class;
-    
+
     /// <summary>
-    /// Удалить запись из кеша.
+    /// РЈРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ РёР· РєРµС€Р°.
     /// </summary>
     Task RemoveAsync(string key);
-    
+
     /// <summary>
-    /// Удалить все записи с указанным префиксом.
+    /// РЈРґР°Р»РёС‚СЊ РІСЃРµ Р·Р°РїРёСЃРё СЃ СѓРєР°Р·Р°РЅРЅС‹Рј РїСЂРµС„РёРєСЃРѕРј.
     /// </summary>
     Task RemoveByPrefixAsync(string prefix);
-    
+
     /// <summary>
-    /// Очистить весь кеш.
+    /// РћС‡РёСЃС‚РёС‚СЊ РІРµСЃСЊ РєРµС€.
     /// </summary>
     Task ClearAsync();
 }
 
 /// <summary>
-/// Реализация сервиса кеширования с LZ4 сжатием.
+/// Р РµР°Р»РёР·Р°С†РёСЏ СЃРµСЂРІРёСЃР° РєРµС€РёСЂРѕРІР°РЅРёСЏ СЃ LZ4 СЃР¶Р°С‚РёРµРј.
 /// </summary>
 public class CacheService : ICacheService
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<CacheService> _logger;
-    private readonly HashSet<string> _keys = new(); // Для отслеживания всех ключей
+    private readonly HashSet<string> _keys = new(); // Р”Р»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РІСЃРµС… РєР»СЋС‡РµР№
     private readonly SemaphoreSlim _keysLock = new(1, 1);
 
     public CacheService(IMemoryCache cache, ILogger<CacheService> logger)
@@ -51,12 +51,12 @@ public class CacheService : ICacheService
 
     public async Task<T?> GetAsync<T>(string key) where T : class
     {
-        if (_cache.TryGetValue(key, out CompressedCacheEntry<T> entry))
+        if (_cache.TryGetValue<CompressedCacheEntry<T>>(key, out var entry) && entry != null)
         {
             await Task.CompletedTask;
             return entry.Decompress();
         }
-        
+
         return null;
     }
 
@@ -64,17 +64,17 @@ public class CacheService : ICacheService
     {
         var compressed = CompressedCacheEntry<T>.Create(value);
         var size = compressed.GetSize();
-        
+
         var cacheEntryOptions = new MemoryCacheEntryOptions()
             .SetSize(size)
             .SetSlidingExpiration(expiration)
-            .SetAbsoluteExpiration(expiration * 2) // Абсолютный таймаут в 2 раза больше
+            .SetAbsoluteExpiration(expiration * 2) // РђР±СЃРѕР»СЋС‚РЅС‹Р№ С‚Р°Р№РјР°СѓС‚ РІ 2 СЂР°Р·Р° Р±РѕР»СЊС€Рµ
             .SetPriority(GetPriority(key))
             .RegisterPostEvictionCallback(OnEviction);
 
         _cache.Set(key, compressed, cacheEntryOptions);
-        
-        // Добавляем ключ в список
+
+        // Р”РѕР±Р°РІР»СЏРµРј РєР»СЋС‡ РІ СЃРїРёСЃРѕРє
         await _keysLock.WaitAsync();
         try
         {
@@ -89,7 +89,7 @@ public class CacheService : ICacheService
     public async Task RemoveAsync(string key)
     {
         _cache.Remove(key);
-        
+
         await _keysLock.WaitAsync();
         try
         {
@@ -99,7 +99,7 @@ public class CacheService : ICacheService
         {
             _keysLock.Release();
         }
-        
+
         _logger.LogInformation("Cache invalidated: {Key}", key);
     }
 
@@ -109,16 +109,16 @@ public class CacheService : ICacheService
         try
         {
             var keysToRemove = _keys.Where(k => k.StartsWith(prefix)).ToList();
-            
+
             foreach (var key in keysToRemove)
             {
                 _cache.Remove(key);
                 _keys.Remove(key);
             }
-            
+
             if (keysToRemove.Count > 0)
             {
-                _logger.LogInformation("Cache invalidated by prefix '{Prefix}': {Count} keys removed", 
+                _logger.LogInformation("Cache invalidated by prefix '{Prefix}': {Count} keys removed",
                     prefix, keysToRemove.Count);
             }
         }
@@ -134,14 +134,14 @@ public class CacheService : ICacheService
         try
         {
             var count = _keys.Count;
-            
+
             foreach (var key in _keys.ToList())
             {
                 _cache.Remove(key);
             }
-            
+
             _keys.Clear();
-            
+
             _logger.LogInformation("Cache cleared: {Count} keys removed", count);
         }
         finally
@@ -152,24 +152,24 @@ public class CacheService : ICacheService
 
     private CacheItemPriority GetPriority(string key)
     {
-        // Завершенные заявки - высокий приоритет (редко меняются)
+        // Р—Р°РІРµСЂС€РµРЅРЅС‹Рµ Р·Р°СЏРІРєРё - РІС‹СЃРѕРєРёР№ РїСЂРёРѕСЂРёС‚РµС‚ (СЂРµРґРєРѕ РјРµРЅСЏСЋС‚СЃСЏ)
         if (key.Contains(":status:Completed") || key.Contains(":status:Cancelled"))
             return CacheItemPriority.High;
-        
-        // Активные данные - нормальный приоритет
+
+        // РђРєС‚РёРІРЅС‹Рµ РґР°РЅРЅС‹Рµ - РЅРѕСЂРјР°Р»СЊРЅС‹Р№ РїСЂРёРѕСЂРёС‚РµС‚
         if (key.Contains(":active") || key.Contains(":status:Agreed"))
             return CacheItemPriority.Normal;
-        
-        // Доступные заявки - низкий приоритет (часто меняются)
+
+        // Р”РѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё - РЅРёР·РєРёР№ РїСЂРёРѕСЂРёС‚РµС‚ (С‡Р°СЃС‚Рѕ РјРµРЅСЏСЋС‚СЃСЏ)
         if (key.Contains(":available:"))
             return CacheItemPriority.Low;
-        
+
         return CacheItemPriority.Normal;
     }
 
     private void OnEviction(object key, object? value, EvictionReason reason, object? state)
     {
-        // Удаляем ключ из списка при вытеснении
+        // РЈРґР°Р»СЏРµРј РєР»СЋС‡ РёР· СЃРїРёСЃРєР° РїСЂРё РІС‹С‚РµСЃРЅРµРЅРёРё
         _keysLock.Wait();
         try
         {

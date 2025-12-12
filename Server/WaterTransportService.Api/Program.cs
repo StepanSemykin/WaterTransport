@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+п»їusing Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using WaterTransportService.Api;
-using WaterTransportService.Api.Caching;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Middleware;
 using WaterTransportService.Api.Services.Calendars;
@@ -156,8 +155,7 @@ builder.Services.AddScoped<IRentOrderService>(provider =>
 {
     var baseService = provider.GetRequiredService<RentOrderService>();
     var cache = provider.GetRequiredService<WaterTransportService.Api.Caching.ICacheService>();
-    var logger = provider.GetRequiredService<ILogger<CachedRentOrderService>>();
-    return new CachedRentOrderService(baseService, cache, logger);
+    return new CachedRentOrderService(baseService, cache);
 });
 
 // Rent Order Offer Services with Caching (Decorator Pattern)
@@ -166,8 +164,7 @@ builder.Services.AddScoped<IRentOrderOfferService>(provider =>
 {
     var baseService = provider.GetRequiredService<RentOrderOfferService>();
     var cache = provider.GetRequiredService<WaterTransportService.Api.Caching.ICacheService>();
-    var logger = provider.GetRequiredService<ILogger<CachedRentOrderOfferService>>();
-    return new CachedRentOrderOfferService(baseService, cache, logger);
+    return new CachedRentOrderOfferService(baseService, cache);
 });
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
@@ -183,25 +180,25 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Инициализация синтетических данных
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var context = services.GetRequiredService<WaterTransportDbContext>();
-        var passwordHasher = services.GetRequiredService<IPasswordHasher>();
 
         await context.Database.MigrateAsync();
 
-        var testPasswordHash = passwordHasher.Generate("123456");
-
-        await DatabaseSeeder.SeedAsync(context, testPasswordHash);
+        // Р Р°СЃРєРѕРјРјРµРЅС‚РёСЂСѓР№С‚Рµ РґР»СЏ Р·Р°РїРѕР»РЅРµРЅРёСЏ С‚РµСЃС‚РѕРІС‹РјРё РґР°РЅРЅС‹РјРё
+        //var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+        //var testPasswordHash = passwordHasher.Generate("123456");
+        //await DatabaseSeeder.SeedAsync(context, testPasswordHash);
+        //logger.LogInformation("РўРµСЃС‚РѕРІС‹Рµ РґР°РЅРЅС‹Рµ Р·Р°РіСЂСѓР¶РµРЅС‹.");
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Произошла ошибка при инициализации базы данных.");
+        Console.WriteLine($"РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Р±Р°Р·С‹ РґР°РЅРЅС‹С…: {ex.Message}");
+        throw;
     }
 }
 
@@ -228,6 +225,3 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
-
-//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
-

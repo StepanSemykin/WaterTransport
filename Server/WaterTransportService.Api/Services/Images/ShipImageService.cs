@@ -1,4 +1,4 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
@@ -7,7 +7,7 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Images;
 
 /// <summary>
-/// Сервис для работы с изображениями судов.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё СЃСѓРґРѕРІ.
 /// </summary>
 public class ShipImageService(
     IEntityRepository<ShipImage, Guid> repo,
@@ -21,11 +21,11 @@ public class ShipImageService(
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех изображений судов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃСѓРґРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (начиная с 1).</param>
-    /// <param name="pageSize">Размер страницы (максимум 100).</param>
-    /// <returns>Кортеж с коллекцией изображений и общим количеством.</returns>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РЅР°С‡РёРЅР°СЏ СЃ 1).</param>
+    /// <param name="pageSize">Р Р°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РљРѕСЂС‚РµР¶ СЃ РєРѕР»Р»РµРєС†РёРµР№ РёР·РѕР±СЂР°Р¶РµРЅРёР№ Рё РѕР±С‰РёРј РєРѕР»РёС‡РµСЃС‚РІРѕРј.</returns>
     public async Task<(IReadOnlyList<ShipImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -37,10 +37,10 @@ public class ShipImageService(
     }
 
     /// <summary>
-    /// Получить изображение судна по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>DTO изображения судна или null, если не найдено.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>DTO РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃСѓРґРЅР° РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
     public async Task<ShipImageDto?> GetByIdAsync(Guid id)
     {
         var shipImage = await _repo.GetByIdAsync(id);
@@ -50,10 +50,10 @@ public class ShipImageService(
     }
 
     /// <summary>
-    /// Получить основное (primary) изображение судна по идентификатору судна (ShipId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ СЃСѓРґРЅР° (ShipId).
     /// </summary>
-    /// <param name="entityId">Идентификатор судна.</param>
-    /// <returns>DTO основного изображения судна или null, если не найдено.</returns>
+    /// <param name="entityId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>DTO РѕСЃРЅРѕРІРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃСѓРґРЅР° РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
     public async Task<ShipImageDto?> GetPrimaryImageByEntityIdAsync(Guid entityId)
     {
         if (_repo is not ShipImageRepository imageRepo) return null;
@@ -63,10 +63,10 @@ public class ShipImageService(
     }
 
     /// <summary>
-    /// Получить все изображения судна по идентификатору судна (ShipId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ СЃСѓРґРЅР° (ShipId).
     /// </summary>
-    /// <param name="entityId">Идентификатор судна.</param>
-    /// <returns>Список DTO изображений судна.</returns>
+    /// <param name="entityId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>РЎРїРёСЃРѕРє DTO РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃСѓРґРЅР°.</returns>
     public async Task<IReadOnlyList<ShipImageDto>> GetAllImagesByEntityIdAsync(Guid entityId)
     {
         if (_repo is not ShipImageRepository imageRepo) return Array.Empty<ShipImageDto>();
@@ -76,10 +76,10 @@ public class ShipImageService(
     }
 
     /// <summary>
-    /// Создать новое изображение судна.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="dto">Данные для создания изображения (судно, файл, флаг primary).</param>
-    /// <returns>Созданное изображение судна или null при ошибке валидации.</returns>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (СЃСѓРґРЅРѕ, С„Р°Р№Р», С„Р»Р°Рі primary).</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР° РёР»Рё null РїСЂРё РѕС€РёР±РєРµ РІР°Р»РёРґР°С†РёРё.</returns>
     public async Task<ShipImageDto?> CreateAsync(CreateShipImageDto dto)
     {
         if (!_fileStorageService.IsValidImage(dto.Image))
@@ -108,74 +108,74 @@ public class ShipImageService(
     }
 
     /// <summary>
-    /// Обновить или установить основное (primary) изображение судна.
+    /// РћР±РЅРѕРІРёС‚СЊ РёР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="id">Идентификатор судна (ShipId).</param>
-    /// <param name="dto">Данные для обновления (новый файл изображения).</param>
-    /// <returns>Обновленное или созданное DTO изображения судна или null при ошибке валидации.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР° (ShipId).</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ (РЅРѕРІС‹Р№ С„Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ).</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅРѕРµ РёР»Рё СЃРѕР·РґР°РЅРЅРѕРµ DTO РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃСѓРґРЅР° РёР»Рё null РїСЂРё РѕС€РёР±РєРµ РІР°Р»РёРґР°С†РёРё.</returns>
     /// <remarks>
-    /// Метод работает с primary изображением судна:
-    /// - Если у судна уже есть primary изображение, оно будет заменено на новое (старое становится не primary).
-    /// - Если у судна нет primary изображения, создается новое с флагом IsPrimary = true.
-    /// - Старое primary изображение сохраняется на диске как обычное изображение (не primary).
-    /// - У судна может быть только одно primary изображение.
+    /// РњРµС‚РѕРґ СЂР°Р±РѕС‚Р°РµС‚ СЃ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµРј СЃСѓРґРЅР°:
+    /// - Р•СЃР»Рё Сѓ СЃСѓРґРЅР° СѓР¶Рµ РµСЃС‚СЊ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ, РѕРЅРѕ Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РЅРѕРІРѕРµ (СЃС‚Р°СЂРѕРµ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РЅРµ primary).
+    /// - Р•СЃР»Рё Сѓ СЃСѓРґРЅР° РЅРµС‚ primary РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІРѕРµ СЃ С„Р»Р°РіРѕРј IsPrimary = true.
+    /// - РЎС‚Р°СЂРѕРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РЅР° РґРёСЃРєРµ РєР°Рє РѕР±С‹С‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ (РЅРµ primary).
+    /// - РЈ СЃСѓРґРЅР° РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ РѕРґРЅРѕ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
     /// </remarks>
     public async Task<ShipImageDto?> UpdateAsync(Guid id, UpdateShipImageDto dto)
     {
-        // Проверяем, что передано изображение
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїРµСЂРµРґР°РЅРѕ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         if (dto.Image == null)
             return null;
-        
+
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
-        
-        // Проверяем существование судна
+
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ СЃСѓРґРЅР°
         var ship = await _shipRepo.GetByIdAsync(id);
         if (ship is null)
             return null;
-        
-        // Проверяем, есть ли репозиторий нужного типа
+
+        // РџСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё СЂРµРїРѕР·РёС‚РѕСЂРёР№ РЅСѓР¶РЅРѕРіРѕ С‚РёРїР°
         if (_repo is not ShipImageRepository imageRepo)
             return null;
-        
-        // Получаем текущее primary изображение судна
+
+        // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°
         var currentPrimaryImage = await imageRepo.GetPrimaryByShipIdAsync(id);
-        
-        // Если у судна уже есть primary изображение
+
+        // Р•СЃР»Рё Сѓ СЃСѓРґРЅР° СѓР¶Рµ РµСЃС‚СЊ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         if (currentPrimaryImage != null)
         {
-            // Сбрасываем флаг IsPrimary у старого изображения (файл остается на диске)
+            // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі IsPrimary Сѓ СЃС‚Р°СЂРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (С„Р°Р№Р» РѕСЃС‚Р°РµС‚СЃСЏ РЅР° РґРёСЃРєРµ)
             currentPrimaryImage.IsPrimary = false;
             await _repo.UpdateAsync(currentPrimaryImage, currentPrimaryImage.Id);
         }
-        
-        // Создаем новое primary изображение
+
+        // РЎРѕР·РґР°РµРј РЅРѕРІРѕРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         var newId = Guid.NewGuid();
         var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ships", newId.ToString());
-        
+
         var newPrimaryImage = new ShipImage
         {
             Id = newId,
             ShipId = ship.Id,
             Ship = ship,
             ImagePath = imagePath,
-            IsPrimary = true, // Новое изображение всегда primary
+            IsPrimary = true, // РќРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІСЃРµРіРґР° primary
             UploadedAt = DateTime.UtcNow
         };
-        
+
         var created = await _repo.CreateAsync(newPrimaryImage);
-        
+
         var createdDto = _mapper.Map<ShipImageDto>(created);
         return createdDto;
     }
 
     /// <summary>
-    /// Удалить изображение судна по идентификатору.
+    /// РЈРґР°Р»РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор изображения для удаления.</param>
-    /// <returns>True, если удаление успешно, иначе false.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ.</param>
+    /// <returns>True, РµСЃР»Рё СѓРґР°Р»РµРЅРёРµ СѓСЃРїРµС€РЅРѕ, РёРЅР°С‡Рµ false.</returns>
     /// <remarks>
-    /// Также удаляет физический файл изображения с диска.
+    /// РўР°РєР¶Рµ СѓРґР°Р»СЏРµС‚ С„РёР·РёС‡РµСЃРєРёР№ С„Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃ РґРёСЃРєР°.
     /// </remarks>
     public async Task<bool> DeleteAsync(Guid id)
     {

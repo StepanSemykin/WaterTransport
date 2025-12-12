@@ -1,52 +1,52 @@
-namespace WaterTransportService.Api.Caching;
+п»їnamespace WaterTransportService.Api.Caching;
 
 /// <summary>
-/// Время жизни (TTL) для различных типов кешируемых данных.
+/// Р’СЂРµРјСЏ Р¶РёР·РЅРё (TTL) РґР»СЏ СЂР°Р·Р»РёС‡РЅС‹С… С‚РёРїРѕРІ РєРµС€РёСЂСѓРµРјС‹С… РґР°РЅРЅС‹С….
 /// </summary>
 public static class CacheTTL
 {
     /// <summary>
-    /// Доступные заявки - часто меняются.
+    /// Р”РѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё - С‡Р°СЃС‚Рѕ РјРµРЅСЏСЋС‚СЃСЏ.
     /// </summary>
     public static TimeSpan AvailableOrders => TimeSpan.FromSeconds(10);
-    
+
     /// <summary>
-    /// Активная заявка пользователя - критичная актуальность.
+    /// РђРєС‚РёРІРЅР°СЏ Р·Р°СЏРІРєР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ - РєСЂРёС‚РёС‡РЅР°СЏ Р°РєС‚СѓР°Р»СЊРЅРѕСЃС‚СЊ.
     /// </summary>
     public static TimeSpan ActiveOrder => TimeSpan.FromSeconds(5);
-    
+
     /// <summary>
-    /// Заявки по статусу "Agreed" - меняются реже.
+    /// Р—Р°СЏРІРєРё РїРѕ СЃС‚Р°С‚СѓСЃСѓ "Agreed" - РјРµРЅСЏСЋС‚СЃСЏ СЂРµР¶Рµ.
     /// </summary>
     public static TimeSpan AgreedOrders => TimeSpan.FromSeconds(30);
-    
+
     /// <summary>
-    /// Завершенные заявки - почти не меняются.
+    /// Р—Р°РІРµСЂС€РµРЅРЅС‹Рµ Р·Р°СЏРІРєРё - РїРѕС‡С‚Рё РЅРµ РјРµРЅСЏСЋС‚СЃСЏ.
     /// </summary>
     public static TimeSpan CompletedOrders => TimeSpan.FromMinutes(5);
-    
+
     /// <summary>
-    /// Отклики на заявку - средняя частота изменений.
+    /// РћС‚РєР»РёРєРё РЅР° Р·Р°СЏРІРєСѓ - СЃСЂРµРґРЅСЏСЏ С‡Р°СЃС‚РѕС‚Р° РёР·РјРµРЅРµРЅРёР№.
     /// </summary>
     public static TimeSpan OrderOffers => TimeSpan.FromSeconds(15);
-    
+
     /// <summary>
-    /// Отклики партнера - меняются реже.
+    /// РћС‚РєР»РёРєРё РїР°СЂС‚РЅРµСЂР° - РјРµРЅСЏСЋС‚СЃСЏ СЂРµР¶Рµ.
     /// </summary>
     public static TimeSpan PartnerOffers => TimeSpan.FromSeconds(30);
-    
+
     /// <summary>
-    /// Конкретная заявка по ID - средняя частота.
+    /// РљРѕРЅРєСЂРµС‚РЅР°СЏ Р·Р°СЏРІРєР° РїРѕ ID - СЃСЂРµРґРЅСЏСЏ С‡Р°СЃС‚РѕС‚Р°.
     /// </summary>
     public static TimeSpan OrderById => TimeSpan.FromSeconds(20);
-    
+
     /// <summary>
-    /// Все заявки с пагинацией - редко используется.
+    /// Р’СЃРµ Р·Р°СЏРІРєРё СЃ РїР°РіРёРЅР°С†РёРµР№ - СЂРµРґРєРѕ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ.
     /// </summary>
     public static TimeSpan AllOrders => TimeSpan.FromMinutes(2);
-    
+
     /// <summary>
-    /// Получить TTL в зависимости от статуса заявки.
+    /// РџРѕР»СѓС‡РёС‚СЊ TTL РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЃС‚Р°С‚СѓСЃР° Р·Р°СЏРІРєРё.
     /// </summary>
     public static TimeSpan GetTTLByStatus(string status)
     {

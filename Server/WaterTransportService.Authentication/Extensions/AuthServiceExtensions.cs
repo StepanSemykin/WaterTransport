@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +18,7 @@ public static class AuthServiceExtensions
 
         var jwtSettings = configuration.GetSection("Jwt");
         var key = jwtSettings["Key"] ?? throw new InvalidOperationException("JWT Key not configured");
-        
+
         SymmetricSecurityKey signingKey;
         try
         {

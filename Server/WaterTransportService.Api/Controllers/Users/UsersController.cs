@@ -138,7 +138,7 @@ public class UsersController(IUserService userService, IAuthService authService)
             return BadRequest(response);
         }
 
-        HttpContext.Response.Cookies.Append("AuthToken", response.Data.AccessToken, new CookieOptions
+        HttpContext.Response.Cookies.Append("AuthToken", response.Data!.AccessToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
