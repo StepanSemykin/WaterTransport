@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Hosting;
+п»їusing Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 namespace WaterTransportService.Infrastructure.FileStorage;
 
 /// <summary>
-/// Реализация сервиса для работы с файлами изображений.
+/// Р РµР°Р»РёР·Р°С†РёСЏ СЃРµСЂРІРёСЃР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С„Р°Р№Р»Р°РјРё РёР·РѕР±СЂР°Р¶РµРЅРёР№.
 /// </summary>
 public class FileStorageService : IFileStorageService
 {
@@ -28,10 +28,10 @@ public class FileStorageService : IFileStorageService
     public async Task<string> SaveImageAsync(IFormFile file, string subfolder)
     {
         if (file == null || file.Length == 0)
-            throw new ArgumentException("Файл не может быть пустым.", nameof(file));
+            throw new ArgumentException("Р¤Р°Р№Р» РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј.", nameof(file));
 
         if (!IsValidImage(file))
-            throw new InvalidOperationException("Недопустимый формат файла. Разрешены только изображения.");
+            throw new InvalidOperationException("РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С„РѕСЂРјР°С‚ С„Р°Р№Р»Р°. Р Р°Р·СЂРµС€РµРЅС‹ С‚РѕР»СЊРєРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.");
 
         var targetFolder = Path.Combine(_imagesBasePath, subfolder);
         if (!Directory.Exists(targetFolder))
@@ -54,10 +54,10 @@ public class FileStorageService : IFileStorageService
     public async Task<string> SaveImageAsync(IFormFile file, string subfolder, string fileNameWithoutExtension)
     {
         if (file == null || file.Length == 0)
-            throw new ArgumentException("Файл не может быть пустым.", nameof(file));
+            throw new ArgumentException("Р¤Р°Р№Р» РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј.", nameof(file));
 
         if (!IsValidImage(file))
-            throw new InvalidOperationException("Недопустимый формат файла. Разрешены только изображения.");
+            throw new InvalidOperationException("РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ С„РѕСЂРјР°С‚ С„Р°Р№Р»Р°. Р Р°Р·СЂРµС€РµРЅС‹ С‚РѕР»СЊРєРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.");
 
         var targetFolder = Path.Combine(_imagesBasePath, subfolder);
         if (!Directory.Exists(targetFolder))
@@ -159,8 +159,8 @@ public class FileStorageService : IFileStorageService
 
             var bytes = await File.ReadAllBytesAsync(fullPath);
             var base64 = Convert.ToBase64String(bytes);
-            
-            // Определяем MIME тип по расширению файла
+
+            // РћРїСЂРµРґРµР»СЏРµРј MIME С‚РёРї РїРѕ СЂР°СЃС€РёСЂРµРЅРёСЋ С„Р°Р№Р»Р°
             var extension = Path.GetExtension(fullPath).ToLowerInvariant();
             var mimeType = extension switch
             {

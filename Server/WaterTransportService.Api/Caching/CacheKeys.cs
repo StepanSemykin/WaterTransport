@@ -1,109 +1,109 @@
-namespace WaterTransportService.Api.Caching;
+п»їnamespace WaterTransportService.Api.Caching;
 
 /// <summary>
-/// Генератор ключей для кеширования.
+/// Р“РµРЅРµСЂР°С‚РѕСЂ РєР»СЋС‡РµР№ РґР»СЏ РєРµС€РёСЂРѕРІР°РЅРёСЏ.
 /// </summary>
 public static class CacheKeys
 {
     // ==================== Rent Orders ====================
-    
+
     /// <summary>
-    /// Доступные заявки для партнера.
+    /// Р”РѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё РґР»СЏ РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
-    public static string AvailableOrdersForPartner(Guid partnerId) 
+    public static string AvailableOrdersForPartner(Guid partnerId)
         => $"rent-orders:available:partner:{partnerId}";
-    
+
     /// <summary>
-    /// Заявки пользователя по статусу.
+    /// Р—Р°СЏРІРєРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ СЃС‚Р°С‚СѓСЃСѓ.
     /// </summary>
-    public static string UserOrdersByStatus(Guid userId, string status) 
+    public static string UserOrdersByStatus(Guid userId, string status)
         => $"rent-orders:user:{userId}:status:{status}";
-    
+
     /// <summary>
-    /// Активная заявка пользователя.
+    /// РђРєС‚РёРІРЅР°СЏ Р·Р°СЏРІРєР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    public static string ActiveOrderForUser(Guid userId) 
+    public static string ActiveOrderForUser(Guid userId)
         => $"rent-orders:user:{userId}:active";
-    
+
     /// <summary>
-    /// Заявки партнера по статусу.
+    /// Р—Р°СЏРІРєРё РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ.
     /// </summary>
-    public static string PartnerOrdersByStatus(Guid partnerId, string status) 
+    public static string PartnerOrdersByStatus(Guid partnerId, string status)
         => $"rent-orders:partner:{partnerId}:status:{status}";
-    
+
     /// <summary>
-    /// Конкретная заявка по ID.
+    /// РљРѕРЅРєСЂРµС‚РЅР°СЏ Р·Р°СЏРІРєР° РїРѕ ID.
     /// </summary>
-    public static string OrderById(Guid orderId) 
+    public static string OrderById(Guid orderId)
         => $"rent-orders:id:{orderId}";
-    
+
     /// <summary>
-    /// Все заявки с пагинацией.
+    /// Р’СЃРµ Р·Р°СЏРІРєРё СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    public static string AllOrders(int page, int pageSize) 
+    public static string AllOrders(int page, int pageSize)
         => $"rent-orders:all:page:{page}:size:{pageSize}";
 
     // ==================== Rent Order Offers ====================
-    
+
     /// <summary>
-    /// Отклики на заявку.
+    /// РћС‚РєР»РёРєРё РЅР° Р·Р°СЏРІРєСѓ.
     /// </summary>
-    public static string OffersByOrderId(Guid orderId) 
+    public static string OffersByOrderId(Guid orderId)
         => $"rent-order-offers:order:{orderId}";
-    
+
     /// <summary>
-    /// Отклики партнера.
+    /// РћС‚РєР»РёРєРё РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
-    public static string OffersByPartnerId(Guid partnerId) 
+    public static string OffersByPartnerId(Guid partnerId)
         => $"rent-order-offers:partner:{partnerId}";
-    
+
     /// <summary>
-    /// Конкретный отклик по ID.
+    /// РљРѕРЅРєСЂРµС‚РЅС‹Р№ РѕС‚РєР»РёРє РїРѕ ID.
     /// </summary>
-    public static string OfferById(Guid offerId) 
+    public static string OfferById(Guid offerId)
         => $"rent-order-offers:id:{offerId}";
-    
+
     /// <summary>
-    /// Отклики на заявки пользователя по статусу.
+    /// РћС‚РєР»РёРєРё РЅР° Р·Р°СЏРІРєРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ СЃС‚Р°С‚СѓСЃСѓ.
     /// </summary>
-    public static string OffersForUserOrdersByStatus(Guid userId, string status) 
+    public static string OffersForUserOrdersByStatus(Guid userId, string status)
         => $"rent-order-offers:user:{userId}:status:{status}";
 
     // ==================== Prefixes for bulk invalidation ====================
-    
+
     /// <summary>
-    /// Префикс для всех доступных заявок.
+    /// РџСЂРµС„РёРєСЃ РґР»СЏ РІСЃРµС… РґРѕСЃС‚СѓРїРЅС‹С… Р·Р°СЏРІРѕРє.
     /// </summary>
-    public static string AllAvailableOrdersPrefix() 
+    public static string AllAvailableOrdersPrefix()
         => "rent-orders:available:";
-    
+
     /// <summary>
-    /// Префикс для всех заявок пользователя.
+    /// РџСЂРµС„РёРєСЃ РґР»СЏ РІСЃРµС… Р·Р°СЏРІРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    public static string AllUserOrdersPrefix(Guid userId) 
+    public static string AllUserOrdersPrefix(Guid userId)
         => $"rent-orders:user:{userId}:";
-    
+
     /// <summary>
-    /// Префикс для всех заявок партнера.
+    /// РџСЂРµС„РёРєСЃ РґР»СЏ РІСЃРµС… Р·Р°СЏРІРѕРє РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
-    public static string AllPartnerOrdersPrefix(Guid partnerId) 
+    public static string AllPartnerOrdersPrefix(Guid partnerId)
         => $"rent-orders:partner:{partnerId}:";
-    
+
     /// <summary>
-    /// Префикс для всех откликов на заявку.
+    /// РџСЂРµС„РёРєСЃ РґР»СЏ РІСЃРµС… РѕС‚РєР»РёРєРѕРІ РЅР° Р·Р°СЏРІРєСѓ.
     /// </summary>
-    public static string AllOffersForOrderPrefix(Guid orderId) 
+    public static string AllOffersForOrderPrefix(Guid orderId)
         => $"rent-order-offers:order:{orderId}";
-    
+
     /// <summary>
-    /// Префикс для всех откликов партнера.
+    /// РџСЂРµС„РёРєСЃ РґР»СЏ РІСЃРµС… РѕС‚РєР»РёРєРѕРІ РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
-    public static string AllPartnerOffersPrefix(Guid partnerId) 
+    public static string AllPartnerOffersPrefix(Guid partnerId)
         => $"rent-order-offers:partner:{partnerId}";
-    
+
     /// <summary>
-    /// Префикс для всех откликов пользователя.
+    /// РџСЂРµС„РёРєСЃ РґР»СЏ РІСЃРµС… РѕС‚РєР»РёРєРѕРІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    public static string AllUserOffersPrefix(Guid userId) 
+    public static string AllUserOffersPrefix(Guid userId)
         => $"rent-order-offers:user:{userId}:";
 }

@@ -1,9 +1,8 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using Moq;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Exceptions;
 using WaterTransportService.Api.Services.Users;
-using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Infrastructure.PasswordValidator;
@@ -14,7 +13,7 @@ using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
 namespace WaterTransportService.Tests;
 
 /// <summary>
-/// Тесты для проверки обработки повторяющихся паролей.
+/// РўРµСЃС‚С‹ РґР»СЏ РїСЂРѕРІРµСЂРєРё РѕР±СЂР°Р±РѕС‚РєРё РїРѕРІС‚РѕСЂСЏСЋС‰РёС…СЃСЏ РїР°СЂРѕР»РµР№.
 /// </summary>
 public class DuplicatePasswordTests
 {
@@ -82,7 +81,7 @@ public class DuplicatePasswordTests
         _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
             .Returns(true);
 
-        // Текущий пароль совпадает с новым
+        // РўРµРєСѓС‰РёР№ РїР°СЂРѕР»СЊ СЃРѕРІРїР°РґР°РµС‚ СЃ РЅРѕРІС‹Рј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
             .Returns(true);
 
@@ -91,7 +90,7 @@ public class DuplicatePasswordTests
             () => _userService.UpdateAsync(userId, dto)
         );
 
-        Assert.Equal("Новый пароль не должен совпадать с текущим паролем.", exception.Message);
+        Assert.Equal("РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РЅРµ РґРѕР»Р¶РµРЅ СЃРѕРІРїР°РґР°С‚СЊ СЃ С‚РµРєСѓС‰РёРј РїР°СЂРѕР»РµРј.", exception.Message);
     }
 
     [Fact]
@@ -116,7 +115,6 @@ public class DuplicatePasswordTests
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            User = user,
             Hash = oldPasswordHash,
             CreatedAt = DateTime.UtcNow.AddDays(-30)
         };
@@ -139,11 +137,11 @@ public class DuplicatePasswordTests
         _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
             .Returns(true);
 
-        // Новый пароль не совпадает с текущим
+        // РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ С‚РµРєСѓС‰РёРј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
             .Returns(false);
 
-        // Но совпадает со старым паролем
+        // РќРѕ СЃРѕРІРїР°РґР°РµС‚ СЃРѕ СЃС‚Р°СЂС‹Рј РїР°СЂРѕР»РµРј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, oldPasswordHash))
             .Returns(true);
 
@@ -152,7 +150,7 @@ public class DuplicatePasswordTests
             () => _userService.UpdateAsync(userId, dto)
         );
 
-        Assert.Equal("Новый пароль не должен совпадать с ранее использованными паролями.", exception.Message);
+        Assert.Equal("РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РЅРµ РґРѕР»Р¶РµРЅ СЃРѕРІРїР°РґР°С‚СЊ СЃ СЂР°РЅРµРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹РјРё РїР°СЂРѕР»СЏРјРё.", exception.Message);
     }
 
     [Fact]
@@ -178,7 +176,6 @@ public class DuplicatePasswordTests
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            User = user,
             Hash = oldPasswordHash,
             CreatedAt = DateTime.UtcNow.AddDays(-30)
         };
@@ -201,7 +198,7 @@ public class DuplicatePasswordTests
         _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
             .Returns(true);
 
-        // Новый пароль не совпадает ни с текущим, ни со старым
+        // РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РЅРµ СЃРѕРІРїР°РґР°РµС‚ РЅРё СЃ С‚РµРєСѓС‰РёРј, РЅРё СЃРѕ СЃС‚Р°СЂС‹Рј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
             .Returns(false);
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, oldPasswordHash))
@@ -261,9 +258,9 @@ public class DuplicatePasswordTests
 
         var oldPasswords = new List<OldPassword>
         {
-            new() { Id = Guid.NewGuid(), UserId = userId, User = user, Hash = oldPassword1Hash, CreatedAt = DateTime.UtcNow.AddDays(-90) },
-            new() { Id = Guid.NewGuid(), UserId = userId, User = user, Hash = oldPassword2Hash, CreatedAt = DateTime.UtcNow.AddDays(-60) },
-            new() { Id = Guid.NewGuid(), UserId = userId, User = user, Hash = oldPassword3Hash, CreatedAt = DateTime.UtcNow.AddDays(-30) }
+            new() { Id = Guid.NewGuid(), UserId = userId, Hash = oldPassword1Hash, CreatedAt = DateTime.UtcNow.AddDays(-90) },
+            new() { Id = Guid.NewGuid(), UserId = userId, Hash = oldPassword2Hash, CreatedAt = DateTime.UtcNow.AddDays(-60) },
+            new() { Id = Guid.NewGuid(), UserId = userId, Hash = oldPassword3Hash, CreatedAt = DateTime.UtcNow.AddDays(-30) }
         };
 
         var dto = new UpdateUserDto
@@ -284,15 +281,15 @@ public class DuplicatePasswordTests
         _mockPasswordValidator.Setup(x => x.IsPasswordValid(dto.NewPassword))
             .Returns(true);
 
-        // Не совпадает с текущим
+        // РќРµ СЃРѕРІРїР°РґР°РµС‚ СЃ С‚РµРєСѓС‰РёРј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, currentPasswordHash))
             .Returns(false);
 
-        // Не совпадает с первым старым
+        // РќРµ СЃРѕРІРїР°РґР°РµС‚ СЃ РїРµСЂРІС‹Рј СЃС‚Р°СЂС‹Рј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, oldPassword1Hash))
             .Returns(false);
 
-        // СОВПАДАЕТ со вторым старым
+        // РЎРћР’РџРђР”РђР•Рў СЃРѕ РІС‚РѕСЂС‹Рј СЃС‚Р°СЂС‹Рј
         _mockPasswordHasher.Setup(x => x.Verify(dto.NewPassword, oldPassword2Hash))
             .Returns(true);
 
@@ -301,7 +298,7 @@ public class DuplicatePasswordTests
             () => _userService.UpdateAsync(userId, dto)
         );
 
-        Assert.Equal("Новый пароль не должен совпадать с ранее использованными паролями.", exception.Message);
+        Assert.Equal("РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РЅРµ РґРѕР»Р¶РµРЅ СЃРѕРІРїР°РґР°С‚СЊ СЃ СЂР°РЅРµРµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅС‹РјРё РїР°СЂРѕР»СЏРјРё.", exception.Message);
 
         // Verify that it stopped checking after finding a match
         _mockPasswordHasher.Verify(x => x.Verify(dto.NewPassword, oldPassword3Hash), Times.Never);
@@ -325,7 +322,7 @@ public class DuplicatePasswordTests
         var dto = new UpdateUserDto
         {
             Phone = "+79991111111",
-            NewPassword = null // Не меняем пароль
+            NewPassword = null // РќРµ РјРµРЅСЏРµРј РїР°СЂРѕР»СЊ
         };
 
         _mockUserRepo.Setup(x => x.GetByIdAsync(userId))

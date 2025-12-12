@@ -5,7 +5,7 @@ using WaterTransportService.Model.Entities;
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для работы с откликами партнёров на заказы аренды.
+/// Репозиторий для работы с откликами партнеров на заказы аренды.
 /// </summary>
 public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntityRepository<RentOrderOffer, Guid>
 {
@@ -40,7 +40,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// Получить отклик с полными связанными данными по идентификатору.
     /// </summary>
     /// <param name="id">Идентификатор отклика.</param>
-    /// <returns>Отклик с деталями или null, если не найден.</returns>
+    /// <returns>Отклик с полными данными или null, если не найден.</returns>
     public async Task<RentOrderOffer?> GetByIdWithDetailsAsync(Guid id) =>
         await _context.RentOrderOffers
             .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
@@ -62,10 +62,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить все отклики конкретного партнёра с полными данными.
+    /// Получить все отклики конкретного партнера с полными данными.
     /// </summary>
-    /// <param name="partnerId">Идентификатор партнёра.</param>
-    /// <returns>Коллекция откликов партнёра.</returns>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Коллекция откликов партнера.</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetByPartnerIdWithDetailsAsync(Guid partnerId) =>
         await _context.RentOrderOffers
             .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
@@ -75,11 +75,11 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить отклики с определённым статусом и полными данными для указанного партнёра.
+    /// Получить отклики партнера с определенным статусом.
     /// </summary>
     /// <param name="status">Статус отклика.</param>
-    /// <param name="partnerId">Идентификатор партнёра.</param>
-    /// <returns>Список откликов.</returns>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Список откликов с указанным статусом.</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetByStatusWithDetailsAsync(string status, Guid partnerId)
     {
         return await _context.RentOrderOffers
@@ -90,11 +90,11 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     }
 
     /// <summary>
-    /// Получить отклики для заказов пользователя (заказы пользователя) с полными данными и указанным статусом.
+    /// Получить отклики для пользователя (на его заказы) с полными данными.
     /// </summary>
-    /// <param name="userId">Идентификатор пользователя, создавшего заказ.</param>
-    /// <param name="status">Статус откликов.</param>
-    /// <returns>Коллекция откликов.</returns>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="status">Статус откликов для фильтрации.</param>
+    /// <returns>Коллекция откликов на заказы пользователя с указанным статусом.</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetOffersForUserOrdersWithDetailsAsync(Guid userId, string status) =>
         await _context.RentOrderOffers
             .Include(o => o.Partner).ThenInclude(p => p.UserProfile)
@@ -108,7 +108,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// <summary>
     /// Создать новый отклик.
     /// </summary>
-    /// <param name="entity">Отклик для создания.</param>
+    /// <param name="entity">Отклик-сущность для создания.</param>
     /// <returns>Созданный отклик.</returns>
     public async Task<RentOrderOffer> CreateAsync(RentOrderOffer entity)
     {
@@ -164,10 +164,10 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
             .ToListAsync();
 
     /// <summary>
-    /// Получить все отклики конкретного партнёра.
+    /// Получить все отклики конкретного партнера.
     /// </summary>
-    /// <param name="partnerId">Идентификатор партнёра.</param>
-    /// <returns>Коллекция откликов партнёра.</returns>
+    /// <param name="partnerId">Идентификатор партнера.</param>
+    /// <returns>Коллекция откликов партнера.</returns>
     public async Task<IEnumerable<RentOrderOffer>> GetByPartnerIdAsync(Guid partnerId) =>
         await _context.RentOrderOffers
             .Include(o => o.RentOrder)
@@ -180,7 +180,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// Удалить все отклики для конкретного заказа аренды.
     /// </summary>
     /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Количество удалённых записей.</returns>
+    /// <returns>Количество удаленных откликов.</returns>
     public async Task<int> DeleteByRentOrderIdAsync(Guid rentOrderId)
     {
         var offers = await _context.RentOrderOffers
@@ -198,7 +198,7 @@ public class RentOrderOfferRepository(WaterTransportDbContext context) : IEntity
     /// Пометить все отклики для конкретного заказа аренды как Rejected.
     /// </summary>
     /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
-    /// <returns>Количество обновлённых записей.</returns>
+    /// <returns>Количество обновленных откликов.</returns>
     public async Task<int> RejectByRentOrderIdAsync(Guid rentOrderId)
     {
         var offers = await _context.RentOrderOffers

@@ -1,4 +1,4 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
@@ -7,7 +7,7 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Images;
 
 /// <summary>
-/// Сервис для работы с изображениями портов.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РїРѕСЂС‚РѕРІ.
 /// </summary>
 public class PortImageService(
     IEntityRepository<PortImage, Guid> repo,
@@ -21,11 +21,11 @@ public class PortImageService(
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех изображений портов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕСЂС‚РѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы.</param>
-    /// <param name="pageSize">Размер страницы.</param>
-    /// <returns>Кортеж со списком изображений и общим количеством.</returns>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹.</param>
+    /// <param name="pageSize">Р Р°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹.</param>
+    /// <returns>РљРѕСЂС‚РµР¶ СЃРѕ СЃРїРёСЃРєРѕРј РёР·РѕР±СЂР°Р¶РµРЅРёР№ Рё РѕР±С‰РёРј РєРѕР»РёС‡РµСЃС‚РІРѕРј.</returns>
     public async Task<(IReadOnlyList<PortImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -37,10 +37,10 @@ public class PortImageService(
     }
 
     /// <summary>
-    /// Получить изображение порта по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>DTO изображения порта или null, если не найдено.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>DTO РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕСЂС‚Р° РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
     public async Task<PortImageDto?> GetByIdAsync(Guid id)
     {
         var portImage = await _repo.GetByIdAsync(id);
@@ -50,10 +50,10 @@ public class PortImageService(
     }
 
     /// <summary>
-    /// Получить основное (primary) изображение порта по идентификатору порта (PortId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕСЂС‚Р° (PortId).
     /// </summary>
-    /// <param name="entityId">Идентификатор порта.</param>
-    /// <returns>DTO основного изображения порта или null, если не найдено.</returns>
+    /// <param name="entityId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>DTO РѕСЃРЅРѕРІРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕСЂС‚Р° РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
     public async Task<PortImageDto?> GetPrimaryImageByEntityIdAsync(Guid entityId)
     {
         if (_repo is not PortImageRepository imageRepo) return null;
@@ -63,10 +63,10 @@ public class PortImageService(
     }
 
     /// <summary>
-    /// Получить все изображения порта по идентификатору порта (PortId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕСЂС‚Р° (PortId).
     /// </summary>
-    /// <param name="entityId">Идентификатор порта.</param>
-    /// <returns>Список DTO изображений порта.</returns>
+    /// <param name="entityId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>РЎРїРёСЃРѕРє DTO РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕСЂС‚Р°.</returns>
     public async Task<IReadOnlyList<PortImageDto>> GetAllImagesByEntityIdAsync(Guid entityId)
     {
         if (_repo is not PortImageRepository imageRepo) return Array.Empty<PortImageDto>();
@@ -76,10 +76,10 @@ public class PortImageService(
     }
 
     /// <summary>
-    /// Создать новое изображение порта.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="dto">Данные для создания изображения.</param>
-    /// <returns>Созданное изображение или null при ошибке.</returns>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РёР»Рё null РїСЂРё РѕС€РёР±РєРµ.</returns>
     public async Task<PortImageDto?> CreateAsync(CreatePortImageDto dto)
     {
         if (!_fileStorageService.IsValidImage(dto.Image))
@@ -108,72 +108,72 @@ public class PortImageService(
     }
 
     /// <summary>
-    /// Обновить или установить основное (primary) изображение порта.
+    /// РћР±РЅРѕРІРёС‚СЊ РёР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="id">Идентификатор порта (PortId).</param>
-    /// <param name="dto">Данные для обновления (новый файл изображения).</param>
-    /// <returns>Обновленное или созданное DTO изображения порта или null при ошибке валидации.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р° (PortId).</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ (РЅРѕРІС‹Р№ С„Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ).</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅРѕРµ РёР»Рё СЃРѕР·РґР°РЅРЅРѕРµ DTO РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕСЂС‚Р° РёР»Рё null РїСЂРё РѕС€РёР±РєРµ РІР°Р»РёРґР°С†РёРё.</returns>
     /// <remarks>
-    /// Метод работает с primary изображением порта:
-    /// - Если у порта уже есть primary изображение, оно будет заменено на новое (старое становится не primary).
-    /// - Если у порта нет primary изображения, создается новое с флагом IsPrimary = true.
-    /// - Старое primary изображение сохраняется на диске как обычное изображение (не primary).
-    /// - У порта может быть только одно primary изображение.
+    /// РњРµС‚РѕРґ СЂР°Р±РѕС‚Р°РµС‚ СЃ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµРј РїРѕСЂС‚Р°:
+    /// - Р•СЃР»Рё Сѓ РїРѕСЂС‚Р° СѓР¶Рµ РµСЃС‚СЊ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ, РѕРЅРѕ Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РЅРѕРІРѕРµ (СЃС‚Р°СЂРѕРµ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РЅРµ primary).
+    /// - Р•СЃР»Рё Сѓ РїРѕСЂС‚Р° РЅРµС‚ primary РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІРѕРµ СЃ С„Р»Р°РіРѕРј IsPrimary = true.
+    /// - РЎС‚Р°СЂРѕРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РЅР° РґРёСЃРєРµ РєР°Рє РѕР±С‹С‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ (РЅРµ primary).
+    /// - РЈ РїРѕСЂС‚Р° РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ РѕРґРЅРѕ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
     /// </remarks>
     public async Task<PortImageDto?> UpdateAsync(Guid id, UpdatePortImageDto dto)
     {
-        // Проверяем, что передано изображение
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїРµСЂРµРґР°РЅРѕ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         if (dto.Image == null)
             return null;
-        
+
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
-        
-        // Проверяем существование порта
+
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РїРѕСЂС‚Р°
         var port = await _portRepo.GetByIdAsync(id);
         if (port is null)
             return null;
-        
-        // Проверяем, есть ли репозиторий нужного типа
+
+        // РџСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё СЂРµРїРѕР·РёС‚РѕСЂРёР№ РЅСѓР¶РЅРѕРіРѕ С‚РёРїР°
         if (_repo is not PortImageRepository imageRepo)
             return null;
-        
-        // Получаем текущее primary изображение порта
+
+        // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°
         var currentPrimaryImage = await imageRepo.GetPrimaryByPortIdAsync(id);
-        
-        // Если у порта уже есть primary изображение
+
+        // Р•СЃР»Рё Сѓ РїРѕСЂС‚Р° СѓР¶Рµ РµСЃС‚СЊ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         if (currentPrimaryImage != null)
         {
-            // Сбрасываем флаг IsPrimary у старого изображения (файл остается на диске)
+            // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі IsPrimary Сѓ СЃС‚Р°СЂРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (С„Р°Р№Р» РѕСЃС‚Р°РµС‚СЃСЏ РЅР° РґРёСЃРєРµ)
             currentPrimaryImage.IsPrimary = false;
             await _repo.UpdateAsync(currentPrimaryImage, currentPrimaryImage.Id);
         }
-        
-        // Создаем новое primary изображение
+
+        // РЎРѕР·РґР°РµРј РЅРѕРІРѕРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         var newId = Guid.NewGuid();
         var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Ports", newId.ToString());
-        
+
         var newPrimaryImage = new PortImage
         {
             Id = newId,
             PortId = port.Id,
             Port = port,
             ImagePath = imagePath,
-            IsPrimary = true, // Новое изображение всегда primary
+            IsPrimary = true, // РќРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІСЃРµРіРґР° primary
             UploadedAt = DateTime.UtcNow
         };
-        
+
         var created = await _repo.CreateAsync(newPrimaryImage);
-        
+
         var createdDto = _mapper.Map<PortImageDto>(created);
         return createdDto;
     }
 
     /// <summary>
-    /// Удалить изображение порта.
+    /// РЈРґР°Р»РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>True, если удаление прошло успешно.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>True, РµСЃР»Рё СѓРґР°Р»РµРЅРёРµ РїСЂРѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var entity = await _repo.GetByIdAsync(id);

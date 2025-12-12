@@ -1,4 +1,4 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
 using WaterTransportService.Model.Entities;
@@ -7,7 +7,7 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Api.Services.Images;
 
 /// <summary>
-/// Сервис для работы с изображениями пользователей.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№.
 /// </summary>
 public class UserImageService(
     IEntityRepository<UserImage, Guid> repo,
@@ -21,11 +21,11 @@ public class UserImageService(
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех изображений пользователей с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы.</param>
-    /// <param name="pageSize">Размер страницы.</param>
-    /// <returns>Кортеж из списка изображений и общего количества.</returns>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹.</param>
+    /// <param name="pageSize">Р Р°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹.</param>
+    /// <returns>РљРѕСЂС‚РµР¶ РёР· СЃРїРёСЃРєР° РёР·РѕР±СЂР°Р¶РµРЅРёР№ Рё РѕР±С‰РµРіРѕ РєРѕР»РёС‡РµСЃС‚РІР°.</returns>
     public async Task<(IReadOnlyList<UserImageDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -37,10 +37,10 @@ public class UserImageService(
     }
 
     /// <summary>
-    /// Получить изображение пользователя по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>DTO изображения пользователя или null, если не найдено.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>DTO РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
     public async Task<UserImageDto?> GetByIdAsync(Guid id)
     {
         var e = await _repo.GetByIdAsync(id);
@@ -48,10 +48,10 @@ public class UserImageService(
     }
 
     /// <summary>
-    /// Получить основное (primary) изображение пользователя по идентификатору пользователя (UserId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (UserId).
     /// </summary>
-    /// <param name="entityId">Идентификатор пользователя.</param>
-    /// <returns>DTO основного изображения пользователя или null, если не найдено.</returns>
+    /// <param name="entityId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <returns>DTO РѕСЃРЅРѕРІРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ.</returns>
     public async Task<UserImageDto?> GetPrimaryImageByEntityIdAsync(Guid entityId)
     {
         if (_repo is not UserImageRepository imageRepo) return null;
@@ -61,10 +61,10 @@ public class UserImageService(
     }
 
     /// <summary>
-    /// Получить все изображения пользователя по идентификатору пользователя (UserId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (UserId).
     /// </summary>
-    /// <param name="entityId">Идентификатор пользователя.</param>
-    /// <returns>Список DTO изображений пользователя.</returns>
+    /// <param name="entityId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <returns>РЎРїРёСЃРѕРє DTO РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
     public async Task<IReadOnlyList<UserImageDto>> GetAllImagesByEntityIdAsync(Guid entityId)
     {
         if (_repo is not UserImageRepository imageRepo) return Array.Empty<UserImageDto>();
@@ -74,10 +74,10 @@ public class UserImageService(
     }
 
     /// <summary>
-    /// Создать новое изображение пользователя.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="dto">Данные для создания изображения.</param>
-    /// <returns>Созданное изображение или null при ошибке.</returns>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РёР»Рё null РїСЂРё РѕС€РёР±РєРµ.</returns>
     public async Task<UserImageDto?> CreateAsync(CreateUserImageDto dto)
     {
         if (!_fileStorageService.IsValidImage(dto.Image))
@@ -105,72 +105,72 @@ public class UserImageService(
     }
 
     /// <summary>
-    /// Обновить или установить основное (primary) изображение пользователя.
+    /// РћР±РЅРѕРІРёС‚СЊ РёР»Рё СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя (UserId).</param>
-    /// <param name="dto">Данные для обновления (новый файл изображения).</param>
-    /// <returns>Обновленное или созданное DTO изображения пользователя или null при ошибке валидации.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (UserId).</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ (РЅРѕРІС‹Р№ С„Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ).</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅРѕРµ РёР»Рё СЃРѕР·РґР°РЅРЅРѕРµ DTO РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё null РїСЂРё РѕС€РёР±РєРµ РІР°Р»РёРґР°С†РёРё.</returns>
     /// <remarks>
-    /// Метод работает с primary изображением пользователя:
-    /// - Если у пользователя уже есть primary изображение, оно будет заменено на новое (старое становится не primary).
-    /// - Если у пользователя нет primary изображения, создается новое с флагом IsPrimary = true.
-    /// - Старое primary изображение сохраняется на диске как обычное изображение (не primary).
-    /// - У пользователя может быть только одно primary изображение.
+    /// РњРµС‚РѕРґ СЂР°Р±РѕС‚Р°РµС‚ СЃ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ:
+    /// - Р•СЃР»Рё Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СѓР¶Рµ РµСЃС‚СЊ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ, РѕРЅРѕ Р±СѓРґРµС‚ Р·Р°РјРµРЅРµРЅРѕ РЅР° РЅРѕРІРѕРµ (СЃС‚Р°СЂРѕРµ СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РЅРµ primary).
+    /// - Р•СЃР»Рё Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµС‚ primary РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, СЃРѕР·РґР°РµС‚СЃСЏ РЅРѕРІРѕРµ СЃ С„Р»Р°РіРѕРј IsPrimary = true.
+    /// - РЎС‚Р°СЂРѕРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ РЅР° РґРёСЃРєРµ РєР°Рє РѕР±С‹С‡РЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ (РЅРµ primary).
+    /// - РЈ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РјРѕР¶РµС‚ Р±С‹С‚СЊ С‚РѕР»СЊРєРѕ РѕРґРЅРѕ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ.
     /// </remarks>
     public async Task<UserImageDto?> UpdateAsync(Guid id, UpdateUserImageDto dto)
     {
-        // Проверяем, что передано изображение
+        // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїРµСЂРµРґР°РЅРѕ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         if (dto.Image == null)
             return null;
-        
+
         if (!_fileStorageService.IsValidImage(dto.Image))
             return null;
-        
-        // Проверяем существование профиля пользователя
+
+        // РџСЂРѕРІРµСЂСЏРµРј СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёРµ РїСЂРѕС„РёР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
         var userProfile = await _userProfileRepo.GetByIdAsync(id);
         if (userProfile is null)
             return null;
-        
-        // Проверяем, есть ли репозиторий нужного типа
+
+        // РџСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё СЂРµРїРѕР·РёС‚РѕСЂРёР№ РЅСѓР¶РЅРѕРіРѕ С‚РёРїР°
         if (_repo is not UserImageRepository imageRepo)
             return null;
-        
-        // Получаем текущее primary изображение пользователя
+
+        // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
         var currentPrimaryImage = await imageRepo.GetPrimaryByUserIdAsync(id);
-        
-        // Если у пользователя уже есть primary изображение
+
+        // Р•СЃР»Рё Сѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СѓР¶Рµ РµСЃС‚СЊ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         if (currentPrimaryImage != null)
         {
-            // Сбрасываем флаг IsPrimary у старого изображения (файл остается на диске)
+            // РЎР±СЂР°СЃС‹РІР°РµРј С„Р»Р°Рі IsPrimary Сѓ СЃС‚Р°СЂРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (С„Р°Р№Р» РѕСЃС‚Р°РµС‚СЃСЏ РЅР° РґРёСЃРєРµ)
             currentPrimaryImage.IsPrimary = false;
             await _repo.UpdateAsync(currentPrimaryImage, currentPrimaryImage.Id);
         }
-        
-        // Создаем новое primary изображение
+
+        // РЎРѕР·РґР°РµРј РЅРѕРІРѕРµ primary РёР·РѕР±СЂР°Р¶РµРЅРёРµ
         var newId = Guid.NewGuid();
         var imagePath = await _fileStorageService.SaveImageAsync(dto.Image, "Users", newId.ToString());
-        
+
         var newPrimaryImage = new UserImage
         {
             Id = newId,
             ImagePath = imagePath,
-            IsPrimary = true, // Новое изображение всегда primary
+            IsPrimary = true, // РќРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІСЃРµРіРґР° primary
             UploadedAt = DateTime.UtcNow,
             UserProfileId = userProfile.UserId,
             UserProfile = userProfile
         };
-        
+
         var created = await _repo.CreateAsync(newPrimaryImage);
-        
+
         var createdDto = _mapper.Map<UserImageDto>(created);
         return createdDto;
     }
 
     /// <summary>
-    /// Удалить изображение пользователя.
+    /// РЈРґР°Р»РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Идентификатор изображения.</param>
-    /// <returns>True, если операция прошла успешно.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>True, РµСЃР»Рё РѕРїРµСЂР°С†РёСЏ РїСЂРѕС€Р»Р° СѓСЃРїРµС€РЅРѕ.</returns>
     public async Task<bool> DeleteAsync(Guid id)
     {
         var entity = await _repo.GetByIdAsync(id);

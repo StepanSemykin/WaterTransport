@@ -11,8 +11,8 @@ public static class ShipDetailsDtoExtensions
     /// <summary>
     /// Обогащает ShipDetailsDto, загружая изображение в формате Base64 вместе с MIME типом.
     /// </summary>
-    public static async Task<ShipDetailsDto> WithBase64ImageAsync(
-        this ShipDetailsDto dto,
+    public static async Task<ShipDetailsDto?> WithBase64ImageAsync(
+        this ShipDetailsDto? dto,
         IFileStorageService fileStorageService)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.PrimaryImageUrl))
@@ -51,6 +51,7 @@ public static class ShipDetailsDtoExtensions
             return new List<ShipDetailsDto>();
 
         var tasks = dtos.Select(dto => dto.WithBase64ImageAsync(fileStorageService));
-        return (await Task.WhenAll(tasks)).ToList();
+        var results = await Task.WhenAll(tasks);
+        return results.Where(r => r != null).Select(r => r!).ToList();
     }
 }
