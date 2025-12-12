@@ -265,8 +265,6 @@ public class CachedRentOrderService(
 
             // Дополнительно инвалидируем доступные заявки (заявка больше не доступна)
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
-
-            _logger.LogInformation("Cache invalidated after cancelling order {OrderId}", id);
         }
 
         return success;
