@@ -1,18 +1,18 @@
-using WaterTransportService.Api.DTO;
+п»їusing WaterTransportService.Api.DTO;
 using WaterTransportService.Infrastructure.FileStorage;
 
 namespace WaterTransportService.Api.Extensions;
 
 /// <summary>
-/// Методы расширения для ShipDetailsDto для работы с изображениями.
+/// РњРµС‚РѕРґС‹ СЂР°СЃС€РёСЂРµРЅРёСЏ РґР»СЏ ShipDetailsDto РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё.
 /// </summary>
 public static class ShipDetailsDtoExtensions
 {
     /// <summary>
-    /// Обогащает ShipDetailsDto, загружая изображение в формате Base64 вместе с MIME типом.
+    /// РћР±РѕРіР°С‰Р°РµС‚ ShipDetailsDto, Р·Р°РіСЂСѓР¶Р°СЏ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РІ С„РѕСЂРјР°С‚Рµ Base64 РІРјРµСЃС‚Рµ СЃ MIME С‚РёРїРѕРј.
     /// </summary>
-    public static async Task<ShipDetailsDto> WithBase64ImageAsync(
-        this ShipDetailsDto dto,
+    public static async Task<ShipDetailsDto?> WithBase64ImageAsync(
+        this ShipDetailsDto? dto,
         IFileStorageService fileStorageService)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.PrimaryImageUrl))
@@ -35,13 +35,13 @@ public static class ShipDetailsDtoExtensions
             dto.CostPerHour,
             dto.PortId,
             dto.UserId,
-            base64, // Заменяем путь на Base64
-            mimeType // Добавляем MIME тип
+            base64, // Р—Р°РјРµРЅСЏРµРј РїСѓС‚СЊ РЅР° Base64
+            mimeType // Р”РѕР±Р°РІР»СЏРµРј MIME С‚РёРї
         );
     }
 
     /// <summary>
-    /// Обогащает список ShipDetailsDto, загружая изображения в формате Base64.
+    /// РћР±РѕРіР°С‰Р°РµС‚ СЃРїРёСЃРѕРє ShipDetailsDto, Р·Р°РіСЂСѓР¶Р°СЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РІ С„РѕСЂРјР°С‚Рµ Base64.
     /// </summary>
     public static async Task<List<ShipDetailsDto>> WithBase64ImagesAsync(
         this IEnumerable<ShipDetailsDto> dtos,
@@ -51,6 +51,7 @@ public static class ShipDetailsDtoExtensions
             return new List<ShipDetailsDto>();
 
         var tasks = dtos.Select(dto => dto.WithBase64ImageAsync(fileStorageService));
-        return (await Task.WhenAll(tasks)).ToList();
+        var results = await Task.WhenAll(tasks);
+        return results.Where(r => r != null).Select(r => r!).ToList();
     }
 }

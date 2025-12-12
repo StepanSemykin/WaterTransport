@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
 
 namespace WaterTransportService.Model.Entities;
 using System.ComponentModel.DataAnnotations.Schema;

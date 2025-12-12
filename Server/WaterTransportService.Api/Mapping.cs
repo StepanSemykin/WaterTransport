@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Entities;
 using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;
@@ -13,7 +13,7 @@ public class Mapping : Profile
             .ConstructUsing(u => new AuthUserDto(u.Id, u.Phone, u.Role));
         CreateMap<User, CreateUserDto>().ReverseMap();
         CreateMap<User, UpdateUserDto>().ReverseMap();
-        
+
         CreateMap<UserProfile, UserProfileDto>()
             .ConstructUsing(src => new UserProfileDto(
                 src.UserId,

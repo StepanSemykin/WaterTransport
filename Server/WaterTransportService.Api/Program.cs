@@ -1,10 +1,9 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+п»їusing Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using WaterTransportService.Api;
-using WaterTransportService.Api.Caching;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Middleware;
 using WaterTransportService.Api.Services.Calendars;
@@ -156,8 +155,7 @@ builder.Services.AddScoped<IRentOrderService>(provider =>
 {
     var baseService = provider.GetRequiredService<RentOrderService>();
     var cache = provider.GetRequiredService<WaterTransportService.Api.Caching.ICacheService>();
-    var logger = provider.GetRequiredService<ILogger<CachedRentOrderService>>();
-    return new CachedRentOrderService(baseService, cache, logger);
+    return new CachedRentOrderService(baseService, cache);
 });
 
 // Rent Order Offer Services with Caching (Decorator Pattern)
@@ -166,8 +164,7 @@ builder.Services.AddScoped<IRentOrderOfferService>(provider =>
 {
     var baseService = provider.GetRequiredService<RentOrderOfferService>();
     var cache = provider.GetRequiredService<WaterTransportService.Api.Caching.ICacheService>();
-    var logger = provider.GetRequiredService<ILogger<CachedRentOrderOfferService>>();
-    return new CachedRentOrderOfferService(baseService, cache, logger);
+    return new CachedRentOrderOfferService(baseService, cache);
 });
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IImageService<UserImageDto, CreateUserImageDto, UpdateUserImageDto>, UserImageService>();
@@ -183,7 +180,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Инициализация синтетических данных
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРёРЅС‚РµС‚РёС‡РµСЃРєРёС… РґР°РЅРЅС‹С…
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -201,7 +198,7 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Произошла ошибка при инициализации базы данных.");
+        logger.LogError(ex, "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Р±Р°Р·С‹ РґР°РЅРЅС‹С….");
     }
 }
 
@@ -228,6 +225,3 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
-
-//SameSiteMode SameSitePolicy() => app.Environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.Strict;
-

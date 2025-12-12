@@ -63,7 +63,7 @@ public class RentOrderService(
         if (e is null) return null;
 
         var dto = _mapper.Map<RentOrderDto>(e);
-        
+
         // Обогащаем Ship изображением в Base64, если оно есть
         if (dto.Ship != null)
         {
@@ -129,7 +129,7 @@ public class RentOrderService(
             if (matchingShips.Count > 0)
             {
                 var mappedShips = _mapper.Map<List<ShipDetailsDto>>(matchingShips);
-                
+
                 // Обогащаем суда изображениями в Base64
                 var shipsWithImages = await mappedShips.WithBase64ImagesAsync(_fileStorageService);
 
@@ -312,7 +312,7 @@ public class RentOrderService(
     {
         // Удаляем все отклики на этот заказ
         await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
-        
+
         return await _rentOrderRepository.DeleteAsync(id);
     }
 }

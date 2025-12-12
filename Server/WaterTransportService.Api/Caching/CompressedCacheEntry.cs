@@ -1,62 +1,62 @@
-using K4os.Compression.LZ4;
+п»їusing K4os.Compression.LZ4;
 using System.Text;
 using System.Text.Json;
 
 namespace WaterTransportService.Api.Caching;
 
 /// <summary>
-/// Сжатая запись кеша с использованием LZ4.
+/// РЎР¶Р°С‚Р°СЏ Р·Р°РїРёСЃСЊ РєРµС€Р° СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј LZ4.
 /// </summary>
-/// <typeparam name="T">Тип кешируемых данных.</typeparam>
+/// <typeparam name="T">РўРёРї РєРµС€РёСЂСѓРµРјС‹С… РґР°РЅРЅС‹С….</typeparam>
 public class CompressedCacheEntry<T>
 {
     /// <summary>
-    /// Сжатые данные.
+    /// РЎР¶Р°С‚С‹Рµ РґР°РЅРЅС‹Рµ.
     /// </summary>
     public required byte[] CompressedData { get; init; }
-    
+
     /// <summary>
-    /// Размер несжатых данных (для статистики).
+    /// Р Р°Р·РјРµСЂ РЅРµСЃР¶Р°С‚С‹С… РґР°РЅРЅС‹С… (РґР»СЏ СЃС‚Р°С‚РёСЃС‚РёРєРё).
     /// </summary>
     public int OriginalSize { get; init; }
-    
+
     /// <summary>
-    /// Размер сжатых данных.
+    /// Р Р°Р·РјРµСЂ СЃР¶Р°С‚С‹С… РґР°РЅРЅС‹С….
     /// </summary>
     public int CompressedSize => CompressedData?.Length ?? 0;
-    
+
     /// <summary>
-    /// Коэффициент сжатия.
+    /// РљРѕСЌС„С„РёС†РёРµРЅС‚ СЃР¶Р°С‚РёСЏ.
     /// </summary>
-    public double CompressionRatio => OriginalSize > 0 
-        ? (double)CompressedSize / OriginalSize 
+    public double CompressionRatio => OriginalSize > 0
+        ? (double)CompressedSize / OriginalSize
         : 1.0;
 
     /// <summary>
-    /// Создать сжатую запись из данных.
+    /// РЎРѕР·РґР°С‚СЊ СЃР¶Р°С‚СѓСЋ Р·Р°РїРёСЃСЊ РёР· РґР°РЅРЅС‹С….
     /// </summary>
     public static CompressedCacheEntry<T> Create(T data)
     {
         var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
         {
-            WriteIndented = false // Компактный JSON для лучшего сжатия
+            WriteIndented = false // РљРѕРјРїР°РєС‚РЅС‹Р№ JSON РґР»СЏ Р»СѓС‡С€РµРіРѕ СЃР¶Р°С‚РёСЏ
         });
-        
+
         var bytes = Encoding.UTF8.GetBytes(json);
         var originalSize = bytes.Length;
-        
-        // Сжимаем с максимальным уровнем компрессии
+
+        // РЎР¶РёРјР°РµРј СЃ РјР°РєСЃРёРјР°Р»СЊРЅС‹Рј СѓСЂРѕРІРЅРµРј РєРѕРјРїСЂРµСЃСЃРёРё
         var compressed = LZ4Pickler.Pickle(bytes, LZ4Level.L12_MAX);
-        
+
         return new CompressedCacheEntry<T>
         {
             CompressedData = compressed,
             OriginalSize = originalSize
         };
     }
-    
+
     /// <summary>
-    /// Распаковать данные из записи.
+    /// Р Р°СЃРїР°РєРѕРІР°С‚СЊ РґР°РЅРЅС‹Рµ РёР· Р·Р°РїРёСЃРё.
     /// </summary>
     public T Decompress()
     {
@@ -64,14 +64,14 @@ public class CompressedCacheEntry<T>
         var json = Encoding.UTF8.GetString(decompressed);
         return JsonSerializer.Deserialize<T>(json)!;
     }
-    
+
     /// <summary>
-    /// Получить размер записи для IMemoryCache.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё РґР»СЏ IMemoryCache.
     /// </summary>
     public long GetSize()
     {
-        return CompressedSize + 
+        return CompressedSize +
                sizeof(int) * 2 + // OriginalSize + CompressedSize
-               IntPtr.Size; // Указатель на массив
+               IntPtr.Size; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° РјР°СЃСЃРёРІ
     }
 }

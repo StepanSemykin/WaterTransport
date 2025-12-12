@@ -1,150 +1,145 @@
-using WaterTransportService.Api.Caching;
+п»їusing WaterTransportService.Api.Caching;
 using WaterTransportService.Api.DTO;
 
 namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
-/// Декоратор сервиса откликов на заказы аренды с кешированием.
+/// Р”РµРєРѕСЂР°С‚РѕСЂ СЃРµСЂРІРёСЃР° РѕС‚РєР»РёРєРѕРІ РЅР° Р·Р°РєР°Р·С‹ Р°СЂРµРЅРґС‹ СЃ РєРµС€РёСЂРѕРІР°РЅРёРµРј.
 /// </summary>
 public class CachedRentOrderOfferService(
     IRentOrderOfferService innerService,
-    ICacheService cache,
-    ILogger<CachedRentOrderOfferService> logger) : IRentOrderOfferService
+    ICacheService cache) : IRentOrderOfferService
 {
     private readonly IRentOrderOfferService _innerService = innerService;
     private readonly ICacheService _cache = cache;
-    private readonly ILogger<CachedRentOrderOfferService> _logger = logger;
 
-    #region Read Methods (с кешированием)
+    #region Read Methods (СЃ РєРµС€РёСЂРѕРІР°РЅРёРµРј)
 
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByRentOrderIdAsync(Guid rentOrderId)
     {
         var cacheKey = CacheKeys.OffersByOrderId(rentOrderId);
-        
+
         var cached = await _cache.GetAsync<List<RentOrderOfferDto>>(cacheKey);
         if (cached != null)
         {
             return cached;
         }
-        
+
         var result = (await _innerService.GetOffersByRentOrderIdAsync(rentOrderId)).ToList();
-        
+
         if (result.Count > 0)
         {
             await _cache.SetAsync(cacheKey, result, CacheTTL.OrderOffers);
         }
-        
+
         return result;
     }
 
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByUser(Guid userId)
     {
         var cacheKey = CacheKeys.OffersForUserOrdersByStatus(userId, "Pending");
-        
+
         var cached = await _cache.GetAsync<List<RentOrderOfferDto>>(cacheKey);
         if (cached != null)
         {
             return cached;
         }
-        
+
         var result = (await _innerService.GetOffersByUser(userId)).ToList();
-        
+
         if (result.Count > 0)
         {
             await _cache.SetAsync(cacheKey, result, CacheTTL.OrderOffers);
         }
-        
+
         return result;
     }
 
     public async Task<IEnumerable<RentOrderOfferDto>> GetOffersByPartnerIdAsync(Guid partnerId)
     {
         var cacheKey = CacheKeys.OffersByPartnerId(partnerId);
-        
+
         var cached = await _cache.GetAsync<List<RentOrderOfferDto>>(cacheKey);
         if (cached != null)
         {
             return cached;
         }
-        
+
         var result = (await _innerService.GetOffersByPartnerIdAsync(partnerId)).ToList();
-        
+
         if (result.Count > 0)
         {
             await _cache.SetAsync(cacheKey, result, CacheTTL.PartnerOffers);
         }
-        
+
         return result;
     }
 
     public async Task<RentOrderOfferDto?> GetOfferByIdAsync(Guid id)
     {
         var cacheKey = CacheKeys.OfferById(id);
-        
+
         var cached = await _cache.GetAsync<RentOrderOfferDto>(cacheKey);
         if (cached != null)
         {
             return cached;
         }
-        
+
         var result = await _innerService.GetOfferByIdAsync(id);
-        
+
         if (result != null)
         {
             await _cache.SetAsync(cacheKey, result, CacheTTL.OrderOffers);
         }
-        
+
         return result;
     }
 
     public async Task<IEnumerable<RentOrderDto>> GetPartnerOrdersByStatusAsync(string status, Guid partnerId)
     {
         var cacheKey = CacheKeys.PartnerOrdersByStatus(partnerId, status);
-        
+
         var cached = await _cache.GetAsync<List<RentOrderDto>>(cacheKey);
         if (cached != null)
         {
             return cached;
         }
-        
+
         var result = (await _innerService.GetPartnerOrdersByStatusAsync(status, partnerId)).ToList();
-        
+
         if (result.Count > 0)
         {
             await _cache.SetAsync(cacheKey, result, CacheTTL.PartnerOffers);
         }
-        
+
         return result;
     }
 
     #endregion
 
-    #region Write Methods (с инвалидацией кеша)
+    #region Write Methods (СЃ РёРЅРІР°Р»РёРґР°С†РёРµР№ РєРµС€Р°)
 
     public async Task<RentOrderOfferDto?> CreateOfferAsync(CreateRentOrderOfferDto createDto, Guid partnerId)
     {
         var result = await _innerService.CreateOfferAsync(createDto, partnerId);
-        
+
         if (result != null)
         {
             await InvalidateOfferCaches(result);
-            
-            // Инвалидируем доступные заявки для этого партнера
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё РґР»СЏ СЌС‚РѕРіРѕ РїР°СЂС‚РЅРµСЂР°
             await _cache.RemoveAsync(CacheKeys.AvailableOrdersForPartner(partnerId));
-            
-            // Инвалидируем кеши заявки (статус может измениться на "HasOffers")
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РєРµС€Рё Р·Р°СЏРІРєРё (СЃС‚Р°С‚СѓСЃ РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ РЅР° "HasOffers")
             await _cache.RemoveAsync(CacheKeys.OrderById(result.RentOrderId));
-            
-            // Инвалидируем заказы партнера по статусу
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј Р·Р°РєР°Р·С‹ РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ
             await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(partnerId));
-            
-            // Нужно инвалидировать кеши заказа - запрашиваем его чтобы получить userId
-            // (т.к. в DTO отклика нет вложенного RentOrder)
-            
-            _logger.LogInformation("Cache invalidated after creating offer {OfferId} for order {OrderId}", 
-                result.Id, result.RentOrderId);
+
+            // РќСѓР¶РЅРѕ РёРЅРІР°Р»РёРґРёСЂРѕРІР°С‚СЊ РєРµС€Рё Р·Р°РєР°Р·Р° - Р·Р°РїСЂР°С€РёРІР°РµРј РµРіРѕ С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ userId
+            // (С‚.Рє. РІ DTO РѕС‚РєР»РёРєР° РЅРµС‚ РІР»РѕР¶РµРЅРЅРѕРіРѕ RentOrder)
         }
-        
+
         return result;
     }
 
@@ -152,30 +147,27 @@ public class CachedRentOrderOfferService(
     {
         var offer = await _innerService.GetOfferByIdAsync(offerId);
         var success = await _innerService.AcceptOfferAsync(rentOrderId, offerId);
-        
+
         if (success && offer != null)
         {
             await InvalidateOfferCaches(offer);
-            
-            // Инвалидируем все отклики на эту заявку (они все стали неактуальными)
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РІСЃРµ РѕС‚РєР»РёРєРё РЅР° СЌС‚Сѓ Р·Р°СЏРІРєСѓ (РѕРЅРё РІСЃРµ СЃС‚Р°Р»Рё РЅРµР°РєС‚СѓР°Р»СЊРЅС‹РјРё)
             await _cache.RemoveAsync(CacheKeys.OffersByOrderId(rentOrderId));
-            
-            // Инвалидируем кеши заявки
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РєРµС€Рё Р·Р°СЏРІРєРё
             await _cache.RemoveAsync(CacheKeys.OrderById(rentOrderId));
-            
-            // Инвалидируем доступные заявки (заявка больше не доступна)
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РґРѕСЃС‚СѓРїРЅС‹Рµ Р·Р°СЏРІРєРё (Р·Р°СЏРІРєР° Р±РѕР»СЊС€Рµ РЅРµ РґРѕСЃС‚СѓРїРЅР°)
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
-            
-            // Инвалидируем кеши партнера
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РєРµС€Рё РїР°СЂС‚РЅРµСЂР°
             await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(offer.PartnerId));
-            
-            // Инвалидируем все кеши откликов (т.к. не знаем userId без доп. запроса)
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РІСЃРµ РєРµС€Рё РѕС‚РєР»РёРєРѕРІ (С‚.Рє. РЅРµ Р·РЅР°РµРј userId Р±РµР· РґРѕРї. Р·Р°РїСЂРѕСЃР°)
             await _cache.RemoveByPrefixAsync("rent-order-offers:user:");
-            
-            _logger.LogInformation("Cache invalidated after accepting offer {OfferId} for order {OrderId}", 
-                offerId, rentOrderId);
         }
-        
+
         return success;
     }
 
@@ -183,17 +175,15 @@ public class CachedRentOrderOfferService(
     {
         var offer = await _innerService.GetOfferByIdAsync(id);
         var success = await _innerService.RejectOfferAsync(id);
-        
+
         if (success && offer != null)
         {
             await InvalidateOfferCaches(offer);
-            
-            // Инвалидируем заказы партнера по статусу
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј Р·Р°РєР°Р·С‹ РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ
             await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(offer.PartnerId));
-            
-            _logger.LogInformation("Cache invalidated after rejecting offer {OfferId}", id);
         }
-        
+
         return success;
     }
 
@@ -201,20 +191,18 @@ public class CachedRentOrderOfferService(
     {
         var offer = await _innerService.GetOfferByIdAsync(id);
         var success = await _innerService.DeleteOfferAsync(id);
-        
+
         if (success && offer != null)
         {
             await InvalidateOfferCaches(offer);
-            
-            // Инвалидируем кеши заявки (количество откликов изменилось)
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј РєРµС€Рё Р·Р°СЏРІРєРё (РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚РєР»РёРєРѕРІ РёР·РјРµРЅРёР»РѕСЃСЊ)
             await _cache.RemoveAsync(CacheKeys.OrderById(offer.RentOrderId));
-            
-            // Инвалидируем заказы партнера по статусу
+
+            // РРЅРІР°Р»РёРґРёСЂСѓРµРј Р·Р°РєР°Р·С‹ РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ
             await _cache.RemoveByPrefixAsync(CacheKeys.AllPartnerOrdersPrefix(offer.PartnerId));
-            
-            _logger.LogInformation("Cache invalidated after deleting offer {OfferId}", id);
         }
-        
+
         return success;
     }
 
@@ -223,20 +211,20 @@ public class CachedRentOrderOfferService(
     #region Private Helpers
 
     /// <summary>
-    /// Инвалидировать все кеши, связанные с откликом.
+    /// РРЅРІР°Р»РёРґРёСЂРѕРІР°С‚СЊ РІСЃРµ РєРµС€Рё, СЃРІСЏР·Р°РЅРЅС‹Рµ СЃ РѕС‚РєР»РёРєРѕРј.
     /// </summary>
     private async Task InvalidateOfferCaches(RentOrderOfferDto offer)
     {
-        // 1. Кеш конкретного отклика
+        // 1. РљРµС€ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РѕС‚РєР»РёРєР°
         await _cache.RemoveAsync(CacheKeys.OfferById(offer.Id));
-        
-        // 2. Все отклики на заявку
+
+        // 2. Р’СЃРµ РѕС‚РєР»РёРєРё РЅР° Р·Р°СЏРІРєСѓ
         await _cache.RemoveAsync(CacheKeys.OffersByOrderId(offer.RentOrderId));
-        
-        // 3. Все отклики партнера
+
+        // 3. Р’СЃРµ РѕС‚РєР»РёРєРё РїР°СЂС‚РЅРµСЂР°
         await _cache.RemoveAsync(CacheKeys.OffersByPartnerId(offer.PartnerId));
-        
-        // 4. Отклики на заявки пользователя (инвалидируем все т.к. не знаем userId)
+
+        // 4. РћС‚РєР»РёРєРё РЅР° Р·Р°СЏРІРєРё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (РёРЅРІР°Р»РёРґРёСЂСѓРµРј РІСЃРµ С‚.Рє. РЅРµ Р·РЅР°РµРј userId)
         await _cache.RemoveByPrefixAsync("rent-order-offers:user:");
     }
 

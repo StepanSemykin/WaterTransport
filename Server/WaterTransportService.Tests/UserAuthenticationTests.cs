@@ -1,7 +1,5 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using Moq;
-using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
@@ -12,7 +10,7 @@ using WaterTransportService.Model.Repositories.EntitiesRepository;
 namespace WaterTransportService.Tests;
 
 /// <summary>
-/// Тест-кейсы для аутентификации: Register, Login, Logout, RefreshToken
+/// РўРµСЃС‚-РєРµР№СЃС‹ РґР»СЏ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё: Register, Login, Logout, RefreshToken
 /// </summary>
 public class UserAuthenticationTests
 {
