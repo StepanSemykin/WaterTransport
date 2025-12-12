@@ -119,7 +119,6 @@ public static class DatabaseSeeder
             profiles.Add(new UserProfile
             {
                 UserId = user.Id,
-                User = user,
                 Nickname = null,
                 FirstName = firstNames[Random.Shared.Next(firstNames.Length)],
                 LastName = lastNames[Random.Shared.Next(lastNames.Length)],

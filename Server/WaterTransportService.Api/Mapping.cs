@@ -114,7 +114,8 @@ public class Mapping : Profile
         CreateMap<Ship, ShipDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PortId, opt => opt.MapFrom(src => src.PortId))
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId));
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.Reviews, opt => opt.MapFrom(src => src.Reviews));
 
         // Ship with details mapping
         CreateMap<Ship, ShipDetailsDto>()

@@ -119,34 +119,12 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .HasForeignKey(r => r.AuthorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            b.HasOne(r => r.User)
-                .WithMany(u => u.ReceivedReviews)
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            b.HasOne(r => r.Ship)
-                .WithMany(s => s.Reviews)
-                .HasForeignKey(r => r.ShipId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            b.HasOne(r => r.Port)
-                .WithMany(p => p.Reviews)
-                .HasForeignKey(r => r.PortId)
-                .OnDelete(DeleteBehavior.SetNull);
-
             b.HasOne(r => r.RentOrder)
                 .WithMany(ro => ro.Reviews)
                 .HasForeignKey(r => r.RentOrderId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-        modelBuilder.Entity<UserProfile>(b =>
-        {
-            b.HasOne(up => up.User)
-                .WithOne(u => u.UserProfile)
-                .HasForeignKey<UserProfile>(up => up.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
 
         modelBuilder.Entity<ShipImage>(b =>
         {

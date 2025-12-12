@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Api.DTO;
 
@@ -17,6 +18,7 @@ public record ShipDto
     public uint? CostPerHour { get; init; }
     public Guid PortId { get; init; }
     public Guid UserId { get; init; }
+    public Review[] Reviews { get; init; } = [];
 }
 
 public class CreateShipDto

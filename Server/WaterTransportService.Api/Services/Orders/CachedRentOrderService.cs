@@ -6,8 +6,6 @@ namespace WaterTransportService.Api.Services.Orders;
 
 /// <summary>
 /// Декоратор сервиса заказов аренды с кешированием.
-/// Оборачивает базовый сервис заказов, добавляя слой кеширования для оптимизации производительности.
-/// Автоматически инвалидирует устаревшие данные при изменениях.
 /// </summary>
 public class CachedRentOrderService(
     IRentOrderService innerService,
@@ -16,6 +14,7 @@ public class CachedRentOrderService(
     private readonly IRentOrderService _innerService = innerService;
     private readonly ICacheService _cache = cache;
 
+    #region Read Methods (с кешированием)
 
     #region Read Methods (с кешированием)
 
@@ -188,7 +187,7 @@ public class CachedRentOrderService(
             // Инвалидируем кеши:
             // 1. Все доступные заявки для всех партнеров
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
-
+            
             // 2. Все кеши пользователя
             await _cache.RemoveByPrefixAsync(CacheKeys.AllUserOrdersPrefix(userId));
         }
@@ -248,9 +247,26 @@ public class CachedRentOrderService(
         if (success && order != null)
         {
             await InvalidateOrderCaches(order);
+            
+            // Дополнительно инвалидируем доступные заявки (заявка больше не доступна)
+            await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
+        }
+
+        return success;
+    }
+    public async Task<bool> DiscontinuedOrderAsync(Guid id)
+    {
+        var order = await _innerService.GetByIdAsync(id);
+        var success = await _innerService.DiscontinuedOrderAsync(id);
+
+        if (success && order != null)
+        {
+            await InvalidateOrderCaches(order);
 
             // Дополнительно инвалидируем доступные заявки (заявка больше не доступна)
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
+
+            _logger.LogInformation("Cache invalidated after cancelling order {OrderId}", id);
         }
 
         return success;
@@ -270,7 +286,7 @@ public class CachedRentOrderService(
         if (success && order != null)
         {
             await InvalidateOrderCaches(order);
-
+            
             // Инвалидируем доступные заявки
             await _cache.RemoveByPrefixAsync(CacheKeys.AllAvailableOrdersPrefix());
         }

@@ -1,4 +1,4 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Infrastructure.PasswordHasher;
 using WaterTransportService.Infrastructure.PasswordValidator;
@@ -26,13 +26,13 @@ public class AuthService(
     {
         if (!_passwordValidator.IsPasswordValid(dto.Password))
         {
-            return new RegisterResultDto(false, "Пароль не соответствует требованиям безопасности.");
+            return new RegisterResultDto(false, "РџР°СЂРѕР»СЊ РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ С‚СЂРµР±РѕРІР°РЅРёСЏРј Р±РµР·РѕРїР°СЃРЅРѕСЃС‚Рё.");
         }
 
         var existingUser = await _userRepo.GetByPhoneAsync(dto.Phone);
         if (existingUser != null)
         {
-            return new RegisterResultDto(false, "Пользователь с таким телефоном уже существует.");
+            return new RegisterResultDto(false, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СЃ С‚Р°РєРёРј С‚РµР»РµС„РѕРЅРѕРј СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚.");
         }
 
         var user = new User
@@ -50,7 +50,6 @@ public class AuthService(
         var profile = new UserProfile
         {
             UserId = user.Id,
-            User = user,
             FirstName = null,
             LastName = null,
             Patronymic = null,

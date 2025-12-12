@@ -19,11 +19,6 @@ public class UserProfile : BaseEntity
     public required Guid UserId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на основного пользователя.
-    /// </summary>
-    public required User User { get; set; }
-
-    /// <summary>
     /// Никнейм пользователя.
     /// </summary>
     [MaxLength(16)]
