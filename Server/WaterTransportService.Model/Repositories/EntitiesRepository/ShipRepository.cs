@@ -1,28 +1,28 @@
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.EntityFrameworkCore;
 using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 
 namespace WaterTransportService.Model.Repositories.EntitiesRepository;
 
 /// <summary>
-/// Репозиторий для сущности корабля.
+/// Р РµРїРѕР·РёС‚РѕСЂРёР№ РґР»СЏ СЃСѓС‰РЅРѕСЃС‚Рё РєРѕСЂР°Р±Р»СЏ.
 /// </summary>
 public class ShipRepository(WaterTransportDbContext context) : IEntityRepository<Ship, Guid>
 {
     private readonly WaterTransportDbContext _context = context;
 
     /// <summary>
-    /// Получить все корабли.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РєРѕСЂР°Р±Р»Рё.
     /// </summary>
-    public async Task<IEnumerable<Ship>> GetAllAsync() => await _context.Ships.ToListAsync();
+    public async Task<IEnumerable<Ship>> GetAllAsync() => await _context.Ships.Include(s => s.Reviews).ToListAsync();
 
     /// <summary>
-    /// Получить корабль по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РєРѕСЂР°Р±Р»СЊ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     public async Task<Ship?> GetByIdAsync(Guid id) => await _context.Ships.FindAsync(id);
 
     /// <summary>
-    /// Создать новый корабль.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РєРѕСЂР°Р±Р»СЊ.
     /// </summary>
     public async Task<Ship> CreateAsync(Ship entity)
     {
@@ -32,7 +32,7 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
     }
 
     /// <summary>
-    /// Обновить корабль.
+    /// РћР±РЅРѕРІРёС‚СЊ РєРѕСЂР°Р±Р»СЊ.
     /// </summary>
     public async Task<bool> UpdateAsync(Ship entity, Guid id)
     {
@@ -45,7 +45,7 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
     }
 
     /// <summary>
-    /// Удалить корабль.
+    /// РЈРґР°Р»РёС‚СЊ РєРѕСЂР°Р±Р»СЊ.
     /// </summary>
     public async Task<bool> DeleteAsync(Guid id)
     {
@@ -57,10 +57,10 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
     }
 
     /// <summary>
-    /// Получить все суда пользователя с типом судна.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ СЃСѓРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ С‚РёРїРѕРј СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="userId">Идентификатор пользователя.</param>
-    /// <returns>Коллекция судов пользователя.</returns>
+    /// <param name="userId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <returns>РљРѕР»Р»РµРєС†РёСЏ СЃСѓРґРѕРІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
     public async Task<IEnumerable<Ship>> GetByUserIdAsync(Guid userId)
     {
         return await _context.Ships
@@ -70,7 +70,7 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
     }
 
     /// <summary>
-    /// Получить все суда пользователя с полными деталями (тип, изображения).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ СЃСѓРґР° РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ РїРѕР»РЅС‹РјРё РґРµС‚Р°Р»СЏРјРё (С‚РёРї, РёР·РѕР±СЂР°Р¶РµРЅРёСЏ).
     /// </summary>
     public async Task<IEnumerable<Ship>> GetByUserIdWithDetailsAsync(Guid userId)
     {
@@ -82,10 +82,10 @@ public class ShipRepository(WaterTransportDbContext context) : IEntityRepository
     }
 
     /// <summary>
-    /// Получить судно с типом и портом по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСѓРґРЅРѕ СЃ С‚РёРїРѕРј Рё РїРѕСЂС‚РѕРј РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор судна.</param>
-    /// <returns>Судно с включенными связями или null.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>РЎСѓРґРЅРѕ СЃ РІРєР»СЋС‡РµРЅРЅС‹РјРё СЃРІСЏР·СЏРјРё РёР»Рё null.</returns>
     public async Task<Ship?> GetByIdWithDetailsAsync(Guid id)
     {
         return await _context.Ships

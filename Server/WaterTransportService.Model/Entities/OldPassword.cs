@@ -24,11 +24,6 @@ public class OldPassword
     public required Guid UserId { get; set; }
 
     /// <summary>
-    /// Навигационное свойство на пользователя.
-    /// </summary>
-    public required User User { get; set; }
-
-    /// <summary>
     /// Хеш пароля.
     /// </summary>
     [Column("hash")]

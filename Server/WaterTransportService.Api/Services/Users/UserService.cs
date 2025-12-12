@@ -96,7 +96,6 @@ public class UserService(
         var profile = new UserProfile
         {
             UserId = user.Id,
-            User = user,
             Nickname = null,
             FirstName = null,
             LastName = null,
@@ -171,7 +170,6 @@ public class UserService(
             {
                 Id = Guid.NewGuid(),
                 UserId = user.Id,
-                User = user,
                 Hash = user.Hash,
                 CreatedAt = DateTime.UtcNow
             };

@@ -17,17 +17,6 @@ import ChangePassword from "../components/user/settings/ChangePassword.jsx";
 
 import styles from "./User.module.css";
 
-import YachtIcon from "../assets/yacht.jpg"
-import DateIcon from "../assets/date.png"
-import PortIcon from "../assets/port.png"
-import ShipIcon from "../assets/ship.png"
-import WheelIcon from "../assets/wheel.png"
-import PassengersIcon from "../assets/passengers.png"
-import ChatIcon from "../assets/chat.png"
-import StarOnIcon from "../assets/star-on.png"
-import StarOffIcon from "../assets/star-off.png"
-
-
 // const STATS = [
 //   { title: "Всего заказов", value: "10" },
 //   { title: "Рейтинг", value: "5.0" },
@@ -138,19 +127,10 @@ const SUPPORT_ITEMS = [
   { key: "problem", label: "Сообщить о проблеме", content: "Сообщить о проблеме" }
 ];
 
-const USER_OFFERS_ENDPOINT = "/api/rent-orders/offers/foruser";
-// const USER_NAVIGATION = {
-//   orders: { label: "Заказы", component: <UserOrders upcomingTrips={UPCOMING_TRIPS} completedTrips={COMPLETED_TRIPS} possibleTrips={POSSIBLE_TRIPS} isPartner={USER.isPartner}  /> },
-//   ships: {label: "Суда", component: <UserShips ships={SHIPS}/>},
-//   settings: { label: "Настройки", component: <UserSettingsMenu items={SETTINGS_ITEMS}/> },
-//   support: { label: "Поддержка", component: <UserSupportMenu items={SUPPORT_ITEMS} /> },
-// };
-
 export default function Partner() {
   const {
     user,
     loading,
-    refreshUser,
     upcomingTrips,
     upcomingTripsLoading,
     pendingTrips, 
@@ -189,20 +169,17 @@ export default function Partner() {
     <div className={styles["user-page"]}>
       
       <div className={styles["user-header"]}>
-        {/* <AccountHeader {...USER} /> */}
         <AccountHeader
           firstName={user.firstName ?? ""}
           lastName={user.lastName ?? ""}
           email={user.email ?? ""}
           location={user.location ?? ""}
+          userId={user?.id}
         />
       </div>
 
       <Container className={styles["user-container"]}>
         <div className={styles["user-stats"]}>
-          {/* {STATS.map((stat) => (
-            <StatsCard key={stat.title} {...stat} /> */}
-
           {(user.stats ?? []).map((stat) => (
           <StatsCard key={stat.title} {...stat} />
           ))}
@@ -213,9 +190,6 @@ export default function Partner() {
             orders: {
               label: "Заказы",
               component: ordersComponent,
-                // <UserOrders 
-                //   upcomingTrips={UPCOMING_TRIPS} 
-                //   completedTrips={COMPLETED_TRIPS} />
             },
             ships: {
               label: "Суда",

@@ -58,6 +58,12 @@ public interface IRentOrderService
     Task<bool> CancelOrderAsync(Guid id);
 
     /// <summary>
+    /// Прекратить заказ аренды.
+    /// При прекращении отменяются все отклики партнеров на этот заказ.
+    /// </summary>
+    Task<bool> DiscontinuedOrderAsync(Guid id);
+
+    /// <summary>
     /// Удалить заказ аренды.
     /// </summary>
     Task<bool> DeleteAsync(Guid id);

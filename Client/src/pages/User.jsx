@@ -110,12 +110,18 @@ const SUPPORT_ITEMS = [
 export default function User() {
   const {
     user,
+    userImage,
     loading,
     upcomingTrips,
     upcomingTripsLoading,
     completedTrips,
-    completedTripsLoading
+    completedTripsLoading,
+    rejectedTrips, 
+    rejectedTripsLoading,
   } = useAuth();
+
+  console.log("User image");
+  console.log(userImage);
 
   if (loading) {
     return <div className={styles["user-page"]}>Загрузка кабинета…</div>;
@@ -123,6 +129,8 @@ export default function User() {
 
 const ordersComponent = (
     <UserOrders
+      rejectedTrips={rejectedTrips}
+      rejectedTripsLoading={rejectedTripsLoading}
       upcomingTrips={upcomingTrips}
       upcomingTripsLoading={upcomingTripsLoading}
       completedTrips={completedTrips}
@@ -139,6 +147,8 @@ const ordersComponent = (
           lastName={user.lastName ?? ""}
           email={user.email ?? ""}
           location={user.location ?? ""}
+          userId={user?.id}
+          profileImage={userImage}
         />
       </div>
 

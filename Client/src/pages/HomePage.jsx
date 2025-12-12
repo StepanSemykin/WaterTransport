@@ -524,7 +524,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className={styles["form-checkbox"]}>
+          {/* <div className={styles["form-checkbox"]}>
             <input
               id="return-route"
               type="checkbox"
@@ -590,7 +590,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>  
-          )}    
+          )}     */}
           
           <div className={styles["form-grid-people"]}>
             <div className={styles["field"]}>
