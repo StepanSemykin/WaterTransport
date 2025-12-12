@@ -36,6 +36,25 @@ const defaultIcon = L.icon({
   shadowSize: [41, 41],
 });
 
+const makePinDivIcon = ({ className }) =>
+  L.divIcon({
+    className: "",
+    html: `
+      <div class="${className}">
+        <svg width="25" height="41" viewBox="0 0 25 41" aria-hidden="true">
+          <path d="M12.5 0C5.6 0 0 5.6 0 12.5 0 22 12.5 41 12.5 41S25 22 25 12.5C25 5.6 19.4 0 12.5 0Z"/>
+          <circle cx="12.5" cy="12.5" r="4"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [25, 41],        
+    iconAnchor: [12, 41],     
+    popupAnchor: [1, -34],  
+  });
+
+const fromPortIcon = makePinDivIcon({ className: "marker-pin marker-pin--from" });
+const toPortIcon = makePinDivIcon({ className: "marker-pin marker-pin--to" });
+
 function PortsBoundsUpdater({ bounds }) {
   const map = useMap();
 
@@ -84,6 +103,101 @@ export default function HomePage() {
   const [fromSearch, setFromSearch] = useState("");
   const [toSearch, setToSearch] = useState("");
 
+  const [portImages, setPortImages] = useState({}); 
+  const objectUrlsRef = useRef(new Set());
+  const inFlightRef = useRef(new Set());
+
+  useEffect(() => {
+    return () => {
+      for (const url of objectUrlsRef.current) {
+        try { URL.revokeObjectURL(url); } catch {}
+      }
+      objectUrlsRef.current.clear();
+    };
+  }, []);
+
+  async function ensurePortImageLoaded(portId) {
+    if (!portId) return;
+
+    if (portImages[portId]?.url || portImages[portId]?.notFound) return;
+    if (inFlightRef.current.has(portId)) return;
+
+    inFlightRef.current.add(portId);
+    setPortImages((prev) => ({
+      ...prev,
+      [portId]: { url: prev[portId]?.url ?? null, loading: true, notFound: false },
+    }));
+
+    try {
+      const res = await apiFetch(`/api/PortImages/file/${portId}`, { method: "GET" });
+
+      if (res.status === 404) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      if (!res.ok) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      const blob = await res.blob();
+      if (!blob || blob.size === 0) {
+        setPortImages((prev) => ({
+          ...prev,
+          [portId]: { url: null, loading: false, notFound: true },
+        }));
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      objectUrlsRef.current.add(url);
+
+      setPortImages((prev) => ({
+        ...prev,
+        [portId]: { url, loading: false, notFound: false },
+      }));
+    } catch {
+      setPortImages((prev) => ({
+        ...prev,
+        [portId]: { url: null, loading: false, notFound: true },
+      }));
+    } finally {
+      inFlightRef.current.delete(portId);
+    }
+  }
+
+
+  const selectAsFrom = (port) => {
+    const id = port?.id;
+    if (!id) return;
+
+    if (!addWalkingTrip && toPortId && id === toPortId) return;
+
+    setFromPortId(id);
+    setFromSearch(port.title || port.name || "");
+    setShowFromDropdown(false);
+  };
+
+  const selectAsTo = (port) => {
+    if (addWalkingTrip) return;
+
+    const id = port?.id;
+    if (!id) return;
+
+    if (fromPortId && id === fromPortId) return;
+
+    setToPortId(id);
+    setToSearch(port.title || port.name || "");
+    setShowToDropdown(false);
+  };
+
   const [rentOrderResponse, setRentOrderResponse] = useState(null);
 
   const clearDate = () => setDate("");
@@ -101,13 +215,20 @@ export default function HomePage() {
   const availablePorts = Array.isArray(ports) ? ports : [];
   const availableShipTypes = Array.isArray(shipTypes) ? shipTypes : [];
 
-  const filteredFromPorts = availablePorts.filter(port => 
-    port.title.toLowerCase().includes(fromSearch.toLowerCase())
-  );
+    const filteredFromPorts = availablePorts
+    .filter((port) => {
+      const title = (port.title || port.name || "").toLowerCase();
+      return title.includes(fromSearch.toLowerCase());
+    })
+    .filter((port) => (addWalkingTrip ? true : (toPortId ? port.id !== toPortId : true)));
 
-  const filteredToPorts = availablePorts.filter(port => 
-    port.title.toLowerCase().includes(toSearch.toLowerCase())
-  );
+  const filteredToPorts = availablePorts
+    .filter((port) => {
+      const title = (port.title || port.name || "").toLowerCase();
+      return title.includes(toSearch.toLowerCase());
+    })
+    .filter((port) => (addWalkingTrip ? true : (fromPortId ? port.id !== fromPortId : true)));
+
 
   const dec = (setter, value, min = 0) => () => setter(value > min ? value - 1 : min);
   const inc = (setter, value, max = 99) => () => setter(value < max ? value + 1 : max);
@@ -184,6 +305,12 @@ export default function HomePage() {
       openError("Проверьте поля", "Пожалуйста, заполните все обязательные поля");
       return;
     }
+
+    if (!addWalkingTrip && fromPortId && toPortId && fromPortId === toPortId) {
+      openError("Неверный маршрут", "Пункт отправления и пункт прибытия не могут совпадать.");
+      return;
+    }
+
 
     const payload = {
       fromPortId,
@@ -311,18 +438,86 @@ export default function HomePage() {
 
             {mapBounds && <PortsBoundsUpdater bounds={mapBounds} />}
 
-            {geoPorts.map((port) => (
-              <Marker
-                key={port.id ?? `${port.latitude}-${port.longitude}`}
-                position={[port.latitude, port.longitude]}
-                icon={defaultIcon}
-              >
-                <Popup>
-                  <strong>{port.title ?? "Порт"}</strong>
-                  {port.address ? <div>{port.address}</div> : null}
-                </Popup>
-              </Marker>
-            ))}
+            {geoPorts.map((port) => {
+                const isFrom = !!fromPortId && port.id === fromPortId;
+                const isTo = !addWalkingTrip && !!toPortId && port.id === toPortId;
+
+                const disableAsFrom = !addWalkingTrip && !!toPortId && port.id === toPortId;
+                const disableAsTo = addWalkingTrip || (!!fromPortId && port.id === fromPortId);
+
+                const icon = isFrom ? fromPortIcon : isTo ? toPortIcon : defaultIcon;               
+
+              return (
+                <Marker
+                  key={port.id ?? `${port.latitude}-${port.longitude}`}
+                  position={[port.latitude, port.longitude]}
+                  icon={icon}
+                  eventHandlers={{
+                    popupopen: () => ensurePortImageLoaded(port.id),
+                  }}
+                >
+                  <Popup>
+                    <div className={styles["popup"]}>
+                      <strong className={styles["popup-title"]}>{port.title ?? port.name ?? "Порт"}</strong>
+                      {port.address ? <div className={styles["popup-address"]}>{port.address}</div> : null}
+                      {(() => {
+                        const st = portImages[port.id];
+                        if (st?.loading) {
+                          return <div className={styles["popup-image-placeholder"]}>Загрузка фото...</div>;
+                        }
+                        if (st?.url) {
+                          return (
+                            <img
+                              className={styles["popup-image"]}
+                              src={st.url}
+                              alt={`Фото порта: ${port.title ?? port.name ?? ""}`}
+                              loading="lazy"
+                            />
+                          );
+                        }
+                        return null;
+                      })()}
+
+                      <div className={styles["popup-actions"]}>
+                        <button
+                          type="button"
+                          className={styles["popup-button"]}
+                          onClick={() => selectAsFrom(port)}
+                          disabled={disableAsFrom || isFrom}
+                          title={
+                            isFrom
+                              ? "Уже выбран пункт отправления"
+                              : disableAsFrom
+                              ? "Этот порт уже выбран как пункт прибытия"
+                              : ""
+                          }
+                        >
+                          Пункт отправления
+                        </button>
+
+                        <button
+                          type="button"
+                          className={styles["popup-button"]}
+                          onClick={() => selectAsTo(port)}
+                          disabled={disableAsTo || isTo}
+                          title={
+                            isTo
+                              ? "Уже выбран пункт прибытия"
+                              : addWalkingTrip
+                              ? "Для прогулочной поездки пункт прибытия не выбирается"
+                              : disableAsTo
+                              ? "Пункт прибытия не может совпадать с пунктом отправления"
+                              : ""
+                          }
+                        >
+                          Пункт прибытия
+                        </button>
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
           </MapContainer>
 
           {mapStatus ? <div className={styles["map-status"]}>{mapStatus}</div> : null}
