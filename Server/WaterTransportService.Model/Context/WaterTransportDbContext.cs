@@ -171,14 +171,6 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .HasForeignKey(ui => ui.UserProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
-
-        modelBuilder.Entity<OldPassword>(b =>
-        {
-            b.HasOne(op => op.User)
-                .WithMany(u => u.OldPasswords)
-                .HasForeignKey(op => op.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
     }
 }
 
