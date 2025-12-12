@@ -14,7 +14,7 @@ public static class DatabaseSeeder
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>
     /// <param name="passwordHash">Хеш пароля для всех тестовых пользователей.</param>
-    public static async Task SeedAsync(WaterTransportDbContext context, string passwordHash)
+    public static async Task SeedAsync(WaterTransportDbContext context, string passwordHash = null)
     {
         // Проверяем, есть ли уже данные
         if (context.Users.Any())
@@ -33,7 +33,7 @@ public static class DatabaseSeeder
         await context.UserProfiles.AddRangeAsync(userProfiles);
         await context.SaveChangesAsync();
 
-        var ports = await CreatePortsAsync(context);
+        var ports = await context.Ports.ToListAsync();
 
         await CreateShipsAsync(context, partnerUsers, ports);
 
