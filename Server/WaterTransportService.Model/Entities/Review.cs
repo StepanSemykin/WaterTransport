@@ -77,7 +77,7 @@ public class Review : BaseEntity
     [Column("rating")]
     [Required]
     [Range(0, 5)]
-    public required byte Rating { get; set; }
+    public required float Rating { get; set; }
 
     /// <summary>
     /// Время создания отзыва в UTC.

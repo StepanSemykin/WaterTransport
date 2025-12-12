@@ -1,202 +1,150 @@
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Model.Constants;
-using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Reviews;
 
 /// <summary>
-/// Сервис для работы с отзывами.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РѕС‚Р·С‹РІР°РјРё.
 /// </summary>
 public class ReviewService(
-    IEntityRepository<Review, Guid> repo,
+    IReviewRepository repo,
     IUserRepository<Guid> userRepo,
     IEntityRepository<Ship, Guid> shipRepo,
     IPortRepository<Guid> portRepo,
-    WaterTransportDbContext context,
+    IEntityRepository<RentOrder, Guid> rentOrderRepo,
     IMapper mapper) : IReviewService
 {
-    private readonly IEntityRepository<Review, Guid> _repo = repo;
+    private readonly IReviewRepository _repo = repo;
     private readonly IUserRepository<Guid> _userRepo = userRepo;
     private readonly IEntityRepository<Ship, Guid> _shipRepo = shipRepo;
     private readonly IPortRepository<Guid> _portRepo = portRepo;
-    private readonly WaterTransportDbContext _context = context;
+    private readonly IEntityRepository<RentOrder, Guid> _rentOrderRepo = rentOrderRepo;
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех отзывов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РѕС‚Р·С‹РІРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
     public async Task<(IReadOnlyList<ReviewDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
         pageSize = pageSize <= 0 ? 10 : Math.Min(pageSize, 100);
 
-        var all = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .Where(r => r.IsActive)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync();
+        var total = await _repo.GetActiveCountAsync();
+        var skip = (page - 1) * pageSize;
+        var reviews = await _repo.GetAllActiveAsync(skip, pageSize);
 
-        var total = all.Count;
-        var items = all
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(MapToDto)
+        var items = reviews
+            .Select(r => _mapper.Map<ReviewDto>(r))
             .ToList();
 
         return (items, total);
     }
 
     /// <summary>
-    /// Получить отзыв по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕС‚Р·С‹РІ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     public async Task<ReviewDto?> GetByIdAsync(Guid id)
     {
-        var review = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .FirstOrDefaultAsync(r => r.Id == id);
-
-        return review is null ? null : MapToDto(review);
+        var review = await _repo.GetByIdAsync(id);
+        return review is null ? null : _mapper.Map<ReviewDto>(review);
     }
 
     /// <summary>
-    /// Получить все отзывы о конкретном пользователе-партнере.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚Р·С‹РІС‹ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ-РїР°СЂС‚РЅРµСЂРµ.
     /// </summary>
     public async Task<IReadOnlyList<ReviewDto>> GetReviewsByUserIdAsync(Guid userId)
     {
-        var reviews = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .Where(r => r.UserId == userId && r.IsActive)
-            .OrderByDescending(r => r.CreatedAt)
-            .ToListAsync();
-
-        return reviews.Select(MapToDto).ToList();
+        var reviews = await _repo.GetReviewsByUserIdAsync(userId);
+        return reviews.Select(r => _mapper.Map<ReviewDto>(r)).ToList();
     }
 
     /// <summary>
-    /// Получить все отзывы о конкретном судне.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚Р·С‹РІС‹ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј СЃСѓРґРЅРµ.
     /// </summary>
     public async Task<IReadOnlyList<ReviewDto>> GetReviewsByShipIdAsync(Guid shipId)
     {
-        var reviews = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .Where(r => r.ShipId == shipId && r.IsActive)
-            .OrderByDescending(r => r.CreatedAt)
-            .ToListAsync();
-
-        return reviews.Select(MapToDto).ToList();
+        var reviews = await _repo.GetReviewsByShipIdAsync(shipId);
+        return reviews.Select(r => _mapper.Map<ReviewDto>(r)).ToList();
     }
 
     /// <summary>
-    /// Получить все отзывы о конкретном порте.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚Р·С‹РІС‹ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РїРѕСЂС‚Рµ.
     /// </summary>
     public async Task<IReadOnlyList<ReviewDto>> GetReviewsByPortIdAsync(Guid portId)
     {
-        var reviews = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .Where(r => r.PortId == portId && r.IsActive)
-            .OrderByDescending(r => r.CreatedAt)
-            .ToListAsync();
-
-        return reviews.Select(MapToDto).ToList();
+        var reviews = await _repo.GetReviewsByPortIdAsync(portId);
+        return reviews.Select(r => _mapper.Map<ReviewDto>(r)).ToList();
     }
 
     /// <summary>
-    /// Получить средний рейтинг пользователя-партнеры.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ-РїР°СЂС‚РЅРµСЂС‹.
     /// </summary>
     public async Task<AverageRatingDto> GetAverageRatingForUserAsync(Guid userId)
     {
-        var reviews = await _context.Reviews
-            .Where(r => r.UserId == userId && r.IsActive)
-            .ToListAsync();
-
-        if (!reviews.Any())
-            return new AverageRatingDto(0, 0);
-
-        var average = reviews.Average(r => r.Rating);
-        return new AverageRatingDto(Math.Round(average, 2), reviews.Count);
+        var (average, count) = await _repo.GetAverageRatingForUserAsync(userId);
+        return new AverageRatingDto(average, count);
     }
 
     /// <summary>
-    /// Получить средний рейтинг судна.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі СЃСѓРґРЅР°.
     /// </summary>
     public async Task<AverageRatingDto> GetAverageRatingForShipAsync(Guid shipId)
     {
-        var reviews = await _context.Reviews
-            .Where(r => r.ShipId == shipId && r.IsActive)
-            .ToListAsync();
-
-        if (!reviews.Any())
-            return new AverageRatingDto(0, 0);
-
-        var average = reviews.Average(r => r.Rating);
-        return new AverageRatingDto(Math.Round(average, 2), reviews.Count);
+        var (average, count) = await _repo.GetAverageRatingForShipAsync(shipId);
+        return new AverageRatingDto(average, count);
     }
 
     /// <summary>
-    /// Получить средний рейтинг порта.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі РїРѕСЂС‚Р°.
     /// </summary>
     public async Task<AverageRatingDto> GetAverageRatingForPortAsync(Guid portId)
     {
-        var reviews = await _context.Reviews
-            .Where(r => r.PortId == portId && r.IsActive)
-            .ToListAsync();
-
-        if (!reviews.Any())
-            return new AverageRatingDto(0, 0);
-
-        var average = reviews.Average(r => r.Rating);
-        return new AverageRatingDto(Math.Round(average, 2), reviews.Count);
+        var (average, count) = await _repo.GetAverageRatingForPortAsync(portId);
+        return new AverageRatingDto(average, count);
     }
 
     /// <summary>
-    /// Создать новый отзыв.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РѕС‚Р·С‹РІ.
     /// </summary>
     public async Task<ReviewDto?> CreateAsync(CreateReviewDto dto, Guid authorId)
     {
-        // Валидация: должна быть указана хотя бы одна целевая сущность
+        // Р’Р°Р»РёРґР°С†РёСЏ: РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СѓРєР°Р·Р°РЅР° С…РѕС‚СЏ Р±С‹ РѕРґРЅР° С†РµР»РµРІР°СЏ СЃСѓС‰РЅРѕСЃС‚СЊ
         if (!dto.UserId.HasValue && !dto.ShipId.HasValue && !dto.PortId.HasValue)
             return null;
 
-        // Валидация: только одна целевая сущность
+        // Р’Р°Р»РёРґР°С†РёСЏ: С‚РѕР»СЊРєРѕ РѕРґРЅР° С†РµР»РµРІР°СЏ СЃСѓС‰РЅРѕСЃС‚СЊ
         var targetsCount = (dto.UserId.HasValue ? 1 : 0) + (dto.ShipId.HasValue ? 1 : 0) + (dto.PortId.HasValue ? 1 : 0);
         if (targetsCount > 1)
             return null;
 
-        // Проверка существования автора
+        // РџСЂРѕРІРµСЂРєР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ Р°РІС‚РѕСЂР°
         var author = await _userRepo.GetByIdAsync(authorId);
         if (author is null)
             return null;
 
-        // Для отзывов на партнеров и суда: проверка завершенного заказа
+        // Р”Р»СЏ РѕС‚Р·С‹РІРѕРІ РЅР° РїР°СЂС‚РЅРµСЂРѕРІ Рё СЃСѓРґР°: РїСЂРѕРІРµСЂРєР° Р·Р°РІРµСЂС€РµРЅРЅРѕРіРѕ Р·Р°РєР°Р·Р°
         if ((dto.UserId.HasValue || dto.ShipId.HasValue) && !dto.RentOrderId.HasValue)
             return null;
 
         if (dto.RentOrderId.HasValue)
         {
-            var order = await _context.RentOrders
-                .FirstOrDefaultAsync(ro => ro.Id == dto.RentOrderId.Value);
+            var order = await _rentOrderRepo.GetByIdAsync(dto.RentOrderId.Value);
 
             if (order is null)
                 return null;
 
-            // Проверка, что заказ завершен или отменен
+            // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ Р·Р°РєР°Р· Р·Р°РІРµСЂС€РµРЅ РёР»Рё РѕС‚РјРµРЅРµРЅ
             if (order.Status != RentOrderStatus.Completed && order.Status != RentOrderStatus.Cancelled)
                 return null;
 
-            // Проверка, что пользователь участвовал в заказе
+            // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓС‡Р°СЃС‚РІРѕРІР°Р» РІ Р·Р°РєР°Р·Рµ
             if (order.UserId != authorId && order.PartnerId != authorId)
                 return null;
 
-            // Проверка соответствия целевой сущности и заказа
+            // РџСЂРѕРІРµСЂРєР° СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ С†РµР»РµРІРѕР№ СЃСѓС‰РЅРѕСЃС‚Рё Рё Р·Р°РєР°Р·Р°
             if (dto.UserId.HasValue && order.PartnerId != dto.UserId.Value)
                 return null;
 
@@ -204,7 +152,7 @@ public class ReviewService(
                 return null;
         }
 
-        // Проверка существования целевой сущности
+        // РџСЂРѕРІРµСЂРєР° СЃСѓС‰РµСЃС‚РІРѕРІР°РЅРёСЏ С†РµР»РµРІРѕР№ СЃСѓС‰РЅРѕСЃС‚Рё
         if (dto.UserId.HasValue)
         {
             var targetUser = await _userRepo.GetByIdAsync(dto.UserId.Value);
@@ -244,29 +192,23 @@ public class ReviewService(
 
         var created = await _repo.CreateAsync(entity);
 
-        // Перезагружаем с навигационными свойствами
-        var result = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .FirstOrDefaultAsync(r => r.Id == created.Id);
+        // РџРµСЂРµР·Р°РіСЂСѓР¶Р°РµРј СЃ РЅР°РІРёРіР°С†РёРѕРЅРЅС‹РјРё СЃРІРѕР№СЃС‚РІР°РјРё
+        var result = await _repo.GetByIdAsync(created.Id);
 
-        return result is not null ? MapToDto(result) : null;
+        return result is not null ? _mapper.Map<ReviewDto>(result) : null;
     }
 
     /// <summary>
-    /// Обновить существующий отзыв.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РѕС‚Р·С‹РІ.
     /// </summary>
     public async Task<ReviewDto?> UpdateAsync(Guid id, UpdateReviewDto dto, Guid authorId)
     {
-        var entity = await _context.Reviews
-            .Include(r => r.Author)
-            .ThenInclude(a => a.UserProfile)
-            .FirstOrDefaultAsync(r => r.Id == id);
+        var entity = await _repo.GetByIdAsync(id);
 
         if (entity is null)
             return null;
 
-        // Проверка прав: только автор может редактировать свой отзыв (или администратор для IsActive)
+        // РџСЂРѕРІРµСЂРєР° РїСЂР°РІ: С‚РѕР»СЊРєРѕ Р°РІС‚РѕСЂ РјРѕР¶РµС‚ СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ СЃРІРѕР№ РѕС‚Р·С‹РІ (РёР»Рё Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ РґР»СЏ IsActive)
         if (entity.AuthorId != authorId && dto.Comment != null && dto.Rating.HasValue)
             return null;
 
@@ -283,37 +225,11 @@ public class ReviewService(
             entity.UpdatedAt = DateTime.UtcNow;
 
         var ok = await _repo.UpdateAsync(entity, id);
-        return ok ? MapToDto(entity) : null;
+        return ok ? _mapper.Map<ReviewDto>(entity) : null;
     }
 
     /// <summary>
-    /// Удалить отзыв.
+    /// РЈРґР°Р»РёС‚СЊ РѕС‚Р·С‹РІ.
     /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
-
-    /// <summary>
-    /// Преобразовать сущность отзыва в DTO.
-    /// </summary>
-    private static ReviewDto MapToDto(Review e)
-    {
-        var authorName = e.Author?.UserProfile?.Nickname
-            ?? $"{e.Author?.UserProfile?.FirstName} {e.Author?.UserProfile?.LastName}".Trim()
-            ?? e.Author?.Phone
-            ?? "Аноним";
-
-        return new ReviewDto(
-            e.Id,
-            e.AuthorId,
-            authorName,
-            e.UserId,
-            e.ShipId,
-            e.PortId,
-            e.RentOrderId,
-            e.Comment,
-            e.Rating,
-            e.CreatedAt,
-            e.UpdatedAt,
-            e.IsActive
-        );
-    }
 }

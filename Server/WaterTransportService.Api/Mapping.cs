@@ -211,5 +211,30 @@ public class Mapping : Profile
                 src.IsPrimary,
                 src.UploadedAt
             ));
+
+        // Review mapping
+        CreateMap<Review, ReviewDto>()
+            .ConstructUsing(src => new ReviewDto(
+                src.Id,
+                src.AuthorId,
+                GetAuthorName(src),
+                src.UserId,
+                src.ShipId,
+                src.PortId,
+                src.RentOrderId,
+                src.Comment,
+                src.Rating,
+                src.CreatedAt,
+                src.UpdatedAt,
+                src.IsActive
+            ));
+    }
+
+    private static string GetAuthorName(Review review)
+    {
+        return review.Author?.UserProfile?.Nickname
+            ?? $"{review.Author?.UserProfile?.FirstName} {review.Author?.UserProfile?.LastName}".Trim()
+            ?? review.Author?.Phone
+            ?? "Аноним";
     }
 }

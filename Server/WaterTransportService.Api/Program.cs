@@ -128,7 +128,8 @@ builder.Services.AddScoped<IEntityRepository<RegularOrder, Guid>, RegularOrderRe
 builder.Services.AddScoped<IEntityRepository<RentOrder, Guid>, RentOrderRepository>();
 builder.Services.AddScoped<RentOrderRepository>();
 builder.Services.AddScoped<RentOrderOfferRepository>();
-builder.Services.AddScoped<IEntityRepository<Review, Guid>, ReviewRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IEntityRepository<Review, Guid>>(sp => sp.GetRequiredService<IReviewRepository>());
 builder.Services.AddScoped<IEntityRepository<UserImage, Guid>, UserImageRepository>();
 builder.Services.AddScoped<IEntityRepository<UserProfile, Guid>, UserProfileRepository>();
 builder.Services.AddScoped<IEntityRepository<PortImage, Guid>, PortImageRepository>();
