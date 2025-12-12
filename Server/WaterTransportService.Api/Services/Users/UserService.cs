@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Exceptions;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;
-using WaterTransportService.Infrastructure.PasswordValidator;   
+using WaterTransportService.Infrastructure.PasswordValidator;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 using AuthUserDto = WaterTransportService.Authentication.DTO.UserDto;

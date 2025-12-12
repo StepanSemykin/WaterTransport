@@ -1,6 +1,6 @@
 ﻿namespace WaterTransportService.Infrastructure.PasswordValidator;
 
-public class PasswordValidator: IPasswordValidator
+public class PasswordValidator : IPasswordValidator
 {
     public bool IsPasswordValid(string password)
     {

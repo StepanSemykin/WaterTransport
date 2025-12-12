@@ -36,7 +36,7 @@ public class RentOrderOfferService(
     {
         // Получаем отклики с полными данными через репозиторий
         var offers = await _offerRepository.GetOffersForUserOrdersWithDetailsAsync(
-            UserId, 
+            UserId,
             RentOrderOfferStatus.Pending);
 
         var dtos = _mapper.Map<List<RentOrderOfferDto>>(offers);
@@ -175,7 +175,7 @@ public class RentOrderOfferService(
         if (rentOrder is null) return null;
 
         // Проверяем, что заказ в статусе ожидания откликов
-        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse 
+        if (rentOrder.Status != RentOrderStatus.AwaitingPartnerResponse
             && rentOrder.Status != RentOrderStatus.HasOffers)
             return null;
 

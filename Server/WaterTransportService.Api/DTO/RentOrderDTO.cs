@@ -26,8 +26,8 @@ public record RentOrderDto(
     DateTime? RentalEndTime,
     DateTime? OrderDate,
     string Status
-    //DateTime CreatedAt,
-    //DateTime? CancelledAt
+//DateTime CreatedAt,
+//DateTime? CancelledAt
 );
 
 /// <summary>
