@@ -6,12 +6,10 @@ using System.Text;
 using WaterTransportService.Api;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Middleware;
-using WaterTransportService.Api.Services.Calendars;
 using WaterTransportService.Api.Services.Images;
 using WaterTransportService.Api.Services.Orders;
 using WaterTransportService.Api.Services.Ports;
 using WaterTransportService.Api.Services.Reviews;
-using WaterTransportService.Api.Services.Routes;
 using WaterTransportService.Api.Services.Ships;
 using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.Services;
@@ -122,11 +120,10 @@ builder.Services.AddScoped<IEntityRepository<ShipType, ushort>, ShipTypeReposito
 builder.Services.AddScoped<IEntityRepository<Ship, Guid>, ShipRepository>();
 builder.Services.AddScoped<ShipRepository>();
 builder.Services.AddScoped<IEntityRepository<ShipImage, Guid>, ShipImageRepository>();
-builder.Services.AddScoped<IEntityRepository<WaterTransportService.Model.Entities.Route, Guid>, RouteRepository>();
-builder.Services.AddScoped<IEntityRepository<RegularCalendar, Guid>, RegularCalendarRepository>();
-builder.Services.AddScoped<IEntityRepository<RegularOrder, Guid>, RegularOrderRepository>();
 builder.Services.AddScoped<IEntityRepository<RentOrder, Guid>, RentOrderRepository>();
 builder.Services.AddScoped<RentOrderRepository>();
+builder.Services.AddScoped<ShipRentalCalendarRepository>();
+builder.Services.AddScoped<IEntityRepository<ShipRentalCalendar, Guid>, ShipRentalCalendarRepository>();
 builder.Services.AddScoped<RentOrderOfferRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IEntityRepository<Review, Guid>>(sp => sp.GetRequiredService<IReviewRepository>());
@@ -143,9 +140,9 @@ builder.Services.AddScoped<IPortService, PortService>();
 builder.Services.AddScoped<IPortTypeService, PortTypeService>();
 builder.Services.AddScoped<IShipTypeService, ShipTypeService>();
 builder.Services.AddScoped<IShipService, ShipService>();
-builder.Services.AddScoped<IRouteService, RouteService>();
-builder.Services.AddScoped<IRegularCalendarService, RegularCalendarService>();
-builder.Services.AddScoped<IRegularOrderService, RegularOrderService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IPasswordValidator, PasswordValidator>();
 
 // Cache Service
 builder.Services.AddSingleton<WaterTransportService.Api.Caching.ICacheService, WaterTransportService.Api.Caching.CacheService>();
@@ -189,6 +186,16 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<WaterTransportDbContext>();
 
         await context.Database.MigrateAsync();
+
+        // Создание администратора из конфигурации
+        var adminPhone = builder.Configuration["AdminSettings:Phone"];
+        var adminPassword = builder.Configuration["AdminSettings:Password"];
+        if (!string.IsNullOrWhiteSpace(adminPhone) && !string.IsNullOrWhiteSpace(adminPassword))
+        {
+            var passwordHasher = services.GetRequiredService<IPasswordHasher>();
+            var adminPasswordHash = passwordHasher.Generate(adminPassword);
+            await DatabaseSeeder.SeedAdminAsync(context, adminPasswordHash, adminPhone);
+        }
 
         // Раскомментируйте для заполнения тестовыми данными
         //var passwordHasher = services.GetRequiredService<IPasswordHasher>();

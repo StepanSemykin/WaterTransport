@@ -1,12 +1,13 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Middleware.Exceptions;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Ships;
 
 /// <summary>
-/// Сервис для работы с судами.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ СЃСѓРґР°РјРё.
 /// </summary>
 public class ShipService(
     IEntityRepository<Ship, Guid> repo,
@@ -22,7 +23,7 @@ public class ShipService(
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех судов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… СЃСѓРґРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
     public async Task<(IReadOnlyList<Ship> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
@@ -36,7 +37,7 @@ public class ShipService(
     }
 
     /// <summary>
-    /// Получить судно по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСѓРґРЅРѕ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
     public async Task<ShipDto?> GetByIdAsync(Guid id)
     {
@@ -47,7 +48,7 @@ public class ShipService(
     }
 
     /// <summary>
-    /// Получить все суда конкретного пользователя по его userId (из токена).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ СЃСѓРґР° РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РµРіРѕ userId (РёР· С‚РѕРєРµРЅР°).
     /// </summary>
     public async Task<(IReadOnlyList<ShipDto> Items, int Total)> GetByUserAsync(Guid userId, int page, int pageSize)
     {
@@ -72,7 +73,7 @@ public class ShipService(
     }
 
     /// <summary>
-    /// Создать новое судно.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ СЃСѓРґРЅРѕ.
     /// </summary>
     public async Task<ShipDto?> CreateAsync(CreateShipDto dto)
     {
@@ -88,6 +89,9 @@ public class ShipService(
         if (shipType is null)
             return null;
 
+        var normalizedRegistrationNumber = dto.RegistrationNumber.Trim();
+        await EnsureRegistrationNumberUniqueAsync(normalizedRegistrationNumber);
+
         var entity = new Ship
         {
             Id = Guid.NewGuid(),
@@ -95,7 +99,7 @@ public class ShipService(
             ShipTypeId = dto.ShipTypeId,
             ShipType = shipType,
             Capacity = dto.Capacity,
-            RegistrationNumber = dto.RegistrationNumber,
+            RegistrationNumber = normalizedRegistrationNumber,
             YearOfManufacture = dto.YearOfManufacture,
             MaxSpeed = dto.MaxSpeed,
             Width = dto.Width,
@@ -115,7 +119,7 @@ public class ShipService(
     }
 
     /// <summary>
-    /// Обновить существующее судно.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРµ СЃСѓРґРЅРѕ.
     /// </summary>
     public async Task<ShipDto?> UpdateAsync(Guid id, UpdateShipDto dto)
     {
@@ -125,7 +129,12 @@ public class ShipService(
         if (!string.IsNullOrWhiteSpace(dto.Name)) entity.Name = dto.Name;
         if (dto.ShipTypeId.HasValue) entity.ShipTypeId = dto.ShipTypeId.Value;
         if (dto.Capacity.HasValue) entity.Capacity = dto.Capacity.Value;
-        if (!string.IsNullOrWhiteSpace(dto.RegistrationNumber)) entity.RegistrationNumber = dto.RegistrationNumber;
+        if (!string.IsNullOrWhiteSpace(dto.RegistrationNumber))
+        {
+            var normalizedRegistrationNumber = dto.RegistrationNumber.Trim();
+            await EnsureRegistrationNumberUniqueAsync(normalizedRegistrationNumber, id);
+            entity.RegistrationNumber = normalizedRegistrationNumber;
+        }
         if (dto.YearOfManufacture.HasValue) entity.YearOfManufacture = dto.YearOfManufacture.Value;
         if (dto.MaxSpeed.HasValue) entity.MaxSpeed = dto.MaxSpeed.Value;
         if (dto.Width.HasValue) entity.Width = dto.Width.Value;
@@ -154,7 +163,7 @@ public class ShipService(
     }
 
     /// <summary>
-    /// Получить судно по регистрационному номеру.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСѓРґРЅРѕ РїРѕ СЂРµРіРёСЃС‚СЂР°С†РёРѕРЅРЅРѕРјСѓ РЅРѕРјРµСЂСѓ.
     /// </summary>
     public async Task<ShipDto?> GetByRegistrationNumberAsync(string registrationNumber)
     {
@@ -169,7 +178,22 @@ public class ShipService(
     }
 
     /// <summary>
-    /// Удалить судно.
+    /// РЈРґР°Р»РёС‚СЊ СЃСѓРґРЅРѕ.
     /// </summary>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
+
+    private async Task EnsureRegistrationNumberUniqueAsync(string registrationNumber, Guid? shipIdToExclude = null)
+    {
+        var normalizedRegistrationNumber = registrationNumber.Trim();
+        var ships = await _repo.GetAllAsync();
+        var duplicateExists = ships.Any(s =>
+            (!shipIdToExclude.HasValue || s.Id != shipIdToExclude.Value) &&
+            !string.IsNullOrWhiteSpace(s.RegistrationNumber) &&
+            string.Equals(s.RegistrationNumber, normalizedRegistrationNumber, StringComparison.OrdinalIgnoreCase));
+
+        if (duplicateExists)
+        {
+            throw new DuplicateFieldValueException("registrationNumber", normalizedRegistrationNumber);
+        }
+    }
 }

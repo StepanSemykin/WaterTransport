@@ -18,6 +18,7 @@ public class RentOrderService(
     IPortRepository<Guid> portRepository,
     IEntityRepository<ShipType, ushort> shipTypeRepository,
     IUserRepository<Guid> userRepository,
+    ShipRentalCalendarRepository shipRentalCalendarRepository,
     IFileStorageService fileStorageService,
     IMapper mapper) : IRentOrderService
 {
@@ -27,6 +28,7 @@ public class RentOrderService(
     private readonly IPortRepository<Guid> _portRepository = portRepository;
     private readonly IEntityRepository<ShipType, ushort> _shipTypeRepository = shipTypeRepository;
     private readonly IUserRepository<Guid> _userRepository = userRepository;
+    private readonly ShipRentalCalendarRepository _shipRentalCalendarRepository = shipRentalCalendarRepository;
     private readonly IFileStorageService _fileStorageService = fileStorageService;
     private readonly IMapper _mapper = mapper;
 
@@ -75,7 +77,6 @@ public class RentOrderService(
     }
 
     /// <summary>
-    /// Получить доступные заказы для партнера с подходящими суднами.
     /// Получить активный заказ аренды для пользователя.
     /// </summary>
     public async Task<RentOrderDto?> GetActiveOrderForUserAsync(Guid userId)
@@ -108,7 +109,7 @@ public class RentOrderService(
             RentOrderStatus.AwaitingPartnerResponse,
             RentOrderStatus.HasOffers);
 
-        // Формируем результат с подходящими суднами для каждого заказа
+        // Формируем результат с подходящими судами для каждого заказа
         var result = new List<AvailableRentOrderDto>();
 
         foreach (var order in availableOrders)
@@ -118,40 +119,50 @@ public class RentOrderService(
                 continue;
 
             // Находим подходящие суда для этого заказа
-            var matchingShips = partnerShips
-                .Where(ship =>
-                    ship.ShipTypeId == order.ShipTypeId &&
-                    ship.PortId == order.DeparturePortId &&
-                    ship.Capacity >= order.NumberOfPassengers)
-                .ToList();
-
-            // Добавляем заказ только если есть подходящие суда
-            if (matchingShips.Count > 0)
+            var matchingShips = new List<Ship>();
+            foreach (var ship in partnerShips.Where(ship =>
+                         ship.ShipTypeId == order.ShipTypeId &&
+                         ship.PortId == order.DeparturePortId &&
+                         ship.Capacity >= order.NumberOfPassengers))
             {
-                var mappedShips = _mapper.Map<List<ShipDetailsDto>>(matchingShips);
-
-                // Обогащаем суда изображениями в Base64
-                var shipsWithImages = await mappedShips.WithBase64ImagesAsync(_fileStorageService);
-
-                var orderDto = new AvailableRentOrderDto(
-                    order.Id,
-                    order.UserId,
-                    _mapper.Map<UserProfileDto>(order.User?.UserProfile),
-                    order.ShipTypeId,
-                    order.ShipType?.Name,
-                    order.DeparturePortId,
-                    _mapper.Map<PortDto>(order.DeparturePort),
-                    order.ArrivalPortId,
-                    _mapper.Map<PortDto>(order.ArrivalPort),
-                    order.NumberOfPassengers,
+                var shipBusy = await _shipRentalCalendarRepository.HasOverlapAsync(
+                    ship.Id,
                     order.RentalStartTime,
-                    order.RentalEndTime,
-                    order.Status,
-                    order.CreatedAt,
-                    shipsWithImages
-                );
-                result.Add(orderDto);
+                    order.RentalEndTime);
+                if (!shipBusy)
+                {
+                    matchingShips.Add(ship);
+                }
             }
+
+            if (matchingShips.Count == 0)
+            {
+                continue;
+            }
+
+            var mappedShips = _mapper.Map<List<ShipDetailsDto>>(matchingShips);
+
+            // Обогащаем суда изображениями в Base64
+            var shipsWithImages = await mappedShips.WithBase64ImagesAsync(_fileStorageService);
+
+            var orderDto = new AvailableRentOrderDto(
+                order.Id,
+                order.UserId,
+                _mapper.Map<UserProfileDto>(order.User?.UserProfile),
+                order.ShipTypeId,
+                order.ShipType?.Name,
+                order.DeparturePortId,
+                _mapper.Map<PortDto>(order.DeparturePort),
+                order.ArrivalPortId,
+                _mapper.Map<PortDto>(order.ArrivalPort),
+                order.NumberOfPassengers,
+                order.RentalStartTime,
+                order.RentalEndTime,
+                order.Status,
+                order.CreatedAt,
+                shipsWithImages
+            );
+            result.Add(orderDto);
         }
 
         return result;
@@ -259,6 +270,11 @@ public class RentOrderService(
         var entity = await _rentOrderRepository.GetByIdAsync(id);
         if (entity is null) return null;
 
+        var originalStatus = entity.Status;
+        var originalShipId = entity.ShipId;
+        var originalStart = entity.RentalStartTime;
+        var originalEnd = entity.RentalEndTime;
+
         if (dto.PartnerId.HasValue) entity.PartnerId = dto.PartnerId.Value;
         if (dto.ShipId.HasValue) entity.ShipId = dto.ShipId.Value;
         if (dto.TotalPrice.HasValue) entity.TotalPrice = dto.TotalPrice.Value;
@@ -267,11 +283,33 @@ public class RentOrderService(
         if (dto.RentalEndTime.HasValue) entity.RentalEndTime = dto.RentalEndTime.Value;
         if (dto.OrderDate.HasValue) entity.OrderDate = dto.OrderDate.Value;
         if (!string.IsNullOrWhiteSpace(dto.Status)) entity.Status = dto.Status;
-        //if (dto.CancelledAt.HasValue) entity.CancelledAt = dto.CancelledAt.Value;
 
         var ok = await _rentOrderRepository.UpdateAsync(entity, id);
+        if (!ok)
+        {
+            return null;
+        }
 
-        return ok ? _mapper.Map<RentOrderDto>(entity) : null;
+        if (originalStatus == RentOrderStatus.Agreed && entity.Status != RentOrderStatus.Agreed)
+        {
+            await _shipRentalCalendarRepository.DeleteByRentOrderIdAsync(id);
+        }
+        else if (entity.Status == RentOrderStatus.Agreed)
+        {
+            if (!entity.ShipId.HasValue)
+            {
+                await _shipRentalCalendarRepository.DeleteByRentOrderIdAsync(id);
+            }
+            else if (originalStatus != RentOrderStatus.Agreed ||
+                     originalShipId != entity.ShipId ||
+                     originalStart != entity.RentalStartTime ||
+                     originalEnd != entity.RentalEndTime)
+            {
+                await UpsertCalendarEntryAsync(entity);
+            }
+        }
+
+        return _mapper.Map<RentOrderDto>(entity);
     }
 
     /// <summary>
@@ -284,7 +322,12 @@ public class RentOrderService(
             return false;
 
         entity.Status = RentOrderStatus.Completed;
-        return await _rentOrderRepository.UpdateAsync(entity, id);
+        var ok = await _rentOrderRepository.UpdateAsync(entity, id);
+        if (ok)
+        {
+            await _shipRentalCalendarRepository.DeleteByRentOrderIdAsync(id);
+        }
+        return ok;
     }
 
     /// <summary>
@@ -295,13 +338,16 @@ public class RentOrderService(
     {
         var entity = await _rentOrderRepository.GetByIdAsync(id);
         if (entity is null) return false;
-        // Отменяем все отклики на этот заказ
         await _rentOrderOfferRepository.RejectByRentOrderIdAsync(id);
-
 
         entity.Status = RentOrderStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;
-        return await _rentOrderRepository.UpdateAsync(entity, id);
+        var ok = await _rentOrderRepository.UpdateAsync(entity, id);
+        if (ok)
+        {
+            await _shipRentalCalendarRepository.DeleteByRentOrderIdAsync(id);
+        }
+        return ok;
     }
 
     /// <summary>
@@ -313,12 +359,16 @@ public class RentOrderService(
         var entity = await _rentOrderRepository.GetByIdAsync(id);
         if (entity is null) return false;
 
-        // Отменяем все отклики на этот заказ
         await _rentOrderOfferRepository.RejectByRentOrderIdAsync(id);
 
         entity.Status = RentOrderStatus.Discontinued;
         entity.CancelledAt = DateTime.UtcNow;
-        return await _rentOrderRepository.UpdateAsync(entity, id);
+        var ok = await _rentOrderRepository.UpdateAsync(entity, id);
+        if (ok)
+        {
+            await _shipRentalCalendarRepository.DeleteByRentOrderIdAsync(id);
+        }
+        return ok;
     }
 
     /// <summary>
@@ -327,9 +377,42 @@ public class RentOrderService(
     /// </summary>
     public async Task<bool> DeleteAsync(Guid id)
     {
-        // Удаляем все отклики на этот заказ
         await _rentOrderOfferRepository.DeleteByRentOrderIdAsync(id);
-
+        await _shipRentalCalendarRepository.DeleteByRentOrderIdAsync(id);
         return await _rentOrderRepository.DeleteAsync(id);
+    }
+
+    private async Task UpsertCalendarEntryAsync(RentOrder order)
+    {
+        if (!order.ShipId.HasValue)
+        {
+            return;
+        }
+
+        var entry = await _shipRentalCalendarRepository.GetByRentOrderIdAsync(order.Id);
+        if (entry is null)
+        {
+            entry = new ShipRentalCalendar
+            {
+                Id = Guid.NewGuid(),
+                ShipId = order.ShipId.Value,
+                RentOrderId = order.Id,
+                DeparturePortId = order.DeparturePortId,
+                ArrivalPortId = order.ArrivalPortId,
+                StartTime = order.RentalStartTime,
+                EndTime = order.RentalEndTime
+            };
+            await _shipRentalCalendarRepository.CreateAsync(entry);
+        }
+        else
+        {
+            entry.ShipId = order.ShipId.Value;
+            entry.DeparturePortId = order.DeparturePortId;
+            entry.ArrivalPortId = order.ArrivalPortId;
+            entry.StartTime = order.RentalStartTime;
+            entry.EndTime = order.RentalEndTime;
+            entry.UpdatedAt = DateTime.UtcNow;
+            await _shipRentalCalendarRepository.UpdateAsync(entry, entry.Id);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
 
@@ -11,6 +12,7 @@ namespace WaterTransportService.Api.Controllers.Rent;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class RentOrdersController(IRentOrderService service) : ControllerBase
 {
     private readonly IRentOrderService _service = service;
@@ -23,8 +25,8 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <returns>Список заказов аренды и информацию о пагинации.</returns>
     /// <response code="200">Успешно получен список заказов аренды.</response>
     [HttpGet]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-    [Authorize]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         var (items, total) = await _service.GetAllAsync(page, pageSize);
@@ -39,9 +41,9 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="200">Заказ аренды успешно найден.</response>
     /// <response code="404">Заказ аренды не найден.</response>
     [HttpGet("{id:guid}")]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize]
     public async Task<ActionResult<RentOrderDto>> GetById(Guid id)
     {
         var e = await _service.GetByIdAsync(id);
@@ -55,9 +57,9 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="200">Активный заказ аренды успешно найден.</response>
     /// <response code="404">Заказ аренды не найден (нет активного заказа).</response>
     [HttpGet("active")]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [Authorize]
     public async Task<ActionResult<RentOrderDto>> GetActiveOrder()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
@@ -77,8 +79,8 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <returns>Список доступных заказов с подходящими суднами партнера.</returns>
     /// <response code="200">Список успешно получен.</response>
     [HttpGet("available-for-partner/{partnerId:guid}")]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [ProducesResponseType(typeof(IEnumerable<AvailableRentOrderDto>), StatusCodes.Status200OK)]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<AvailableRentOrderDto>>> GetAvailableForPartner(Guid partnerId)
     {
         var orders = await _service.GetAvailableOrdersForPartnerAsync(partnerId);
@@ -93,9 +95,9 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="200">Заказы успешно найдены</response>
     /// <response code="400">Неправильные данные.</response>
     [HttpGet("get-for-user-by-status/status={status}")]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForUserByStatus(string status)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
@@ -118,9 +120,9 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="200">Заказы успешно найдены</response>
     /// <response code="400">Неправильные данные.</response>
     [HttpGet("get-for-partner-by-status/status={status}")]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Authorize]
     public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetForPartnerByStatus(string status)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
@@ -143,9 +145,9 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="201">Заказ аренды успешно создан.</response>
     /// <response code="400">Неправильные данные.</response>
     [HttpPost]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [Authorize]
     public async Task<ActionResult<RentOrderDto>> Create([FromBody] CreateRentOrderDto dto)
     {
         // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
@@ -176,6 +178,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="200">Заказ аренды успешно обновлен.</response>
     /// <response code="404">Заказ аренды не найден.</response>
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(RentOrderDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RentOrderDto>> Update(Guid id, [FromBody] UpdateRentOrderDto dto)
@@ -192,6 +195,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="204">Аренда успешно завершена.</response>
     /// <response code="400">Невозможно завершить аренду.</response>
     [HttpPost("{id:guid}/complete")]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CompleteOrder(Guid id)
@@ -208,6 +212,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="204">Заказ успешно отменен.</response>
     /// <response code="404">Заказ не найден.</response>
     [HttpPost("{id:guid}/cancel")]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> CancelOrder(Guid id)
@@ -224,6 +229,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="204">Заказ успешно отменен.</response>
     /// <response code="404">Заказ не найден.</response>
     [HttpPost("{id:guid}/discontinued")]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DiscontinuedOrder(Guid id)
@@ -240,6 +246,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="204">Заказ аренды успешно удален.</response>
     /// <response code="404">Заказ аренды не найден.</response>
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)

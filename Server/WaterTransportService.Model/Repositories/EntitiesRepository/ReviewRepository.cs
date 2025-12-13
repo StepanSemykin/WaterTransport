@@ -100,7 +100,7 @@ public class ReviewRepository(WaterTransportDbContext context) : IReviewReposito
             .Where(r => r.UserId == userId && r.IsActive)
             .ToListAsync();
 
-        if (!reviews.Any())
+        if (reviews.Count == 0)
             return (0, 0);
 
         var average = reviews.Average(r => r.Rating);
@@ -118,7 +118,7 @@ public class ReviewRepository(WaterTransportDbContext context) : IReviewReposito
             .Where(r => r.ShipId == shipId && r.IsActive)
             .ToListAsync();
 
-        if (!reviews.Any())
+        if (reviews.Count == 0)
             return (0, 0);
 
         var average = reviews.Average(r => r.Rating);
@@ -136,7 +136,7 @@ public class ReviewRepository(WaterTransportDbContext context) : IReviewReposito
             .Where(r => r.PortId == portId && r.IsActive)
             .ToListAsync();
 
-        if (!reviews.Any())
+        if (reviews.Count == 0)
             return (0, 0);
 
         var average = reviews.Average(r => r.Rating);

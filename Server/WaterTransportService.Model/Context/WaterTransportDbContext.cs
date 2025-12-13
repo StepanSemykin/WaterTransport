@@ -14,14 +14,12 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
     public required DbSet<Port> Ports { get; set; }
     public required DbSet<PortType> PortTypes { get; set; }
     public required DbSet<PortImage> PortImages { get; set; }
-    public required DbSet<Route> Routes { get; set; }
-    public required DbSet<RegularCalendar> RegularCalendars { get; set; }
-    public required DbSet<RegularOrder> RegularOrders { get; set; }
     public required DbSet<RentOrder> RentOrders { get; set; }
     public required DbSet<RentOrderOffer> RentOrderOffers { get; set; }
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<OldPassword> OldPasswords { get; set; }
     public required DbSet<RefreshToken> RefreshTokens { get; set; }
+    public required DbSet<ShipRentalCalendar> ShipRentalCalendars { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +56,19 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .WithMany()
                 .HasForeignKey(ro => ro.ArrivalPortId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<ShipRentalCalendar>(b =>
+        {
+            b.HasOne(src => src.Ship)
+                .WithMany(s => s.RentalCalendarEntries)
+                .HasForeignKey(src => src.ShipId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            b.HasOne(src => src.RentOrder)
+                .WithOne(ro => ro.ShipRentalCalendarEntry)
+                .HasForeignKey<ShipRentalCalendar>(src => src.RentOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<RentOrderOffer>(b =>
@@ -141,19 +152,6 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 Address = "Городской округ Самара, Самарский район"
             }
         );
-
-        modelBuilder.Entity<Route>(b =>
-        {
-            b.HasOne(r => r.FromPort)
-                .WithMany()
-                .HasForeignKey(r => r.FromPortId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            b.HasOne(r => r.ToPort)
-                .WithMany()
-                .HasForeignKey(r => r.ToPortId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
 
         modelBuilder.Entity<Review>(b =>
         {

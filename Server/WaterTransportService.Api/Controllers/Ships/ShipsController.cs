@@ -1,26 +1,29 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Ships;
 
 namespace WaterTransportService.Api.Controllers.Ships;
 
 /// <summary>
-/// Контроллер для управления судами.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ СЃСѓРґР°РјРё.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class ShipsController(IShipService service) : ControllerBase
 {
     private readonly IShipService _service = service;
 
     /// <summary>
-    /// Получить список всех судов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… СЃСѓРґРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список судов с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список судов.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє СЃСѓРґРѕРІ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє СЃСѓРґРѕРІ.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -30,12 +33,12 @@ public class ShipsController(IShipService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить судно по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСѓРґРЅРѕ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор судна.</param>
-    /// <returns>Данные судна.</returns>
-    /// <response code="200">Судно успешно найдено.</response>
-    /// <response code="404">Судно не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ СЃСѓРґРЅР°.</returns>
+    /// <response code="200">РЎСѓРґРЅРѕ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅРѕ.</response>
+    /// <response code="404">РЎСѓРґРЅРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ShipDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,14 +50,14 @@ public class ShipsController(IShipService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить список всех судов текущего пользователя (по токену).
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСѓРґР° С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ (РїР°СЂС‚РЅРµСЂР°).
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Размер страницы (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список судов пользователя с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список судов пользователя.</response>
-    /// <response code="401">Пользователь не авторизован.</response>
-    //[Authorize] // нужна аутентификация по JWT
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">Р Р°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє СЃСѓРґРѕРІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє СЃСѓРґРѕРІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</response>
+    /// <response code="401">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ.</response>
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [HttpGet("my-ships")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -72,12 +75,13 @@ public class ShipsController(IShipService service) : ControllerBase
     }
 
     /// <summary>
-    /// Создать новое судно.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ СЃСѓРґРЅРѕ.
     /// </summary>
-    /// <param name="dto">Данные для создания судна.</param>
-    /// <returns>Созданное судно.</returns>
-    /// <response code="201">Судно успешно создано.</response>
-    /// <response code="400">Недопустимые данные.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЃСѓРґРЅР°.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅРѕРµ СЃСѓРґРЅРѕ.</returns>
+    /// <response code="201">РЎСѓРґРЅРѕ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅРѕ.</response>
+    /// <response code="400">РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ РґР°РЅРЅС‹Рµ.</response>
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [HttpPost]
     [ProducesResponseType(typeof(ShipDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -89,13 +93,14 @@ public class ShipsController(IShipService service) : ControllerBase
     }
 
     /// <summary>
-    /// Обновить существующий корабль.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРµ СЃСѓРґРЅРѕ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор корабля.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный корабль.</returns>
-    /// <response code="200">Корабль успешно обновлен.</response>
-    /// <response code="404">Корабль не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ СЃСѓРґРЅРѕ.</returns>
+    /// <response code="200">РЎСѓРґРЅРѕ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅРѕ.</response>
+    /// <response code="404">РЎСѓРґРЅРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(ShipDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -107,12 +112,13 @@ public class ShipsController(IShipService service) : ControllerBase
     }
 
     /// <summary>
-    /// Удалить корабль.
+    /// РЈРґР°Р»РёС‚СЊ СЃСѓРґРЅРѕ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор корабля.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Корабль успешно удален.</response>
-    /// <response code="404">Корабль не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РЎСѓРґРЅРѕ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅРѕ.</response>
+    /// <response code="404">РЎСѓРґРЅРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

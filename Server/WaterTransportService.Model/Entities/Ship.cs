@@ -121,4 +121,9 @@ public class Ship
     /// Отзывы, оставленные про судно.
     /// </summary>
     public ICollection<Review> Reviews { get; set; } = [];
+
+    /// <summary>
+    /// Записи занятости судна в календаре.
+    /// </summary>
+    public ICollection<ShipRentalCalendar> RentalCalendarEntries { get; set; } = [];
 }

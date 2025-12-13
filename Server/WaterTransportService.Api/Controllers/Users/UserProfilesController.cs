@@ -1,27 +1,31 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Users;
 
 namespace WaterTransportService.Api.Controllers.Users;
 
 /// <summary>
-/// Контроллер для управления профилями пользователей.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РїСЂРѕС„РёР»СЏРјРё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class UserProfilesController(IUserProfileService service) : ControllerBase
 {
     private readonly IUserProfileService _service = service;
 
     /// <summary>
-    /// Получить список всех профилей пользователей с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РїСЂРѕС„РёР»РµР№ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список профилей пользователей с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список профилей.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє РїСЂРѕС„РёР»РµР№ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РїСЂРѕС„РёР»РµР№.</response>
     [HttpGet]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
@@ -32,19 +36,25 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     [HttpGet("me")]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserProfileDto>> GetMyProfile(Guid id)
+    public async Task<ActionResult<UserProfileDto>> GetMyProfile()
     {
-        var user = await _service.GetByIdAsync(id);
+        var id = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("userId");
+        if (!Guid.TryParse(id, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _service.GetByIdAsync(userId);
         return user is null ? NotFound() : Ok(user);
     }
 
     /// <summary>
-    /// Получить профиль пользователя по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор профиля пользователя.</param>
-    /// <returns>Данные профиля пользователя.</returns>
-    /// <response code="200">Профиль успешно найден.</response>
-    /// <response code="404">Профиль не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС„РёР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ РїСЂРѕС„РёР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
+    /// <response code="200">РџСЂРѕС„РёР»СЊ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ.</response>
+    /// <response code="404">РџСЂРѕС„РёР»СЊ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -56,14 +66,15 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     }
 
     /// <summary>
-    /// Обновить профиль пользователя.
+    /// РћР±РЅРѕРІРёС‚СЊ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор профиля.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный профиль пользователя.</returns>
-    /// <response code="200">Профиль успешно обновлен.</response>
-    /// <response code="404">Профиль не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС„РёР»СЏ.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</returns>
+    /// <response code="200">РџСЂРѕС„РёР»СЊ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅ.</response>
+    /// <response code="404">РџСЂРѕС„РёР»СЊ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfileDto>> Update(Guid id, [FromBody] UpdateUserProfileDto dto)
@@ -90,13 +101,14 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     }
 
     /// <summary>
-    /// Удалить профиль пользователя.
+    /// РЈРґР°Р»РёС‚СЊ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор профиля.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Профиль успешно удален.</response>
-    /// <response code="404">Профиль не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС„РёР»СЏ.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РџСЂРѕС„РёР»СЊ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</response>
+    /// <response code="404">РџСЂРѕС„РёР»СЊ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)

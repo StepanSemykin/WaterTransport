@@ -1,27 +1,29 @@
-using Microsoft.AspNetCore.Authorization;
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Reviews;
 
 namespace WaterTransportService.Api.Controllers.Reviews;
 
 /// <summary>
-/// Контроллер для управления отзывами.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РѕС‚Р·С‹РІР°РјРё.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class ReviewsController(IReviewService service) : ControllerBase
 {
     private readonly IReviewService _service = service;
 
     /// <summary>
-    /// Получить список всех отзывов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РѕС‚Р·С‹РІРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список отзывов и информацию о пагинации.</returns>
-    /// <response code="200">Успешно получен список отзывов.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ Рё РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -31,12 +33,12 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить отзыв по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕС‚Р·С‹РІ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор отзыва.</param>
-    /// <returns>Данные отзыва.</returns>
-    /// <response code="200">Отзыв успешно найден.</response>
-    /// <response code="404">Отзыв не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚Р·С‹РІР°.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ РѕС‚Р·С‹РІР°.</returns>
+    /// <response code="200">РћС‚Р·С‹РІ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ.</response>
+    /// <response code="404">РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ReviewDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,11 +49,11 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить все отзывы о конкретном пользователе-партнере.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚Р·С‹РІС‹ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РїРѕР»СЊР·РѕРІР°С‚РµР»Рµ-РїР°СЂС‚РЅРµСЂРµ.
     /// </summary>
-    /// <param name="userId">Идентификатор пользователя-партнера.</param>
-    /// <returns>Список отзывов о партнере.</returns>
-    /// <response code="200">Успешно получен список отзывов.</response>
+    /// <param name="userId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ-РїР°СЂС‚РЅРµСЂР°.</param>
+    /// <returns>РЎРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ Рѕ РїР°СЂС‚РЅРµСЂРµ.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ.</response>
     [HttpGet("user/{userId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<ReviewDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsByUser(Guid userId)
@@ -61,11 +63,11 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить все отзывы о конкретном судне.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚Р·С‹РІС‹ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј СЃСѓРґРЅРµ.
     /// </summary>
-    /// <param name="shipId">Идентификатор судна.</param>
-    /// <returns>Список отзывов о судне.</returns>
-    /// <response code="200">Успешно получен список отзывов.</response>
+    /// <param name="shipId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>РЎРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ Рѕ СЃСѓРґРЅРµ.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ.</response>
     [HttpGet("ship/{shipId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<ReviewDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsByShip(Guid shipId)
@@ -75,11 +77,11 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить все отзывы о конкретном порте.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚Р·С‹РІС‹ Рѕ РєРѕРЅРєСЂРµС‚РЅРѕРј РїРѕСЂС‚Рµ.
     /// </summary>
-    /// <param name="portId">Идентификатор порта.</param>
-    /// <returns>Список отзывов о порте.</returns>
-    /// <response code="200">Успешно получен список отзывов.</response>
+    /// <param name="portId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>РЎРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ Рѕ РїРѕСЂС‚Рµ.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РѕС‚Р·С‹РІРѕРІ.</response>
     [HttpGet("port/{portId:guid}")]
     [ProducesResponseType(typeof(IEnumerable<ReviewDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsByPort(Guid portId)
@@ -89,11 +91,11 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить средний рейтинг пользователя-партнера.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ-РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
-    /// <param name="userId">Идентификатор пользователя-партнера.</param>
-    /// <returns>Средний рейтинг и количество отзывов.</returns>
-    /// <response code="200">Успешно получен средний рейтинг.</response>
+    /// <param name="userId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ-РїР°СЂС‚РЅРµСЂР°.</param>
+    /// <returns>РЎСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚Р·С‹РІРѕРІ.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі.</response>
     [HttpGet("user/{userId:guid}/average-rating")]
     [ProducesResponseType(typeof(AverageRatingDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<AverageRatingDto>> GetAverageRatingForUser(Guid userId)
@@ -103,11 +105,11 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить средний рейтинг судна.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="shipId">Идентификатор судна.</param>
-    /// <returns>Средний рейтинг и количество отзывов.</returns>
-    /// <response code="200">Успешно получен средний рейтинг.</response>
+    /// <param name="shipId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>РЎСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚Р·С‹РІРѕРІ.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі.</response>
     [HttpGet("ship/{shipId:guid}/average-rating")]
     [ProducesResponseType(typeof(AverageRatingDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<AverageRatingDto>> GetAverageRatingForShip(Guid shipId)
@@ -117,11 +119,11 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить средний рейтинг порта.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="portId">Идентификатор порта.</param>
-    /// <returns>Средний рейтинг и количество отзывов.</returns>
-    /// <response code="200">Успешно получен средний рейтинг.</response>
+    /// <param name="portId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>РЎСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі Рё РєРѕР»РёС‡РµСЃС‚РІРѕ РѕС‚Р·С‹РІРѕРІ.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃСЂРµРґРЅРёР№ СЂРµР№С‚РёРЅРі.</response>
     [HttpGet("port/{portId:guid}/average-rating")]
     [ProducesResponseType(typeof(AverageRatingDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<AverageRatingDto>> GetAverageRatingForPort(Guid portId)
@@ -131,15 +133,15 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Создать новый отзыв.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РѕС‚Р·С‹РІ.
     /// </summary>
-    /// <param name="dto">Данные для создания отзыва.</param>
-    /// <returns>Созданный отзыв.</returns>
-    /// <response code="201">Отзыв успешно создан.</response>
-    /// <response code="400">Неправильные данные.</response>
-    /// <response code="401">Пользователь не авторизован.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РѕС‚Р·С‹РІР°.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ РѕС‚Р·С‹РІ.</returns>
+    /// <response code="201">РћС‚Р·С‹РІ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ.</response>
+    /// <response code="400">РќРµРїСЂР°РІРёР»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ.</response>
+    /// <response code="401">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ.</response>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [ProducesResponseType(typeof(ReviewDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -158,17 +160,17 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Обновить отзыв.
+    /// РћР±РЅРѕРІРёС‚СЊ РѕС‚Р·С‹РІ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор отзыва.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный отзыв.</returns>
-    /// <response code="200">Отзыв успешно обновлен.</response>
-    /// <response code="404">Отзыв не найден.</response>
-    /// <response code="401">Пользователь не авторизован.</response>
-    /// <response code="403">Нет прав на редактирование этого отзыва.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚Р·С‹РІР°.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ РѕС‚Р·С‹РІ.</returns>
+    /// <response code="200">РћС‚Р·С‹РІ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅ.</response>
+    /// <response code="404">РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ.</response>
+    /// <response code="401">РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р°РІС‚РѕСЂРёР·РѕРІР°РЅ.</response>
+    /// <response code="403">РќРµС‚ РїСЂР°РІ РЅР° СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЌС‚РѕРіРѕ РѕС‚Р·С‹РІР°.</response>
     [HttpPut("{id:guid}")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [ProducesResponseType(typeof(ReviewDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -186,14 +188,14 @@ public class ReviewsController(IReviewService service) : ControllerBase
     }
 
     /// <summary>
-    /// Удалить отзыв.
+    /// РЈРґР°Р»РёС‚СЊ РѕС‚Р·С‹РІ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор отзыва.</param>
-    /// <returns>Результат операции.</returns>
-    /// <response code="204">Отзыв успешно удален.</response>
-    /// <response code="404">Отзыв не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕС‚Р·С‹РІР°.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ РѕРїРµСЂР°С†РёРё.</returns>
+    /// <response code="204">РћС‚Р·С‹РІ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</response>
+    /// <response code="404">РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
 namespace WaterTransportService.Api.Controllers.Rent;
@@ -21,7 +22,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <param name="rentOrderId">Идентификатор заказа аренды.</param>
     /// <returns>Список откликов.</returns>
     [HttpGet]
-    [Authorize]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetOffersByRentOrder(Guid rentOrderId)
     {
         var offers = await _offerService.GetOffersByRentOrderIdAsync(rentOrderId);
@@ -33,7 +34,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// </summary>
     /// <returns>Список откликов.</returns>
     [HttpGet("foruser")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetOffersByUser()
     {
         // Получаем userId из ClaimsPrincipal, который заполняется JwtBearer middleware (предпочтительный способ)
@@ -55,7 +56,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <param name="id">Идентификатор отклика.</param>
     /// <returns>Отклик или NotFound.</returns>
     [HttpGet("{id}")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     public async Task<ActionResult<RentOrderOfferDto>> GetOfferById(Guid rentOrderId, Guid id)
     {
         var offer = await _offerService.GetOfferByIdAsync(id);
@@ -70,7 +71,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <param name="dto">Данные для создания отклика.</param>
     /// <returns>Созданный отклик.</returns>
     [HttpPost]
-    [Authorize]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     public async Task<ActionResult<RentOrderOfferDto>> CreateOffer([FromBody] CreateRentOrderOfferDto dto)
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
@@ -94,7 +95,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <param name="id">Идентификатор принимаемого отклика.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpPost("{id}/accept")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     public async Task<ActionResult> AcceptOffer(Guid rentOrderId, Guid id)
     {
         // Проверка, что пользователь владеет заказом
@@ -125,7 +126,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <param name="id">Идентификатор отклика для отклонения.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpPost("{id}/reject")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.CommonOrAdmin)]
     public async Task<ActionResult> RejectOffer(Guid rentOrderId, Guid id)
     {
         // Проверка, что пользователь владеет заказом
@@ -160,7 +161,7 @@ public class OffersController(IRentOrderOfferService offerService, IRentOrderSer
     /// <param name="id">Идентификатор отклика для удаления.</param>
     /// <returns>NoContent при успехе.</returns>
     [HttpDelete("{id}")]
-    [Authorize]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     public async Task<ActionResult> DeleteOffer(Guid rentOrderId, Guid id)
     {
         // Проверка прав: партнер может удалить только свой отклик

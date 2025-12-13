@@ -1,26 +1,29 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Images;
 
 namespace WaterTransportService.Api.Controllers.Images;
 
 /// <summary>
-/// Контроллер для управления изображениями портов.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё РїРѕСЂС‚РѕРІ.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto> service, IWebHostEnvironment environment) : ControllerBase
 {
     private readonly IImageService<PortImageDto, CreatePortImageDto, UpdatePortImageDto> _service = service;
     private readonly IWebHostEnvironment _environment = environment;
 
     /// <summary>
-    /// Получить список всех изображений портов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕСЂС‚РѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список изображений портов с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список изображений.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕСЂС‚РѕРІ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёР№.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -30,12 +33,12 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Получить изображение порта по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор изображения.</param>
-    /// <returns>Данные изображения порта.</returns>
-    /// <response code="200">Изображение успешно найдено.</response>
-    /// <response code="404">Изображение не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕСЂС‚Р°.</returns>
+    /// <response code="200">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅРѕ.</response>
+    /// <response code="404">РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(PortImageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -46,12 +49,13 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Создать новое изображение порта.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="dto">Данные для создания изображения (форма multipart/form-data). Поиск порта осуществляется по названию.</param>
-    /// <returns>Созданное изображение порта.</returns>
-    /// <response code="201">Изображение успешно создано.</response>
-    /// <response code="400">Недопустимое название порта или файл изображения.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (С„РѕСЂРјР° multipart/form-data). РџРѕРёСЃРє РїРѕСЂС‚Р° РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РїРѕ РЅР°Р·РІР°РЅРёСЋ.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.</returns>
+    /// <response code="201">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅРѕ.</response>
+    /// <response code="400">РќРµРґРѕРїСѓСЃС‚РёРјРѕРµ РЅР°Р·РІР°РЅРёРµ РїРѕСЂС‚Р° РёР»Рё С„Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPost]
     [ProducesResponseType(typeof(PortImageDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,13 +66,14 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Обновить существующее изображение порта.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор изображения.</param>
-    /// <param name="dto">Данные для обновления (форма multipart/form-data).</param>
-    /// <returns>Обновленное изображение порта.</returns>
-    /// <response code="200">Изображение успешно обновлено.</response>
-    /// <response code="404">Изображение не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ (С„РѕСЂРјР° multipart/form-data).</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.</returns>
+    /// <response code="200">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅРѕ.</response>
+    /// <response code="404">РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(PortImageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -79,12 +84,13 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Удалить изображение порта.
+    /// РЈРґР°Р»РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор изображения.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Изображение успешно удалено.</response>
-    /// <response code="404">Изображение не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅРѕ.</response>
+    /// <response code="404">РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -95,12 +101,12 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Получить основное (primary) изображение порта по идентификатору порта (PortId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕСЂС‚Р° (PortId).
     /// </summary>
-    /// <param name="portId">Идентификатор порта.</param>
-    /// <returns>Файл основного изображения.</returns>
-    /// <response code="200">Файл изображения успешно найден и возвращен.</response>
-    /// <response code="404">Файл не найден.</response>
+    /// <param name="portId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>Р¤Р°Р№Р» РѕСЃРЅРѕРІРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</returns>
+    /// <response code="200">Р¤Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ Рё РІРѕР·РІСЂР°С‰РµРЅ.</response>
+    /// <response code="404">Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("file/{portId:guid}")]
     [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -128,11 +134,11 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Получить все изображения порта по идентификатору порта (PortId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕСЂС‚Р° (PortId).
     /// </summary>
-    /// <param name="portId">Идентификатор порта.</param>
-    /// <returns>Список данных всех изображений порта.</returns>
-    /// <response code="200">Список изображений успешно получен.</response>
+    /// <param name="portId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>РЎРїРёСЃРѕРє РґР°РЅРЅС‹С… РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕСЂС‚Р°.</returns>
+    /// <response code="200">РЎРїРёСЃРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёР№ СѓСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ.</response>
     [HttpGet("port/{portId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<PortImageDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PortImageDto>>> GetAllImages(Guid portId)
@@ -142,11 +148,11 @@ public class PortImagesController(IImageService<PortImageDto, CreatePortImageDto
     }
 
     /// <summary>
-    /// Получить все файлы изображений порта в base64 формате.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ С„Р°Р№Р»С‹ РёР·РѕР±СЂР°Р¶РµРЅРёР№ РїРѕСЂС‚Р° РІ base64 С„РѕСЂРјР°С‚Рµ.
     /// </summary>
-    /// <param name="portId">Идентификатор порта.</param>
-    /// <returns>Массив изображений с данными в base64.</returns>
-    /// <response code="200">Файлы изображений успешно получены.</response>
+    /// <param name="portId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>РњР°СЃСЃРёРІ РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃ РґР°РЅРЅС‹РјРё РІ base64.</returns>
+    /// <response code="200">Р¤Р°Р№Р»С‹ РёР·РѕР±СЂР°Р¶РµРЅРёР№ СѓСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅС‹.</response>
     [HttpGet("port/{portId:guid}/files")]
     [ProducesResponseType(typeof(object[]), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllImageFiles(Guid portId)
