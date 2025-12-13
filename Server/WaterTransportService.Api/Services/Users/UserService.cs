@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Exceptions;
+using WaterTransportService.Api.Middleware.Exceptions;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;

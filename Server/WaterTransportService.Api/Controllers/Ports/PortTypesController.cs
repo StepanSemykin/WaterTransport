@@ -1,25 +1,28 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Ports;
 
 namespace WaterTransportService.Api.Controllers.Ports;
 
 /// <summary>
-/// Контроллер для управления типами портов.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РёРїР°РјРё РїРѕСЂС‚РѕРІ.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class PortTypesController(IPortTypeService service) : ControllerBase
 {
     private readonly IPortTypeService _service = service;
 
     /// <summary>
-    /// Получить список всех типов портов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… С‚РёРїРѕРІ РїРѕСЂС‚РѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список типов портов с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список типов портов.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє С‚РёРїРѕРІ РїРѕСЂС‚РѕРІ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє С‚РёРїРѕРІ РїРѕСЂС‚РѕРІ.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -29,12 +32,12 @@ public class PortTypesController(IPortTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить тип порта по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ С‚РёРї РїРѕСЂС‚Р° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор типа порта.</param>
-    /// <returns>Данные типа порта.</returns>
-    /// <response code="200">Тип порта успешно найден.</response>
-    /// <response code="404">Тип порта не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° РїРѕСЂС‚Р°.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ С‚РёРїР° РїРѕСЂС‚Р°.</returns>
+    /// <response code="200">РўРёРї РїРѕСЂС‚Р° СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ.</response>
+    /// <response code="404">РўРёРї РїРѕСЂС‚Р° РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(PortTypeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,12 +48,13 @@ public class PortTypesController(IPortTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Создать новый тип порта.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ С‚РёРї РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="dto">Данные для создания типа порта.</param>
-    /// <returns>Созданный тип порта.</returns>
-    /// <response code="201">Тип порта успешно создан.</response>
-    /// <response code="400">Недопустимые данные.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ С‚РёРїР° РїРѕСЂС‚Р°.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ С‚РёРї РїРѕСЂС‚Р°.</returns>
+    /// <response code="201">РўРёРї РїРѕСЂС‚Р° СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ.</response>
+    /// <response code="400">РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ РґР°РЅРЅС‹Рµ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPost]
     [ProducesResponseType(typeof(PortTypeDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,13 +65,14 @@ public class PortTypesController(IPortTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Обновить существующий тип порта.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ С‚РёРї РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="id">Идентификатор типа порта.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный тип порта.</returns>
-    /// <response code="200">Тип порта успешно обновлен.</response>
-    /// <response code="404">Тип порта не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° РїРѕСЂС‚Р°.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ С‚РёРї РїРѕСЂС‚Р°.</returns>
+    /// <response code="200">РўРёРї РїРѕСЂС‚Р° СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅ.</response>
+    /// <response code="404">РўРёРї РїРѕСЂС‚Р° РЅРµ РЅР°Р№РґРµРЅ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(PortTypeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -78,12 +83,13 @@ public class PortTypesController(IPortTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Удалить тип порта.
+    /// РЈРґР°Р»РёС‚СЊ С‚РёРї РїРѕСЂС‚Р°.
     /// </summary>
-    /// <param name="id">Идентификатор типа порта.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Тип порта успешно удален.</response>
-    /// <response code="404">Тип порта не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° РїРѕСЂС‚Р°.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РўРёРї РїРѕСЂС‚Р° СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</response>
+    /// <response code="404">РўРёРї РїРѕСЂС‚Р° РЅРµ РЅР°Р№РґРµРЅ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

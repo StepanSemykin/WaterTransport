@@ -1,26 +1,29 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Images;
 
 namespace WaterTransportService.Api.Controllers.Images;
 
 /// <summary>
-/// Контроллер для управления изображениями судов.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё СЃСѓРґРѕРІ.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto> service, IWebHostEnvironment environment) : ControllerBase
 {
     private readonly IImageService<ShipImageDto, CreateShipImageDto, UpdateShipImageDto> _service = service;
     private readonly IWebHostEnvironment _environment = environment;
 
     /// <summary>
-    /// Получить список всех изображений судов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃСѓРґРѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список изображений судов с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список изображений.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃСѓРґРѕРІ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёР№.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -31,12 +34,12 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Получить изображение судна по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор изображения.</param>
-    /// <returns>Данные изображения судна.</returns>
-    /// <response code="200">Изображение успешно найдено.</response>
-    /// <response code="404">Изображение не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃСѓРґРЅР°.</returns>
+    /// <response code="200">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅРѕ.</response>
+    /// <response code="404">РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(ShipImageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -48,13 +51,14 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Создать новое изображение судна.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="dto">Данные для создания изображения (форма multipart/form-data).</param>
-    /// <returns>Созданное изображение судна.</returns>
-    /// <response code="201">Изображение успешно создано.</response>
-    /// <response code="400">Недопустимый ID судна или файл изображения.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ (С„РѕСЂРјР° multipart/form-data).</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.</returns>
+    /// <response code="201">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅРѕ.</response>
+    /// <response code="400">РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ ID СЃСѓРґРЅР° РёР»Рё С„Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</response>
     [HttpPost]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [ProducesResponseType(typeof(ShipImageDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ShipImageDto>> Create([FromForm] CreateShipImageDto dto)
@@ -65,14 +69,15 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Обновить существующее изображение судна.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РµРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор изображения.</param>
-    /// <param name="dto">Данные для обновления (форма multipart/form-data).</param>
-    /// <returns>Обновленное изображение судна.</returns>
-    /// <response code="200">Изображение успешно обновлено.</response>
-    /// <response code="404">Изображение не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ (С„РѕСЂРјР° multipart/form-data).</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.</returns>
+    /// <response code="200">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅРѕ.</response>
+    /// <response code="404">РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [ProducesResponseType(typeof(ShipImageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ShipImageDto>> Update(Guid id, [FromForm] UpdateShipImageDto dto)
@@ -82,13 +87,14 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Удалить изображение судна.
+    /// РЈРґР°Р»РёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор изображения.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Изображение успешно удалено.</response>
-    /// <response code="404">Изображение не найдено.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РР·РѕР±СЂР°Р¶РµРЅРёРµ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅРѕ.</response>
+    /// <response code="404">РР·РѕР±СЂР°Р¶РµРЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ.</response>
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = AppRoles.PartnerOrAdmin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id)
@@ -98,12 +104,12 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Получить основное (primary) изображение судна по идентификатору судна (ShipId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РѕСЃРЅРѕРІРЅРѕРµ (primary) РёР·РѕР±СЂР°Р¶РµРЅРёРµ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ СЃСѓРґРЅР° (ShipId).
     /// </summary>
-    /// <param name="shipId">Идентификатор судна.</param>
-    /// <returns>Файл основного изображения.</returns>
-    /// <response code="200">Файл изображения успешно найден и возвращен.</response>
-    /// <response code="404">Файл не найден.</response>
+    /// <param name="shipId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>Р¤Р°Р№Р» РѕСЃРЅРѕРІРЅРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.</returns>
+    /// <response code="200">Р¤Р°Р№Р» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ Рё РІРѕР·РІСЂР°С‰РµРЅ.</response>
+    /// <response code="404">Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("file/{shipId:guid}")]
     [ProducesResponseType(typeof(FileStreamResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,11 +137,11 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Получить все изображения судна по идентификатору судна (ShipId).
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃСѓРґРЅР° РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ СЃСѓРґРЅР° (ShipId).
     /// </summary>
-    /// <param name="shipId">Идентификатор судна.</param>
-    /// <returns>Список данных всех изображений судна.</returns>
-    /// <response code="200">Список изображений успешно получен.</response>
+    /// <param name="shipId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>РЎРїРёСЃРѕРє РґР°РЅРЅС‹С… РІСЃРµС… РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃСѓРґРЅР°.</returns>
+    /// <response code="200">РЎРїРёСЃРѕРє РёР·РѕР±СЂР°Р¶РµРЅРёР№ СѓСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ.</response>
     [HttpGet("ship/{shipId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyList<ShipImageDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<ShipImageDto>>> GetAllImages(Guid shipId)
@@ -145,11 +151,11 @@ public class ShipImagesController(IImageService<ShipImageDto, CreateShipImageDto
     }
 
     /// <summary>
-    /// Получить все файлы изображений судна в base64 формате.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ С„Р°Р№Р»С‹ РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃСѓРґРЅР° РІ base64 С„РѕСЂРјР°С‚Рµ.
     /// </summary>
-    /// <param name="shipId">Идентификатор судна.</param>
-    /// <returns>Массив изображений с данными в base64.</returns>
-    /// <response code="200">Файлы изображений успешно получены.</response>
+    /// <param name="shipId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃСѓРґРЅР°.</param>
+    /// <returns>РњР°СЃСЃРёРІ РёР·РѕР±СЂР°Р¶РµРЅРёР№ СЃ РґР°РЅРЅС‹РјРё РІ base64.</returns>
+    /// <response code="200">Р¤Р°Р№Р»С‹ РёР·РѕР±СЂР°Р¶РµРЅРёР№ СѓСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅС‹.</response>
     [HttpGet("ship/{shipId:guid}/files")]
     [ProducesResponseType(typeof(object[]), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllImageFiles(Guid shipId)

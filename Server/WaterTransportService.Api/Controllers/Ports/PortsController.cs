@@ -1,25 +1,28 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Ports;
 
 namespace WaterTransportService.Api.Controllers.Ports;
 
 /// <summary>
-/// Контроллер для управления портами.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РїРѕСЂС‚Р°РјРё.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class PortsController(IPortService service) : ControllerBase
 {
     private readonly IPortService _service = service;
 
     /// <summary>
-    /// Получить список всех портов с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РїРѕСЂС‚РѕРІ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список портов с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список портов.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє РїРѕСЂС‚РѕРІ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє РїРѕСЂС‚РѕРІ.</response>
     [HttpGet("all")]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -30,12 +33,12 @@ public class PortsController(IPortService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить порт по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ РїРѕСЂС‚ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор порта.</param>
-    /// <returns>Данные порта.</returns>
-    /// <response code="200">Порт успешно найден.</response>
-    /// <response code="404">Порт не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ РїРѕСЂС‚Р°.</returns>
+    /// <response code="200">РџРѕСЂС‚ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ.</response>
+    /// <response code="404">РџРѕСЂС‚ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(PortDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,12 +50,13 @@ public class PortsController(IPortService service) : ControllerBase
     }
 
     /// <summary>
-    /// Создать новый порт.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ РїРѕСЂС‚.
     /// </summary>
-    /// <param name="dto">Данные для создания порта.</param>
-    /// <returns>Созданный порт.</returns>
-    /// <response code="201">Порт успешно создан.</response>
-    /// <response code="400">Недопустимые данные.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РїРѕСЂС‚Р°.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ РїРѕСЂС‚.</returns>
+    /// <response code="201">РџРѕСЂС‚ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ.</response>
+    /// <response code="400">РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ РґР°РЅРЅС‹Рµ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPost]
     [ProducesResponseType(typeof(PortDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -64,13 +68,14 @@ public class PortsController(IPortService service) : ControllerBase
     }
 
     /// <summary>
-    /// Обновить существующий порт.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ РїРѕСЂС‚.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор порта.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный порт.</returns>
-    /// <response code="200">Порт успешно обновлен.</response>
-    /// <response code="404">Порт не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ РїРѕСЂС‚.</returns>
+    /// <response code="200">РџРѕСЂС‚ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅ.</response>
+    /// <response code="404">РџРѕСЂС‚ РЅРµ РЅР°Р№РґРµРЅ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(PortDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -81,12 +86,13 @@ public class PortsController(IPortService service) : ControllerBase
     }
 
     /// <summary>
-    /// Удалить порт.
+    /// РЈРґР°Р»РёС‚СЊ РїРѕСЂС‚.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор порта.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Порт успешно удален.</response>
-    /// <response code="404">Порт не найден.</response>
+    /// <param name="id">РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕСЂС‚Р°.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РџРѕСЂС‚ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</response>
+    /// <response code="404">РџРѕСЂС‚ РЅРµ РЅР°Р№РґРµРЅ.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

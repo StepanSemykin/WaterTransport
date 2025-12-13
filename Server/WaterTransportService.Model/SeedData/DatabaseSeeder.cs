@@ -10,6 +10,56 @@ namespace WaterTransportService.Model.SeedData;
 public static class DatabaseSeeder
 {
     /// <summary>
+    /// Создаёт администратора системы, если он ещё не существует.
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    /// <param name="passwordHash">Хеш пароля администратора.</param>
+    /// <param name="phone">Номер телефона администратора.</param>
+    public static async Task SeedAdminAsync(WaterTransportDbContext context, string passwordHash, string phone)
+    {
+        // Проверяем, есть ли уже администратор
+        if (await context.Users.AnyAsync(u => u.Role == "admin"))
+        {
+            Console.WriteLine("Администратор уже существует.");
+            return;
+        }
+
+        var adminUser = new User
+        {
+            Id = Guid.NewGuid(),
+            Phone = phone,
+            Role = "admin",
+            IsActive = true,
+            Hash = passwordHash,
+            CreatedAt = DateTime.UtcNow,
+            FailedLoginAttempts = 0
+        };
+
+        await context.Users.AddAsync(adminUser);
+        await context.SaveChangesAsync();
+
+        var adminProfile = new UserProfile
+        {
+            UserId = adminUser.Id,
+            FirstName = "Администратор",
+            LastName = "Системы",
+            Patronymic = null,
+            Email = null,
+            Birthday = null,
+            About = "Администратор сервиса водного транспорта",
+            Location = null,
+            IsPublic = false,
+            Nickname = "admin",
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        await context.UserProfiles.AddAsync(adminProfile);
+        await context.SaveChangesAsync();
+
+        Console.WriteLine($"Администратор успешно создан. Телефон: {phone}");
+    }
+
+    /// <summary>
     /// Добавляет тестовые данные в базу данных.
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>

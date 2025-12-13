@@ -1,25 +1,28 @@
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Ships;
 
 namespace WaterTransportService.Api.Controllers.Ships;
 
 /// <summary>
-/// Контроллер для управления типами кораблей.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ С‚РёРїР°РјРё СЃСѓРґРѕРІ.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class ShipTypesController(IShipTypeService service) : ControllerBase
 {
     private readonly IShipTypeService _service = service;
 
     /// <summary>
-    /// Получить список всех типов кораблей с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… С‚РёРїРѕРІ РєРѕСЂР°Р±Р»РµР№ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (по умолчанию 1).</param>
-    /// <param name="pageSize">Количество элементов на странице (по умолчанию 20, максимум 100).</param>
-    /// <returns>Список типов кораблей с информацией о пагинации.</returns>
-    /// <response code="200">Успешно получен список типов кораблей.</response>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 1).</param>
+    /// <param name="pageSize">РљРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЃС‚СЂР°РЅРёС†Рµ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 20, РјР°РєСЃРёРјСѓРј 100).</param>
+    /// <returns>РЎРїРёСЃРѕРє С‚РёРїРѕРІ РєРѕСЂР°Р±Р»РµР№ СЃ РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ РїР°РіРёРЅР°С†РёРё.</returns>
+    /// <response code="200">РЈСЃРїРµС€РЅРѕ РїРѕР»СѓС‡РµРЅ СЃРїРёСЃРѕРє С‚РёРїРѕРІ РєРѕСЂР°Р±Р»РµР№.</response>
     [HttpGet]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -29,12 +32,12 @@ public class ShipTypesController(IShipTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Получить тип корабля по идентификатору.
+    /// РџРѕР»СѓС‡РёС‚СЊ С‚РёРї РєРѕСЂР°Р±Р»СЏ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ.
     /// </summary>
-    /// <param name="id">Идентификатор типа корабля.</param>
-    /// <returns>Данные типа корабля.</returns>
-    /// <response code="200">Тип корабля успешно найден.</response>
-    /// <response code="404">Тип корабля не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° РєРѕСЂР°Р±Р»СЏ.</param>
+    /// <returns>Р”Р°РЅРЅС‹Рµ С‚РёРїР° РєРѕСЂР°Р±Р»СЏ.</returns>
+    /// <response code="200">РўРёРї РєРѕСЂР°Р±Р»СЏ СѓСЃРїРµС€РЅРѕ РЅР°Р№РґРµРЅ.</response>
+    /// <response code="404">РўРёРї РєРѕСЂР°Р±Р»СЏ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ShipTypeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,13 +48,14 @@ public class ShipTypesController(IShipTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Создать новый тип корабля.
+    /// РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ С‚РёРї СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="dto">Данные для создания типа корабля.</param>
-    /// <returns>Созданный тип корабля.</returns>
-    /// <response code="201">Тип корабля успешно создан.</response>
-    /// <response code="400">Недопустимые данные.</response>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ С‚РёРїР° РєРѕСЂР°Р±Р»СЏ.</param>
+    /// <returns>РЎРѕР·РґР°РЅРЅС‹Р№ С‚РёРї РєРѕСЂР°Р±Р»СЏ.</returns>
+    /// <response code="201">РўРёРї РєРѕСЂР°Р±Р»СЏ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ.</response>
+    /// <response code="400">РќРµРґРѕРїСѓСЃС‚РёРјС‹Рµ РґР°РЅРЅС‹Рµ.</response>
     [HttpPost]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(ShipTypeDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ShipTypeDto>> Create([FromBody] CreateShipTypeDto dto)
@@ -61,14 +65,15 @@ public class ShipTypesController(IShipTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Обновить существующий тип корабля.
+    /// РћР±РЅРѕРІРёС‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ С‚РёРї СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="id">Идентификатор типа корабля.</param>
-    /// <param name="dto">Данные для обновления.</param>
-    /// <returns>Обновленный тип корабля.</returns>
-    /// <response code="200">Тип корабля успешно обновлен.</response>
-    /// <response code="404">Тип корабля не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° РєРѕСЂР°Р±Р»СЏ.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ С‚РёРї РєРѕСЂР°Р±Р»СЏ.</returns>
+    /// <response code="200">РўРёРї РєРѕСЂР°Р±Р»СЏ СѓСЃРїРµС€РЅРѕ РѕР±РЅРѕРІР»РµРЅ.</response>
+    /// <response code="404">РўРёРї РєРѕСЂР°Р±Р»СЏ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpPut("{id}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(ShipTypeDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ShipTypeDto>> Update(ushort id, [FromBody] UpdateShipTypeDto dto)
@@ -78,13 +83,14 @@ public class ShipTypesController(IShipTypeService service) : ControllerBase
     }
 
     /// <summary>
-    /// Удалить тип корабля.
+    /// РЈРґР°Р»РёС‚СЊ С‚РёРї СЃСѓРґРЅР°.
     /// </summary>
-    /// <param name="id">Идентификатор типа корабля.</param>
-    /// <returns>Результат удаления.</returns>
-    /// <response code="204">Тип корабля успешно удален.</response>
-    /// <response code="404">Тип корабля не найден.</response>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚РёРїР° РєРѕСЂР°Р±Р»СЏ.</param>
+    /// <returns>Р РµР·СѓР»СЊС‚Р°С‚ СѓРґР°Р»РµРЅРёСЏ.</returns>
+    /// <response code="204">РўРёРї РєРѕСЂР°Р±Р»СЏ СѓСЃРїРµС€РЅРѕ СѓРґР°Р»РµРЅ.</response>
+    /// <response code="404">РўРёРї РєРѕСЂР°Р±Р»СЏ РЅРµ РЅР°Р№РґРµРЅ.</response>
     [HttpDelete("{id}")]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(ushort id)

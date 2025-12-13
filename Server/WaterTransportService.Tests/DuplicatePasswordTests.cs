@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Moq;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Exceptions;
+using WaterTransportService.Api.Middleware.Exceptions;
 using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.Services;
 using WaterTransportService.Infrastructure.PasswordHasher;

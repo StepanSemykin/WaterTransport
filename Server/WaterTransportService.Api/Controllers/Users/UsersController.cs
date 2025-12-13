@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
-using WaterTransportService.Api.Exceptions;
+using WaterTransportService.Api.Middleware.Exceptions;
 using WaterTransportService.Api.Services.Users;
 using WaterTransportService.Authentication.DTO;
 using WaterTransportService.Authentication.Services;
@@ -15,6 +16,7 @@ namespace WaterTransportService.Api.Controllers.Users;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.AnyAuthenticated)]
 public class UsersController(IUserService userService, IAuthService authService) : ControllerBase
 {
     /// <summary>
@@ -25,6 +27,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Список пользователей с информацией о пагинации.</returns>
     /// <response code="200">Успешно получен список пользователей.</response>
     [HttpGet]
+    [Authorize(Roles = AppRoles.Admin)]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     public async Task<ActionResult<object>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
@@ -39,7 +42,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Данные пользователя.</returns>
     /// <response code="200">Пользователь успешно найден.</response>
     /// <response code="404">Пользователь не найден.</response>
-    [Authorize(Roles = "common")]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -56,7 +59,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Созданный пользователь.</returns>
     /// <response code="201">Пользователь успешно создан.</response>
     /// <response code="400">Некорректные данные.</response>
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpPost]
     [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -75,6 +78,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <response code="200">Пользователь успешно обновлен.</response>
     /// <response code="400">Некорректные данные (например, повторяющийся пароль).</response>
     /// <response code="404">Пользователь не найден.</response>
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [HttpPut("{id:guid}")]
     [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -103,6 +107,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Результат операции.</returns>
     /// <response code="204">Пользователь успешно удален.</response>
     /// <response code="404">Пользователь не найден.</response>
+    [Authorize(Roles = AppRoles.Admin)]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -119,6 +124,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Токены доступа и информация.</returns>
     /// <response code="200">Регистрация успешна.</response>
     /// <response code="400">Пользователь уже существует или неверные данные.</response>
+    [AllowAnonymous]
     [HttpPost("register")]
     [ProducesResponseType(typeof(RegisterResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -168,6 +174,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <response code="404">Пользователь не найден.</response>
     /// <response code="423">Пользователь временно заблокирован.</response>
     /// <response code="500">Ошибка сервера.</response>
+    [AllowAnonymous]
     [HttpPost("login")]
     [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -255,7 +262,6 @@ public class UsersController(IUserService userService, IAuthService authService)
         }
     }
 
-    // POST api/users/refresh?userId={userId} (опционально, если access токен истек)
     /// <summary>
     /// Обновление пары токенов по refresh токену.
     /// </summary>
@@ -263,7 +269,8 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Новая пара токенов.</returns>
     /// <response code="200">Токены успешно обновлены.</response>
     /// <response code="401">Refresh токен недействителен, истекший или ложный.</response>
-    [HttpPost("refresh")]
+        [AllowAnonymous]
+[HttpPost("refresh")]
     [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
@@ -317,6 +324,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <summary>
     /// Получить профиль текущего пользователя.
     /// </summary>
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [HttpGet("me")]
     [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -338,7 +346,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// </summary>
     /// <returns>Результат операции.</returns>
     /// <response code="200">Выход выполнен успешно.</response>
-    [Authorize]
+    [AllowAnonymous]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Logout()
@@ -356,7 +364,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         return Ok(new { message = "Logged out successfully" });
     }
 
-    [Authorize]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [HttpPost("change-password/{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -395,7 +403,7 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <response code="401">Пользователь не авторизован.</response>
     /// <response code="404">Пользователь не найден.</response>
     /// <response code="500">Ошибка сервера.</response>
-    [Authorize(Roles = "common")]
+    [Authorize(Roles = AppRoles.Common)]
     [HttpPost("become-partner")]
     [ProducesResponseType(typeof(AuthUserDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

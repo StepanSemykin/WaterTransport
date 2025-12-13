@@ -1,39 +1,58 @@
-using Microsoft.AspNetCore.Authorization;
+п»їusing Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using WaterTransportService.Authentication.Authorization;
 using WaterTransportService.Api.DTO;
 using WaterTransportService.Api.Services.Orders;
 
 namespace WaterTransportService.Api.Controllers.Rent;
 
 /// <summary>
-/// Контроллер для партнёров - управление откликами на заказы аренды.
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ РґР»СЏ РїР°СЂС‚РЅРµСЂР° - СѓРїСЂР°РІР»РµРЅРёРµ РѕС‚РєР»РёРєР°РјРё РЅР° СЃРІРѕРё Р·Р°РєР°Р·С‹.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = AppRoles.PartnerOrAdmin)]
 public class OffersPartnerController(IRentOrderOfferService offerService) : ControllerBase
 {
     private readonly IRentOrderOfferService _offerService = offerService;
 
     /// <summary>
-    /// Получить все отклики конкретного партнера.
+    /// РџРѕР»СѓС‡РёС‚СЊ РІСЃРµ РѕС‚РєР»РёРєРё РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ РїР°СЂС‚РЅРµСЂР°.
     /// </summary>
-    /// <param name="partnerId">Идентификатор партнера.</param>
-    /// <returns>Список откликов партнера.</returns>
+    /// <param name="partnerId">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїР°СЂС‚РЅРµСЂР° (РѕР±СЏР·Р°С‚РµР»РµРЅ С‚РѕР»СЊРєРѕ РґР»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°).</param>
+    /// <returns>РЎРїРёСЃРѕРє РѕС‚РєР»РёРєРѕРІ РїР°СЂС‚РЅРµСЂР°.</returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetPartnerOffers(Guid partnerId)
+    public async Task<ActionResult<IEnumerable<RentOrderOfferDto>>> GetPartnerOffers([FromQuery] Guid? partnerId = null)
     {
-        var offers = await _offerService.GetOffersByPartnerIdAsync(partnerId);
+        Guid effectivePartnerId;
+        if (User.IsInRole(AppRoles.Admin))
+        {
+            if (!partnerId.HasValue)
+            {
+                return BadRequest("partnerId query parameter is required for admin requests.");
+            }
+            effectivePartnerId = partnerId.Value;
+        }
+        else
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier) ?? User.FindFirst("userId");
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out effectivePartnerId))
+            {
+                return Unauthorized(new { message = "User ID not found or invalid token" });
+            }
+        }
+
+        var offers = await _offerService.GetOffersByPartnerIdAsync(effectivePartnerId);
         return Ok(offers);
     }
 
     /// <summary>
-    /// Получить заказы партнера по кокретному статусу отклика.
+    /// РџРѕР»СѓС‡РёС‚СЊ Р·Р°РєР°Р·С‹ РїР°СЂС‚РЅРµСЂР° РїРѕ СЃС‚Р°С‚СѓСЃСѓ РѕС‚РєР»РёРєРѕРІ.
     /// </summary>
-    /// <param name="status">Статус отклика.</param>
-    /// <returns>Список заказов, связанных с партнером.</returns>
+    /// <param name="status">РЎС‚Р°С‚СѓСЃ Р·Р°РєР°Р·Р°.</param>
+    /// <returns>РЎРїРёСЃРѕРє Р·Р°РєР°Р·РѕРІ, СЃРІСЏР·Р°РЅРЅС‹С… СЃ РїР°СЂС‚РЅРµСЂРѕРј.</returns>
     [HttpGet("offers/status={status}")]
-    [Authorize]
     [ProducesResponseType(typeof(IEnumerable<RentOrderDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IEnumerable<RentOrderDto>>> GetPartnerOrdersByStatus(string status)

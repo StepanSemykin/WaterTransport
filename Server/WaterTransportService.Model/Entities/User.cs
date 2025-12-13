@@ -69,11 +69,6 @@ public class User : BaseEntity
     /// <summary>
     /// Бронирования, созданные пользователем.
     /// </summary>
-    public ICollection<RegularOrder> RegularOrders { get; set; } = new List<RegularOrder>();
-
-    /// <summary>
-    /// Бронирования, созданные пользователем.
-    /// </summary>
     public ICollection<RentOrder> RentOrders { get; set; } = new List<RentOrder>();
 
     /// <summary>
@@ -90,11 +85,6 @@ public class User : BaseEntity
     /// Судна, принадлежащие пользователю.
     /// </summary>
     public ICollection<Ship> Ships { get; set; } = new List<Ship>();
-
-    /// <summary>
-    /// Календарные записи на регулярные рейсы, связанные с пользователем.
-    /// </summary>
-    public ICollection<RegularCalendar> RegularCalendars { get; set; } = new List<RegularCalendar>();
 
     /// <summary>
     /// Время создания аккаунта в UTC.

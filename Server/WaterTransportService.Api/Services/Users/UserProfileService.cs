@@ -1,12 +1,13 @@
-using AutoMapper;
+п»їusing AutoMapper;
 using WaterTransportService.Api.DTO;
+using WaterTransportService.Api.Middleware.Exceptions;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 
 namespace WaterTransportService.Api.Services.Users;
 
 /// <summary>
-/// Сервис для работы с профилями пользователей.
+/// РЎРµСЂРІРёСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РїСЂРѕС„РёР»СЏРјРё РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№.
 /// </summary>
 public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapper mapper) : IUserProfileService
 {
@@ -14,11 +15,11 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
     private readonly IMapper _mapper = mapper;
 
     /// <summary>
-    /// Получить список всех профилей с пагинацией.
+    /// РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РІСЃРµС… РїСЂРѕС„РёР»РµР№ СЃ РїР°РіРёРЅР°С†РёРµР№.
     /// </summary>
-    /// <param name="page">Номер страницы (минимум 1).</param>
-    /// <param name="pageSize">Размер страницы (1-100).</param>
-    /// <returns>Кортеж со списком профилей и общим количеством.</returns>
+    /// <param name="page">РќРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (РјРёРЅРёРјСѓРј 1).</param>
+    /// <param name="pageSize">Р Р°Р·РјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (1-100).</param>
+    /// <returns>РљРѕСЂС‚РµР¶ СЃРѕ СЃРїРёСЃРєРѕРј РїСЂРѕС„РёР»РµР№ Рё РѕР±С‰РёРј РєРѕР»РёС‡РµСЃС‚РІРѕРј.</returns>
     public async Task<(IReadOnlyList<UserProfileDto> Items, int Total)> GetAllAsync(int page, int pageSize)
     {
         page = page <= 0 ? 1 : page;
@@ -35,10 +36,10 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
     }
 
     /// <summary>
-    /// Получить профиль по идентификатору пользователя.
+    /// РџРѕР»СѓС‡РёС‚СЊ РїСЂРѕС„РёР»СЊ РїРѕ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Идентификатор профиля пользователя.</param>
-    /// <returns>DTO профиля или null, если не найден.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС„РёР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <returns>DTO РїСЂРѕС„РёР»СЏ РёР»Рё null, РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ.</returns>
     public async Task<UserProfileDto?> GetByIdAsync(Guid id)
     {
         var userProfile = await _repo.GetByIdAsync(id);
@@ -48,35 +49,68 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
     }
 
     /// <summary>
-    /// Создать профиль пользователя.
+    /// РЎРѕР·РґР°С‚СЊ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="dto">Данные для создания профиля.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РїСЂРѕС„РёР»СЏ.</param>
     /// <remarks>
-    /// Метод не используется, так как профиль создается вместе с пользователем.
+    /// РњРµС‚РѕРґ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, С‚Р°Рє РєР°Рє РїСЂРѕС„РёР»СЊ СЃРѕР·РґР°РµС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј.
     /// </remarks>
-    /// <returns>Всегда null.</returns>
+    /// <returns>Р’СЃРµРіРґР° null.</returns>
     public async Task<UserProfileDto?> CreateAsync(CreateUserProfileDto dto)
     {
-        // метод не нужен, т.к. профиль создается вместе с пользователем
+        // РјРµС‚РѕРґ РЅРµ РЅСѓР¶РµРЅ, С‚.Рє. РїСЂРѕС„РёР»СЊ СЃРѕР·РґР°РµС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
         await Task.CompletedTask;
         return null;
     }
 
     /// <summary>
-    /// Обновить профиль пользователя.
+    /// РћР±РЅРѕРІРёС‚СЊ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <param name="dto">Данные для обновления профиля.</param>
-    /// <returns>Обновленный профиль или null, если профиль не найден.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <param name="dto">Р”Р°РЅРЅС‹Рµ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РїСЂРѕС„РёР»СЏ.</param>
+    /// <returns>РћР±РЅРѕРІР»РµРЅРЅС‹Р№ РїСЂРѕС„РёР»СЊ РёР»Рё null, РµСЃР»Рё РїСЂРѕС„РёР»СЊ РЅРµ РЅР°Р№РґРµРЅ.</returns>
     public async Task<UserProfileDto?> UpdateAsync(Guid id, UpdateUserProfileDto dto)
     {
         var userProfile = await _repo.GetByIdAsync(id);
         if (userProfile is null) return null;
-        if (!string.IsNullOrWhiteSpace(dto.Nickname)) userProfile.Nickname = dto.Nickname;
+
+        var needsUniqueCheck = !string.IsNullOrWhiteSpace(dto.Nickname) || !string.IsNullOrWhiteSpace(dto.Email);
+        var otherProfiles = needsUniqueCheck
+            ? (await _repo.GetAllAsync()).Where(p => p.UserId != id).ToList()
+            : new List<UserProfile>();
+
+        if (!string.IsNullOrWhiteSpace(dto.Nickname))
+        {
+            var normalizedNickname = dto.Nickname.Trim();
+            var nicknameExists = otherProfiles.Any(p =>
+                !string.IsNullOrWhiteSpace(p.Nickname) &&
+                string.Equals(p.Nickname, normalizedNickname, StringComparison.OrdinalIgnoreCase));
+            if (nicknameExists)
+            {
+                throw new DuplicateFieldValueException("nickname", normalizedNickname);
+            }
+
+            userProfile.Nickname = normalizedNickname;
+        }
+
         if (!string.IsNullOrWhiteSpace(dto.FirstName)) userProfile.FirstName = dto.FirstName;
         if (!string.IsNullOrWhiteSpace(dto.LastName)) userProfile.LastName = dto.LastName;
         if (!string.IsNullOrWhiteSpace(dto.Patronymic)) userProfile.Patronymic = dto.Patronymic;
-        if (!string.IsNullOrWhiteSpace(dto.Email)) userProfile.Email = dto.Email;
+
+        if (!string.IsNullOrWhiteSpace(dto.Email))
+        {
+            var normalizedEmail = dto.Email.Trim();
+            var emailExists = otherProfiles.Any(p =>
+                !string.IsNullOrWhiteSpace(p.Email) &&
+                string.Equals(p.Email, normalizedEmail, StringComparison.OrdinalIgnoreCase));
+            if (emailExists)
+            {
+                throw new DuplicateFieldValueException("email", normalizedEmail);
+            }
+
+            userProfile.Email = normalizedEmail;
+        }
+
         if (dto.Birthday.HasValue) userProfile.Birthday = dto.Birthday.Value;
         if (!string.IsNullOrWhiteSpace(dto.About)) userProfile.About = dto.About;
         if (!string.IsNullOrWhiteSpace(dto.Location)) userProfile.Location = dto.Location;
@@ -90,9 +124,9 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
     }
 
     /// <summary>
-    /// Удалить профиль пользователя.
+    /// РЈРґР°Р»РёС‚СЊ РїСЂРѕС„РёР»СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.
     /// </summary>
-    /// <param name="id">Идентификатор пользователя.</param>
-    /// <returns>True, если удаление прошло успешно.</returns>
+    /// <param name="id">РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ.</param>
+    /// <returns>True, РµСЃР»Рё СѓРґР°Р»РµРЅРёРµ РїСЂРѕС€Р»Рѕ СѓСЃРїРµС€РЅРѕ.</returns>
     public Task<bool> DeleteAsync(Guid id) => _repo.DeleteAsync(id);
 }

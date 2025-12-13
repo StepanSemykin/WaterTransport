@@ -147,4 +147,9 @@ public class RentOrder
     /// Коллекция отзывов, связанных с этим заказом.
     /// </summary>
     public ICollection<Review> Reviews { get; set; } = [];
+
+    /// <summary>
+    /// Запись календаря аренды, соответствующая заказу.
+    /// </summary>
+    public ShipRentalCalendar? ShipRentalCalendarEntry { get; set; }
 }
