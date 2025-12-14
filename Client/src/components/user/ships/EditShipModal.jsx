@@ -8,6 +8,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { apiFetch, apiFetchRaw } from "../../../api/api.js";
 import { ConfirmDeleteModal } from "./ConfirmDeleteModal.jsx";
 import ShipReviews from "./ShipReviews.jsx";
+import ErrorModal from "../../error/ErrorModal.jsx";
 
 import styles from "./EditShipModal.module.css";
 
@@ -17,6 +18,8 @@ const SHIP_IMAGES_ENDPOINT = "/api/shipimages";
 
 export function EditShipModal({ isOpen, onClose, ship, onSave }) {
   const { ports = [], portsLoading, shipTypes = [], shipTypesLoading, user } = useAuth();
+
+  const [errorModal, setErrorModal] = useState(null);
   const [activeTab, setActiveTab] = useState("edit");
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -93,7 +96,6 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
       const port = availablePorts.find(p => p.id === ship.portId);
       const portTitle = port.title;
 
-      console.log("Инициализация пристани:", portTitle);
       setPortSearch(portTitle);
 
       if (ship.id) {
@@ -197,14 +199,6 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     if (file) handleFile(file);
   };
 
-  // const handleRemoveImage = () => {
-  //   if (previewUrl && formData.imageFile) {
-  //     URL.revokeObjectURL(previewUrl);
-  //   }
-  //   setPreviewUrl(ship?.primaryImage?.url || ship?.images?.[0]?.url || null);
-  //   setFormData(prev => ({ ...prev, imageFile: null }));
-  // };
-
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -213,9 +207,12 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        console.error("Failed to delete ship:", text);
-        alert(`Ошибка при удалении судна: ${text || res.status}`);
+        const txt = await res.text();
+        let errMsg = txt;
+        errMsg = JSON.parse(txt)?.detail || errMsg;
+        setErrorModal({
+          message: errMsg
+        });
         return;
       }
 
@@ -224,8 +221,9 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
       onClose();
     } 
     catch (err) {
-      console.error("Error while deleting ship:", err);
-      alert("Произошла сетевая ошибка при удалении судна");
+      setErrorModal({
+        message: "Произошла сетевая ошибка при удалении судна"
+      });
     } 
     finally {
       setIsDeleting(false);
@@ -236,13 +234,17 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
     e.preventDefault();
 
     if (!formData.portId) {
-      alert("Не выбрана пристань");
+      setErrorModal({
+        message: "Не выбрана пристань"
+      });
       return;
     }
 
     const selectedPort = availablePorts.find(p => p.id === formData.portId);
     if (!selectedPort) {
-      alert("Пристань не найдена");
+      setErrorModal({
+        message: "Пристань не найдена"
+      });s
       return;
     }
 
@@ -270,9 +272,12 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
       });
 
       if (!shipRes.ok) {
-        const text = await shipRes.text();
-        console.error("Failed to update ship:", text);
-        alert(`Ошибка при обновлении судна: ${text || shipRes.status}`);
+        const txt = await shipRes.text();
+        let errMsg = txt;
+        errMsg = JSON.parse(txt)?.detail || errMsg;
+        setErrorModal({
+          message: errMsg
+        });
         return;
       }
 
@@ -290,18 +295,18 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
         });
 
         if (!imgRes.ok) {
-          const txt = await imgRes.text();
-          console.error("Failed to upload ship image:", txt);
-          alert(`Судно обновлено, но не удалось загрузить новое фото: ${txt || imgRes.status}`);
+          setErrorModal({
+            message: "Судно обновлено, но не удалось загрузить новое фото"
+          });
         }
       }
-
       onSave && onSave(updatedShip); 
       onClose();
     } 
     catch (err) {
-      console.error("Error while updating ship:", err);
-      alert("Произошла сетевая ошибка при обновлении судна");
+      setErrorModal({
+        message: "Произошла сетевая ошибка при обновлении судна"
+      });
     }
   };
 
@@ -316,7 +321,12 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
 
   return (
     <div className={styles["modal-overlay"]}>
-      <div className={styles["modal-container"]} onClick={onClose}>
+      <div 
+        className={styles["modal-container"]} 
+        onClick={() => {
+          if (!errorModal) onClose && onClose();
+        }}
+      >
         <div className={styles["modal-content"]} onClick={(e) => e.stopPropagation()}>
           <div className={styles["modal-header"]}>
             <h2 className={styles["modal-title"]}>{ship.name || "Редактирование судна"}</h2>
@@ -417,7 +427,6 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
 
                       <div
                         className={`${styles["dropzone"]} ${isDragging ? styles["dropzone-active"] : ""}`}
-                        // onClick={() => inputRef.current?.click()}
                         onClick={() => {
                           if (!previewUrl) {
                             inputRef.current?.click();
@@ -659,7 +668,9 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
               <div className={styles["group"]}>
                 <Button
                   variant="secondary"
-                  onClick={onClose}
+                  onClick={() => {
+                    if (!errorModal) onClose && onClose();
+                  }}
                   disabled={isDeleting}
                 >
                   Отмена
@@ -676,7 +687,14 @@ export function EditShipModal({ isOpen, onClose, ship, onSave }) {
         onConfirm={handleDelete}
         shipName={ship?.name || ""}
         isDeleting={isDeleting}
-      />        
+      />    
+
+      <ErrorModal
+        show={Boolean(errorModal)}
+        onClose={() => setErrorModal(null)}
+        title="Ошибка при добавлении судна"
+        message={errorModal?.message}
+      />    
 
     </div>
   );

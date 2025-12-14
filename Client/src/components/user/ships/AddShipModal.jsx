@@ -6,6 +6,8 @@ import { X, MapPin } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext.jsx";
 import { apiFetch, apiFetchRaw } from "../../../api/api.js";
 
+import ErrorModal from "../../error/ErrorModal.jsx";
+
 import styles from "./AddShipModal.module.css";
 
 const initialFormData = {
@@ -29,6 +31,7 @@ const SHIP_IMAGES_ENDPOINT = "/api/shipimages";
 export function AddShipModal({ isOpen, onClose, onSave }) {
   const { ports = [], portsLoading, shipTypes = [], shipTypesLoading, user } = useAuth();
 
+  const [errorModal, setErrorModal] = useState(null);
   const [formData, setFormData] = useState(initialFormData);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -148,23 +151,21 @@ export function AddShipModal({ isOpen, onClose, onSave }) {
     setFormData(prev => ({ ...prev, imageFile: null }));
   };
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   onSave(formData);
-  //   onClose();
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.portId) {
-      alert("Не выбрана пристань");
+      setErrorModal({
+        message: "Не выбрана пристань"
+      });
       return;
     }
 
     const selectedPort = availablePorts.find(p => p.id === formData.portId);
     if (!selectedPort) {
-      alert("Пристань не найдена");
+      setErrorModal({
+        message: "Пристань не найдена"
+      });
       return;
     }
 
@@ -192,9 +193,12 @@ export function AddShipModal({ isOpen, onClose, onSave }) {
       });
 
       if (!shipRes.ok) {
-        const text = await shipRes.text();
-        console.error("Failed to create ship:", text);
-        alert(`Ошибка при создании судна: ${text || shipRes.status}`);
+        const txt = await shipRes.text();
+        let errMsg = txt;
+        errMsg = JSON.parse(txt)?.detail || errMsg;
+        setErrorModal({
+          message: errMsg
+        });
         return;
       }
 
@@ -213,25 +217,30 @@ export function AddShipModal({ isOpen, onClose, onSave }) {
         });
 
         if (!imgRes.ok) {
-          const txt = await imgRes.text();
-          console.error("Failed to upload ship image:", txt);
-          alert(`Судно создано, но не удалось загрузить фото: ${txt || imgRes.status}`);
+          setErrorModal({
+            message: "Судно создано, но не удалось загрузить фото"
+          });
         }
       }
-
       onSave && onSave(createdShip);
       onClose();
     } 
     catch (err) {
-      console.error("Error while creating ship:", err);
-      alert("Произошла сетевая ошибка при создании судна");
+      setErrorModal({
+        message: "Произошла сетевая ошибка при создании судна"
+      });
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className={styles["modal-container"]} onClick={onClose}>
+    <div 
+      className={styles["modal-container"]} 
+      onClick={() => {
+        if (!errorModal) onClose && onClose();
+      }}
+    >
       <div className={styles["modal-content"]} onClick={e => e.stopPropagation()}>
         <div className={styles["modal-header"]}>
           <h2 className={styles["modal-title"]}>Добавить судно</h2>
@@ -493,39 +502,34 @@ export function AddShipModal({ isOpen, onClose, onSave }) {
               </div>
             </div>
 
-            {/* <div className={styles["switch-container"]}>
-              <span className={styles["switch-label"]}>Судно активно</span>
-              <label className={styles["switch"]}>
-                <input
-                  type="checkbox"
-                  name="isActive"
-                  checked={formData.isActive}
-                  onChange={handleChange}
-                />
-                <span className={styles["slider"]}></span>
-              </label>
-            </div> */}
           </div>
 
           <div className={styles["modal-footer"]}>
             <Button
               variant="outline-secondary"
-              // type="button"
-              onClick={onClose}
-              // className={`${styles["button"]} ${styles["button-secondary"]}`}
+              onClick={() => {
+                if (!errorModal) onClose && onClose();
+              }}
             >
               Отмена
             </Button>
             <Button
               type="submit" 
               variant="primary"
-              // className={`${styles["button"]} ${styles["button-primary"]}`}
             >
               Добавить судно
             </Button>
           </div>
         </form>
       </div>
+
+      <ErrorModal
+       show={Boolean(errorModal)}
+       onClose={() => setErrorModal(null)}
+       title="Ошибка при добавлении судна"
+       message={errorModal?.message}
+       details={errorModal?.details}
+     />
     </div>
   );
 }

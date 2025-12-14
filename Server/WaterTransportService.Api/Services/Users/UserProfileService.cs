@@ -87,7 +87,7 @@ public class UserProfileService(IEntityRepository<UserProfile, Guid> repo, IMapp
                 string.Equals(p.Nickname, normalizedNickname, StringComparison.OrdinalIgnoreCase));
             if (nicknameExists)
             {
-                throw new DuplicateFieldValueException("nickname", normalizedNickname);
+                throw new DuplicateFieldValueException("никнеймом", normalizedNickname);
             }
 
             userProfile.Nickname = normalizedNickname;

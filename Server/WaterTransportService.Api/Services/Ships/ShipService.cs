@@ -193,7 +193,7 @@ public class ShipService(
 
         if (duplicateExists)
         {
-            throw new DuplicateFieldValueException("registrationNumber", normalizedRegistrationNumber);
+            throw new DuplicateFieldValueException("регистрационным номером судна", normalizedRegistrationNumber);
         }
     }
 }

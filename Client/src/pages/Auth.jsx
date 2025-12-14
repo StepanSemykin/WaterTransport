@@ -164,9 +164,9 @@ export default function Auth () {
           window.location.href = "/";
         }
       } 
-      else if (res.status === 400) {
-        // можно обработать валидацию бэка
-      }
+      // else if (res.status === 400) {
+      //   // можно обработать валидацию бэка
+      // }
       else if (res.status === 401) {
         setError("Неверный номер телефона или пароль");
       } 
