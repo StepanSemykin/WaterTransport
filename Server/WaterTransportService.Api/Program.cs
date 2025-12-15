@@ -33,7 +33,7 @@ builder.Services.AddCors(o => o.AddPolicy("Spa",
 // Configure Memory Cache with size limit
 builder.Services.AddMemoryCache(options =>
 {
-    options.SizeLimit = 100 * 1024 * 1024; // 100 MB
+    options.SizeLimit = 300 * 1024 * 1024;
     options.CompactionPercentage = 0.25; // Remove 25% when limit reached
     options.ExpirationScanFrequency = TimeSpan.FromMinutes(1);
 });
@@ -92,7 +92,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddDbContext<WaterTransportDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+//builder.Services.AddDbContext<WaterTransportDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
+
+builder.Services.AddDbContext<WaterTransportDbContext>(
+    (sp, opt) =>
+    {
+        var cfg = sp.GetRequiredService<IConfiguration>();
+        opt.UseNpgsql(cfg.GetConnectionString("Postgres"));
+    });
 
 // Register global exception handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -180,35 +187,28 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    try
+    var cfg = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    var adminCs = cfg.GetConnectionString("PostgresAdmin");
+    if (string.IsNullOrWhiteSpace(adminCs))
+        throw new InvalidOperationException("Connection string 'PostgresAdmin' не найдена.");
+
+    var options = new DbContextOptionsBuilder<WaterTransportDbContext>()
+                  .UseNpgsql(adminCs)
+                  .Options;
+
+    await using var adminContext = new WaterTransportDbContext(options);
+    await adminContext.Database.MigrateAsync();
+
+    var adminPhone = cfg["AdminSettings:Phone"];
+    var adminPwd = cfg["AdminSettings:Password"];
+    if (!string.IsNullOrWhiteSpace(adminPhone) && !string.IsNullOrWhiteSpace(adminPwd))
     {
-        var context = services.GetRequiredService<WaterTransportDbContext>();
-
-        await context.Database.MigrateAsync();
-
-        // Создание администратора из конфигурации
-        var adminPhone = builder.Configuration["AdminSettings:Phone"];
-        var adminPassword = builder.Configuration["AdminSettings:Password"];
-        if (!string.IsNullOrWhiteSpace(adminPhone) && !string.IsNullOrWhiteSpace(adminPassword))
-        {
-            var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-            var adminPasswordHash = passwordHasher.Generate(adminPassword);
-            await DatabaseSeeder.SeedAdminAsync(context, adminPasswordHash, adminPhone);
-        }
-
-        // Раскомментируйте для заполнения тестовыми данными
-        //var passwordHasher = services.GetRequiredService<IPasswordHasher>();
-        //var testPasswordHash = passwordHasher.Generate("123456");
-        //await DatabaseSeeder.SeedAsync(context, testPasswordHash);
-        //logger.LogInformation("Тестовые данные загружены.");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Ошибка инициализации базы данных: {ex.Message}");
-        throw;
+        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        var hash = hasher.Generate(adminPwd);
+        await DatabaseSeeder.SeedAdminAsync(adminContext, hash, adminPhone);
     }
 }
+
 
 app.UseHttpsRedirection();
 app.UseCors("Spa");
