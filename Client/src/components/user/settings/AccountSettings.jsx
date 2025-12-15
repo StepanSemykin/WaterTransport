@@ -83,21 +83,26 @@ export default function AccountSettings() {
 
       const res = await apiFetch("/api/userprofiles/me", {
         method: "PUT",
-        // headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
         setSuccess("Профиль сохранён");
-        // обновляем контекст пользователя
         try {
           await refreshUser({ force: true });
         } 
-        catch {}
+        catch (err) {
+          console.error("Failed to refresh user after profile save:", err);
+          setError("Профиль сохранён, но не удалось обновить данные в приложении.");
+        }
       } 
       else {
         const txt = await res.text();
-        setError(txt || `Ошибка сервера: ${res.status}`);
+        let errMsg = txt;
+        errMsg = JSON.parse(txt)?.detail || errMsg;
+        setError(errMsg || `Ошибка сервера: ${res.status}`);
+        // console.log(txt["detail"]);
+        // setError(txt || `Ошибка сервера: ${res.status}`);
       }
     } 
     catch (err) {

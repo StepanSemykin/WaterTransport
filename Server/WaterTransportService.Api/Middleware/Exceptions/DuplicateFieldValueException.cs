@@ -19,7 +19,7 @@ public class DuplicateFieldValueException : Exception
     {
         var normalizedFieldName = string.IsNullOrWhiteSpace(fieldName) ? "значение" : fieldName;
         return string.IsNullOrWhiteSpace(fieldValue)
-            ? $"Значение поля '{normalizedFieldName}' не допустимо."
-            : $"Значение '{fieldValue}' поля '{normalizedFieldName}' не допустимо.";
+            ? $"Пользователь с таким {normalizedFieldName} уже существует."
+            : $"Пользователь с {normalizedFieldName}: {fieldValue} уже существует.";
     }
 }

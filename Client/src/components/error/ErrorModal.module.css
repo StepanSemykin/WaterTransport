@@ -1,0 +1,14 @@
+.message {
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+}
+
+.pre {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 8px;
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 240px;
+  margin-top: 8px;
+}
