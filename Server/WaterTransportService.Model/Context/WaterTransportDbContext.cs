@@ -5,21 +5,21 @@ namespace WaterTransportService.Model.Context;
 
 public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> options) : DbContext(options)
 {
-    public required DbSet<User> Users { get; set; }
-    public required DbSet<UserProfile> UserProfiles { get; set; }
-    public required DbSet<UserImage> UserImages { get; set; }
-    public required DbSet<Ship> Ships { get; set; }
-    public required DbSet<ShipType> ShipTypes { get; set; }
-    public required DbSet<ShipImage> ShipImages { get; set; }
-    public required DbSet<Port> Ports { get; set; }
-    public required DbSet<PortType> PortTypes { get; set; }
-    public required DbSet<PortImage> PortImages { get; set; }
-    public required DbSet<RentOrder> RentOrders { get; set; }
-    public required DbSet<RentOrderOffer> RentOrderOffers { get; set; }
-    public required DbSet<Review> Reviews { get; set; }
-    public required DbSet<OldPassword> OldPasswords { get; set; }
-    public required DbSet<RefreshToken> RefreshTokens { get; set; }
-    public required DbSet<ShipRentalCalendar> ShipRentalCalendars { get; set; }
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<UserProfile> UserProfiles { get; set; } = null!;
+    public DbSet<UserImage> UserImages { get; set; } = null!;
+    public DbSet<Ship> Ships { get; set; } = null!;
+    public DbSet<ShipType> ShipTypes { get; set; } = null!;
+    public DbSet<ShipImage> ShipImages { get; set; } = null!;
+    public DbSet<Port> Ports { get; set; } = null!;
+    public DbSet<PortType> PortTypes { get; set; } = null!;
+    public DbSet<PortImage> PortImages { get; set; } = null!;
+    public DbSet<RentOrder> RentOrders { get; set; } = null!;
+    public DbSet<RentOrderOffer> RentOrderOffers { get; set; } = null!;
+    public DbSet<Review> Reviews { get; set; } = null!;
+    public DbSet<OldPassword> OldPasswords { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    public DbSet<ShipRentalCalendar> ShipRentalCalendars { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -90,24 +90,24 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
         });
 
         modelBuilder.Entity<PortType>().HasData(
-            new PortType { Id = 1, Title = "Marine" },
-            new PortType { Id = 2, Title = "Riverine" },
-            new PortType { Id = 3, Title = "Estuaries" },
-            new PortType { Id = 4, Title = "Riverbed" },
-            new PortType { Id = 5, Title = "BucketPools" },
-            new PortType { Id = 6, Title = "Closed" },
-            new PortType { Id = 7, Title = "FormedByPiers" }
+             new PortType { Id = 1, Title = "Морской" },
+             new PortType { Id = 2, Title = "Речной" },
+             new PortType { Id = 3, Title = "Эстуарный" },
+             new PortType { Id = 4, Title = "Русловой" }, 
+             new PortType { Id = 5, Title = "Бассейновый" }, 
+             new PortType { Id = 6, Title = "Закрытый" },
+             new PortType { Id = 7, Title = "Пирсовый" }
         );
 
         modelBuilder.Entity<ShipType>().HasData(
-            new ShipType { Id = 1, Name = "Yacht" },
-            new ShipType { Id = 2, Name = "Sailboat" },
-            new ShipType { Id = 3, Name = "Motorboat" },
-            new ShipType { Id = 4, Name = "Ferry" },
-            new ShipType { Id = 5, Name = "JetSki" },
-            new ShipType { Id = 6, Name = "Barge" },
-            new ShipType { Id = 7, Name = "Tugboat" },
-            new ShipType { Id = 8, Name = "RubberDinghy" }
+             new ShipType { Id = 1, Name = "Яхта" },
+             new ShipType { Id = 2, Name = "Парусная лодка" }, 
+             new ShipType { Id = 3, Name = "Моторная лодка" },
+             new ShipType { Id = 4, Name = "Паром" },
+             new ShipType { Id = 5, Name = "Гидроцикл" },
+             new ShipType { Id = 6, Name = "Баржа" },
+             new ShipType { Id = 7, Name = "Буксир" },
+             new ShipType { Id = 8, Name = "Резиновая лодка" } 
         );
 
         modelBuilder.Entity<Port>().HasData(
