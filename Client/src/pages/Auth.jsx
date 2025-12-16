@@ -170,11 +170,11 @@ export default function Auth () {
         setError("Аккаунт временно заблокирован");
       }
       else {
-        setError("Ошибка сервера: " + (await res.text()));
+        setError("Ошибка сервера");
       }
     } 
     catch (err) {
-      setError("Ошибка сети: " + err.message);
+      setError("Ошибка сети");
     } 
     finally {
       setLoading(false);
@@ -223,7 +223,7 @@ export default function Auth () {
       }
     } 
     catch (err) {
-      setError("Ошибка сети: " + err.message);
+      setError("Ошибка сети");
     } 
     finally {
       setLoading(false);

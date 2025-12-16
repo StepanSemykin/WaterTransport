@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import Statistics from "../components/support/SupportStats.jsx";
 import Appeals from "../components/support/SupportAppeals.jsx";
 
-import styles from "./Support.module.css";s
+import styles from "./Support.module.css";
 
 export default function Support() {
   const [activeTab, setActiveTab] = useState("appeals");
