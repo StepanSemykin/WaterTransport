@@ -113,7 +113,7 @@ export default function TripDetails({
 
   const depPort = useMemo(() => ports.find(p => p.id === depPortId) ?? null, [ports, depPortId]);
   const arrPort = useMemo(() => ports.find(p => p.id === arrPortId) ?? null, [ports, arrPortId]);
-
+  
   const depPos = useMemo(() => {
     const lat = Number.parseFloat(depPort?.latitude);
     const lon = Number.parseFloat(depPort?.longitude);
@@ -135,8 +135,8 @@ export default function TripDetails({
 
   const partnerCanSelectShip =
     isPartner &&
-    Array.isArray(trip?.matchingShips) &&
-    trip.matchingShips.length > 0;
+    Array.isArray(trip?.rentOrder?.matchingShips) &&
+    trip.rentOrder.matchingShips.length > 0;
 
   useEffect(() => {
     setPrice(trip?.price ?? "");
@@ -549,7 +549,7 @@ export default function TripDetails({
             <div className={styles["trip-ship-select"]}>
               <h5>Выберите судно для предложения</h5>
               <div className={styles["trip-ship-list"]}>
-                {trip.matchingShips.map((ship) => (
+                {trip.rentOrder.matchingShips.map((ship) => (
                   <button
                     key={ship.id}
                     type="button"

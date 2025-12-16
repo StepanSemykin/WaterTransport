@@ -229,7 +229,7 @@ public class RentOrdersController(IRentOrderService service) : ControllerBase
     /// <response code="204">Заказ успешно отменен.</response>
     /// <response code="404">Заказ не найден.</response>
     [HttpPost("{id:guid}/discontinued")]
-    [Authorize(Roles = AppRoles.CommonOrAdmin)]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DiscontinuedOrder(Guid id)
