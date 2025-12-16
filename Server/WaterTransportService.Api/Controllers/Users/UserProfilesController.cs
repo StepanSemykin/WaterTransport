@@ -34,6 +34,7 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     }
 
     [HttpGet("me")]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfileDto>> GetMyProfile()
@@ -85,6 +86,7 @@ public class UserProfilesController(IUserProfileService service) : ControllerBas
     }
 
     [HttpPut("me")]
+    [Authorize(Roles = AppRoles.AnyAuthenticated)]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserProfileDto>> UpdateMyProfile([FromBody] UpdateUserProfileDto dto)
