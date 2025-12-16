@@ -324,7 +324,7 @@ export default function Home() {
 
     try {
       await performSearch(payload);
-      // navigate("/results"); // если хотите авто-переход — раскомментируйте:
+      // navigate("/results"); // авто-переход
       const res = await apiFetch("/api/RentOrders", {
         method: "POST",
         body: JSON.stringify({
@@ -386,7 +386,7 @@ export default function Home() {
       
       <header className={styles["header-wrapper"]}>
         <div className={styles["header-content"]}>
-          <h1 className={styles["brand-title"]}>AquaRent</h1>
+          <h1 className={styles["brand-title"]}>AquaFlow</h1>
           <div className={styles["icon-group"]}>
             <Button 
               variant="light" 

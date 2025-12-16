@@ -243,7 +243,7 @@ export default function Auth () {
     <div className={styles["auth-page"]}>
       <Container>
         <div className={styles["header"]}>
-          <h1 className={styles["header-title"]}>AquaRent</h1>
+          <h1 className={styles["header-title"]}>AquaFlow</h1>
           <p className={styles["header-subtitle"]}>Заказы водного транспорта</p>
         </div>
         <Row className="justify-content-center">

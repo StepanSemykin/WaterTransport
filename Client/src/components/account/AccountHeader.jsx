@@ -84,7 +84,7 @@ export function AccountHeader({
               {preview ? (
                 <img 
                   src={preview} 
-                  alt={`${firstName} ${lastName}`}
+                  alt={`${firstName?.[0] || ""}${lastName?.[0] || ""}`}
                   className={styles["user-avatar-image"]}
                 />
               ) : (
