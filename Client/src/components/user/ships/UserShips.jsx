@@ -3,16 +3,11 @@ import { useState, useMemo } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { AddShipModal } from "./AddShipModal.jsx";
 import { EditShipModal } from "./EditShipModal.jsx";
-
 import ShipCard from "../../dashboards/ShipCard.jsx";
 
 import styles from "./UserShips.module.css";
 
-// import YachtIcon from "../assets/yacht.jpg"
-// import DateIcon from "../assets/date.png"
-// import PortIcon from "../assets/port.png"
 import ShipIcon from "../../../assets/ship.png"
-// import WheelIcon from "../assets/wheel.png"
 import PassengersIcon from "../../../assets/passengers.png"
 
 export default function UserShips() {
@@ -44,9 +39,6 @@ export default function UserShips() {
 
   const formatShipForCard = (ship) => {
     return {
-      // id: ship.id,
-      // name: ship.name || "Без названия",
-
       name: { iconSrc: ShipIcon, iconAlt: "судно", text: ship.name || "Без названия" },
       type: { iconSrc: ShipIcon, iconAlt: "судно", text: shipTypesMap[ship.shipTypeId] || ship.shipType?.title || ship.shipType?.name || "Не указан" },
 

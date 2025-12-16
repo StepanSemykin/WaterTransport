@@ -218,7 +218,6 @@ export function AuthProvider({ children }) {
       setUserImage(null);
       return;
     }
-    // const url = `${USER_IMAGES_ENDPOINT}/${userId}`;
     const url = `${API_BASE}${USER_IMAGES_ENDPOINT}/${userId}`;
     setUserImage(url);
   }

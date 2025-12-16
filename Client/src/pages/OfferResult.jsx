@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
-import { ArrowLeft, User as UserIcon, Home, ArrowDownUp } from 'lucide-react';
-import { Container, Row, Col, Card, Badge, Spinner, Button } from "react-bootstrap";
+import { ArrowLeft, User as UserIcon } from 'lucide-react';
+import { Container, Badge, Spinner, Button } from "react-bootstrap";
 
 import { apiFetch } from "../api/api.js";
 import { useAuth } from "../components/auth/AuthContext.jsx";
@@ -15,7 +15,7 @@ import styles from "./OfferResult.module.css";
 import ShipIcon from "../assets/ship.png";
 import CostIcon from "../assets/cost.png";
 
-const POLL_INTERVAL = 10000; // 10 секунд
+const POLL_INTERVAL = 10000; 
 
 const USER_OFFERS_ENDPOINT = "/api/rent-orders/offers/foruser";
 const OFFERS_ENDPOINT = "/api/rent-orders/Offers";
@@ -50,7 +50,6 @@ export default function OfferResult() {
   const [cancelError, setCancelError] = useState("");
   const [cancelled, setCancelled] = useState(false);
 
-  // Берём rentOrderId из активного заказа в контексте
   useEffect(() => {
     if (!rentOrderId) {
       const ctxId = activeRentOrder?.id ?? activeRentOrder?.Id;
@@ -58,7 +57,6 @@ export default function OfferResult() {
     }
   }, [activeRentOrder, rentOrderId]);
 
-  // Если не удалось — берём из первого отклика
   useEffect(() => {
     if (!rentOrderId && responses.length > 0) {
       const fromResp = responses[0]?.rentOrderId;
@@ -121,7 +119,6 @@ export default function OfferResult() {
       type: { iconSrc: ShipIcon, iconAlt: "судно", text: resp.ship.shipTypeName || "Не указан" },
       details: [
         { iconSrc: CostIcon, iconAlt: "Стоимость", text: `Цена: ${resp.offeredPrice}` },
-        // { iconSrc: PassengersIcon, iconAlt: "пассажиры", text: `До ${resp.ship.capacity || 0} человек` }
       ],
       actions: [
         { key: "details", label: "Посмотреть детали", onClick: () => openShipModal(resp) },
@@ -150,7 +147,6 @@ export default function OfferResult() {
     }
   }
 
-  // ✅ Принять отклик (accept)
   async function handleApprove(offerId, rentOrderId) {
     if (!offerId || !rentOrderId) return;
 
@@ -169,9 +165,7 @@ export default function OfferResult() {
             r.id === offerId ? { ...r, status: "approved" } : r
           )
         );
-        // при желании можно остановить polling или перезагрузить активный заказ:
         setPolling(false);
-        // loadActiveOrder?.();
       } 
       else {
         const txt = await res.text().catch(() => "");
@@ -187,7 +181,6 @@ export default function OfferResult() {
     }
   }
 
-  // ❌ Отклонить отклик (reject)
   async function handleReject(offerId, rentOrderId) {
     if (!offerId || !rentOrderId) return;
 
@@ -215,7 +208,6 @@ export default function OfferResult() {
     }
   }
 
-  // Отмена заявки на аренду
   async function handleCancelOrder() {
     if (!rentOrderId) return;
     setCanceling(true);
@@ -234,14 +226,15 @@ export default function OfferResult() {
       setPolling(false);
       setResponses([]);
       setCancelled(true);
-    } catch (err) {
+    } 
+    catch (err) {
       setCancelError(err?.message || "Не удалось отменить заявку");
-    } finally {
+    } 
+    finally {
       setCanceling(false);
     }
   }
 
-  // Пуллинг откликов для текущего пользователя
   useEffect(() => {
     if (!polling) return;
 

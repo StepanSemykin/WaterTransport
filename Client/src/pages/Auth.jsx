@@ -1,7 +1,6 @@
 import { useState } from "react";
 
-import { Modal } from "react-bootstrap";
-import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { Modal, Container, Row, Col, Card, Button } from "react-bootstrap";
 import { Phone, Lock, LogIn, Eye, EyeOff } from "lucide-react";
 
 import { AsYouType } from "libphonenumber-js";
@@ -22,16 +21,15 @@ const MIN_NUMBERS = 1;
 const MIN_SYMBOLS = 0;
 const MAX_PHONE_LENGTH = 20;
 
-// Автовалидатор пароля через validator.js (используем только при регистрации)
 const validatePassword = (value) => {
-  if (!value) return ""; // required обработает пустое поле
+  if (!value) return "";
 
   const ok = isStrongPassword(value, {
     minLength: MIN_PASSWORD_LENGTH,
     minLowercase: MIN_LOWERCASE,
-    minUppercase: MIN_UPPERCASE, // если хочешь требовать заглавные — поставь 1
+    minUppercase: MIN_UPPERCASE,
     minNumbers: MIN_NUMBERS,
-    minSymbols: MIN_SYMBOLS,   // если хочешь требовать спецсимволы — поставь 1
+    minSymbols: MIN_SYMBOLS,  
   });
 
   if (!ok) {
@@ -41,10 +39,9 @@ const validatePassword = (value) => {
   return "";
 };
 
-// Оценка силы пароля (0–4) через zxcvbn
 const getPasswordStrength = (value) => {
   if (!value) return { score: 0, label: "" };
-  const { score } = zxcvbn(value); // 0..4
+  const { score } = zxcvbn(value); 
   const labels = ["Очень слабый", "Слабый", "Средний", "Хороший", "Сильный"];
   return { score, label: labels[score] };
 };
@@ -52,8 +49,8 @@ const getPasswordStrength = (value) => {
 export default function Auth () {
   const [activeTab, setActiveTab] = useState("login");
   const [formData, setFormData] = useState({
-    phone: "",       // форматированный номер для инпута
-    phoneE164: "",   // чистый номер для сервера (+79991234567)
+    phone: "",       
+    phoneE164: "",   
     password: "",
     passwordConfirm: ""
   });
@@ -82,17 +79,16 @@ export default function Auth () {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // === Телефон: автоформатирование + E.164 + валидация ===
     if (name === "phone") {
       const formatter = new AsYouType("RU");
-      const formatted = formatter.input(value); // то, что показываем в инпуте
-      const phoneNumber = formatter.getNumber(); // объект PhoneNumber или undefined
+      const formatted = formatter.input(value); 
+      const phoneNumber = formatter.getNumber();
 
       let errorMsg = "";
       const digitsCount = formatted.replace(/\D/g, "").length;
 
       if (formatted.trim() === "") {
-        errorMsg = ""; // пустое — без ошибки, required сам сработает
+        errorMsg = ""; 
       } 
       else if (!phoneNumber || !phoneNumber.isValid()) {
         errorMsg = "Некорректный номер телефона";
@@ -108,21 +104,18 @@ export default function Auth () {
       }));
 
       setValidation((v) => ({ ...v, phone: errorMsg }));
-      return; // дальше не идём
+      return;
     }
 
-    // === Остальные поля ===
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "password") {
       if (activeTab === "register") {
-        // Валидируем только при регистрации
         const errorMsg = validatePassword(value);
         setValidation((v) => ({ ...v, password: errorMsg }));
         setPasswordStrength(getPasswordStrength(value));
       } 
       else {
-        // При логине валидацию сложности пароля не делаем
         setValidation((v) => ({ ...v, password: "" }));
         setPasswordStrength({ score: 0, label: "" });
       }
@@ -134,7 +127,6 @@ export default function Auth () {
     setError("");
     setRegisterSuggestion(false);
 
-    // финальная проверка номера (пароль только на непустоту)
     if (validation.phone || !formData.phoneE164) {
       setError("Некорректный номер телефона");
       return;
@@ -150,7 +142,7 @@ export default function Auth () {
       const res = await apiFetch(LOGIN_ENDPOINT, {
         method: "POST",
         body: JSON.stringify({
-          phone: formData.phoneE164,   // на сервер уходит чистый номер
+          phone: formData.phoneE164,   
           password: formData.password,
         }),
       });
@@ -164,9 +156,6 @@ export default function Auth () {
           window.location.href = "/";
         }
       } 
-      // else if (res.status === 400) {
-      //   // можно обработать валидацию бэка
-      // }
       else if (res.status === 401) {
         setError("Неверный номер телефона или пароль");
       } 
@@ -217,7 +206,7 @@ export default function Auth () {
       const res = await apiFetch(REGISTER_ENDPOINT, {
         method: "POST",
         body: JSON.stringify({
-          phone: formData.phoneE164,  // E.164
+          phone: formData.phoneE164,  
           password: formData.password,
         }),
       });
@@ -241,15 +230,14 @@ export default function Auth () {
     }
   };
 
-  // Цвет для индикатора силы пароля (используется только при регистрации)
   const strengthColor =
     passwordStrength.score < 2
-      ? "#ef4444" // красный
+      ? "#ef4444" 
       : passwordStrength.score === 2
-        ? "#f97316" // оранжевый
+        ? "#f97316"
         : passwordStrength.score === 3
-          ? "#22c55e" // зелёный
-          : "#16a34a"; // ярко-зелёный
+          ? "#22c55e" 
+          : "#16a34a";
 
   return (
     <div className={styles["auth-page"]}>
@@ -270,7 +258,6 @@ export default function Auth () {
                       setActiveTab("login"); 
                       setError(""); 
                       setRegisterSuggestion(false); 
-                      // при переходе очищаем валидацию пароля/индикатор
                       setValidation((v) => ({ ...v, password: "" }));
                       setPasswordStrength({ score: 0, label: "" });
                     }}
@@ -303,7 +290,6 @@ export default function Auth () {
 
                 {error && <div className={styles["auth-error"]}>{error}</div>}
 
-                {/* === ВХОД === */}
                 {activeTab === "login" && (
                   <form onSubmit={handleLogin} className={styles["auth-form"]}>
                     <div className={styles["form-field"]}>
@@ -355,9 +341,6 @@ export default function Auth () {
                       </div>
                     </div>
 
-                    {/* При логине индикатор силы и ошибки сложности не показываем */}
-                    {/* validation.password всегда "" в режиме login */}
-
                     <button
                       type="submit"
                       className={styles["auth-submit-button"]}
@@ -374,7 +357,6 @@ export default function Auth () {
                   </form>
                 )}
 
-                {/* === РЕГИСТРАЦИЯ === */}
                 {activeTab === "register" && (
                   <form onSubmit={handleRegister} className={styles["auth-form"]}>
                     <div className={styles["form-field"]}>

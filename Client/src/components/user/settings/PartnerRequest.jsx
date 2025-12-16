@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Button, Form, Alert, Spinner, Modal } from "react-bootstrap";
+import { Button, Alert, Spinner, Modal } from "react-bootstrap";
 
 import { useAuth } from "../../auth/AuthContext";
 import { apiFetch } from "../../../api/api.js";
@@ -31,16 +31,8 @@ export default function PartnerRequestContent() {
     setError("");
     setSuccess("");
     try {
-      // const payload = {
-      //   message: message || null,
-      //   contactPhone: user?.phone || null,
-      //   contactEmail: user?.email || null,
-      // };
-
       const res = await apiFetch("/api/users/become-partner", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // body: JSON.stringify(payload),
       });
 
       if (res.ok) {
@@ -73,19 +65,6 @@ export default function PartnerRequestContent() {
       {success && <Alert variant="success">{success}</Alert>}
 
       <p>Отправьте запрос на подключение как партнёр.</p>
-
-      {/* <Form.Group className="mb-2" controlId="partnerMessage">
-        <Form.Label>Сообщение (необязательно)</Form.Label>
-        <Form.Control
-          as="textarea"
-          rows={3}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Кратко опишите, почему вы хотите стать партнёром"
-          maxLength={1000}
-          disabled={loading}
-        />
-      </Form.Group> */}
 
       <div className={styles["button-confirm"]}>
         <Button variant="primary" onClick={handleOpenConfirm} disabled={loading}>

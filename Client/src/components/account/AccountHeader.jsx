@@ -6,7 +6,6 @@ import { LogOut as LogOutIcon, Home, Plus } from "lucide-react";
 
 import LogOut from "../auth/LogOut.jsx";
 import ProfileImageModal from "./ProfileImageModal.jsx";
-
 import { apiFetchRaw } from "../../api/api.js";
 
 import styles from "./AccountHeader.module.css"
