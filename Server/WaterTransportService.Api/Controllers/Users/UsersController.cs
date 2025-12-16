@@ -269,8 +269,8 @@ public class UsersController(IUserService userService, IAuthService authService)
     /// <returns>Новая пара токенов.</returns>
     /// <response code="200">Токены успешно обновлены.</response>
     /// <response code="401">Refresh токен недействителен, истекший или ложный.</response>
-        [AllowAnonymous]
-[HttpPost("refresh")]
+    [AllowAnonymous]
+    [HttpPost("refresh")]
     [ProducesResponseType(typeof(RefreshTokenResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<RefreshTokenResponseDto>> RefreshToken([FromQuery] Guid? userId = null)
