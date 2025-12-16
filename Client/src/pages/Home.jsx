@@ -22,6 +22,8 @@ import { apiFetch } from "../api/api.js";
 
 import styles from "./Home.module.css";
 
+const PORTS_IMAGES_ENDPOINT = "/api/PortImages/file";
+
 const DEFAULT_CENTER = [53.195873, 50.100193];
 const DEFAULT_ZOOM = 13;
 
@@ -128,7 +130,7 @@ export default function Home() {
     }));
 
     try {
-      const res = await apiFetch(`/api/PortImages/file/${portId}`, { method: "GET" });
+      const res = await apiFetch(`${PORTS_IMAGES_ENDPOINT}/${portId}`, { method: "GET" });
 
       if (res.status === 404) {
         setPortImages((prev) => ({

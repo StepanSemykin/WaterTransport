@@ -20,14 +20,29 @@ using WaterTransportService.Model.Context;
 using WaterTransportService.Model.Entities;
 using WaterTransportService.Model.Repositories.EntitiesRepository;
 using WaterTransportService.Model.SeedData;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(o => o.AddPolicy("Spa",
-    p => p.WithOrigins("http://localhost:3001")
-          .AllowAnyHeader()
-          .AllowAnyMethod()
-          .AllowCredentials()
+    p => p.WithOrigins(
+            "https://aquaflow63.ru",
+            "https://www.aquaflow63.ru",
+            "http://localhost",
+            "http://localhost:3001",
+            "https://localhost",
+            "https://localhost:3001",
+            "http://127.0.0.1",
+            "http://127.0.0.1:3001",
+            "https://127.0.0.1",
+            "https://127.0.0.1:3001",
+            "https://api.localhost",
+            "https://api.localhost:3001",
+            "https://api.aquaflow63.ru"
+         )
+         .AllowAnyHeader()
+         .AllowAnyMethod()
+         .AllowCredentials()
 ));
 
 // Configure Memory Cache with size limit
@@ -209,6 +224,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 app.UseHttpsRedirection();
 app.UseCors("Spa");
@@ -222,7 +244,9 @@ app.UseCookiePolicy(new CookiePolicyOptions
 {
     MinimumSameSitePolicy = SameSiteMode.None,
     HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always,
-    Secure = CookieSecurePolicy.Always
+    Secure = app.Environment.IsDevelopment()
+        ? CookieSecurePolicy.SameAsRequest
+        : CookieSecurePolicy.Always
 });
 if (app.Environment.IsDevelopment())
 {
