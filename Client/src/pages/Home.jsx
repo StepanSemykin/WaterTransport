@@ -7,8 +7,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 
-import { Search, Bell, User as UserIcon, Menu as TabsMenu, MapPin, Calendar, Clock, Users, Minus, Plus, Ship, X } from "lucide-react";
-import { Button, Modal, Form, Dropdown  } from "react-bootstrap";
+import { User as UserIcon, MapPin, Calendar, Clock, Minus, Plus, Ship, X } from "lucide-react";
+import { Button, Modal } from "react-bootstrap";
 
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -21,6 +21,8 @@ import { useSearch } from "../components/search/SearchContext.jsx";
 import { apiFetch } from "../api/api.js";
 
 import styles from "./Home.module.css";
+
+const PORTS_IMAGES_ENDPOINT = "/api/PortImages/file";
 
 const DEFAULT_CENTER = [53.195873, 50.100193];
 const DEFAULT_ZOOM = 13;
@@ -79,16 +81,11 @@ export default function Home() {
   const [errorTitle, setErrorTitle] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [addReturnRoute, setAddReturnRoute] = useState(false);
   const [addWalkingTrip, setAddWalkingTrip] = useState(false);
   const [walkDuration, setWalkDuration] = useState("");
 
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [dateReturn, setDateReturn] = useState("");
-  const [timeReturn, setTimeReturn] = useState("");
-  const [showTimeReturnPicker, setShowTimeReturnPicker] = useState(false);
 
   const [numPeople, setNumPeople] = useState(1);
   const [comment, setComment] = useState("");
@@ -128,7 +125,7 @@ export default function Home() {
     }));
 
     try {
-      const res = await apiFetch(`/api/PortImages/file/${portId}`, { method: "GET" });
+      const res = await apiFetch(`${PORTS_IMAGES_ENDPOINT}/${portId}`, { method: "GET" });
 
       if (res.status === 404) {
         setPortImages((prev) => ({
@@ -202,8 +199,6 @@ export default function Home() {
 
   const clearDate = () => setDate("");
   const clearTime = () => setTime("");
-  const clearDateReturn = () => setDateReturn("");
-  const clearTimeReturn = () => setTimeReturn("");
   const clearWalkDuration = () => setWalkDuration("");
 
   const openError = (title, message) => {
@@ -319,16 +314,16 @@ export default function Home() {
       numPeople,
       comment: comment?.trim() || null,
       shipTypeId: shipTypeId || null,
-      walkDuration: addWalkingTrip ? walkDuration : null // Исправляем логику
+      walkDuration: addWalkingTrip ? walkDuration : null 
     };
     
     console.log('Поля формы:', payload );
 
     const localDate = new Date(`${payload.date}T${payload.time}`);
-    const isoString = localDate.toISOString(); // всегда в UTC с "Z"
+    const isoString = localDate.toISOString(); 
 
     try {
-      await performSearch(payload); // запрос к серверу + сохранение результатов в контекст
+      await performSearch(payload);
       // navigate("/results"); // если хотите авто-переход — раскомментируйте:
       const res = await apiFetch("/api/RentOrders", {
         method: "POST",
@@ -352,7 +347,6 @@ export default function Home() {
         sessionStorage.setItem("currentRentOrderId", String(newId));
         sessionStorage.setItem("canOpenResults", "1");
       }
-      console.log("RentOrder response:", data);
     } 
     catch (e) {
       openError("Ошибка поиска", e?.message || "Не удалось выполнить поиск");
@@ -394,13 +388,6 @@ export default function Home() {
         <div className={styles["header-content"]}>
           <h1 className={styles["brand-title"]}>AquaRent</h1>
           <div className={styles["icon-group"]}>
-            {/* <Button 
-              variant="light" 
-              className={styles["notices-icon-button"]} 
-              aria-label="Уведомления"
-            >
-              <Bell className={styles["notices-icon"]} />
-            </Button> */}
             <Button 
               variant="light" 
               onClick={() => navigate("/user")}
@@ -708,74 +695,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* <div className={styles["form-checkbox"]}>
-            <input
-              id="return-route"
-              type="checkbox"
-              className={styles["form-checkbox-input"]}
-              checked={addReturnRoute}
-              onChange={(event) => setAddReturnRoute(event.target.checked)}
-            />
-            <label className={styles["field-label"]} htmlFor="return-route">
-              Добавить обратный маршрут
-            </label>
-          </div>
-
-          {addReturnRoute && (
-            <div className={`${styles["form-section"]} ${styles["form-section-date-time"]}`}>
-              <div className={styles["field"]}>
-                <label className={styles["field-label"]} htmlFor="date">Дата обратной поездки</label>
-                <div className={`${styles["input-wrapper"]} ${styles["datepicker-wrapper"]}`}>
-                  <Calendar className={styles["input-icon"]} />
-                  <DatePicker
-                    id="dateReturn"
-                    selected={dateReturn ? new Date(dateReturn) : null}
-                    onChange={(d) => setDateReturn(formatDateLocal(d))}
-                    dateFormat="dd.MM.yyyy"
-                    placeholderText="Выберите дату"
-                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                    closeOnScroll
-                    minDate={new Date()}
-                    filterDate={(d) => d >= new Date()}
-                  />
-                  {dateReturn && (
-                    <button 
-                      type="button"
-                      onClick={clearDateReturn}
-                      className={styles["clear-date-button"]}
-                      aria-label="Очистить дату обратной поездки"
-                    >
-                      <X />
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className={styles["field"]}>
-                <label className={styles["field-label"]} htmlFor="time">Время обратной поездки</label>
-                <div className={styles["input-wrapper"]}>
-                  <Clock className={styles["input-icon"]} />
-                  <input
-                    id="time"
-                    type="time"
-                    className={`${styles["field-input"]} ${styles["with-icon"]}`}
-                    value={timeReturn}
-                    onChange={(e) => setTimeReturn(e.target.value)}
-                  />
-                  {timeReturn && (
-                    <button 
-                      type="button"
-                      onClick={clearTimeReturn}
-                      className={styles["clear-time-button"]}
-                      aria-label="Очистить время обратной поездки"
-                    >
-                      <X />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>  
-          )}     */}
           
           <div className={styles["form-grid-people"]}>
             <div className={styles["field"]}>

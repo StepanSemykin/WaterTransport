@@ -1,0 +1,42 @@
+# HTTP только для ACME challenge + временный прокси (до выдачи сертификатов)
+
+server {
+  listen 80;
+  server_name ${DOMAIN};
+
+  client_max_body_size 10m;
+
+  location /.well-known/acme-challenge/ { root /var/www/certbot; }
+
+  location /api/ {
+    proxy_pass http://api:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+
+  location / {
+    proxy_pass http://client:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}
+
+server {
+  listen 80;
+  server_name ${API_DOMAIN};
+
+  client_max_body_size 10m;
+
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+
+  location / {
+    proxy_pass http://api:80;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}

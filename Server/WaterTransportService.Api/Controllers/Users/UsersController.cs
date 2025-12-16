@@ -147,16 +147,20 @@ public class UsersController(IUserService userService, IAuthService authService)
         HttpContext.Response.Cookies.Append("AuthToken", response.Data!.AccessToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            // SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
+            Path = "/",
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
         HttpContext.Response.Cookies.Append("RefreshToken", response.Data.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            // SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
+            Path = "/",
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -200,7 +204,7 @@ public class UsersController(IUserService userService, IAuthService authService)
             Response.Cookies.Append("AuthToken", result.Data!.AccessToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.None,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
@@ -208,7 +212,7 @@ public class UsersController(IUserService userService, IAuthService authService)
             Response.Cookies.Append("RefreshToken", result.Data!.RefreshToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = true,
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.None,
                 Path = "/",
                 Expires = DateTimeOffset.UtcNow.AddDays(7)
@@ -305,16 +309,20 @@ public class UsersController(IUserService userService, IAuthService authService)
         HttpContext.Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            // SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
+            Path = "/",
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
         HttpContext.Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            // SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
+            Path = "/",
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -358,9 +366,11 @@ public class UsersController(IUserService userService, IAuthService authService)
             await authService.LogoutAsync(userId);
         }
 
-        HttpContext.Response.Cookies.Delete("AuthToken");
-        HttpContext.Response.Cookies.Delete("RefreshToken");
-
+        // HttpContext.Response.Cookies.Delete("AuthToken");
+        // HttpContext.Response.Cookies.Delete("RefreshToken");
+        HttpContext.Response.Cookies.Delete("AuthToken", new CookieOptions { Path = "/" });
+        HttpContext.Response.Cookies.Delete("RefreshToken", new CookieOptions { Path = "/" });
+ 
         return Ok(new { message = "Logged out successfully" });
     }
 
@@ -451,7 +461,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         Response.Cookies.Append("AuthToken", response.AccessToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = Request.IsHttps,
             SameSite = SameSiteMode.None,
             Path = "/",
             Expires = DateTimeOffset.UtcNow.AddHours(1)
@@ -460,7 +470,7 @@ public class UsersController(IUserService userService, IAuthService authService)
         Response.Cookies.Append("RefreshToken", response.RefreshToken, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
+            Secure = Request.IsHttps,
             SameSite = SameSiteMode.None,
             Path = "/",
             Expires = DateTimeOffset.UtcNow.AddDays(7)

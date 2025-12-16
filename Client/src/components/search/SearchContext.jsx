@@ -9,21 +9,17 @@ export function SearchProvider({ children }) {
   const [params, setParams] = useState(null);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [locked, setLocked] = useState(false);   // 🔒 блокировка новых поисков
+  const [locked, setLocked] = useState(false);  
   const [error, setError] = useState("");
   const inFlight = useRef(false);
 
-  const FORCE_TRUE = import.meta.env.VITE_FORCE_TRUE_SEARCH === "1";
-
   async function performSearch(payload) {
-    // 1) логическая блокировка, пока юзер не подтвердил/отменил
     if (locked) {
       return Promise.reject(
         new Error("У вас уже есть активный поиск. Подтвердите или отмените текущие результаты.")
       );
     }
 
-    // 2) защита от параллельных запросов (два клика подряд)
     if (inFlight.current) {
       return Promise.reject(new Error("Поиск уже выполняется"));
     }
@@ -33,7 +29,6 @@ export function SearchProvider({ children }) {
     setError("");
 
     try {
-      // TODO: вернёшь обратно реальный SEARCH_ENDPOINT, когда будет готов API
       const res = await apiFetch(PORTS_ENDPOINT, { method: "GET" });
       if (!res.ok) {
         const txt = await res.text();
@@ -44,10 +39,8 @@ export function SearchProvider({ children }) {
       setParams(payload);
       setResults(data);
 
-      // можно открыть /results даже после перезагрузки
       sessionStorage.setItem("canOpenResults", "1");
 
-      // 🔒 ЛОГИЧЕСКИ ЗАПИРАЕМ ПОИСК, пока юзер не подтвердит/отменит
       setLocked(true);
 
       return data;
@@ -66,23 +59,19 @@ export function SearchProvider({ children }) {
     setParams(null);
     setResults(null);
     setError("");
-    setLocked(false);                       // 🔓 сбрасываем блокировку
+    setLocked(false);                      
     sessionStorage.removeItem("canOpenResults");
   }
 
-  // ✅ юзер подтвердил результаты (создал заказ и т.п.)
   function confirmResults() {
-    // здесь можешь добавить отправку "создать заказ" и т.д.
     setLocked(false);   
-    setResults(null);                   // ❗ очищаем результаты
-    setParams(null);                    // разблокировали новые поиски
+    setResults(null);                   
+    setParams(null);                    
     sessionStorage.removeItem("canOpenResults");
-    // results/params можно оставить, если они ещё нужны
   }
 
-  // ❌ юзер отменил — всё очищаем
   function cancelResults() {
-    clearSearch();                          // внутри уже и locked = false
+    clearSearch();                          
   }
 
   const value = useMemo(

@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+      APP_USER: "${APP_USER}"
+      APP_PASSWORD: "${APP_PASSWORD}"
+    volumes:
+      - pgdata:/var/lib/postgresql
+      - ./docker-postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  api:
+    build:
+      context: ./Server
+      dockerfile: WaterTransportService.Api/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Postgres: "Host=postgres;Port=${POSTGRES_PORT};Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      Jwt__Key: "${JWT_KEY}"
+      Jwt__Issuer: "${JWT_ISSUER}"
+      Jwt__Audience: "${JWT_AUDIENCE}"
+      AdminSettings__Phone: "${ADMIN_PHONE}"
+      AdminSettings__Password: "${ADMIN_PASSWORD}"
+      ASPNETCORE_URLS: "http://+:80"
+      ASPNETCORE_ENVIRONMENT: "${ASPNETCORE_ENV:-Production}"
+    restart: on-failure
+    volumes:
+      - images:/Images
+    networks: [internal]
+
+  client:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: "${VITE_API_BASE_URL}"  
+    depends_on: [api]
+    restart: on-failure
+    networks: [internal]
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on: [client, api]
+    environment:
+      DOMAIN: "${DOMAIN}"
+      API_DOMAIN: "${API_DOMAIN}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+    restart: unless-stopped
+    networks: [internal, default]
+
+  certbot:
+    image: certbot/certbot:latest
+    environment:
+      DOMAIN: "${DOMAIN}"
+      API_DOMAIN: "${API_DOMAIN}"
+      EMAIL: "${EMAIL}"
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/etc:/etc/letsencrypt
+      - ./certbot/var:/var/lib/letsencrypt
+      - ./certbot/entrypoint.sh:/entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    restart: unless-stopped
+    networks: [default]
+
+volumes:
+  pgdata:
+  images:
+
+networks:
+  internal:
+    driver: bridge

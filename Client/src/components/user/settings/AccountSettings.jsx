@@ -34,10 +34,9 @@ export default function AccountSettings() {
       lastName: user.lastName ?? "",
       patronymic: user.patronymic ?? "",
       email: user.email ?? "",
-      birthday: user.birthday ? String(user.birthday).slice(0, 10) : "", // yyyy-mm-dd
+      birthday: user.birthday ? String(user.birthday).slice(0, 10) : "",
       about: user.about ?? "",
       location: user.location ?? "",
-    //   isPublic: Boolean(user.isPublic),
     });
   }, [user]);
 
@@ -101,8 +100,6 @@ export default function AccountSettings() {
         let errMsg = txt;
         errMsg = JSON.parse(txt)?.detail || errMsg;
         setError(errMsg || `Ошибка сервера: ${res.status}`);
-        // console.log(txt["detail"]);
-        // setError(txt || `Ошибка сервера: ${res.status}`);
       }
     } 
     catch (err) {
@@ -210,16 +207,6 @@ export default function AccountSettings() {
             maxLength={1000}
           />
         </Form.Group>
-
-        {/* <Form.Group className="mb-3" controlId="isPublic">
-          <Form.Check
-            type="checkbox"
-            label="Публичный профиль"
-            name="isPublic"
-            checked={form.isPublic}
-            onChange={handleChange}
-          />
-        </Form.Group> */}
 
         <div className={styles["buttons"]}>
           <Button type="submit" variant="primary" disabled={saving}>

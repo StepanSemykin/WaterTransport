@@ -528,8 +528,8 @@ export function AddShipModal({ isOpen, onClose, onSave }) {
        onClose={() => setErrorModal(null)}
        title="Ошибка при добавлении судна"
        message={errorModal?.message}
-       details={errorModal?.details}
      />
+
     </div>
   );
 }

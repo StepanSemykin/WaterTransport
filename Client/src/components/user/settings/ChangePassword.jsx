@@ -200,26 +200,14 @@ export default function ChangePassword() {
           </InputGroup>
 
           {newPassword && (
-            <div style={{ marginTop: "8px" }}>
-              <div
-                style={{
-                  height: "4px",
-                  borderRadius: "999px",
-                  background: "#e5e7eb",
-                  overflow: "hidden",
-                  marginBottom: "4px",
-                }}
-              >
+            <div className={styles["password-strength"]}>
+              <div className={styles["strength-bar"]}>
                 <div
-                  style={{
-                    height: "100%",
-                    width: `${(passwordStrength.score + 1) * 20}%`,
-                    transition: "width 0.2s ease",
-                    background: strengthColor,
-                  }}
+                  className={styles["strength-bar-fill"]}
+                  style={{ width: `${(passwordStrength.score + 1) * 20}%`, background: strengthColor }}
                 />
               </div>
-              <small style={{ fontSize: "12px", color: "#6b7280" }}>
+              <small className={styles["strength-label"]}>
                 Сложность: {passwordStrength.label || "Очень слабый"}
               </small>
             </div>

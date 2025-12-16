@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Button, Modal } from "react-bootstrap";
+import { Button} from "react-bootstrap";
 
-import { useAuth } from "../../auth/AuthContext";
-
+import { useAuth } from "../../auth/AuthContext.jsx";
 import LogOutModal from "../../auth/LogOutModal.jsx";
 
 export default function LogoutSettings() {
@@ -46,21 +45,6 @@ export default function LogoutSettings() {
         onConfirm={handleLogout}
         loading={loading}
       />
-
-      {/* <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Подтвердите действие</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>Вы уверены, что хотите выйти из аккаунта?</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirm(false)} disabled={loading}>
-            Отмена
-          </Button>
-          <Button variant="danger" onClick={handleLogout} disabled={loading}>
-            {loading ? "Выход..." : "Выйти"}
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
     </div>
   );
 }

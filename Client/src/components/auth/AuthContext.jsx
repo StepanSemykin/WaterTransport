@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, useCal
 
 import { apiFetch } from "../../api/api.js";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
+
 const AuthContext = createContext(null);
 
 const INITIAL_USER_STATE = {
@@ -122,7 +124,7 @@ export function AuthProvider({ children }) {
   async function loadShipImages(shipId) {
     if (!shipId) return [];
 
-    const url = `${SHIP_IMAGES_ENDPOINT}/${shipId}`;
+    const url = `${API_BASE}${SHIP_IMAGES_ENDPOINT}/${shipId}`;
 
     return [
       {
@@ -216,7 +218,7 @@ export function AuthProvider({ children }) {
       setUserImage(null);
       return;
     }
-    const url = `${USER_IMAGES_ENDPOINT}/${userId}`;
+    const url = `${API_BASE}${USER_IMAGES_ENDPOINT}/${userId}`;
     setUserImage(url);
   }
 

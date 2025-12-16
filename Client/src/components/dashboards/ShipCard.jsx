@@ -5,28 +5,9 @@ import styles from "./TripCard.module.css";
 export default function ShipCard({
   imageSrc = "",
   imageAlt = "",
-
-  nameIconSrc = "",
-  nameIconAlt = "",
-
-  id = "",
   name = "",
-  capacity = "",
-  registrationNumber = "",
-  yearOfManufacture = "",
-  maxSpeed = "",
-  width = "",
-  length = "",
-  description = "",
-  costPerHour = "",
-  portId = "",
-  userId = "",
-
-  title = {},
-  status = "",
   type = {},
   details = [],
-  rating = "",
   actions = [],
   onAction,
 }) {
@@ -43,14 +24,15 @@ export default function ShipCard({
   function handleActionClick(action) {
     try {
       if (action && typeof action.onClick === "function") {
-        action.onClick();         // вызываем колбэк действия, если передан
+        action.onClick();         
         return;
       }
       const key = typeof action === "string" ? action : action?.key;
       if (typeof onAction === "function") {
-        onAction(key || action, action); // иначе сообщаем наружу
+        onAction(key || action, action); 
       }
-    } catch (e) {
+    } 
+    catch (e) {
       console.warn("[ShipCard] action handler error:", e);
     }
   }
@@ -95,9 +77,6 @@ export default function ShipCard({
                 )}
                 <span className={styles["type-text"]}>{type.text}</span>
               </div>
-              // <span className={styles["type"]}>
-              //   {type}
-              // </span>
             )}
 
             {details.length > 0 && (
@@ -117,54 +96,8 @@ export default function ShipCard({
               </div>
             )}
           </div>
-
-          {/* <div className={styles["meta"]}>
-            {status && <span className={styles["confirm"]}>{status}</span>}
-
-            {rating && Array.isArray(rating) && rating.length > 0 && (
-              <div className={styles["rating"]}>
-                {rating.map((icon, index) => (
-                  <img
-                    key={`${icon.src}-${index}`}
-                    src={icon.src}
-                    alt={icon.alt ?? "звезда"}
-                    className={styles["rating-icon"]}
-                  />
-                ))}
-              </div>
-            )}
-          </div> */}
         </div>
       </div>
-
-      {/* {visibleActions.length > 0 && (
-        <div className={styles["actions"]}>
-          {visibleActions.map((action, index) => (
-            <button
-              key={`${action.label ?? "icon"}-${index}`}
-              type="button"
-              className={`${styles["action-btn"]} ${
-                !action.label ? styles["actionIconOnly"] : ""
-              }`.trim()}
-              aria-label={action.ariaLabel ?? action.label ?? "кнопка действия"}
-            >
-              {action.label && <span>{action.label}</span>}
-              {action.iconSrc && (
-                <img
-                  src={action.iconSrc}
-                  alt={
-                    action.iconAlt ??
-                    action.ariaLabel ??
-                    action.label ??
-                    "иконка"
-                  }
-                  className={styles["action-icon"]}
-                />
-              )}
-            </button>
-          ))}
-        </div>
-      )} */}
 
       {visibleActions.length > 0 && (
         <div className={styles["actions"]}>
