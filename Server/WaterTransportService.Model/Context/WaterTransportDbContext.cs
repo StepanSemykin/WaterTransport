@@ -89,70 +89,6 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        modelBuilder.Entity<PortType>().HasData(
-             new PortType { Id = 1, Title = "Морской" },
-             new PortType { Id = 2, Title = "Речной" },
-             new PortType { Id = 3, Title = "Эстуарный" },
-             new PortType { Id = 4, Title = "Русловой" }, 
-             new PortType { Id = 5, Title = "Бассейновый" }, 
-             new PortType { Id = 6, Title = "Закрытый" },
-             new PortType { Id = 7, Title = "Пирсовый" }
-        );
-
-        modelBuilder.Entity<ShipType>().HasData(
-             new ShipType { Id = 1, Name = "Яхта" },
-             new ShipType { Id = 2, Name = "Парусная лодка" }, 
-             new ShipType { Id = 3, Name = "Моторная лодка" },
-             new ShipType { Id = 4, Name = "Паром" },
-             new ShipType { Id = 5, Name = "Гидроцикл" },
-             new ShipType { Id = 6, Name = "Баржа" },
-             new ShipType { Id = 7, Name = "Буксир" },
-             new ShipType { Id = 8, Name = "Резиновая лодка" } 
-        );
-
-        modelBuilder.Entity<Port>().HasData(
-            new Port
-            {
-                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                Title = "Дебаркадер Старая пристань",
-                PortTypeId = 2,
-                PortType = null!,
-                Latitude = 53.202203,
-                Longitude = 50.097634,
-                Address = "Городской округ Самара, Ленинский район"
-            },
-            new Port
-            {
-                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
-                Title = "Пристань ФАУ МО РФ ЦСКА",
-                PortTypeId = 2,
-                PortType = null!,
-                Latitude = 53.205553,
-                Longitude = 50.105008,
-                Address = "Городской округ Самара, Ленинский район"
-            },
-            new Port
-            {
-                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
-                Title = "Речной вокзал Самара – причал СВП",
-                PortTypeId = 2,
-                PortType = null!,
-                Latitude = 53.188515,
-                Longitude = 50.079847,
-                Address = "Городской округ Самара, Самарский район"
-            },
-            new Port
-            {
-                Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
-                Title = "Речной вокзал Самара – причал №1",
-                PortTypeId = 2,
-                PortType = null!,
-                Latitude = 53.189053,
-                Longitude = 50.078383,
-                Address = "Городской округ Самара, Самарский район"
-            }
-        );
-
         modelBuilder.Entity<Review>(b =>
         {
             b.HasOne(r => r.Author)
@@ -181,7 +117,6 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
-
         modelBuilder.Entity<ShipImage>(b =>
         {
             b.HasOne(si => si.Ship)
@@ -207,4 +142,3 @@ public class WaterTransportDbContext(DbContextOptions<WaterTransportDbContext> o
         });
     }
 }
-

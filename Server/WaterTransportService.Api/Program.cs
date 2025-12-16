@@ -222,6 +222,20 @@ using (var scope = app.Services.CreateScope())
         var hash = hasher.Generate(adminPwd);
         await DatabaseSeeder.SeedAdminAsync(adminContext, hash, adminPhone);
     }
+
+    await DatabaseSeeder.SeedPortTypesAsync(adminContext);
+    await DatabaseSeeder.SeedShipTypesAsync(adminContext);
+    await DatabaseSeeder.SeedPortsAsync(adminContext);
+    await DatabaseSeeder.SeedPortImagesAsync(adminContext);
+ 
+    //var seedTestData = cfg.GetValue<bool>("TestDataSettings:EnableSeeding");
+    //if (seedTestData)
+    //{
+    //    var testPassword = cfg["TestDataSettings:DefaultPassword"] ?? "TestPassword123!";
+    //    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+    //    var testPasswordHash = hasher.Generate(testPassword);
+    //    await DatabaseSeeder.SeedAsync(adminContext, testPasswordHash);
+    //}
 }
 
 var forwardedHeadersOptions = new ForwardedHeadersOptions

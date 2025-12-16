@@ -5,7 +5,7 @@ using WaterTransportService.Model.Entities;
 namespace WaterTransportService.Model.SeedData;
 
 /// <summary>
-/// Класс для добавления синтетических данных в базу данных.
+/// Класс для добавления данных в базу данных.
 /// </summary>
 public static class DatabaseSeeder
 {
@@ -17,7 +17,6 @@ public static class DatabaseSeeder
     /// <param name="phone">Номер телефона администратора.</param>
     public static async Task SeedAdminAsync(WaterTransportDbContext context, string passwordHash, string phone)
     {
-        // Проверяем, есть ли уже администратор
         if (await context.Users.AnyAsync(u => u.Role == "admin"))
         {
             Console.WriteLine("Администратор уже существует.");
@@ -60,16 +59,196 @@ public static class DatabaseSeeder
     }
 
     /// <summary>
-    /// Добавляет тестовые данные в базу данных.
+    /// Добавляет типы портов в базу данных.
     /// </summary>
     /// <param name="context">Контекст базы данных.</param>
-    /// <param name="passwordHash">Хеш пароля для всех тестовых пользователей.</param>
+    public static async Task SeedPortTypesAsync(WaterTransportDbContext context)
+    {
+        if (await context.PortTypes.AnyAsync())
+        {
+            Console.WriteLine("Типы портов уже существуют.");
+            return;
+        }
+
+        var portTypes = new[]
+        {
+            new PortType { Id = 1, Title = "Морской" },
+            new PortType { Id = 2, Title = "Речной" },
+            new PortType { Id = 3, Title = "Эстуарный" },
+            new PortType { Id = 4, Title = "Русловой" },
+            new PortType { Id = 5, Title = "Бассейновый" },
+            new PortType { Id = 6, Title = "Закрытый" },
+            new PortType { Id = 7, Title = "Пирсовый" }
+        };
+
+        await context.PortTypes.AddRangeAsync(portTypes);
+        await context.SaveChangesAsync();
+        Console.WriteLine("Типы портов успешно добавлены.");
+    }
+
+    /// <summary>
+    /// Добавляет типы судов в базу данных.
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    public static async Task SeedShipTypesAsync(WaterTransportDbContext context)
+    {
+        if (await context.ShipTypes.AnyAsync())
+        {
+            Console.WriteLine("Типы судов уже существуют.");
+            return;
+        }
+
+        var shipTypes = new[]
+        {
+            new ShipType { Id = 1, Name = "Яхта" },
+            new ShipType { Id = 2, Name = "Парусная лодка" },
+            new ShipType { Id = 3, Name = "Моторная лодка" },
+            new ShipType { Id = 4, Name = "Паром" },
+            new ShipType { Id = 5, Name = "Гидроцикл" },
+            new ShipType { Id = 6, Name = "Баржа" },
+            new ShipType { Id = 7, Name = "Буксир" },
+            new ShipType { Id = 8, Name = "Резиновая лодка" }
+        };
+
+        await context.ShipTypes.AddRangeAsync(shipTypes);
+        await context.SaveChangesAsync();
+        Console.WriteLine("Типы судов успешно добавлены.");
+    }
+
+    /// <summary>
+    /// Добавляет порты в базу данных (статические данные из HasData).
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    public static async Task SeedPortsAsync(WaterTransportDbContext context)
+    {
+        if (await context.Ports.AnyAsync())
+        {
+            Console.WriteLine("Порты уже существуют.");
+            return;
+        }
+
+        var portTypes = await context.PortTypes.ToListAsync();
+        var riverineType = portTypes.FirstOrDefault(pt => pt.Id == 2);
+
+        if (riverineType == null)
+        {
+            Console.WriteLine("Ошибка: тип портов 'Речной' не найден. Сначала добавьте типы портов.");
+            return;
+        }
+
+        var ports = new List<Port>
+        {
+            new() {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Title = "Дебаркадер Старая пристань",
+                PortTypeId = 2,
+                PortType = riverineType,
+                Latitude = 53.202203,
+                Longitude = 50.097634,
+                Address = "Городской округ Самара, Ленинский район"
+            },
+            new() {
+                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Title = "Пристань ФАУ МО РФ ЦСКА",
+                PortTypeId = 2,
+                PortType = riverineType,
+                Latitude = 53.205553,
+                Longitude = 50.105008,
+                Address = "Городской округ Самара, Ленинский район"
+            },
+            new() {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Title = "Речной вокзал Самара – причал СВП",
+                PortTypeId = 2,
+                PortType = riverineType,
+                Latitude = 53.188515,
+                Longitude = 50.079847,
+                Address = "Городской округ Самара, Самарский район"
+            },
+            new() {
+                Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                Title = "Речной вокзал Самара – причал №1",
+                PortTypeId = 2,
+                PortType = riverineType,
+                Latitude = 53.189053,
+                Longitude = 50.078383,
+                Address = "Городской округ Самара, Самарский район"
+            }
+        };
+
+        await context.Ports.AddRangeAsync(ports);
+        await context.SaveChangesAsync();
+        Console.WriteLine("Порты успешно добавлены.");
+    }
+
+    /// <summary>
+    /// Добавляет изображения портов в базу данных (статические данные из HasData).
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    public static async Task SeedPortImagesAsync(WaterTransportDbContext context)
+    {
+        if (await context.PortImages.AnyAsync())
+        {
+            Console.WriteLine("Изображения портов уже существуют.");
+            return;
+        }
+
+        var portImages = new List<PortImage>
+        {
+            new()
+            {
+                Id = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                PortId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Port = null!,
+                ImagePath = "Images/Ports/30672607-23ef-41a8-b005-39b8ff78021f.jpg",
+                IsPrimary = true,
+                UploadedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                PortId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Port = null!,
+                ImagePath = "Images/Ports/35eb072a-42bd-4f59-aeed-cdf3607bcaf1.jpg",
+                IsPrimary = true,
+                UploadedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                PortId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Port = null!,
+                ImagePath = "Images/Ports/5a57b2d1-309a-4bba-a225-4d043f39c8e3.jpg",
+                IsPrimary = true,
+                UploadedAt = DateTime.UtcNow
+            },
+            new()
+            {
+                Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                PortId = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                Port = null!,
+                ImagePath = "Images/Ports/42af05e2-513b-4159-8898-c65800dd1a14.jpg",
+                IsPrimary = true,
+                UploadedAt = DateTime.UtcNow
+            }
+        };
+
+        await context.PortImages.AddRangeAsync(portImages);
+        await context.SaveChangesAsync();
+        Console.WriteLine("Изображения портов успешно добавлены.");
+    }
+
+    /// <summary>
+    /// Добавляет тестовые данные в базу данных (пользователи, профили, суда).
+    /// </summary>
+    /// <param name="context">Контекст базы данных.</param>
+    /// <param name="passwordHash">Хеш пароля для тестовых пользователей.</param>
     public static async Task SeedAsync(WaterTransportDbContext context, string passwordHash = null)
     {
-        // Проверяем, есть ли уже данные
-        if (context.Users.Any())
+        if (await context.Users.AnyAsync(u => u.Role == "common" || u.Role == "partner"))
         {
-            return; // БД уже заполнена
+            Console.WriteLine("Тестовые данные уже существуют.");
+            return;
         }
 
         var commonUsers = CreateCommonUsers(passwordHash);
@@ -84,6 +263,11 @@ public static class DatabaseSeeder
         await context.SaveChangesAsync();
 
         var ports = await context.Ports.ToListAsync();
+        if (!ports.Any())
+        {
+            Console.WriteLine("Ошибка: порты не найдены. Сначала добавьте порты.");
+            return;
+        }
 
         await CreateShipsAsync(context, partnerUsers, ports);
 
@@ -187,62 +371,15 @@ public static class DatabaseSeeder
         return profiles;
     }
 
-    private static async Task<List<Port>> CreatePortsAsync(WaterTransportDbContext context)
-    {
-        var portTypes = await context.PortTypes.ToListAsync();
-        var marineType = portTypes.FirstOrDefault(pt => pt.Id == 1);
-        var riverineType = portTypes.FirstOrDefault(pt => pt.Id == 2);
-        var closedType = portTypes.FirstOrDefault(pt => pt.Id == 6);
-
-        var ports = new List<Port>
-        {
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Дебаркадер Старая пристань",
-                PortTypeId = 2,
-                PortType = riverineType!,
-                Latitude = 53.202203,
-                Longitude = 50.097634,
-                Address = "Городской округ Самара, Ленинский район"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Пристань ФАУ МО РФ ЦСКА",
-                PortTypeId = 2,
-                PortType = riverineType!,
-                Latitude = 53.205553,
-                Longitude = 50.105008,
-                Address = "Городской округ Самара, Ленинский район"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Речной вокзал Самара – причал СВП",
-                PortTypeId = 2,
-                PortType = riverineType!,
-                Latitude = 53.188515,
-                Longitude = 50.079847,
-                Address = "Городской округ Самара, Самарский район"
-            },
-            new() {
-                Id = Guid.NewGuid(),
-                Title = "Речной вокзал Самара – причал №1",
-                PortTypeId = 2,
-                PortType = riverineType!,
-                Latitude = 53.189053,
-                Longitude = 50.078383,
-                Address = "Городской округ Самара, Самарский район"
-            }
-        };
-
-        await context.Ports.AddRangeAsync(ports);
-        await context.SaveChangesAsync();
-
-        return ports;
-    }
-
     private static async Task<List<Ship>> CreateShipsAsync(WaterTransportDbContext context, List<User> partnerUsers, List<Port> ports)
     {
         var shipTypes = await context.ShipTypes.ToListAsync();
+        if (!shipTypes.Any())
+        {
+            Console.WriteLine("Ошибка: типы судов не найдены. Сначала добавьте типы судов.");
+            return new List<Ship>();
+        }
+
         var ships = new List<Ship>();
         var now = DateTime.UtcNow;
 

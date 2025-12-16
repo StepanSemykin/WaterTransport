@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WaterTransportService.Model.Context;
@@ -11,9 +12,11 @@ using WaterTransportService.Model.Context;
 namespace WaterTransportService.Model.Migrations
 {
     [DbContext(typeof(WaterTransportDbContext))]
-    partial class WaterTransportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216153647_AddPortImages")]
+    partial class AddPortImages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,6 +88,44 @@ namespace WaterTransportService.Model.Migrations
                     b.HasIndex("PortTypeId");
 
                     b.ToTable("ports");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Address = "Городской округ Самара, Ленинский район",
+                            Latitude = 53.202202999999997,
+                            Longitude = 50.097633999999999,
+                            PortTypeId = 2,
+                            Title = "Дебаркадер Старая пристань"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Address = "Городской округ Самара, Ленинский район",
+                            Latitude = 53.205553000000002,
+                            Longitude = 50.105007999999998,
+                            PortTypeId = 2,
+                            Title = "Пристань ФАУ МО РФ ЦСКА"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Address = "Городской округ Самара, Самарский район",
+                            Latitude = 53.188515000000002,
+                            Longitude = 50.079847000000001,
+                            PortTypeId = 2,
+                            Title = "Речной вокзал Самара – причал СВП"
+                        },
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            Address = "Городской округ Самара, Самарский район",
+                            Latitude = 53.189053000000001,
+                            Longitude = 50.078383000000002,
+                            PortTypeId = 2,
+                            Title = "Речной вокзал Самара – причал №1"
+                        });
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.PortImage", b =>
@@ -124,6 +165,44 @@ namespace WaterTransportService.Model.Migrations
                     b.HasIndex("PortId");
 
                     b.ToTable("port_images");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            CreatedAt = new DateTime(2025, 12, 16, 15, 36, 46, 368, DateTimeKind.Utc).AddTicks(1997),
+                            ImagePath = "/Images/Ports/30672607-23ef-41a8-b005-39b8ff78021f.jpg",
+                            IsPrimary = true,
+                            PortId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            UploadedAt = new DateTime(2025, 12, 16, 15, 28, 55, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            CreatedAt = new DateTime(2025, 12, 16, 15, 36, 46, 368, DateTimeKind.Utc).AddTicks(4278),
+                            ImagePath = "/Images/Ports/35eb072a-42bd-4f59-aeed-cdf3607bcaf1.jpg",
+                            IsPrimary = true,
+                            PortId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            UploadedAt = new DateTime(2025, 12, 16, 15, 28, 55, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            CreatedAt = new DateTime(2025, 12, 16, 15, 36, 46, 368, DateTimeKind.Utc).AddTicks(4286),
+                            ImagePath = "/Images/Ports/5a57b2d1-309a-4bba-a225-4d043f39c8e3.jpg",
+                            IsPrimary = true,
+                            PortId = new Guid("33333333-3333-3333-3333-333333333333"),
+                            UploadedAt = new DateTime(2025, 12, 16, 15, 28, 55, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                            CreatedAt = new DateTime(2025, 12, 16, 15, 36, 46, 368, DateTimeKind.Utc).AddTicks(4291),
+                            ImagePath = "/Images/Ports/42af05e2-513b-4159-8898-c65800dd1a14.jpg",
+                            IsPrimary = true,
+                            PortId = new Guid("44444444-4444-4444-4444-444444444444"),
+                            UploadedAt = new DateTime(2025, 12, 16, 15, 28, 55, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.PortType", b =>
@@ -144,6 +223,43 @@ namespace WaterTransportService.Model.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("port_types");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Title = "Морской"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Title = "Речной"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Title = "Эстуарный"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Title = "Русловой"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Title = "Бассейновый"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Title = "Закрытый"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Title = "Пирсовый"
+                        });
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.RefreshToken", b =>
@@ -554,6 +670,48 @@ namespace WaterTransportService.Model.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ship_types");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Яхта"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Парусная лодка"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Моторная лодка"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Паром"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Гидроцикл"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Баржа"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Буксир"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Резиновая лодка"
+                        });
                 });
 
             modelBuilder.Entity("WaterTransportService.Model.Entities.User", b =>

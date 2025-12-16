@@ -15,8 +15,8 @@
 
 # Repo for Images
 
-./Server/Images/Ships/
-./Server/Images/Users/
+Server/Images/Ships/
+Server/Images/Users/
 
 # Mono auto generated files
 mono_crash.*
