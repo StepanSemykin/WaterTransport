@@ -213,12 +213,31 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  async function checkImageExists(url) {
+    try {
+      const response = await apiFetch(url, { method: "GET" });
+      return response.ok;
+    } 
+    catch (error) {
+      console.error("Ошибка при проверке изображения:", error);
+      return false;
+    }
+  }
+
   async function loadUserImage(userId) {
     if (!userId) {
       setUserImage(null);
       return;
     }
     const url = `${API_BASE}${USER_IMAGES_ENDPOINT}/${userId}`;
+    const imageExists = await checkImageExists(url);
+    console.log(imageExists);
+    if (!imageExists) {
+      setUserImageLoading(false); 
+    }
+    else {
+      setUserImageLoading(true);
+    }
     setUserImage(url);
   }
 
@@ -585,17 +604,15 @@ export function AuthProvider({ children }) {
         if (account.role === PARTNER_ROLE) {
           await loadUserShips(account.id);
           await loadPossibleTrips(account.id, POSSIBLE_TRIPS_ENDPOINT);
-          await loadUpcomingTrips(account.id, UPCOMING_TRIPS_PARTNER_ENDPOINT),
-          await loadCompletedTrips(account.id, COMPLETED_TRIPS_PARTNER_ENDPOINT),
-          await loadPendingTrips(account.id, PENDING_TRIPS_PARTNER_ENDPOINT),
-          await loadRejectedTrips(account.id, REJECTED_TRIPS_PARTNER_ENDPOINT),
-          console.log(account.id);
+          await loadUpcomingTrips(account.id, UPCOMING_TRIPS_PARTNER_ENDPOINT);
+          await loadCompletedTrips(account.id, COMPLETED_TRIPS_PARTNER_ENDPOINT);
+          await loadPendingTrips(account.id, PENDING_TRIPS_PARTNER_ENDPOINT);
+          await loadRejectedTrips(account.id, REJECTED_TRIPS_PARTNER_ENDPOINT);
         }
         else if (account.role === COMMON_ROLE) {
           await loadActiveOrder(account.role);
-          await loadUpcomingTrips(account.id, UPCOMING_TRIPS_COMMON_ENDPOINT),
-          await loadCompletedTrips(account.id, COMPLETED_TRIPS_COMMON_ENDPOINT),
-          console.log(account.id);
+          await loadUpcomingTrips(account.id, UPCOMING_TRIPS_COMMON_ENDPOINT);
+          await loadCompletedTrips(account.id, COMPLETED_TRIPS_COMMON_ENDPOINT);
         }
       }
 

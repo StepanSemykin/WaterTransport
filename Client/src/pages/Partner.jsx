@@ -32,6 +32,7 @@ export default function Partner() {
     user,
     loading,
     userImage,
+    userImageLoading,
     upcomingTrips,
     upcomingTripsLoading,
     pendingTrips, 
@@ -75,6 +76,7 @@ export default function Partner() {
           location={user.location ?? ""}
           userId={user?.id}
           profileImage={userImage}
+          profileImageLoading={userImageLoading}
           isPartner={user?.role === "partner"}
         />
       </div>

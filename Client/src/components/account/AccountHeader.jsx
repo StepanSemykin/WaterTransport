@@ -18,14 +18,15 @@ export function AccountHeader({
   email, 
   location, 
   profileImage,
+  profileImageLoading,
   userId,
   isPartner = false
 }) {
-
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [preview, setPreview] = useState(profileImage);
   const [uploading, setUploading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
 
   useEffect(() => {
     setPreview(profileImage);
@@ -64,6 +65,7 @@ export function AccountHeader({
         setPreview(URL.createObjectURL(file));
       }
 
+      setImageLoading(true);
       setShowModal(false);
     } 
     catch (err) {
@@ -81,7 +83,7 @@ export function AccountHeader({
         <Container className={styles["user-topbar"]}>
           <div className={styles["user-profile"]}>
             <div className={styles["user-avatar-wrapper"]}>
-              {preview ? (
+              {(imageLoading || profileImageLoading) ? (
                 <img 
                   src={preview} 
                   alt={`${firstName?.[0] || ""}${lastName?.[0] || ""}`}

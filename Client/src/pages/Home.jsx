@@ -22,7 +22,8 @@ import { apiFetch } from "../api/api.js";
 
 import styles from "./Home.module.css";
 
-const PORTS_IMAGES_ENDPOINT = "/api/PortImages/file";
+const PORTS_IMAGES_ENDPOINT = "/api/portimages/file";
+const RENT_ORDERS_ENDPOINT = "/api/rentorders";
 
 const DEFAULT_CENTER = [53.195873, 50.100193];
 const DEFAULT_ZOOM = 13;
@@ -324,8 +325,7 @@ export default function Home() {
 
     try {
       await performSearch(payload);
-      // navigate("/results"); // авто-переход
-      const res = await apiFetch("/api/RentOrders", {
+      const res = await apiFetch(RENT_ORDERS_ENDPOINT, {
         method: "POST",
         body: JSON.stringify({
           ShipTypeId: payload.shipTypeId,
@@ -346,7 +346,9 @@ export default function Home() {
       if (newId) {
         sessionStorage.setItem("currentRentOrderId", String(newId));
         sessionStorage.setItem("canOpenResults", "1");
+        await loadActiveOrder(role);
       }
+      navigate("/results");
     } 
     catch (e) {
       openError("Ошибка поиска", e?.message || "Не удалось выполнить поиск");

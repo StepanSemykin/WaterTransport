@@ -32,6 +32,7 @@ export default function User() {
   const {
     user,
     userImage,
+    userImageLoading,
     loading,
     upcomingTrips,
     upcomingTripsLoading,
@@ -67,6 +68,7 @@ const ordersComponent = (
           location={user.location ?? ""}
           userId={user?.id}
           profileImage={userImage}
+          profileImageLoading={userImageLoading}
           isPartner={user?.role === "partner"}
         />
       </div>
