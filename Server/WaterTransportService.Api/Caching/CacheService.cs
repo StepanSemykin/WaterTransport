@@ -40,7 +40,7 @@ public class CacheService : ICacheService
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<CacheService> _logger;
-    private readonly HashSet<string> _keys = new(); // Для отслеживания всех ключей
+    private readonly HashSet<string> _keys = new();
     private readonly SemaphoreSlim _keysLock = new(1, 1);
 
     public CacheService(IMemoryCache cache, ILogger<CacheService> logger)

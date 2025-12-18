@@ -12,9 +12,11 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+.env.dev
+.env.prod
+Server/WaterTransportService.Api/appsettings.json
 
 # Repo for Images
-
 Server/Images/Ships/
 Server/Images/Users/
 
