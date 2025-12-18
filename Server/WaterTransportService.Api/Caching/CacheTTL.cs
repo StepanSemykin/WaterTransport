@@ -8,7 +8,7 @@ public static class CacheTTL
     /// <summary>
     /// Доступные заявки - часто меняются.
     /// </summary>
-    public static TimeSpan AvailableOrders => TimeSpan.FromSeconds(10);
+    public static TimeSpan AvailableOrders => TimeSpan.FromSeconds(5);
 
     /// <summary>
     /// Активная заявка пользователя - критичная актуальность.
@@ -18,7 +18,7 @@ public static class CacheTTL
     /// <summary>
     /// Заявки по статусу "Agreed" - меняются реже.
     /// </summary>
-    public static TimeSpan AgreedOrders => TimeSpan.FromSeconds(30);
+    public static TimeSpan AgreedOrders => TimeSpan.FromSeconds(20);
 
     /// <summary>
     /// Завершенные заявки - почти не меняются.
@@ -33,7 +33,7 @@ public static class CacheTTL
     /// <summary>
     /// Отклики партнера - меняются реже.
     /// </summary>
-    public static TimeSpan PartnerOffers => TimeSpan.FromSeconds(30);
+    public static TimeSpan PartnerOffers => TimeSpan.FromSeconds(20);
 
     /// <summary>
     /// Конкретная заявка по ID - средняя частота.
